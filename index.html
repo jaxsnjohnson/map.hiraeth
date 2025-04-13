@@ -55,6 +55,13 @@
             --glass-bg-dark: rgba(50, 50, 50, 0.65);
             --glass-border-dark: rgba(255, 255, 255, 0.15);
         }
+        
+        /* --- Keyframes for WIP Popup Gradient Pulse --- */
+        @keyframes pulseGradient {
+            0% { background-position: 0% 50%; } /* Start at the beginning of the gradient */
+            50% { background-position: 100% 50%; } /* Move to the end */
+            100% { background-position: 0% 50%; } /* Return to the start for smooth loop */
+        }
 
         /* Apply Variables & Base Styles */
         html, body {
@@ -382,6 +389,50 @@
             color: var(--text-primary);
         }
 
+                /* --- Styles for WIP Popup --- */
+                #wip-popup {
+            position: fixed;
+            bottom: 43px;
+            right: 15px;
+            z-index: 1001;
+            padding: 8px 12px;
+            /* Remove background-color and backdrop-filter */
+            /* background-color: var(--glass-bg-light); */
+            /* backdrop-filter: blur(5px); */
+            /* -webkit-backdrop-filter: blur(5px); */
+            border: 1px solid var(--glass-border-light); /* Keep the glass border */
+            border-radius: 6px;
+            box-shadow: 0 2px 6px var(--shadow-color);
+            transition: border-color 0.3s ease, color 0.3s ease; /* Update transition */
+
+            /* Add Animated Gradient Background */
+            background: linear-gradient(to right, #ff7e7e, #ffae70, #fff078, #ffae70, #ff7e7e); /* Red -> Orange -> Yellow -> Orange -> Red */
+            background-size: 300% 100%; /* Make gradient much wider than the box */
+            animation: pulseGradient 30s ease-in-out infinite; /* Apply the animation */
+        }
+
+        #wip-popup p {
+            margin: 0;
+            font-size: 0.8rem;
+            /* Use primary text color for better contrast switching */
+            color: var(--text-primary);
+            text-align: center;
+            white-space: nowrap;
+             /* Add subtle shadow for readability */
+            text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.4);
+        }
+        /* Dark theme adjustments for WIP popup */
+        body.dark-theme #wip-popup {
+            /* Background is handled by animation, only need to adjust border */
+            border-color: var(--glass-border-dark);
+        }
+
+        body.dark-theme #wip-popup p {
+            /* Text color should inherit correctly via var(--text-primary) */
+            /* Adjust shadow for dark mode if needed */
+             text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.6);
+        }
+
     </style>
 </head>
 <body>
@@ -418,12 +469,23 @@
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
         crossorigin=""></script>
 
+    <!-- Main Application JS -->
     <script>
         // --- Map Data Configuration ---
         const mapData = [
-            { id: 'world1', name: 'Icebeach', width: 7016, height: 4960, imageUrl: 'maps/IceBeach.png', pointsOfInterest: [ /*...*/ ] },
-            { id: 'world2', name: 'Temp World Map', width: 1680, height: 1120, imageUrl: 'maps/cos-map.jpg', pointsOfInterest: [ /*...*/ ] }
-        ]; // (Keep your full mapData)
+            { id: 'world1', name: 'Icebeach', width: 7016, height: 4960, imageUrl: 'maps/IceBeach.png', pointsOfInterest: [
+                 { coords: [4960 * 0.5, 7016 * 0.5], name: "Center Point", description: "The very middle." },
+                 { coords: [4960 * 0.8, 7016 * 0.2], name: "North East Camp", description: "A small outpost." },
+                 { coords: [4960 * 0.15, 7016 * 0.75], name: "Southern Ruins", description: "Old stones." },
+            ] },
+            { id: 'world2', name: 'Temp World Map', width: 1680, height: 1120, imageUrl: 'maps/cos-map.jpg', pointsOfInterest: [
+                 { coords: [1120 * 0.75, 1680 * 0.5], name: "Capital City", description: "The bustling heart of the kingdom." },
+                 { coords: [1120 * 0.3, 1680 * 0.2], name: "Ancient Ruins", description: "Whispers of a forgotten era linger here." },
+                 { coords: [1120 * 0.5, 1680 * 0.8], name: "Whispering Woods", description: "An old forest, said to be enchanted." },
+                 { coords: [1120 * 0.8, 1680 * 0.3], name: "Frozen Peak", description: "A treacherous climb." },
+                 { coords: [1120 * 0.4, 1680 * 0.7], name: "Coastal Village", description: "A small fishing community." }
+            ] }
+        ]; // (Ensure your POIs are correctly defined here)
 
         // --- Initialize Leaflet Map ---
         const map = L.map('map', { crs: L.CRS.Simple, minZoom: -2, maxZoom: 3, attributionControl: false });
@@ -446,21 +508,19 @@
 
         // --- Helper Function to Parse Hash ---
         function parseHash() {
-            const hash = window.location.hash.substring(1); // Remove '#'
+            const hash = window.location.hash.substring(1);
             let mapId = null;
-            let sidebarState = null; // Default to null initially
-
+            let sidebarState = null;
             if (hash) {
-                const parts = hash.split('-s='); // Split by our sidebar state marker
-                mapId = parts[0]; // First part is always mapId (if hash exists)
+                const parts = hash.split('-s=');
+                mapId = parts[0];
                 if (parts.length > 1 && ['o', 'c'].includes(parts[1])) {
-                    sidebarState = parts[1]; // Second part is state if valid
+                    sidebarState = parts[1];
                 }
             }
-            // Return defaults if parts are missing/invalid
             return {
-                mapId: mapId || (mapData.length > 0 ? mapData[0].id : null), // Default mapId
-                sidebarState: sidebarState || 'o' // Default state 'open'
+                mapId: mapId || (mapData.length > 0 ? mapData[0].id : null),
+                sidebarState: sidebarState || 'o'
             };
         }
 
@@ -473,51 +533,31 @@
         function setSidebarState(state, updateHash = true) {
             const shouldBeCollapsed = (state === 'c');
             const isCurrentlyCollapsed = container.classList.contains('sidebar-collapsed');
-
-            // Only proceed if state needs changing
             if (shouldBeCollapsed !== isCurrentlyCollapsed) {
                 console.log(`Setting sidebar state to: ${state}`);
                 container.classList.toggle('sidebar-collapsed', shouldBeCollapsed);
-
-                // Update button icon/title
                 if (shouldBeCollapsed) {
-                    toggleBtn.innerHTML = '&raquo;';
-                    toggleBtn.title = 'Expand Sidebar';
+                    toggleBtn.innerHTML = '&raquo;'; toggleBtn.title = 'Expand Sidebar';
                 } else {
-                    toggleBtn.innerHTML = '&laquo;';
-                    toggleBtn.title = 'Collapse Sidebar';
+                    toggleBtn.innerHTML = '&laquo;'; toggleBtn.title = 'Collapse Sidebar';
                 }
-
-                // Invalidate map size after transition
-                setTimeout(() => {
-                    map.invalidateSize({ animate: true });
-                }, transitionDuration);
-
-                 // Update global state variable
+                setTimeout(() => { map.invalidateSize({ animate: true }); }, transitionDuration);
                  currentSidebarState = state;
-
-                 // Update hash if requested
                  if (updateHash && currentlyLoadedMapId) {
                      const newHash = generateHash(currentlyLoadedMapId, state);
                      console.log("Updating hash from setSidebarState:", newHash);
-                     // Use replaceState to avoid adding history entry just for sidebar toggle
                      history.replaceState(null, '', newHash);
-                     // Or use pushState if you want toggle in history:
-                     // window.location.hash = newHash;
                  }
             } else {
-                 // Ensure global state matches reality even if no visual change needed
                  currentSidebarState = state;
                  console.log(`Sidebar already in state: ${state}`);
             }
         }
 
-
         // --- Function to Load/Switch Map ---
         function loadMap(mapId, updateHash = true) {
             if (mapId === currentlyLoadedMapId) {
                 console.log(`Map ${mapId} is already loaded.`);
-                // Even if map is same, ensure hash reflects current sidebar state if needed
                 if (updateHash) {
                     const currentHash = generateHash(mapId, currentSidebarState);
                     if (window.location.hash !== currentHash) {
@@ -527,47 +567,38 @@
                 }
                 return;
             }
-
             const selectedMap = mapData.find(m => m.id === mapId);
             if (!selectedMap) {
-                console.error("Map data not found for ID:", mapId);
-                return;
+                console.error("Map data not found for ID:", mapId); return;
             }
-
             console.log(`Loading map: ${selectedMap.name} (ID: ${mapId})`);
-
-            // Clean up previous layers
             if (currentImageLayer) map.removeLayer(currentImageLayer);
             currentMarkers.forEach(marker => map.removeLayer(marker));
             currentMarkers = [];
-
-            // Define Bounds & Add Overlay/Markers (Keep existing logic)
             const mapHeight = selectedMap.height;
             const mapWidth = selectedMap.width;
             currentBounds = [[0, 0], [mapHeight, mapWidth]];
             currentImageLayer = L.imageOverlay(selectedMap.imageUrl, currentBounds).addTo(map);
-            selectedMap.pointsOfInterest.forEach(point => { /* ... existing marker logic ... */ });
-
-            // Set View and Bounds
+            // Ensure POIs are correctly added
+            selectedMap.pointsOfInterest.forEach(point => {
+                if (point.coords && point.coords.length === 2 && !isNaN(point.coords[0]) && !isNaN(point.coords[1])) {
+                    if (point.coords[0] >= 0 && point.coords[0] <= mapHeight && point.coords[1] >= 0 && point.coords[1] <= mapWidth) {
+                         const marker = L.marker(point.coords).addTo(map);
+                         marker.bindPopup(`<h3>${point.name}</h3><p>${point.description}</p>`);
+                         currentMarkers.push(marker);
+                    } else { console.warn(`POI coordinates out of bounds for map ${selectedMap.name}: ${point.name}`, point.coords); }
+                } else { console.warn(`Invalid coordinates for POI: ${point.name}`, point.coords); }
+            });
             map.fitBounds(currentBounds);
-
-            // Update Sidebar Active State
             document.querySelectorAll('#map-list li').forEach(li => {
                 li.classList.toggle('active', li.dataset.mapId === mapId);
             });
-
-            // Update the currently loaded map ID
             currentlyLoadedMapId = mapId;
-
-            // Update URL Hash (including current sidebar state)
             if (updateHash) {
                 const newHash = generateHash(mapId, currentSidebarState);
                 console.log("Updating hash from loadMap:", newHash);
-                // Use pushState to add map change to history
                 history.pushState({ mapId: mapId, sidebarState: currentSidebarState }, selectedMap.name, newHash);
-                // Or simpler: window.location.hash = newHash;
             }
-
             console.log(`Finished loading map: ${selectedMap.name}`);
         }
 
@@ -576,67 +607,65 @@
             const listItem = document.createElement('li');
             listItem.textContent = mapInfo.name;
             listItem.dataset.mapId = mapInfo.id;
-            listItem.addEventListener('click', () => {
-                // When clicking sidebar, load map and update hash
-                loadMap(mapInfo.id, true);
-            });
+            listItem.addEventListener('click', () => { loadMap(mapInfo.id, true); });
             mapListElement.appendChild(listItem);
         });
 
         // --- Sidebar Toggle Button Logic ---
         toggleBtn.addEventListener('click', () => {
             const newState = container.classList.contains('sidebar-collapsed') ? 'o' : 'c';
-            // Set the state AND update the hash
             setSidebarState(newState, true);
         });
 
-        // --- Theme Toggle Logic --- (Keep existing)
-        function applyTheme(theme) { /* ... */ }
-        themeToggle.addEventListener('change', () => { /* ... */ });
+        // --- Theme Toggle Logic ---
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                bodyElement.classList.add('dark-theme'); themeToggle.checked = true;
+            } else {
+                bodyElement.classList.remove('dark-theme'); themeToggle.checked = false;
+            }
+        }
+        themeToggle.addEventListener('change', () => {
+            const newTheme = themeToggle.checked ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme); applyTheme(newTheme);
+        });
         const savedTheme = localStorage.getItem('theme') || 'light';
         applyTheme(savedTheme);
 
-        // --- Helper: Log Coordinates on Click --- (Keep existing)
-        map.on('click', function(e) { /* ... */ });
+        // --- Helper: Log Coordinates on Click ---
+        map.on('click', function(e) {
+            if (currentBounds) {
+                 console.log(`Map clicked at: [${Math.round(e.latlng.lat)}, ${Math.round(e.latlng.lng)}] (Y, X from bottom-left)`);
+            }
+        });
 
-        // --- Handle Hash Changes (Back/Forward Buttons, Manual Edit) ---
+        // --- Handle Hash Changes ---
         window.addEventListener('hashchange', () => {
             console.log("Hash changed event. New hash:", window.location.hash);
             const { mapId: mapIdFromHash, sidebarState: stateFromHash } = parseHash();
-
-            // Check if map needs changing
             if (mapIdFromHash && mapIdFromHash !== currentlyLoadedMapId) {
                 console.log("Hashchange: Loading map", mapIdFromHash);
-                loadMap(mapIdFromHash, false); // Load map, DON'T update hash
+                loadMap(mapIdFromHash, false);
             }
-
-            // Check if sidebar needs changing
             if (stateFromHash && stateFromHash !== currentSidebarState) {
                  console.log("Hashchange: Setting sidebar state", stateFromHash);
-                 setSidebarState(stateFromHash, false); // Set state, DON'T update hash
+                 setSidebarState(stateFromHash, false);
             }
         });
 
         // --- Initial Page Load Logic ---
         function initializeApp() {
             const { mapId: initialMapId, sidebarState: initialSidebarState } = parseHash();
-
             console.log("Initializing App. Initial Map ID:", initialMapId, "Initial Sidebar State:", initialSidebarState);
-
-            // 1. Set initial sidebar state (visual only, no hash update yet)
-            setSidebarState(initialSidebarState, false);
-
-            // 2. Load initial map (visual only, no hash update yet)
+            setSidebarState(initialSidebarState, false); // Set sidebar first
             if (initialMapId) {
-                loadMap(initialMapId, false);
+                loadMap(initialMapId, false); // Load map
             } else {
                 console.error("No map data configured.");
                 sidebar.innerHTML = '<h2>Select Map</h2><p>No maps configured.</p>';
-                return; // Stop initialization if no maps
+                return;
             }
-
-            // 3. Set the correct initial hash in the URL bar without adding to history
-            // This ensures the URL reflects the actual initial state, including defaults.
+            // Ensure URL reflects actual initial state
             const correctInitialHash = generateHash(currentlyLoadedMapId, currentSidebarState);
             console.log("Replacing initial history state with:", correctInitialHash);
             history.replaceState({ mapId: currentlyLoadedMapId, sidebarState: currentSidebarState }, '', correctInitialHash);
@@ -645,6 +674,13 @@
         // Run initialization
         initializeApp();
 
-    </script>    
+    </script>
+
+    <!-- Work in Progress Popup -->
+    <div id="wip-popup">
+        <p>This is a Work in Progress</p>
+        <p>Markers & Names Not Acurate</p>
+    </div>
+
 </body>
 </html>
