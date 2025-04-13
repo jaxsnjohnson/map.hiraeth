@@ -3,74 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive World Map</title>
+    <title>Interactive World Map Viewer</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
         crossorigin=""/>
     <style>
-        /* Basic reset and full height */
+        /* Ensure body and html take full height and have no margin/padding */
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-            font-family: sans-serif;
-            background-color: #f0f0f0;
-            display: flex; /* Use flexbox for layout */
+            font-family: sans-serif; /* Basic font */
+            background-color: #f0f0f0; /* Light grey background */
             overflow: hidden; /* Prevent body scrollbars */
         }
 
-        /* Sidebar Styling */
+        /* Main container using Flexbox */
+        .container {
+            display: flex;
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Sidebar styling */
         #sidebar {
-            width: 200px; /* Fixed width for the sidebar */
+            width: 250px; /* Fixed width for the sidebar */
             background-color: #e9e9e9;
             padding: 15px;
             box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-            overflow-y: auto; /* Allow scrolling if many maps */
+            overflow-y: auto; /* Allow scrolling if map list is long */
             flex-shrink: 0; /* Prevent sidebar from shrinking */
-            z-index: 1000; /* Keep sidebar above map */
         }
         #sidebar h2 {
             margin-top: 0;
-            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
             border-bottom: 1px solid #ccc;
             padding-bottom: 10px;
-            margin-bottom: 15px;
         }
-        #sidebar button {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            background-color: #4CAF50; /* Green */
-            color: white;
-            border: none;
-            border-radius: 5px;
-            text-align: left;
-            font-size: 1rem;
+        #map-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #map-list li {
+            padding: 10px 5px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            transition: background-color 0.2s ease;
         }
-        #sidebar button:hover {
-            background-color: #45a049;
+        #map-list li:hover {
+            background-color: #dcdcdc;
         }
-         #sidebar button.active {
-            background-color: #367c39; /* Darker green for active map */
+        #map-list li.active {
+            background-color: #c0c0c0;
             font-weight: bold;
         }
 
-        /* Map Container Styling */
+
+        /* Map container takes remaining space */
         #map-container {
             flex-grow: 1; /* Allow map container to fill remaining space */
             height: 100%;
         }
-        /* Map Element Styling */
+
+        /* Make the map element fill its container */
         #map {
             height: 100%;
             width: 100%;
-            background-color: #ddd;
+            background-color: #ddd; /* Placeholder background */
         }
 
-        /* Leaflet Popup Styling */
+        /* Style Leaflet popups (no changes needed here) */
         .leaflet-popup-content-wrapper {
             border-radius: 8px;
         }
@@ -86,12 +91,16 @@
     </style>
 </head>
 <body>
-    <div id="sidebar">
-        <h2>Select Map</h2>
+    <div class="container">
+        <div id="sidebar">
+            <h2>Select Map</h2>
+            <ul id="map-list">
+                <!-- Map list will be populated by JavaScript -->
+            </ul>
         </div>
-
-    <div id="map-container">
-        <div id="map"></div>
+        <div id="map-container">
+            <div id="map"></div>
+        </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -101,36 +110,58 @@
     <script>
         // --- Map Data Configuration ---
         // Store data for all available maps here
-        const mapsData = [
+        const mapData = [
             {
-                id: 'cos', // Unique identifier
-                name: 'Curse of Strahd Map', // Display name
-                imageUrl: 'cos-map.jpg', // USE LOCAL PATH (or URL if CORS allows)
-                width: 1680,
-                height: 1120,
+                id: 'world1',
+                name: 'Main Continent',
+                // IMPORTANT: Replace with the actual dimensions of YOUR map image
+                width: 7016,
+                height: 4960,
+                // IMPORTANT: Replace with the correct path to YOUR map image
+                imageUrl: 'maps/IceBeach.png', // Your original map
                 pointsOfInterest: [
-                    { coords: [560, 840], name: "Vallaki", description: "A town clinging to normalcy." }, // Example: 50% up, 50% across
-                    { coords: [224, 336], name: "Village of Barovia", description: "Where the nightmare begins." }, // Example: 20% up, 20% across
-                    { coords: [896, 1344], name: "Krezk", description: "A fortified abbey town." } // Example: 80% up, 80% across
-                    // Add more CoS points...
+                    {
+                        // Coordinates are [y, x] relative to THIS map's dimensions
+                        coords: [1120 * 0.75, 1680 * 0.5], // 75% up, 50% across
+                        name: "Capital City",
+                        description: "The bustling heart of the kingdom."
+                    },
+                    {
+                        coords: [1120 * 0.3, 1680 * 0.2], // 30% up, 20% across
+                        name: "Ancient Ruins",
+                        description: "Whispers of a forgotten era linger here."
+                    },
+                    {
+                        coords: [1120 * 0.5, 1680 * 0.8], // 50% up, 80% across
+                        name: "Whispering Woods",
+                        description: "An old forest, said to be enchanted."
+                    }
                 ]
             },
             {
-                id: 'region2',
-                name: 'Placeholder Region',
-                imageUrl: 'IceBeach.png', // Placeholder URL
-                width: 2000,
-                height: 1500,
+                id: 'world2',
+                name: 'Northern Isles',
+                // IMPORTANT: Replace with actual dimensions and path for the second map
+                width: 1680, // Example dimensions
+                height: 1120,  // Example dimensions
+                imageUrl: 'maps/cos-map.jpg', // <<<--- REPLACE THIS
                 pointsOfInterest: [
-                    { coords: [750, 500], name: "Desert Oasis", description: "A respite in the sands." }, // 50% up, 25% across
-                    { coords: [300, 1500], name: "Mountain Peak", description: "Overlooking the region." } // 20% up, 75% across
-                    // Add points for the second map...
+                    {
+                        coords: [768 * 0.8, 1024 * 0.3], // Example POI for map 2
+                        name: "Frozen Peak",
+                        description: "A treacherous climb to the highest point."
+                    },
+                    {
+                        coords: [768 * 0.4, 1024 * 0.7], // Example POI for map 2
+                        name: "Coastal Village",
+                        description: "A small fishing community."
+                    }
                 ]
             }
-            // Add more map objects as needed
+            // Add more map objects here as needed
         ];
 
-        // --- Leaflet Map Initialization ---
+        // --- Initialize Leaflet Map ---
         const map = L.map('map', {
             crs: L.CRS.Simple,
             minZoom: -2,
@@ -138,82 +169,84 @@
         });
 
         // --- Global variables to keep track of current layers ---
-        let currentImageOverlay = null;
-        let currentMarkersLayer = L.layerGroup().addTo(map); // Layer group for markers
+        let currentImageLayer = null;
+        let currentMarkers = [];
+        let currentBounds = null;
 
-        // --- Function to Load a Specific Map ---
+        // --- Function to Load/Switch Map ---
         function loadMap(mapId) {
-            // Find the data for the selected map
-            const selectedMapData = mapsData.find(m => m.id === mapId);
-            if (!selectedMapData) {
+            // Find the selected map data
+            const selectedMap = mapData.find(m => m.id === mapId);
+            if (!selectedMap) {
                 console.error("Map data not found for ID:", mapId);
                 return;
             }
 
-            // --- Clear existing layers ---
-            if (currentImageOverlay) {
-                map.removeLayer(currentImageOverlay);
-                currentImageOverlay = null;
+            // --- 1. Clean up previous map layers ---
+            if (currentImageLayer) {
+                map.removeLayer(currentImageLayer);
+                currentImageLayer = null;
             }
-            currentMarkersLayer.clearLayers(); // Clear markers from the layer group
+            currentMarkers.forEach(marker => map.removeLayer(marker));
+            currentMarkers = [];
 
-            // --- Update Map with New Data ---
-            const { imageUrl, width, height, pointsOfInterest } = selectedMapData;
-            const bounds = [[0, 0], [height, width]];
+            // --- 2. Define Bounds for the new map ---
+            // Using [0,0] as the bottom-left corner.
+            const mapHeight = selectedMap.height;
+            const mapWidth = selectedMap.width;
+            currentBounds = [[0, 0], [mapHeight, mapWidth]];
 
-            // Add new image overlay
-            currentImageOverlay = L.imageOverlay(imageUrl, bounds).addTo(map);
+            // --- 3. Add the new Image Overlay ---
+            currentImageLayer = L.imageOverlay(selectedMap.imageUrl, currentBounds).addTo(map);
 
-            // Add new markers
-            pointsOfInterest.forEach(point => {
-                const marker = L.marker(point.coords);
+            // --- 4. Add Markers and Popups for the new map ---
+            selectedMap.pointsOfInterest.forEach(point => {
+                const marker = L.marker(point.coords).addTo(map);
                 marker.bindPopup(`<h3>${point.name}</h3><p>${point.description}</p>`);
-                currentMarkersLayer.addLayer(marker); // Add marker to the group
+                currentMarkers.push(marker); // Keep track of markers
             });
 
-            // Fit map view to the new bounds
-            map.fitBounds(bounds);
-            // Optional: Set max bounds for the new image
-            // map.setMaxBounds(bounds);
+            // --- 5. Set Map View and Bounds ---
+            map.fitBounds(currentBounds);
+            // Optional: Uncomment to restrict panning strictly to the image area
+            // map.setMaxBounds(currentBounds);
 
-            // --- Update Sidebar Button Styles ---
-            document.querySelectorAll('#sidebar button').forEach(btn => {
-                if (btn.dataset.mapId === mapId) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
+            // --- 6. Update Sidebar Active State ---
+            document.querySelectorAll('#map-list li').forEach(li => {
+                li.classList.toggle('active', li.dataset.mapId === mapId);
             });
 
-            console.log(`Loaded map: ${selectedMapData.name}`);
+            console.log(`Loaded map: ${selectedMap.name}`);
         }
 
-        // --- Populate Sidebar and Add Event Listeners ---
-        const sidebar = document.getElementById('sidebar');
-        mapsData.forEach(mapInfo => {
-            const button = document.createElement('button');
-            button.textContent = mapInfo.name;
-            button.dataset.mapId = mapInfo.id; // Store map ID on the button
-            button.addEventListener('click', () => {
+        // --- Populate Sidebar ---
+        const mapListElement = document.getElementById('map-list');
+        mapData.forEach(mapInfo => {
+            const listItem = document.createElement('li');
+            listItem.textContent = mapInfo.name;
+            listItem.dataset.mapId = mapInfo.id; // Store map ID for easy retrieval
+            listItem.addEventListener('click', () => {
                 loadMap(mapInfo.id);
             });
-            sidebar.appendChild(button);
+            mapListElement.appendChild(listItem);
         });
 
         // --- Helper: Log Coordinates on Click ---
         map.on('click', function(e) {
-            // Calculate coordinates relative to the current map's dimensions
-            // Note: This might need adjustment if map bounds change significantly
-            // or if CRS is not Simple. For L.CRS.Simple, lat/lng are y/x.
-            console.log(`Map clicked at: [${Math.round(e.latlng.lat)}, ${Math.round(e.latlng.lng)}]`);
+            // Ensure coordinates are relative to the current map's bounds
+            if (currentBounds) {
+                 console.log(`Map clicked at: [${Math.round(e.latlng.lat)}, ${Math.round(e.latlng.lng)}] (Y, X from bottom-left)`);
+                // Optional: Add a temporary marker on click
+                // L.marker(e.latlng).addTo(map).bindPopup(`Clicked at: [${Math.round(e.latlng.lat)}, ${Math.round(e.latlng.lng)}]`).openPopup();
+            }
         });
 
-        // --- Initial Map Load ---
-        // Load the first map in the array by default
-        if (mapsData.length > 0) {
-            loadMap(mapsData[0].id);
+        // --- Load the Initial Map ---
+        if (mapData.length > 0) {
+            loadMap(mapData[0].id); // Load the first map in the list by default
         } else {
             console.error("No map data configured.");
+            // Optionally display a message on the map or sidebar
         }
 
     </script>
