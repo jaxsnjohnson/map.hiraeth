@@ -23,17 +23,16 @@
             --text-primary: #333;
             --text-secondary: #555;
             --border-color: #ccc;
-            --highlight-bg: #dcdcdc;
-            --active-bg: #c0c0c0;
-            --button-bg: rgba(255, 255, 255, 0.8);
-            --button-border: #ccc;
-            --popup-bg: white;
+            --highlight-bg: rgba(220, 220, 220, 0.5);
+            --active-bg: rgba(192, 192, 192, 0.6);
             --popup-text: #333;
-            --shadow-color: rgba(0,0,0,0.1);
+            --shadow-color: rgba(0,0,0,0.15);
             --slider-bg: #ccc;
             --slider-color: white;
-            /* Font Variable */
             --font-family-main: 'EB Garamond', serif;
+            /* Frosted Glass Backgrounds */
+            --glass-bg-light: rgba(255, 255, 255, 0.65);
+            --glass-border-light: rgba(255, 255, 255, 0.3);
         }
 
         body.dark-theme {
@@ -42,15 +41,15 @@
             --text-primary: #eee;
             --text-secondary: #bbb;
             --border-color: #555;
-            --highlight-bg: #444;
-            --active-bg: #555;
-            --button-bg: rgba(50, 50, 50, 0.8);
-            --button-border: #666;
-            --popup-bg: #444;
+            --highlight-bg: rgba(68, 68, 68, 0.5);
+            --active-bg: rgba(85, 85, 85, 0.6);
             --popup-text: #eee;
-            --shadow-color: rgba(255,255,255,0.1);
+            --shadow-color: rgba(0,0,0,0.3);
             --slider-bg: #555;
             --slider-color: #2196F3;
+            /* Frosted Glass Backgrounds */
+            --glass-bg-dark: rgba(50, 50, 50, 0.65);
+            --glass-border-dark: rgba(255, 255, 255, 0.15);
         }
 
         /* Apply Variables & Base Styles */
@@ -58,7 +57,7 @@
             height: 100%;
             margin: 0;
             padding: 0;
-            font-family: var(--font-family-main); /* Apply the font here */
+            font-family: var(--font-family-main);
             background-color: var(--bg-primary);
             color: var(--text-primary);
             overflow: hidden;
@@ -74,29 +73,41 @@
 
         /* Sidebar styling */
         #sidebar {
+            background-color: var(--glass-bg-light); /* Apply light glass bg */
+            backdrop-filter: blur(10px); /* Apply blur */
+            -webkit-backdrop-filter: blur(10px); /* Safari prefix */
+            border-right: 1px solid var(--glass-border-light); /* Subtle border */
             width: 250px;
-            background-color: var(--bg-secondary);
             padding: 15px;
-            box-shadow: 2px 0 5px var(--shadow-color);
+            box-shadow: 2px 0 15px var(--shadow-color);
             overflow-y: auto;
             flex-shrink: 0;
-            transition: width 0.3s ease, padding 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+            transition: width 0.3s ease, padding 0.3s ease, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
             box-sizing: border-box;
             position: relative;
             display: flex;
             flex-direction: column;
         }
+        body.dark-theme #sidebar {
+            background-color: var(--glass-bg-dark); /* Apply dark glass bg */
+            border-right-color: var(--glass-border-dark);
+        }
+
         #sidebar h2 {
             margin-top: 0;
             margin-bottom: 15px;
-            font-size: 1.5rem; /* Slightly larger for Garamond */
-            font-weight: 600; /* Adjust weight as needed */
-            border-bottom: 1px solid var(--border-color);
+            font-size: 1.5rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--glass-border-light); /* Use glass border */
             padding-bottom: 10px;
             white-space: nowrap;
             color: var(--text-primary);
             flex-shrink: 0;
         }
+        body.dark-theme #sidebar h2 {
+             border-bottom-color: var(--glass-border-dark);
+        }
+
         #map-list {
             list-style: none;
             padding: 0;
@@ -113,14 +124,15 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            font-size: 1.1rem; /* Adjust if needed for new font */
+            font-size: 1.1rem;
+            background-color: transparent;
         }
         #map-list li:hover {
             background-color: var(--highlight-bg);
         }
         #map-list li.active {
             background-color: var(--active-bg);
-            font-weight: 600; /* Make active item bolder */
+            font-weight: 600;
         }
 
         /* Map container takes remaining space */
@@ -135,32 +147,40 @@
         #map {
             height: 100%;
             width: 100%;
-            background-color: var(--bg-secondary);
+            background-color: var(--bg-secondary); /* Solid map background */
         }
 
         /* Style Leaflet popups */
         .leaflet-popup-content-wrapper {
-            background: var(--popup-bg);
+            background: var(--glass-bg-light);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             color: var(--popup-text);
             border-radius: 8px;
             box-shadow: 0 3px 14px var(--shadow-color);
+            border: 1px solid var(--glass-border-light);
         }
         .leaflet-popup-tip {
-             background: var(--popup-bg);
+             background: transparent;
+             box-shadow: none;
         }
+        body.dark-theme .leaflet-popup-content-wrapper {
+            background: var(--glass-bg-dark);
+            border-color: var(--glass-border-dark);
+        }
+
         .leaflet-popup-content {
-            margin: 15px; /* Slightly more margin */
-            font-size: 1.1rem; /* Adjust popup font size */
-            line-height: 1.5; /* Improve readability */
+            margin: 15px;
+            font-size: 1.1rem;
+            line-height: 1.5;
         }
         .leaflet-popup-content h3 {
             margin-top: 0;
-            margin-bottom: 10px; /* More space below heading */
-            font-size: 1.3rem; /* Adjust heading size */
+            margin-bottom: 10px;
+            font-size: 1.3rem;
             font-weight: 600;
             color: var(--popup-text);
         }
-        /* Optional: Style close button for dark mode */
         .dark-theme .leaflet-popup-close-button {
             color: var(--text-secondary);
         }
@@ -174,18 +194,28 @@
             bottom: 10px;
             left: 10px;
             z-index: 1000;
-            background-color: var(--button-bg);
-            border: 1px solid var(--button-border);
+            background-color: var(--glass-bg-light);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--glass-border-light);
             color: var(--text-primary);
             border-radius: 4px;
             padding: 5px 8px;
             cursor: pointer;
             font-size: 1.2rem;
             line-height: 1;
-            box-shadow: 0 1px 3px var(--shadow-color);
+            box-shadow: 0 1px 5px var(--shadow-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
          #toggle-sidebar-btn:hover {
-            background-color: var(--bg-secondary);
+            background-color: rgba(255, 255, 255, 0.75);
+         }
+        body.dark-theme #toggle-sidebar-btn {
+            background-color: var(--glass-bg-dark);
+            border-color: var(--glass-border-dark);
+        }
+        body.dark-theme #toggle-sidebar-btn:hover {
+             background-color: rgba(70, 70, 70, 0.75);
         }
 
         /* Styles when sidebar is collapsed */
@@ -197,20 +227,71 @@
             border-right: none;
         }
 
+        /* --- Styles for Leaflet Controls (Zoom Buttons) --- */
+        .leaflet-control-zoom a { /* Target the zoom buttons */
+            background-color: var(--glass-bg-light); /* Apply light glass bg */
+            backdrop-filter: blur(8px); /* Apply blur */
+            -webkit-backdrop-filter: blur(8px); /* Safari prefix */
+            border: 1px solid var(--glass-border-light); /* Subtle glass border */
+            color: var(--text-primary); /* Ensure +/- are visible */
+            /* Override default Leaflet borders if needed */
+            border-bottom: 1px solid var(--glass-border-light);
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+        /* Remove border between the two buttons */
+        .leaflet-control-zoom-in {
+             border-bottom: 1px solid var(--glass-border-light); /* Ensure top button has bottom border */
+             border-radius: 4px 4px 0 0; /* Adjust radius if needed */
+        }
+         .leaflet-control-zoom-out {
+             /* border-top: none; */ /* Remove top border if Leaflet adds one */
+             border-radius: 0 0 4px 4px; /* Adjust radius if needed */
+             /* Ensure bottom button border matches */
+             border: 1px solid var(--glass-border-light);
+             border-top: none; /* Explicitly remove top border */
+        }
+
+        .leaflet-control-zoom a:hover {
+            background-color: rgba(255, 255, 255, 0.75); /* Hover for light */
+            color: #000; /* Ensure hover text color is clear */
+        }
+
+        /* Dark Theme adjustments for Zoom Controls */
+        body.dark-theme .leaflet-control-zoom a {
+            background-color: var(--glass-bg-dark);
+            border-color: var(--glass-border-dark);
+            color: var(--text-primary);
+        }
+         body.dark-theme .leaflet-control-zoom-in {
+             border-bottom: 1px solid var(--glass-border-dark);
+        }
+         body.dark-theme .leaflet-control-zoom-out {
+             border: 1px solid var(--glass-border-dark);
+             border-top: none;
+         }
+        body.dark-theme .leaflet-control-zoom a:hover {
+            background-color: rgba(70, 70, 70, 0.75); /* Hover for dark */
+            color: #fff; /* Ensure hover text color is clear */
+        }
+
+
         /* --- Theme Toggle Switch Styles --- */
         .theme-switch-wrapper {
             display: flex;
             align-items: center;
             margin-top: auto;
             padding-top: 15px;
-            border-top: 1px solid var(--border-color);
+            border-top: 1px solid var(--glass-border-light); /* Use glass border */
             flex-shrink: 0;
             white-space: nowrap;
             overflow: hidden;
         }
+        body.dark-theme .theme-switch-wrapper {
+             border-top-color: var(--glass-border-dark);
+        }
         .theme-switch-wrapper span {
             margin-left: 10px;
-            font-size: 1rem; /* Adjust size */
+            font-size: 1rem;
             color: var(--text-secondary);
         }
         .theme-switch {
@@ -261,14 +342,13 @@
     </style>
 </head>
 <body>
+    <!-- Container and Map Structure -->
     <div class="container">
         <div id="sidebar">
             <h2>Select Map</h2>
             <ul id="map-list">
-                <!-- Map list will be populated by JavaScript -->
+                <!-- Populated by JS -->
             </ul>
-
-            <!-- Theme Toggle Switch -->
             <div class="theme-switch-wrapper">
                 <label class="theme-switch" for="theme-checkbox">
                     <input type="checkbox" id="theme-checkbox" />
@@ -276,19 +356,19 @@
                 </label>
                 <span>Dark Mode</span>
             </div>
-        </div> <!-- End of sidebar -->
-
+        </div>
         <div id="map-container">
-            <!-- Sidebar Toggle Button -->
             <button id="toggle-sidebar-btn" title="Collapse Sidebar">&laquo;</button>
             <div id="map"></div>
         </div>
     </div>
 
+    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
         crossorigin=""></script>
 
+    <!-- Main Application JS -->
     <script>
         // --- Map Data Configuration ---
         const mapData = [
@@ -318,7 +398,6 @@
                     { coords: [1120 * 0.4, 1680 * 0.7], name: "Coastal Village", description: "A small fishing community." }
                 ]
             }
-            // Add more map objects here as needed
         ];
 
         // --- Initialize Leaflet Map ---
@@ -326,7 +405,7 @@
             crs: L.CRS.Simple,
             minZoom: -2,
             maxZoom: 3,
-            attributionControl: false // Attribution is now disabled
+            attributionControl: false // Attribution disabled
         });
 
         // --- Global variables ---
@@ -350,46 +429,33 @@
                 console.error("Map data not found for ID:", mapId);
                 return;
             }
-
             // Clean up previous layers
             if (currentImageLayer) map.removeLayer(currentImageLayer);
             currentMarkers.forEach(marker => map.removeLayer(marker));
             currentMarkers = [];
-
             // Define Bounds
             const mapHeight = selectedMap.height;
             const mapWidth = selectedMap.width;
             currentBounds = [[0, 0], [mapHeight, mapWidth]];
-
             // Add Image Overlay
             currentImageLayer = L.imageOverlay(selectedMap.imageUrl, currentBounds).addTo(map);
-
             // Add Markers
             selectedMap.pointsOfInterest.forEach(point => {
-                if (point.coords && point.coords.length === 2 &&
-                    !isNaN(point.coords[0]) && !isNaN(point.coords[1])) {
-                    if (point.coords[0] >= 0 && point.coords[0] <= mapHeight &&
-                        point.coords[1] >= 0 && point.coords[1] <= mapWidth) {
+                if (point.coords && point.coords.length === 2 && !isNaN(point.coords[0]) && !isNaN(point.coords[1])) {
+                    if (point.coords[0] >= 0 && point.coords[0] <= mapHeight && point.coords[1] >= 0 && point.coords[1] <= mapWidth) {
                          const marker = L.marker(point.coords).addTo(map);
                          marker.bindPopup(`<h3>${point.name}</h3><p>${point.description}</p>`);
                          currentMarkers.push(marker);
-                    } else {
-                         console.warn(`POI coordinates out of bounds for map ${selectedMap.name}: ${point.name}`, point.coords);
-                    }
-                } else {
-                    console.warn(`Invalid coordinates for POI: ${point.name}`, point.coords);
-                }
+                    } else { console.warn(`POI coordinates out of bounds for map ${selectedMap.name}: ${point.name}`, point.coords); }
+                } else { console.warn(`Invalid coordinates for POI: ${point.name}`, point.coords); }
             });
-
             // Set View and Bounds
             map.fitBounds(currentBounds);
-            // map.setMaxBounds(currentBounds); // Optional: Restrict panning
-
+            // map.setMaxBounds(currentBounds); // Optional
             // Update Sidebar Active State
             document.querySelectorAll('#map-list li').forEach(li => {
                 li.classList.toggle('active', li.dataset.mapId === mapId);
             });
-
             console.log(`Loaded map: ${selectedMap.name}`);
         }
 
@@ -398,50 +464,37 @@
             const listItem = document.createElement('li');
             listItem.textContent = mapInfo.name;
             listItem.dataset.mapId = mapInfo.id;
-            listItem.addEventListener('click', () => {
-                loadMap(mapInfo.id);
-            });
+            listItem.addEventListener('click', () => { loadMap(mapInfo.id); });
             mapListElement.appendChild(listItem);
         });
 
         // --- Sidebar Toggle Logic ---
         toggleBtn.addEventListener('click', () => {
             container.classList.toggle('sidebar-collapsed');
-
             if (container.classList.contains('sidebar-collapsed')) {
-                toggleBtn.innerHTML = '&raquo;';
-                toggleBtn.title = 'Expand Sidebar';
+                toggleBtn.innerHTML = '&raquo;'; toggleBtn.title = 'Expand Sidebar';
             } else {
-                toggleBtn.innerHTML = '&laquo;';
-                toggleBtn.title = 'Collapse Sidebar';
+                toggleBtn.innerHTML = '&laquo;'; toggleBtn.title = 'Collapse Sidebar';
             }
-
-            setTimeout(() => {
-                map.invalidateSize({ animate: true });
-            }, transitionDuration);
+            setTimeout(() => { map.invalidateSize({ animate: true }); }, transitionDuration);
         });
 
         // --- Theme Toggle Logic ---
         function applyTheme(theme) {
             if (theme === 'dark') {
-                bodyElement.classList.add('dark-theme');
-                themeToggle.checked = true;
+                bodyElement.classList.add('dark-theme'); themeToggle.checked = true;
             } else {
-                bodyElement.classList.remove('dark-theme');
-                themeToggle.checked = false;
+                bodyElement.classList.remove('dark-theme'); themeToggle.checked = false;
             }
         }
-
         themeToggle.addEventListener('change', () => {
             const newTheme = themeToggle.checked ? 'dark' : 'light';
-            localStorage.setItem('theme', newTheme);
-            applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme); applyTheme(newTheme);
         });
 
         // --- Load Saved Theme on Page Load ---
         const savedTheme = localStorage.getItem('theme') || 'light';
         applyTheme(savedTheme);
-
 
         // --- Helper: Log Coordinates on Click ---
         map.on('click', function(e) {
@@ -457,7 +510,6 @@
             console.error("No map data configured.");
             sidebar.innerHTML = '<h2>Select Map</h2><p>No maps configured.</p>';
         }
-
     </script>
 </body>
 </html>
