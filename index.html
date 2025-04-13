@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive World Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+    <style>
+        /* Ensure body and html take full height and have no margin/padding */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif; /* Basic font */
+            background-color: #f0f0f0; /* Light grey background */
+        }
+        /* Make the map container fill the viewport */
+        #map {
+            height: 100%;
+            width: 100%;
+            background-color: #ddd; /* Placeholder background for the map area */
+        }
+        /* Style Leaflet popups */
+        .leaflet-popup-content-wrapper {
+            border-radius: 8px; /* Rounded corners for popups */
+        }
+        .leaflet-popup-content {
+            margin: 10px;
+            font-size: 1rem;
+        }
+        .leaflet-popup-content h3 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
+    <script>
+        // --- Configuration ---
+        // IMPORTANT: Replace with the actual dimensions of your map image
+        const mapWidth = 1680; // Example width in pixels
+        const mapHeight = 1120; // Example height in pixels
+        // IMPORTANT: Replace with the correct path to YOUR map image
+        const imageUrl = '8xcm7hRs2Gg2H3OJ-cos-map.jpg'; // Placeholder image URL
+
+        // --- Initialize Leaflet Map ---
+        const map = L.map('map', {
+            // Use Leaflet's Simple Coordinate Reference System for flat images
+            // This treats the image purely in X, Y coordinates, not lat/lng
+            crs: L.CRS.Simple,
+            // Set maximum bounds to prevent panning far away from the map
+            // maxBounds: bounds, // Optional: Uncomment after bounds are defined
+            // Set initial minimum zoom level (adjust based on map size)
+            minZoom: -2, // Allows zooming out further for large images
+            // Set initial maximum zoom level (adjust as needed)
+            maxZoom: 3,
+        });
+
+        // --- Define Image Bounds ---
+        // Leaflet uses [[south, west], [north, east]] format for bounds,
+        // which translates to [[y_min, x_min], [y_max, x_max]] in L.CRS.Simple.
+        // Using [0,0] as the bottom-left corner.
+        const bounds = [[0, 0], [mapHeight, mapWidth]];
+
+        // --- Add the Image Overlay ---
+        // Load your map image onto the map, fitting it to the defined bounds
+        const image = L.imageOverlay(imageUrl, bounds).addTo(map);
+
+        // --- Set Initial Map View ---
+        // Make the map initially display the entire image
+        map.fitBounds(bounds);
+
+        // --- Optional: Set Max Bounds after initial fit ---
+        // Uncomment the line below and the `maxBounds` option in L.map above
+        // if you want to restrict panning strictly to the image area.
+        // map.setMaxBounds(bounds);
+
+        // --- Points of Interest Data ---
+        // Define locations you want to mark on the map.
+        // Coordinates are [y, x] based on the image pixels (bottom-left is [0,0])
+        // IMPORTANT: You'll need to determine the correct coordinates for your map.
+        // You can use the click listener below to find coordinates.
+        const pointsOfInterest = [
+            {
+                coords: [mapHeight * 0.75, mapWidth * 0.5], // Example: 75% up, 50% across
+                name: "Capital City",
+                description: "The bustling heart of the kingdom."
+            },
+            {
+                coords: [mapHeight * 0.3, mapWidth * 0.2], // Example: 30% up, 20% across
+                name: "Ancient Ruins",
+                description: "Whispers of a forgotten era linger here."
+            },
+            {
+                coords: [mapHeight * 0.5, mapWidth * 0.8], // Example: 50% up, 80% across
+                name: "Whispering Woods",
+                description: "An old forest, said to be enchanted."
+            }
+            // Add more points as needed
+        ];
+
+        // --- Add Markers and Popups ---
+        pointsOfInterest.forEach(point => {
+            const marker = L.marker(point.coords).addTo(map);
+            marker.bindPopup(`<h3>${point.name}</h3><p>${point.description}</p>`);
+        });
+
+        // --- Helper: Log Coordinates on Click ---
+        // Click anywhere on the map to log the Y, X coordinates to the console.
+        // Useful for finding the coordinates for your pointsOfInterest.
+        map.on('click', function(e) {
+            console.log(`Map clicked at: [${Math.round(e.latlng.lat)}, ${Math.round(e.latlng.lng)}]`);
+            // Optional: Add a temporary marker on click
+            // L.marker(e.latlng).addTo(map).bindPopup(`Clicked at: [${Math.round(e.latlng.lat)}, ${Math.round(e.latlng.lng)}]`).openPopup();
+        });
+
+    </script>
+</body>
+</html>
