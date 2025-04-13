@@ -27,12 +27,15 @@
 
         /* Sidebar styling */
         #sidebar {
-            width: 250px; /* Fixed width for the sidebar */
+            width: 250px; /* Default width */
             background-color: #e9e9e9;
             padding: 15px;
             box-shadow: 2px 0 5px rgba(0,0,0,0.1);
             overflow-y: auto; /* Allow scrolling if map list is long */
             flex-shrink: 0; /* Prevent sidebar from shrinking */
+            transition: width 0.3s ease, padding 0.3s ease; /* Smooth transition */
+            box-sizing: border-box; /* Include padding in width calculation */
+            position: relative; /* Needed for potential absolute positioning inside */
         }
         #sidebar h2 {
             margin-top: 0;
@@ -40,6 +43,7 @@
             font-size: 1.3rem;
             border-bottom: 1px solid #ccc;
             padding-bottom: 10px;
+            white-space: nowrap; /* Prevent title wrapping when collapsing */
         }
         #map-list {
             list-style: none;
@@ -52,6 +56,9 @@
             border-radius: 4px;
             margin-bottom: 5px;
             transition: background-color 0.2s ease;
+            white-space: nowrap; /* Prevent text wrapping */
+            overflow: hidden; /* Hide text when collapsing */
+            text-overflow: ellipsis; /* Add ... if text overflows (optional) */
         }
         #map-list li:hover {
             background-color: #dcdcdc;
@@ -61,11 +68,12 @@
             font-weight: bold;
         }
 
-
         /* Map container takes remaining space */
         #map-container {
             flex-grow: 1; /* Allow map container to fill remaining space */
             height: 100%;
+            position: relative; /* Needed for positioning the toggle button */
+            overflow: hidden; /* Hide map overflow during transition */
         }
 
         /* Make the map element fill its container */
@@ -75,7 +83,7 @@
             background-color: #ddd; /* Placeholder background */
         }
 
-        /* Style Leaflet popups (no changes needed here) */
+        /* Style Leaflet popups */
         .leaflet-popup-content-wrapper {
             border-radius: 8px;
         }
@@ -88,9 +96,43 @@
             margin-bottom: 5px;
             font-size: 1.1rem;
         }
+
+        /* --- Styles for Collapsible Sidebar --- */
+        #toggle-sidebar-btn {
+            position: absolute;
+            bottom: 10px; /* Changed from top to bottom */
+            left: 10px;   /* Changed from right to left */
+            z-index: 1000; /* Ensure button is above map tiles & attribution */
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            line-height: 1;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        #toggle-sidebar-btn:hover {
+            background-color: white;
+        }
+
+        /* Styles when sidebar is collapsed */
+        .container.sidebar-collapsed #sidebar {
+            width: 0;
+            padding-left: 0;
+            padding-right: 0;
+            overflow: hidden; /* Hide content completely */
+        }
+
+        /* Adjust button position and icon when collapsed */
+        .container.sidebar-collapsed #toggle-sidebar-btn {
+            left: 10px; /* Keep it near the edge */
+        }
+
     </style>
 </head>
 <body>
+    <!-- Add sidebar-collapsed class here initially if you want it closed by default -->
     <div class="container">
         <div id="sidebar">
             <h2>Select Map</h2>
@@ -99,6 +141,8 @@
             </ul>
         </div>
         <div id="map-container">
+            <!-- Toggle Button -->
+            <button id="toggle-sidebar-btn" title="Collapse Sidebar">&laquo;</button>
             <div id="map"></div>
         </div>
     </div>
@@ -109,53 +153,35 @@
 
     <script>
         // --- Map Data Configuration ---
-        // Store data for all available maps here
         const mapData = [
             {
                 id: 'world1',
                 name: 'Main Continent',
-                // IMPORTANT: Replace with the actual dimensions of YOUR map image
                 width: 7016,
                 height: 4960,
-                // IMPORTANT: Replace with the correct path to YOUR map image
-                imageUrl: 'maps/IceBeach.png', // Your original map
+                imageUrl: 'maps/IceBeach.png',
                 pointsOfInterest: [
-                    {
-                        // Coordinates are [y, x] relative to THIS map's dimensions
-                        coords: [1120 * 0.75, 1680 * 0.5], // 75% up, 50% across
-                        name: "Capital City",
-                        description: "The bustling heart of the kingdom."
-                    },
-                    {
-                        coords: [1120 * 0.3, 1680 * 0.2], // 30% up, 20% across
-                        name: "Ancient Ruins",
-                        description: "Whispers of a forgotten era linger here."
-                    },
-                    {
-                        coords: [1120 * 0.5, 1680 * 0.8], // 50% up, 80% across
-                        name: "Whispering Woods",
-                        description: "An old forest, said to be enchanted."
-                    }
+                    // Make sure these coordinates are correct for IceBeach.png (7016x4960)
+                    // Example: Center point
+                    { coords: [4960 * 0.5, 7016 * 0.5], name: "Center Point", description: "The very middle." },
+                    // Add other relevant points for IceBeach.png
                 ]
             },
             {
                 id: 'world2',
                 name: 'Northern Isles',
-                // IMPORTANT: Replace with actual dimensions and path for the second map
-                width: 1680, // Example dimensions
-                height: 1120,  // Example dimensions
-                imageUrl: 'maps/cos-map.jpg', // <<<--- REPLACE THIS
+                width: 1680,
+                height: 1120,
+                imageUrl: 'maps/cos-map.jpg',
                 pointsOfInterest: [
-                    {
-                        coords: [768 * 0.8, 1024 * 0.3], // Example POI for map 2
-                        name: "Frozen Peak",
-                        description: "A treacherous climb to the highest point."
-                    },
-                    {
-                        coords: [768 * 0.4, 1024 * 0.7], // Example POI for map 2
-                        name: "Coastal Village",
-                        description: "A small fishing community."
-                    }
+                     // Make sure these coordinates are correct for cos-map.jpg (1680x1120)
+                    { coords: [1120 * 0.75, 1680 * 0.5], name: "Capital City", description: "The bustling heart of the kingdom." },
+                    { coords: [1120 * 0.3, 1680 * 0.2], name: "Ancient Ruins", description: "Whispers of a forgotten era linger here." },
+                    { coords: [1120 * 0.5, 1680 * 0.8], name: "Whispering Woods", description: "An old forest, said to be enchanted." },
+                    // Example POI using original calculation method for THIS map
+                    // { coords: [768 * 0.8, 1024 * 0.3], name: "Frozen Peak", description: "A treacherous climb." }, // Incorrect if map is 1120x1680
+                    { coords: [1120 * 0.8, 1680 * 0.3], name: "Frozen Peak", description: "A treacherous climb." }, // Corrected for 1120 height, 1680 width
+                    { coords: [1120 * 0.4, 1680 * 0.7], name: "Coastal Village", description: "A small fishing community." } // Corrected
                 ]
             }
             // Add more map objects here as needed
@@ -164,54 +190,62 @@
         // --- Initialize Leaflet Map ---
         const map = L.map('map', {
             crs: L.CRS.Simple,
-            minZoom: -2,
-            maxZoom: 3,
+            minZoom: -2, // Adjust minZoom based on your largest map maybe?
+            maxZoom: 3,  // Adjust maxZoom as needed
+            attributionControl: false // this is the bottom right tag for project
         });
 
-        // --- Global variables to keep track of current layers ---
+        // --- Global variables ---
         let currentImageLayer = null;
         let currentMarkers = [];
         let currentBounds = null;
 
+        // --- DOM Elements ---
+        const container = document.querySelector('.container');
+        const sidebar = document.getElementById('sidebar');
+        const mapListElement = document.getElementById('map-list');
+        const toggleBtn = document.getElementById('toggle-sidebar-btn');
+        const transitionDuration = 300; // Milliseconds - MUST match CSS transition duration
+
         // --- Function to Load/Switch Map ---
         function loadMap(mapId) {
-            // Find the selected map data
             const selectedMap = mapData.find(m => m.id === mapId);
             if (!selectedMap) {
                 console.error("Map data not found for ID:", mapId);
                 return;
             }
 
-            // --- 1. Clean up previous map layers ---
-            if (currentImageLayer) {
-                map.removeLayer(currentImageLayer);
-                currentImageLayer = null;
-            }
+            // Clean up previous layers
+            if (currentImageLayer) map.removeLayer(currentImageLayer);
             currentMarkers.forEach(marker => map.removeLayer(marker));
             currentMarkers = [];
 
-            // --- 2. Define Bounds for the new map ---
-            // Using [0,0] as the bottom-left corner.
+            // Define Bounds
             const mapHeight = selectedMap.height;
             const mapWidth = selectedMap.width;
             currentBounds = [[0, 0], [mapHeight, mapWidth]];
 
-            // --- 3. Add the new Image Overlay ---
+            // Add Image Overlay
             currentImageLayer = L.imageOverlay(selectedMap.imageUrl, currentBounds).addTo(map);
 
-            // --- 4. Add Markers and Popups for the new map ---
+            // Add Markers
             selectedMap.pointsOfInterest.forEach(point => {
-                const marker = L.marker(point.coords).addTo(map);
-                marker.bindPopup(`<h3>${point.name}</h3><p>${point.description}</p>`);
-                currentMarkers.push(marker); // Keep track of markers
+                // Basic validation for coordinates
+                if (point.coords && point.coords.length === 2 &&
+                    !isNaN(point.coords[0]) && !isNaN(point.coords[1])) {
+                    const marker = L.marker(point.coords).addTo(map);
+                    marker.bindPopup(`<h3>${point.name}</h3><p>${point.description}</p>`);
+                    currentMarkers.push(marker);
+                } else {
+                    console.warn(`Invalid coordinates for POI: ${point.name}`, point.coords);
+                }
             });
 
-            // --- 5. Set Map View and Bounds ---
+            // Set View and Bounds
             map.fitBounds(currentBounds);
-            // Optional: Uncomment to restrict panning strictly to the image area
-            // map.setMaxBounds(currentBounds);
+            // map.setMaxBounds(currentBounds); // Optional
 
-            // --- 6. Update Sidebar Active State ---
+            // Update Sidebar Active State
             document.querySelectorAll('#map-list li').forEach(li => {
                 li.classList.toggle('active', li.dataset.mapId === mapId);
             });
@@ -220,33 +254,49 @@
         }
 
         // --- Populate Sidebar ---
-        const mapListElement = document.getElementById('map-list');
         mapData.forEach(mapInfo => {
             const listItem = document.createElement('li');
             listItem.textContent = mapInfo.name;
-            listItem.dataset.mapId = mapInfo.id; // Store map ID for easy retrieval
+            listItem.dataset.mapId = mapInfo.id;
             listItem.addEventListener('click', () => {
                 loadMap(mapInfo.id);
             });
             mapListElement.appendChild(listItem);
         });
 
+        // --- Sidebar Toggle Logic ---
+        toggleBtn.addEventListener('click', () => {
+            container.classList.toggle('sidebar-collapsed');
+
+            // Update button icon/title
+            if (container.classList.contains('sidebar-collapsed')) {
+                toggleBtn.innerHTML = '&raquo;'; // Change to right arrow
+                toggleBtn.title = 'Expand Sidebar';
+            } else {
+                toggleBtn.innerHTML = '&laquo;'; // Change back to left arrow
+                toggleBtn.title = 'Collapse Sidebar';
+            }
+
+            // IMPORTANT: Invalidate map size after the transition finishes
+            setTimeout(() => {
+                map.invalidateSize();
+            }, transitionDuration); // Wait for CSS transition
+        });
+
+
         // --- Helper: Log Coordinates on Click ---
         map.on('click', function(e) {
-            // Ensure coordinates are relative to the current map's bounds
             if (currentBounds) {
                  console.log(`Map clicked at: [${Math.round(e.latlng.lat)}, ${Math.round(e.latlng.lng)}] (Y, X from bottom-left)`);
-                // Optional: Add a temporary marker on click
-                // L.marker(e.latlng).addTo(map).bindPopup(`Clicked at: [${Math.round(e.latlng.lat)}, ${Math.round(e.latlng.lng)}]`).openPopup();
             }
         });
 
         // --- Load the Initial Map ---
         if (mapData.length > 0) {
-            loadMap(mapData[0].id); // Load the first map in the list by default
+            loadMap(mapData[0].id);
         } else {
             console.error("No map data configured.");
-            // Optionally display a message on the map or sidebar
+            sidebar.innerHTML = '<p>No maps configured.</p>'; // Inform user
         }
 
     </script>
