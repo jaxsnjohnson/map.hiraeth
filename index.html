@@ -8,14 +8,52 @@
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
         crossorigin=""/>
     <style>
-        /* Ensure body and html take full height and have no margin/padding */
+        /* --- Theme Variables --- */
+        :root {
+            --bg-primary: #f0f0f0;
+            --bg-secondary: #e9e9e9;
+            --text-primary: #333;
+            --text-secondary: #555;
+            --border-color: #ccc;
+            --highlight-bg: #dcdcdc;
+            --active-bg: #c0c0c0;
+            --button-bg: rgba(255, 255, 255, 0.8);
+            --button-border: #ccc;
+            --popup-bg: white;
+            --popup-text: #333;
+            --shadow-color: rgba(0,0,0,0.1);
+            --slider-bg: #ccc;
+            --slider-color: white;
+        }
+
+        body.dark-theme {
+            --bg-primary: #222;
+            --bg-secondary: #333;
+            --text-primary: #eee;
+            --text-secondary: #bbb;
+            --border-color: #555;
+            --highlight-bg: #444;
+            --active-bg: #555;
+            --button-bg: rgba(50, 50, 50, 0.8);
+            --button-border: #666;
+            --popup-bg: #444;
+            --popup-text: #eee;
+            --shadow-color: rgba(255,255,255,0.1);
+            --slider-bg: #555; /* Darker background for slider */
+            --slider-color: #2196F3; /* Blue when active */
+        }
+
+        /* Apply Variables & Base Styles */
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-            font-family: sans-serif; /* Basic font */
-            background-color: #f0f0f0; /* Light grey background */
+            font-family: sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
             overflow: hidden; /* Prevent body scrollbars */
+            /* Add transition for smooth theme change */
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* Main container using Flexbox */
@@ -28,27 +66,33 @@
         /* Sidebar styling */
         #sidebar {
             width: 250px; /* Default width */
-            background-color: #e9e9e9;
+            background-color: var(--bg-secondary);
             padding: 15px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-            overflow-y: auto; /* Allow scrolling if map list is long */
+            box-shadow: 2px 0 5px var(--shadow-color);
+            overflow-y: auto; /* Allow scrolling if content is long */
             flex-shrink: 0; /* Prevent sidebar from shrinking */
-            transition: width 0.3s ease, padding 0.3s ease; /* Smooth transition */
+            transition: width 0.3s ease, padding 0.3s ease, background-color 0.3s ease, color 0.3s ease;
             box-sizing: border-box; /* Include padding in width calculation */
-            position: relative; /* Needed for potential absolute positioning inside */
+            position: relative;
+            display: flex; /* Use flexbox for internal layout */
+            flex-direction: column; /* Stack items vertically */
         }
         #sidebar h2 {
             margin-top: 0;
             margin-bottom: 15px;
             font-size: 1.3rem;
-            border-bottom: 1px solid #ccc;
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 10px;
             white-space: nowrap; /* Prevent title wrapping when collapsing */
+            color: var(--text-primary);
+            flex-shrink: 0; /* Prevent shrinking */
         }
         #map-list {
             list-style: none;
             padding: 0;
             margin: 0;
+            overflow-y: auto; /* Allow map list to scroll if needed */
+            flex-grow: 1; /* Allow list to take available space */
         }
         #map-list li {
             padding: 10px 5px;
@@ -58,13 +102,13 @@
             transition: background-color 0.2s ease;
             white-space: nowrap; /* Prevent text wrapping */
             overflow: hidden; /* Hide text when collapsing */
-            text-overflow: ellipsis; /* Add ... if text overflows (optional) */
+            text-overflow: ellipsis; /* Add ... if text overflows */
         }
         #map-list li:hover {
-            background-color: #dcdcdc;
+            background-color: var(--highlight-bg);
         }
         #map-list li.active {
-            background-color: #c0c0c0;
+            background-color: var(--active-bg);
             font-weight: bold;
         }
 
@@ -80,12 +124,18 @@
         #map {
             height: 100%;
             width: 100%;
-            background-color: #ddd; /* Placeholder background */
+            background-color: var(--bg-secondary); /* Map background */
         }
 
         /* Style Leaflet popups */
         .leaflet-popup-content-wrapper {
+            background: var(--popup-bg);
+            color: var(--popup-text);
             border-radius: 8px;
+            box-shadow: 0 3px 14px var(--shadow-color);
+        }
+        .leaflet-popup-tip {
+             background: var(--popup-bg);
         }
         .leaflet-popup-content {
             margin: 10px;
@@ -95,25 +145,42 @@
             margin-top: 0;
             margin-bottom: 5px;
             font-size: 1.1rem;
+            color: var(--popup-text); /* Ensure heading color matches */
         }
+        /* Optional: Style close button for dark mode */
+        .dark-theme .leaflet-popup-close-button {
+            color: var(--text-secondary);
+        }
+        .dark-theme .leaflet-popup-close-button:hover {
+            color: var(--text-primary);
+        }
+        /* Ensure attribution text is readable in dark mode */
+        .dark-theme .leaflet-control-attribution a {
+            color: #aaa; /* Lighter grey for links */
+        }
+         .dark-theme .leaflet-control-attribution {
+            color: #888; /* Lighter grey for base text */
+        }
+
 
         /* --- Styles for Collapsible Sidebar --- */
         #toggle-sidebar-btn {
             position: absolute;
-            bottom: 10px; /* Changed from top to bottom */
-            left: 10px;   /* Changed from right to left */
+            bottom: 10px; /* Position at bottom */
+            left: 10px;   /* Position on left */
             z-index: 1000; /* Ensure button is above map tiles & attribution */
-            background-color: rgba(255, 255, 255, 0.8);
-            border: 1px solid #ccc;
+            background-color: var(--button-bg);
+            border: 1px solid var(--button-border);
+            color: var(--text-primary); /* Ensure button text is visible */
             border-radius: 4px;
             padding: 5px 8px;
             cursor: pointer;
             font-size: 1.2rem;
             line-height: 1;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            box-shadow: 0 1px 3px var(--shadow-color);
         }
-        #toggle-sidebar-btn:hover {
-            background-color: white;
+         #toggle-sidebar-btn:hover {
+            background-color: var(--bg-secondary); /* Use secondary bg for hover */
         }
 
         /* Styles when sidebar is collapsed */
@@ -122,11 +189,73 @@
             padding-left: 0;
             padding-right: 0;
             overflow: hidden; /* Hide content completely */
+            border-right: none; /* Hide border when collapsed */
         }
 
-        /* Adjust button position and icon when collapsed */
-        .container.sidebar-collapsed #toggle-sidebar-btn {
-            left: 10px; /* Keep it near the edge */
+        /* --- Theme Toggle Switch Styles --- */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            margin-top: auto; /* Push to the bottom */
+            padding-top: 15px; /* Space above the toggle */
+            border-top: 1px solid var(--border-color); /* Separator line */
+            flex-shrink: 0; /* Prevent shrinking */
+            white-space: nowrap; /* Prevent wrapping */
+            overflow: hidden; /* Hide during collapse */
+        }
+        .theme-switch-wrapper span {
+            margin-left: 10px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px; /* Width of the switch */
+            height: 24px; /* Height of the switch */
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--slider-bg);
+            transition: .4s;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px; /* Size of the circle */
+            width: 18px;  /* Size of the circle */
+            left: 3px;    /* Position from left */
+            bottom: 3px;  /* Position from bottom */
+            background-color: white; /* Circle color */
+            transition: .4s;
+        }
+        input:checked + .slider {
+            background-color: #2196F3; /* Active color (e.g., blue) */
+        }
+        /* Use theme variable for active state if desired */
+        /* input:checked + .slider {
+            background-color: var(--slider-color);
+        } */
+        input:checked + .slider:before {
+            transform: translateX(26px); /* Move circle to the right */
+        }
+        /* Rounded sliders */
+        .slider.round {
+            border-radius: 24px; /* Make the track rounded */
+        }
+        .slider.round:before {
+            border-radius: 50%; /* Make the circle round */
         }
 
     </style>
@@ -139,9 +268,19 @@
             <ul id="map-list">
                 <!-- Map list will be populated by JavaScript -->
             </ul>
-        </div>
+
+            <!-- Theme Toggle Switch -->
+            <div class="theme-switch-wrapper">
+                <label class="theme-switch" for="theme-checkbox">
+                    <input type="checkbox" id="theme-checkbox" />
+                    <div class="slider round"></div>
+                </label>
+                <span>Dark Mode</span>
+            </div>
+        </div> <!-- End of sidebar -->
+
         <div id="map-container">
-            <!-- Toggle Button -->
+            <!-- Sidebar Toggle Button -->
             <button id="toggle-sidebar-btn" title="Collapse Sidebar">&laquo;</button>
             <div id="map"></div>
         </div>
@@ -161,10 +300,10 @@
                 height: 4960,
                 imageUrl: 'maps/IceBeach.png',
                 pointsOfInterest: [
-                    // Make sure these coordinates are correct for IceBeach.png (7016x4960)
-                    // Example: Center point
+                    // Coordinates relative to THIS map (7016x4960)
                     { coords: [4960 * 0.5, 7016 * 0.5], name: "Center Point", description: "The very middle." },
-                    // Add other relevant points for IceBeach.png
+                    { coords: [4960 * 0.8, 7016 * 0.2], name: "North East Camp", description: "A small outpost." },
+                    { coords: [4960 * 0.15, 7016 * 0.75], name: "Southern Ruins", description: "Old stones." },
                 ]
             },
             {
@@ -174,14 +313,12 @@
                 height: 1120,
                 imageUrl: 'maps/cos-map.jpg',
                 pointsOfInterest: [
-                     // Make sure these coordinates are correct for cos-map.jpg (1680x1120)
+                    // Coordinates relative to THIS map (1680x1120)
                     { coords: [1120 * 0.75, 1680 * 0.5], name: "Capital City", description: "The bustling heart of the kingdom." },
                     { coords: [1120 * 0.3, 1680 * 0.2], name: "Ancient Ruins", description: "Whispers of a forgotten era linger here." },
                     { coords: [1120 * 0.5, 1680 * 0.8], name: "Whispering Woods", description: "An old forest, said to be enchanted." },
-                    // Example POI using original calculation method for THIS map
-                    // { coords: [768 * 0.8, 1024 * 0.3], name: "Frozen Peak", description: "A treacherous climb." }, // Incorrect if map is 1120x1680
-                    { coords: [1120 * 0.8, 1680 * 0.3], name: "Frozen Peak", description: "A treacherous climb." }, // Corrected for 1120 height, 1680 width
-                    { coords: [1120 * 0.4, 1680 * 0.7], name: "Coastal Village", description: "A small fishing community." } // Corrected
+                    { coords: [1120 * 0.8, 1680 * 0.3], name: "Frozen Peak", description: "A treacherous climb." },
+                    { coords: [1120 * 0.4, 1680 * 0.7], name: "Coastal Village", description: "A small fishing community." }
                 ]
             }
             // Add more map objects here as needed
@@ -205,6 +342,8 @@
         const sidebar = document.getElementById('sidebar');
         const mapListElement = document.getElementById('map-list');
         const toggleBtn = document.getElementById('toggle-sidebar-btn');
+        const themeToggle = document.getElementById('theme-checkbox'); // Get the checkbox
+        const bodyElement = document.body; // Get the body element
         const transitionDuration = 300; // Milliseconds - MUST match CSS transition duration
 
         // --- Function to Load/Switch Map ---
@@ -233,9 +372,15 @@
                 // Basic validation for coordinates
                 if (point.coords && point.coords.length === 2 &&
                     !isNaN(point.coords[0]) && !isNaN(point.coords[1])) {
-                    const marker = L.marker(point.coords).addTo(map);
-                    marker.bindPopup(`<h3>${point.name}</h3><p>${point.description}</p>`);
-                    currentMarkers.push(marker);
+                    // Check if coords are within bounds (optional but good practice)
+                    if (point.coords[0] >= 0 && point.coords[0] <= mapHeight &&
+                        point.coords[1] >= 0 && point.coords[1] <= mapWidth) {
+                         const marker = L.marker(point.coords).addTo(map);
+                         marker.bindPopup(`<h3>${point.name}</h3><p>${point.description}</p>`);
+                         currentMarkers.push(marker);
+                    } else {
+                         console.warn(`POI coordinates out of bounds for map ${selectedMap.name}: ${point.name}`, point.coords);
+                    }
                 } else {
                     console.warn(`Invalid coordinates for POI: ${point.name}`, point.coords);
                 }
@@ -243,7 +388,7 @@
 
             // Set View and Bounds
             map.fitBounds(currentBounds);
-            // map.setMaxBounds(currentBounds); // Optional
+            // map.setMaxBounds(currentBounds); // Optional: Restrict panning
 
             // Update Sidebar Active State
             document.querySelectorAll('#map-list li').forEach(li => {
@@ -279,24 +424,47 @@
 
             // IMPORTANT: Invalidate map size after the transition finishes
             setTimeout(() => {
-                map.invalidateSize();
+                map.invalidateSize({ animate: true }); // Animate resize if possible
             }, transitionDuration); // Wait for CSS transition
         });
+
+        // --- Theme Toggle Logic ---
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                bodyElement.classList.add('dark-theme');
+                themeToggle.checked = true;
+            } else {
+                bodyElement.classList.remove('dark-theme');
+                themeToggle.checked = false;
+            }
+        }
+
+        themeToggle.addEventListener('change', () => {
+            const newTheme = themeToggle.checked ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme); // Save preference
+            applyTheme(newTheme);
+        });
+
+        // --- Load Saved Theme on Page Load ---
+        const savedTheme = localStorage.getItem('theme') || 'light'; // Default to light
+        applyTheme(savedTheme);
 
 
         // --- Helper: Log Coordinates on Click ---
         map.on('click', function(e) {
             if (currentBounds) {
                  console.log(`Map clicked at: [${Math.round(e.latlng.lat)}, ${Math.round(e.latlng.lng)}] (Y, X from bottom-left)`);
+                 // Optional: Add a temporary marker on click
+                 // L.marker(e.latlng).addTo(map).bindPopup(`Clicked at: [${Math.round(e.latlng.lat)}, ${Math.round(e.latlng.lng)}]`).openPopup();
             }
         });
 
         // --- Load the Initial Map ---
         if (mapData.length > 0) {
-            loadMap(mapData[0].id);
+            loadMap(mapData[0].id); // Load the first map in the list by default
         } else {
             console.error("No map data configured.");
-            sidebar.innerHTML = '<p>No maps configured.</p>'; // Inform user
+            sidebar.innerHTML = '<h2>Select Map</h2><p>No maps configured.</p>'; // Inform user
         }
 
     </script>
