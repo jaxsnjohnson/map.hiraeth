@@ -4,9 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive World Map Viewer</title>
+
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
         crossorigin=""/>
+
+    <!-- Google Font: EB Garamond -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+
     <style>
         /* --- Theme Variables --- */
         :root {
@@ -24,6 +32,8 @@
             --shadow-color: rgba(0,0,0,0.1);
             --slider-bg: #ccc;
             --slider-color: white;
+            /* Font Variable */
+            --font-family-main: 'EB Garamond', serif;
         }
 
         body.dark-theme {
@@ -39,8 +49,8 @@
             --popup-bg: #444;
             --popup-text: #eee;
             --shadow-color: rgba(255,255,255,0.1);
-            --slider-bg: #555; /* Darker background for slider */
-            --slider-color: #2196F3; /* Blue when active */
+            --slider-bg: #555;
+            --slider-color: #2196F3;
         }
 
         /* Apply Variables & Base Styles */
@@ -48,11 +58,10 @@
             height: 100%;
             margin: 0;
             padding: 0;
-            font-family: sans-serif;
+            font-family: var(--font-family-main); /* Apply the font here */
             background-color: var(--bg-primary);
             color: var(--text-primary);
-            overflow: hidden; /* Prevent body scrollbars */
-            /* Add transition for smooth theme change */
+            overflow: hidden;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
@@ -65,34 +74,35 @@
 
         /* Sidebar styling */
         #sidebar {
-            width: 250px; /* Default width */
+            width: 250px;
             background-color: var(--bg-secondary);
             padding: 15px;
             box-shadow: 2px 0 5px var(--shadow-color);
-            overflow-y: auto; /* Allow scrolling if content is long */
-            flex-shrink: 0; /* Prevent sidebar from shrinking */
+            overflow-y: auto;
+            flex-shrink: 0;
             transition: width 0.3s ease, padding 0.3s ease, background-color 0.3s ease, color 0.3s ease;
-            box-sizing: border-box; /* Include padding in width calculation */
+            box-sizing: border-box;
             position: relative;
-            display: flex; /* Use flexbox for internal layout */
-            flex-direction: column; /* Stack items vertically */
+            display: flex;
+            flex-direction: column;
         }
         #sidebar h2 {
             margin-top: 0;
             margin-bottom: 15px;
-            font-size: 1.3rem;
+            font-size: 1.5rem; /* Slightly larger for Garamond */
+            font-weight: 600; /* Adjust weight as needed */
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 10px;
-            white-space: nowrap; /* Prevent title wrapping when collapsing */
+            white-space: nowrap;
             color: var(--text-primary);
-            flex-shrink: 0; /* Prevent shrinking */
+            flex-shrink: 0;
         }
         #map-list {
             list-style: none;
             padding: 0;
             margin: 0;
-            overflow-y: auto; /* Allow map list to scroll if needed */
-            flex-grow: 1; /* Allow list to take available space */
+            overflow-y: auto;
+            flex-grow: 1;
         }
         #map-list li {
             padding: 10px 5px;
@@ -100,31 +110,32 @@
             border-radius: 4px;
             margin-bottom: 5px;
             transition: background-color 0.2s ease;
-            white-space: nowrap; /* Prevent text wrapping */
-            overflow: hidden; /* Hide text when collapsing */
-            text-overflow: ellipsis; /* Add ... if text overflows */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 1.1rem; /* Adjust if needed for new font */
         }
         #map-list li:hover {
             background-color: var(--highlight-bg);
         }
         #map-list li.active {
             background-color: var(--active-bg);
-            font-weight: bold;
+            font-weight: 600; /* Make active item bolder */
         }
 
         /* Map container takes remaining space */
         #map-container {
-            flex-grow: 1; /* Allow map container to fill remaining space */
+            flex-grow: 1;
             height: 100%;
-            position: relative; /* Needed for positioning the toggle button */
-            overflow: hidden; /* Hide map overflow during transition */
+            position: relative;
+            overflow: hidden;
         }
 
         /* Make the map element fill its container */
         #map {
             height: 100%;
             width: 100%;
-            background-color: var(--bg-secondary); /* Map background */
+            background-color: var(--bg-secondary);
         }
 
         /* Style Leaflet popups */
@@ -138,14 +149,16 @@
              background: var(--popup-bg);
         }
         .leaflet-popup-content {
-            margin: 10px;
-            font-size: 1rem;
+            margin: 15px; /* Slightly more margin */
+            font-size: 1.1rem; /* Adjust popup font size */
+            line-height: 1.5; /* Improve readability */
         }
         .leaflet-popup-content h3 {
             margin-top: 0;
-            margin-bottom: 5px;
-            font-size: 1.1rem;
-            color: var(--popup-text); /* Ensure heading color matches */
+            margin-bottom: 10px; /* More space below heading */
+            font-size: 1.3rem; /* Adjust heading size */
+            font-weight: 600;
+            color: var(--popup-text);
         }
         /* Optional: Style close button for dark mode */
         .dark-theme .leaflet-popup-close-button {
@@ -154,24 +167,16 @@
         .dark-theme .leaflet-popup-close-button:hover {
             color: var(--text-primary);
         }
-        /* Ensure attribution text is readable in dark mode */
-        .dark-theme .leaflet-control-attribution a {
-            color: #aaa; /* Lighter grey for links */
-        }
-         .dark-theme .leaflet-control-attribution {
-            color: #888; /* Lighter grey for base text */
-        }
-
 
         /* --- Styles for Collapsible Sidebar --- */
         #toggle-sidebar-btn {
             position: absolute;
-            bottom: 10px; /* Position at bottom */
-            left: 10px;   /* Position on left */
-            z-index: 1000; /* Ensure button is above map tiles & attribution */
+            bottom: 10px;
+            left: 10px;
+            z-index: 1000;
             background-color: var(--button-bg);
             border: 1px solid var(--button-border);
-            color: var(--text-primary); /* Ensure button text is visible */
+            color: var(--text-primary);
             border-radius: 4px;
             padding: 5px 8px;
             cursor: pointer;
@@ -180,7 +185,7 @@
             box-shadow: 0 1px 3px var(--shadow-color);
         }
          #toggle-sidebar-btn:hover {
-            background-color: var(--bg-secondary); /* Use secondary bg for hover */
+            background-color: var(--bg-secondary);
         }
 
         /* Styles when sidebar is collapsed */
@@ -188,32 +193,32 @@
             width: 0;
             padding-left: 0;
             padding-right: 0;
-            overflow: hidden; /* Hide content completely */
-            border-right: none; /* Hide border when collapsed */
+            overflow: hidden;
+            border-right: none;
         }
 
         /* --- Theme Toggle Switch Styles --- */
         .theme-switch-wrapper {
             display: flex;
             align-items: center;
-            margin-top: auto; /* Push to the bottom */
-            padding-top: 15px; /* Space above the toggle */
-            border-top: 1px solid var(--border-color); /* Separator line */
-            flex-shrink: 0; /* Prevent shrinking */
-            white-space: nowrap; /* Prevent wrapping */
-            overflow: hidden; /* Hide during collapse */
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            flex-shrink: 0;
+            white-space: nowrap;
+            overflow: hidden;
         }
         .theme-switch-wrapper span {
             margin-left: 10px;
-            font-size: 0.9rem;
+            font-size: 1rem; /* Adjust size */
             color: var(--text-secondary);
         }
         .theme-switch {
             position: relative;
             display: inline-block;
-            width: 50px; /* Width of the switch */
-            height: 24px; /* Height of the switch */
-            flex-shrink: 0; /* Prevent shrinking */
+            width: 50px;
+            height: 24px;
+            flex-shrink: 0;
         }
         .theme-switch input {
             opacity: 0;
@@ -233,35 +238,29 @@
         .slider:before {
             position: absolute;
             content: "";
-            height: 18px; /* Size of the circle */
-            width: 18px;  /* Size of the circle */
-            left: 3px;    /* Position from left */
-            bottom: 3px;  /* Position from bottom */
-            background-color: white; /* Circle color */
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
             transition: .4s;
         }
         input:checked + .slider {
-            background-color: #2196F3; /* Active color (e.g., blue) */
+            background-color: #2196F3;
         }
-        /* Use theme variable for active state if desired */
-        /* input:checked + .slider {
-            background-color: var(--slider-color);
-        } */
         input:checked + .slider:before {
-            transform: translateX(26px); /* Move circle to the right */
+            transform: translateX(26px);
         }
-        /* Rounded sliders */
         .slider.round {
-            border-radius: 24px; /* Make the track rounded */
+            border-radius: 24px;
         }
         .slider.round:before {
-            border-radius: 50%; /* Make the circle round */
+            border-radius: 50%;
         }
 
     </style>
 </head>
 <body>
-    <!-- Add sidebar-collapsed class here initially if you want it closed by default -->
     <div class="container">
         <div id="sidebar">
             <h2>Select Map</h2>
@@ -300,7 +299,6 @@
                 height: 4960,
                 imageUrl: 'maps/IceBeach.png',
                 pointsOfInterest: [
-                    // Coordinates relative to THIS map (7016x4960)
                     { coords: [4960 * 0.5, 7016 * 0.5], name: "Center Point", description: "The very middle." },
                     { coords: [4960 * 0.8, 7016 * 0.2], name: "North East Camp", description: "A small outpost." },
                     { coords: [4960 * 0.15, 7016 * 0.75], name: "Southern Ruins", description: "Old stones." },
@@ -313,7 +311,6 @@
                 height: 1120,
                 imageUrl: 'maps/cos-map.jpg',
                 pointsOfInterest: [
-                    // Coordinates relative to THIS map (1680x1120)
                     { coords: [1120 * 0.75, 1680 * 0.5], name: "Capital City", description: "The bustling heart of the kingdom." },
                     { coords: [1120 * 0.3, 1680 * 0.2], name: "Ancient Ruins", description: "Whispers of a forgotten era linger here." },
                     { coords: [1120 * 0.5, 1680 * 0.8], name: "Whispering Woods", description: "An old forest, said to be enchanted." },
@@ -327,9 +324,9 @@
         // --- Initialize Leaflet Map ---
         const map = L.map('map', {
             crs: L.CRS.Simple,
-            minZoom: -2, // Adjust minZoom based on your largest map maybe?
-            maxZoom: 3,  // Adjust maxZoom as needed
-            attributionControl: false // this is the bottom right tag for project
+            minZoom: -2,
+            maxZoom: 3,
+            attributionControl: false // Attribution is now disabled
         });
 
         // --- Global variables ---
@@ -342,9 +339,9 @@
         const sidebar = document.getElementById('sidebar');
         const mapListElement = document.getElementById('map-list');
         const toggleBtn = document.getElementById('toggle-sidebar-btn');
-        const themeToggle = document.getElementById('theme-checkbox'); // Get the checkbox
-        const bodyElement = document.body; // Get the body element
-        const transitionDuration = 300; // Milliseconds - MUST match CSS transition duration
+        const themeToggle = document.getElementById('theme-checkbox');
+        const bodyElement = document.body;
+        const transitionDuration = 300;
 
         // --- Function to Load/Switch Map ---
         function loadMap(mapId) {
@@ -369,10 +366,8 @@
 
             // Add Markers
             selectedMap.pointsOfInterest.forEach(point => {
-                // Basic validation for coordinates
                 if (point.coords && point.coords.length === 2 &&
                     !isNaN(point.coords[0]) && !isNaN(point.coords[1])) {
-                    // Check if coords are within bounds (optional but good practice)
                     if (point.coords[0] >= 0 && point.coords[0] <= mapHeight &&
                         point.coords[1] >= 0 && point.coords[1] <= mapWidth) {
                          const marker = L.marker(point.coords).addTo(map);
@@ -413,19 +408,17 @@
         toggleBtn.addEventListener('click', () => {
             container.classList.toggle('sidebar-collapsed');
 
-            // Update button icon/title
             if (container.classList.contains('sidebar-collapsed')) {
-                toggleBtn.innerHTML = '&raquo;'; // Change to right arrow
+                toggleBtn.innerHTML = '&raquo;';
                 toggleBtn.title = 'Expand Sidebar';
             } else {
-                toggleBtn.innerHTML = '&laquo;'; // Change back to left arrow
+                toggleBtn.innerHTML = '&laquo;';
                 toggleBtn.title = 'Collapse Sidebar';
             }
 
-            // IMPORTANT: Invalidate map size after the transition finishes
             setTimeout(() => {
-                map.invalidateSize({ animate: true }); // Animate resize if possible
-            }, transitionDuration); // Wait for CSS transition
+                map.invalidateSize({ animate: true });
+            }, transitionDuration);
         });
 
         // --- Theme Toggle Logic ---
@@ -441,12 +434,12 @@
 
         themeToggle.addEventListener('change', () => {
             const newTheme = themeToggle.checked ? 'dark' : 'light';
-            localStorage.setItem('theme', newTheme); // Save preference
+            localStorage.setItem('theme', newTheme);
             applyTheme(newTheme);
         });
 
         // --- Load Saved Theme on Page Load ---
-        const savedTheme = localStorage.getItem('theme') || 'light'; // Default to light
+        const savedTheme = localStorage.getItem('theme') || 'light';
         applyTheme(savedTheme);
 
 
@@ -454,17 +447,15 @@
         map.on('click', function(e) {
             if (currentBounds) {
                  console.log(`Map clicked at: [${Math.round(e.latlng.lat)}, ${Math.round(e.latlng.lng)}] (Y, X from bottom-left)`);
-                 // Optional: Add a temporary marker on click
-                 // L.marker(e.latlng).addTo(map).bindPopup(`Clicked at: [${Math.round(e.latlng.lat)}, ${Math.round(e.latlng.lng)}]`).openPopup();
             }
         });
 
         // --- Load the Initial Map ---
         if (mapData.length > 0) {
-            loadMap(mapData[0].id); // Load the first map in the list by default
+            loadMap(mapData[0].id);
         } else {
             console.error("No map data configured.");
-            sidebar.innerHTML = '<h2>Select Map</h2><p>No maps configured.</p>'; // Inform user
+            sidebar.innerHTML = '<h2>Select Map</h2><p>No maps configured.</p>';
         }
 
     </script>
