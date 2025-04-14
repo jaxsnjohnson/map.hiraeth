@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Point Finder Tool</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+    <style>
+        body {
+            font-family: sans-serif; margin: 0; padding: 0; display: flex;
+            flex-direction: column; height: 100vh; background-color: #f8f8f8;
+        }
+        .controls {
+            padding: 10px 15px; background-color: #eee; border-bottom: 1px solid #ccc;
+            display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+        }
+        .controls label { margin-right: 5px; font-weight: bold; white-space: nowrap;}
+        .controls input[type="text"] {
+            padding: 5px 8px; border: 1px solid #ccc; border-radius: 4px;
+        }
+        #imageUrl { flex-grow: 1; min-width: 200px; }
+        #pointName { width: 150px; }
+        .controls button {
+            padding: 6px 12px; cursor: pointer;
+            color: white; border: none; border-radius: 4px;
+        }
+        #loadMapBtn { background-color: #28a745; } /* Green */
+        #loadMapBtn:hover { background-color: #218838; }
+        #addPointBtn { background-color: #007bff; } /* Blue */
+        #addPointBtn:hover { background-color: #0056b3; }
+        .controls button:disabled { background-color: #aaa; cursor: not-allowed; }
+
+        #map { flex-grow: 1; width: 100%; background-color: #ddd; }
+
+        .info-area {
+            display: flex;
+            padding: 10px 15px;
+            background-color: #f0f0f0;
+            border-top: 1px solid #ccc;
+            gap: 15px;
+            align-items: flex-start; /* Align items top */
+        }
+        .left-info {
+             display: flex;
+             flex-direction: column;
+             gap: 8px;
+             align-items: flex-start;
+        }
+        .coords-section { display: flex; align-items: center; gap: 10px; }
+        #coords-display {
+            font-weight: bold; font-family: monospace; background-color: #fff;
+            padding: 5px 8px; border-radius: 4px; border: 1px solid #ccc;
+            min-width: 100px; text-align: center;
+        }
+        .instructions { font-size: 0.9em; color: #555; }
+        #status { font-style: italic; color: #333; font-size: 0.9em; }
+        #status.error { color: #c00; font-weight: bold; }
+
+        .output-area {
+            flex-grow: 1; /* Take remaining space */
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .output-area label { font-weight: bold; font-size: 0.9em; margin-bottom: 3px; }
+        #pointsOutput {
+            width: 100%;
+            height: 100px; /* Adjust height as needed */
+            font-family: monospace;
+            font-size: 0.9em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px;
+            resize: vertical; /* Allow vertical resize */
+            white-space: pre; /* Preserve whitespace */
+            overflow-wrap: normal; /* Prevent wrapping */
+            overflow-x: auto; /* Allow horizontal scroll */
+        }
+        .output-buttons { display: flex; gap: 10px; justify-content: flex-end;}
+        .output-buttons button {
+             padding: 3px 8px; font-size: 0.9em; cursor: pointer;
+             color: white; border: none; border-radius: 4px;
+        }
+        #copyAllBtn { background-color: #17a2b8; } /* Teal */
+        #copyAllBtn:hover { background-color: #117a8b; }
+        #clearAllBtn { background-color: #dc3545; } /* Red */
+        #clearAllBtn:hover { background-color: #c82333; }
+
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <label for="imageUrl">Image URL:</label>
+        <input type="text" id="imageUrl" placeholder="e.g., maps/IceBeach.png" value="maps/IceBeach.png">
+        <button id="loadMapBtn">Load</button>
+
+        <label for="pointName">Point Name:</label>
+        <input type="text" id="pointName" placeholder="e.g., Capital City">
+        <button id="addPointBtn" disabled>Add Point</button> <!-- Disabled initially -->
+         <span id="status">Load map image first.</span>
+    </div>
+
+    <div id="map"></div>
+
+    <div class="info-area">
+        <div class="left-info">
+             <span class="instructions">Click map for coords:</span>
+             <div class="coords-section">
+                 <span id="coords-display">[Y, X]</span>
+                 <!-- Single copy button removed -->
+             </div>
+        </div>
+        <div class="output-area">
+             <label for="pointsOutput">Collected Points (Copy this into mapData):</label>
+             <textarea id="pointsOutput" readonly></textarea>
+             <div class="output-buttons">
+                 <button id="copyAllBtn" disabled>Copy All</button>
+                 <button id="clearAllBtn" disabled>Clear All</button>
+             </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
+    <script>
+        const mapElement = document.getElementById('map');
+        const imageUrlInput = document.getElementById('imageUrl');
+        const pointNameInput = document.getElementById('pointName');
+        const loadMapBtn = document.getElementById('loadMapBtn');
+        const addPointBtn = document.getElementById('addPointBtn');
+        const coordsDisplay = document.getElementById('coords-display');
+        const pointsOutput = document.getElementById('pointsOutput');
+        const copyAllBtn = document.getElementById('copyAllBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const statusDisplay = document.getElementById('status');
+
+        let map = null;
+        let imageLayer = null;
+        let currentBounds = null;
+        let lastClickedCoordsArray = null; // Store as [Y, X] array
+        let collectedPoints = []; // Array to store point objects
+
+        // Initialize Leaflet map ONCE
+        try {
+            map = L.map('map', {
+                crs: L.CRS.Simple,
+                minZoom: -5,
+                maxZoom: 5
+            }).setView([0, 0], -5);
+            console.log("Leaflet map initialized.");
+        } catch(e) {
+            console.error("Failed to initialize Leaflet map:", e);
+            alert("Error initializing map. Check Leaflet library loading.");
+        }
+
+        // --- UI Update Functions ---
+        function updatePointsOutput() {
+            const outputString = collectedPoints.map(p => {
+                // Format each point object into the desired string
+                return `    { coords: [${p.coords[0]}, ${p.coords[1]}], name: "${p.name}", description: "..." }`;
+            }).join(',\n'); // Join with comma and newline
+
+            pointsOutput.value = outputString;
+
+            // Enable/disable Copy/Clear buttons based on content
+            const hasPoints = collectedPoints.length > 0;
+            copyAllBtn.disabled = !hasPoints;
+            clearAllBtn.disabled = !hasPoints;
+        }
+
+        function resetUIState() {
+            statusDisplay.textContent = 'Load map image first.';
+            statusDisplay.className = '';
+            coordsDisplay.textContent = '[Y, X]';
+            addPointBtn.disabled = true;
+            copyAllBtn.disabled = true;
+            clearAllBtn.disabled = true;
+            pointsOutput.value = '';
+            lastClickedCoordsArray = null;
+            collectedPoints = [];
+            if (imageLayer) {
+                map.removeLayer(imageLayer);
+                imageLayer = null;
+            }
+            currentBounds = null;
+        }
+
+        // --- Core Logic ---
+        function loadImage() {
+            const imageUrl = imageUrlInput.value.trim();
+            console.log("Load button clicked. URL:", imageUrl);
+            if (!imageUrl) { alert("Please enter an Image URL."); return; }
+
+            resetUIState(); // Reset everything before loading
+            loadMapBtn.disabled = true;
+            statusDisplay.textContent = 'Loading image...';
+
+            const img = new Image();
+            img.onload = () => {
+                const mapWidth = img.naturalWidth;
+                const mapHeight = img.naturalHeight;
+                console.log(`img.onload fired. Dimensions: ${mapWidth}x${mapHeight}`);
+                if (mapWidth === 0 || mapHeight === 0) {
+                     statusDisplay.textContent = 'Error: Image has zero dimensions.';
+                     statusDisplay.className = 'error';
+                     loadMapBtn.disabled = false; return;
+                }
+                statusDisplay.textContent = `Dimensions: ${mapWidth}x${mapHeight}. Adding to map...`;
+                currentBounds = [[0, 0], [mapHeight, mapWidth]];
+                try {
+                    imageLayer = L.imageOverlay(imageUrl, currentBounds);
+                    imageLayer.on('error', (e) => {
+                        console.error("Leaflet overlay error:", e);
+                        statusDisplay.textContent = `Error displaying image.`; statusDisplay.className = 'error';
+                        if(imageLayer && map.hasLayer(imageLayer)) map.removeLayer(imageLayer);
+                        imageLayer = null; loadMapBtn.disabled = false;
+                    });
+                    imageLayer.on('load', () => {
+                        console.log("Leaflet overlay loaded.");
+                        statusDisplay.textContent = `Loaded: ${imageUrl} (${mapWidth}x${mapHeight}). Click map to add points.`;
+                        map.fitBounds(currentBounds);
+                        loadMapBtn.disabled = false;
+                        // Don't enable add point yet, user must click first
+                    });
+                    imageLayer.addTo(map);
+                } catch (error) {
+                     console.error("Error creating/adding overlay:", error);
+                     statusDisplay.textContent = `Error: ${error.message}`; statusDisplay.className = 'error';
+                     loadMapBtn.disabled = false;
+                }
+            };
+            img.onerror = (e) => {
+                console.error("img.onerror fired:", e);
+                statusDisplay.textContent = `Error: Could not load image. Check path/URL.`;
+                statusDisplay.className = 'error';
+                loadMapBtn.disabled = false;
+            };
+            img.src = imageUrl;
+        }
+
+        // --- Event Listeners ---
+        map.on('click', function(e) {
+            if (!imageLayer || !currentBounds) {
+                coordsDisplay.textContent = 'Load image first!';
+                addPointBtn.disabled = true;
+                return;
+            }
+            const yCoord = Math.round(e.latlng.lat);
+            const xCoord = Math.round(e.latlng.lng);
+            const clampedY = Math.max(0, Math.min(yCoord, currentBounds[1][0]));
+            const clampedX = Math.max(0, Math.min(xCoord, currentBounds[1][1]));
+
+            lastClickedCoordsArray = [clampedY, clampedX]; // Store the array
+            coordsDisplay.textContent = `[${clampedY}, ${clampedX}]`; // Display formatted string
+            addPointBtn.disabled = false; // Enable Add button now that we have coords
+            console.log("Map clicked at:", lastClickedCoordsArray);
+
+            // Optional temporary marker
+            L.marker(lastClickedCoordsArray).addTo(map)
+                .bindPopup(`Click Add Point to save:\n[${clampedY}, ${clampedX}]`)
+                .openPopup()
+                .on('popupclose', function(ev) { if(map.hasLayer(ev.target)) map.removeLayer(ev.target); });
+        });
+
+        loadMapBtn.addEventListener('click', loadImage);
+
+        addPointBtn.addEventListener('click', () => {
+            if (!lastClickedCoordsArray) {
+                alert("Please click on the map first to select coordinates.");
+                return;
+            }
+            const pointName = pointNameInput.value.trim() || `Point ${collectedPoints.length + 1}`; // Default name
+
+            // Add to our collection
+            collectedPoints.push({
+                name: pointName,
+                coords: lastClickedCoordsArray // Use the stored array
+            });
+
+            console.log("Added point:", collectedPoints[collectedPoints.length - 1]);
+
+            // Update display
+            updatePointsOutput();
+
+            // Reset for next point
+            pointNameInput.value = '';
+            coordsDisplay.textContent = '[Y, X]'; // Reset coords display
+            lastClickedCoordsArray = null; // Clear last click
+            addPointBtn.disabled = true; // Disable until next click
+            pointNameInput.focus(); // Focus name input for convenience
+        });
+
+        copyAllBtn.addEventListener('click', () => {
+            if (pointsOutput.value) {
+                navigator.clipboard.writeText(pointsOutput.value).then(() => {
+                    copyAllBtn.textContent = 'Copied!';
+                    setTimeout(() => { copyAllBtn.textContent = 'Copy All'; }, 1500);
+                }).catch(err => {
+                    console.error('Failed to copy points: ', err);
+                    alert('Failed to copy points. Check browser permissions.');
+                });
+            }
+        });
+
+        clearAllBtn.addEventListener('click', () => {
+            if (confirm("Are you sure you want to clear all collected points?")) {
+                collectedPoints = [];
+                lastClickedCoordsArray = null;
+                updatePointsOutput(); // Clears textarea and disables buttons
+                coordsDisplay.textContent = '[Y, X]';
+                addPointBtn.disabled = true;
+                console.log("Cleared all points.");
+            }
+        });
+
+    </script>
+
+</body>
+</html>

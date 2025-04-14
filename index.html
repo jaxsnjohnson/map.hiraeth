@@ -8,7 +8,6 @@
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 
-
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -27,8 +26,8 @@
             --text-primary: #333;
             --text-secondary: #555;
             --border-color: #ccc;
-            --highlight-bg: rgba(220, 220, 220, 0.5);
-            --active-bg: rgba(192, 192, 192, 0.6);
+            --highlight-bg: rgba(220, 220, 220, 0.5); /* Frosted highlight */
+            --active-bg: rgba(192, 192, 192, 0.7); /* Slightly stronger frosted active */
             --popup-text: #333;
             --shadow-color: rgba(0,0,0,0.15);
             --slider-bg: #ccc;
@@ -41,12 +40,12 @@
 
         body.dark-theme {
             --bg-primary: #222;
-            --bg-secondary: #333;
+            --bg-secondary: #333; /* Fallback map bg if needed */
             --text-primary: #eee;
             --text-secondary: #bbb;
             --border-color: #555;
-            --highlight-bg: rgba(68, 68, 68, 0.5);
-            --active-bg: rgba(85, 85, 85, 0.6);
+            --highlight-bg: rgba(68, 68, 68, 0.5); /* Frosted highlight */
+            --active-bg: rgba(85, 85, 85, 0.7); /* Slightly stronger frosted active */
             --popup-text: #eee;
             --shadow-color: rgba(0,0,0,0.3);
             --slider-bg: #555;
@@ -55,383 +54,124 @@
             --glass-bg-dark: rgba(50, 50, 50, 0.65);
             --glass-border-dark: rgba(255, 255, 255, 0.15);
         }
-        
+
         /* --- Keyframes for WIP Popup Gradient Pulse --- */
         @keyframes pulseGradient {
-            0% { background-position: 0% 50%; } /* Start at the beginning of the gradient */
-            50% { background-position: 100% 50%; } /* Move to the end */
-            100% { background-position: 0% 50%; } /* Return to the start for smooth loop */
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         /* Apply Variables & Base Styles */
         html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: var(--font-family-main);
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            overflow: hidden;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            height: 100%; margin: 0; padding: 0; font-family: var(--font-family-main);
+            background-color: var(--bg-primary); color: var(--text-primary);
+            overflow: hidden; transition: background-color 0.3s ease, color 0.3s ease;
         }
-
-        /* Main container using Flexbox */
-        .container {
-            display: flex;
-            height: 100%;
-            width: 100%;
-        }
+        .container { display: flex; height: 100%; width: 100%; }
 
         /* Sidebar styling */
         #sidebar {
-            background-color: var(--glass-bg-light);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-right: 1px solid var(--glass-border-light);
-            width: 250px;
-            padding: 15px;
-            box-shadow: 2px 0 15px var(--shadow-color);
-            overflow-y: auto;
-            flex-shrink: 0;
+            background-color: var(--glass-bg-light); backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); border-right: 1px solid var(--glass-border-light);
+            width: 250px; padding: 15px; box-shadow: 2px 0 15px var(--shadow-color);
+            overflow-y: auto; flex-shrink: 0;
             transition: width 0.3s ease, padding 0.3s ease, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-            box-sizing: border-box;
-            position: relative;
-            display: flex;
-            flex-direction: column;
+            box-sizing: border-box; position: relative; display: flex; flex-direction: column;
         }
-        body.dark-theme #sidebar {
-            background-color: var(--glass-bg-dark);
-            border-right-color: var(--glass-border-dark);
-        }
-
+        body.dark-theme #sidebar { background-color: var(--glass-bg-dark); border-right-color: var(--glass-border-dark); }
         #sidebar h2 {
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 1.5rem;
-            font-weight: 600;
-            border-bottom: 1px solid var(--glass-border-light);
-            padding-bottom: 10px;
-            white-space: nowrap;
-            color: var(--text-primary);
-            flex-shrink: 0;
+            margin-top: 0; margin-bottom: 15px; font-size: 1.5rem; font-weight: 600;
+            border-bottom: 1px solid var(--glass-border-light); padding-bottom: 10px;
+            white-space: nowrap; color: var(--text-primary); flex-shrink: 0;
         }
-        body.dark-theme #sidebar h2 {
-             border-bottom-color: var(--glass-border-dark);
-        }
+        body.dark-theme #sidebar h2 { border-bottom-color: var(--glass-border-dark); }
 
-        #map-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            overflow-y: auto;
-            flex-grow: 1;
+        /* Sidebar List Styling */
+        #map-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex-grow: 1; }
+        #map-list li { border-radius: 4px; margin-bottom: 3px; overflow: hidden; }
+        .map-item {
+            padding: 10px 10px 10px 15px; cursor: pointer; transition: background-color 0.2s ease;
+            white-space: nowrap; text-overflow: ellipsis; font-size: 1.1rem;
+            background-color: transparent; display: block;
         }
-        #map-list li {
-            padding: 10px 5px;
-            cursor: pointer;
-            border-radius: 4px;
-            margin-bottom: 5px;
-            transition: background-color 0.2s ease;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 1.1rem;
-            background-color: transparent;
+        .map-item:hover { background-color: var(--highlight-bg); }
+        .map-item.active { background-color: var(--active-bg); font-weight: 600; }
+        .folder-header {
+            padding: 10px 5px; cursor: pointer; font-weight: bold; display: flex;
+            align-items: center; transition: background-color 0.2s ease; background-color: transparent;
+            user-select: none; /* Prevent text selection on double click */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
-        #map-list li:hover {
-            background-color: var(--highlight-bg);
+        .folder-header:hover { background-color: var(--highlight-bg); }
+        /* Style active folder header */
+        .folder-header.active {
+             background-color: var(--active-bg);
+             font-weight: 600; /* Match map item active style */
         }
-        #map-list li.active {
-            background-color: var(--active-bg);
-            font-weight: 600;
-        }
+        .folder-toggle-icon { display: inline-block; width: 1.2em; text-align: center; margin-right: 5px; transition: transform 0.2s ease-in-out; }
+        .folder.closed > .folder-header .folder-toggle-icon::before { content: '▸'; }
+        .folder:not(.closed) > .folder-header .folder-toggle-icon::before { content: '▾'; }
+        .nested-list { list-style: none; padding: 0; margin: 0 0 0 15px; max-height: 1000px; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .folder.closed > .nested-list { max-height: 0; }
 
-        /* Map container takes remaining space */
-        #map-container {
-            flex-grow: 1;
-            height: 100%;
-            position: relative;
-            overflow: hidden;
-        }
+        /* Map container */
+        #map-container { flex-grow: 1; height: 100%; position: relative; overflow: hidden; }
+        #map { height: 100%; width: 100%; background-color: var(--bg-secondary); transition: background-color 0.3s ease; }
+        body.dark-theme #map { background-image: url('images/night-sky.png'); background-repeat: repeat; background-color: #050510; }
 
-        /* Make the map element fill its container */
-        #map {
-            height: 100%;
-            width: 100%;
-            background-color: var(--bg-secondary);
-        }
+        /* Popups */
+        .leaflet-popup-content-wrapper { background: var(--glass-bg-light); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: var(--popup-text); border-radius: 8px; box-shadow: 0 3px 14px var(--shadow-color); border: 1px solid var(--glass-border-light); }
+        .leaflet-popup-tip { background: transparent; box-shadow: none; }
+        body.dark-theme .leaflet-popup-content-wrapper { background: var(--glass-bg-dark); border-color: var(--glass-border-dark); }
+        .leaflet-popup-content { margin: 15px; font-size: 1.1rem; line-height: 1.5; }
+        .leaflet-popup-content h3 { margin-top: 0; margin-bottom: 10px; font-size: 1.3rem; font-weight: 600; color: var(--popup-text); }
+        .dark-theme .leaflet-popup-close-button { color: var(--text-secondary); }
+        .dark-theme .leaflet-popup-close-button:hover { color: var(--text-primary); }
 
-        /* Style Leaflet popups */
-        .leaflet-popup-content-wrapper {
-            background: var(--glass-bg-light);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            color: var(--popup-text);
-            border-radius: 8px;
-            box-shadow: 0 3px 14px var(--shadow-color);
-            border: 1px solid var(--glass-border-light);
-        }
-        .leaflet-popup-tip {
-             background: transparent;
-             box-shadow: none;
-        }
-        body.dark-theme .leaflet-popup-content-wrapper {
-            background: var(--glass-bg-dark);
-            border-color: var(--glass-border-dark);
-        }
+        /* Buttons */
+        #toggle-sidebar-btn { position: absolute; bottom: 35px; left: 10px; z-index: 1000; background-color: var(--glass-bg-light); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid var(--glass-border-light); color: var(--text-primary); border-radius: 4px; padding: 5px 8px; cursor: pointer; font-size: 1.2rem; line-height: 1; box-shadow: 0 1px 5px var(--shadow-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
+        #toggle-sidebar-btn:hover { background-color: rgba(255, 255, 255, 0.75); }
+        body.dark-theme #toggle-sidebar-btn { background-color: var(--glass-bg-dark); border-color: var(--glass-border-dark); }
+        body.dark-theme #toggle-sidebar-btn:hover { background-color: rgba(70, 70, 70, 0.75); }
+        .container.sidebar-collapsed #sidebar { width: 0; padding-left: 0; padding-right: 0; overflow: hidden; border-right: none; }
+        .leaflet-control-zoom a { background-color: var(--glass-bg-light); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid var(--glass-border-light); color: var(--text-primary); border-bottom: 1px solid var(--glass-border-light); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
+        .leaflet-control-zoom-in { border-bottom: 1px solid var(--glass-border-light); border-radius: 4px 4px 0 0; }
+        .leaflet-control-zoom-out { border-radius: 0 0 4px 4px; border: 1px solid var(--glass-border-light); border-top: none; }
+        .leaflet-control-zoom a:hover { background-color: rgba(255, 255, 255, 0.75); color: #000; }
+        body.dark-theme .leaflet-control-zoom a { background-color: var(--glass-bg-dark); border-color: var(--glass-border-dark); color: var(--text-primary); }
+        body.dark-theme .leaflet-control-zoom-in { border-bottom: 1px solid var(--glass-border-dark); }
+        body.dark-theme .leaflet-control-zoom-out { border: 1px solid var(--glass-border-dark); border-top: none; }
+        body.dark-theme .leaflet-control-zoom a:hover { background-color: rgba(70, 70, 70, 0.75); color: #fff; }
 
-        .leaflet-popup-content {
-            margin: 15px;
-            font-size: 1.1rem;
-            line-height: 1.5;
-        }
-        .leaflet-popup-content h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--popup-text);
-        }
-        .dark-theme .leaflet-popup-close-button {
-            color: var(--text-secondary);
-        }
-        .dark-theme .leaflet-popup-close-button:hover {
-            color: var(--text-primary);
-        }
+        /* Theme Toggle */
+        .theme-switch-wrapper { display: flex; align-items: center; margin-top: auto; padding-top: 15px; border-top: 1px solid var(--glass-border-light); flex-shrink: 0; white-space: nowrap; overflow: hidden; }
+        body.dark-theme .theme-switch-wrapper { border-top-color: var(--glass-border-dark); }
+        .theme-switch-wrapper span { margin-left: 10px; font-size: 1rem; color: var(--text-secondary); }
+        .theme-switch { position: relative; display: inline-block; width: 50px; height: 24px; flex-shrink: 0; }
+        .theme-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--slider-bg); transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; }
+        input:checked + .slider { background-color: #2196F3; }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .slider.round { border-radius: 24px; }
+        .slider.round:before { border-radius: 50%; }
 
-        /* --- Styles for Collapsible Sidebar --- */
-        #toggle-sidebar-btn {
-            position: absolute;
-            bottom: 35px; /* Adjusted position */
-            left: 10px;
-            z-index: 1000;
-            background-color: var(--glass-bg-light);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid var(--glass-border-light);
-            color: var(--text-primary);
-            border-radius: 4px;
-            padding: 5px 8px;
-            cursor: pointer;
-            font-size: 1.2rem;
-            line-height: 1;
-            box-shadow: 0 1px 5px var(--shadow-color);
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-         #toggle-sidebar-btn:hover {
-            background-color: rgba(255, 255, 255, 0.75);
-         }
-        body.dark-theme #toggle-sidebar-btn {
-            background-color: var(--glass-bg-dark);
-            border-color: var(--glass-border-dark);
-        }
-        body.dark-theme #toggle-sidebar-btn:hover {
-             background-color: rgba(70, 70, 70, 0.75);
-        }
+        /* Bottom Link Bar */
+        #bottom-link-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 28px; background-color: var(--glass-bg-light); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border-top: 1px solid var(--glass-border-light); box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 0 15px; z-index: 1000; transition: background-color 0.3s ease, border-color 0.3s ease; }
+        #bottom-link-bar a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; margin: 0 8px; transition: color 0.2s ease; }
+        #bottom-link-bar a:hover { color: var(--text-primary); text-decoration: underline; }
+        body.dark-theme #bottom-link-bar { background-color: var(--glass-bg-dark); border-top-color: var(--glass-border-dark); }
+        body.dark-theme #bottom-link-bar a { color: var(--text-secondary); }
+        body.dark-theme #bottom-link-bar a:hover { color: var(--text-primary); }
 
-        /* Styles when sidebar is collapsed */
-        .container.sidebar-collapsed #sidebar {
-            width: 0;
-            padding-left: 0;
-            padding-right: 0;
-            overflow: hidden;
-            border-right: none;
-        }
-
-        /* --- Styles for Leaflet Controls (Zoom Buttons) --- */
-        .leaflet-control-zoom a {
-            background-color: var(--glass-bg-light);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid var(--glass-border-light);
-            color: var(--text-primary);
-            border-bottom: 1px solid var(--glass-border-light);
-            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-        }
-        .leaflet-control-zoom-in {
-             border-bottom: 1px solid var(--glass-border-light);
-             border-radius: 4px 4px 0 0;
-        }
-         .leaflet-control-zoom-out {
-             border-radius: 0 0 4px 4px;
-             border: 1px solid var(--glass-border-light);
-             border-top: none;
-        }
-        .leaflet-control-zoom a:hover {
-            background-color: rgba(255, 255, 255, 0.75);
-            color: #000;
-        }
-        body.dark-theme .leaflet-control-zoom a {
-            background-color: var(--glass-bg-dark);
-            border-color: var(--glass-border-dark);
-            color: var(--text-primary);
-        }
-         body.dark-theme .leaflet-control-zoom-in {
-             border-bottom: 1px solid var(--glass-border-dark);
-        }
-         body.dark-theme .leaflet-control-zoom-out {
-             border: 1px solid var(--glass-border-dark);
-             border-top: none;
-         }
-        body.dark-theme .leaflet-control-zoom a:hover {
-            background-color: rgba(70, 70, 70, 0.75);
-            color: #fff;
-        }
-
-        /* --- Theme Toggle Switch Styles --- */
-        .theme-switch-wrapper {
-            display: flex;
-            align-items: center;
-            margin-top: auto;
-            padding-top: 15px;
-            border-top: 1px solid var(--glass-border-light);
-            flex-shrink: 0;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-        body.dark-theme .theme-switch-wrapper {
-             border-top-color: var(--glass-border-dark);
-        }
-        .theme-switch-wrapper span {
-            margin-left: 10px;
-            font-size: 1rem;
-            color: var(--text-secondary);
-        }
-        .theme-switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-            flex-shrink: 0;
-        }
-        .theme-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--slider-bg);
-            transition: .4s;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .4s;
-        }
-        input:checked + .slider {
-            background-color: #2196F3;
-        }
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-        .slider.round {
-            border-radius: 24px;
-        }
-        .slider.round:before {
-            border-radius: 50%;
-        }
-
-        /* --- Styles for Bottom Link Bar --- */
-        #bottom-link-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 28px; /* Small height */
-            background-color: var(--glass-bg-light); /* Use glass effect */
-            backdrop-filter: blur(5px); /* Slightly less blur maybe */
-            -webkit-backdrop-filter: blur(5px);
-            border-top: 1px solid var(--glass-border-light); /* Top border */
-            box-sizing: border-box;
-            display: flex;
-            align-items: center; /* Vertically center content */
-            justify-content: center; /* Horizontally center content */
-            padding: 0 15px;
-            z-index: 1000; /* Same level as toggle button */
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-
-        #bottom-link-bar a {
-            color: var(--text-secondary); /* Use secondary text color */
-            text-decoration: none;
-            font-size: 0.85rem; /* Small font size */
-            margin: 0 8px; /* Spacing around links */
-            transition: color 0.2s ease;
-        }
-
-        #bottom-link-bar a:hover {
-            color: var(--text-primary); /* Darken on hover */
-            text-decoration: underline;
-        }
-
-        /* Dark theme adjustments for bottom bar */
-        body.dark-theme #bottom-link-bar {
-            background-color: var(--glass-bg-dark);
-            border-top-color: var(--glass-border-dark);
-        }
-
-        body.dark-theme #bottom-link-bar a {
-            color: var(--text-secondary);
-        }
-
-        body.dark-theme #bottom-link-bar a:hover {
-            color: var(--text-primary);
-        }
-
-                /* --- Styles for WIP Popup --- */
-                #wip-popup {
-            position: fixed;
-            bottom: 43px;
-            right: 15px;
-            z-index: 1001;
-            padding: 8px 12px;
-            /* Remove background-color and backdrop-filter */
-            /* background-color: var(--glass-bg-light); */
-            /* backdrop-filter: blur(5px); */
-            /* -webkit-backdrop-filter: blur(5px); */
-            border: 1px solid var(--glass-border-light); /* Keep the glass border */
-            border-radius: 6px;
-            box-shadow: 0 2px 6px var(--shadow-color);
-            transition: border-color 0.3s ease, color 0.3s ease; /* Update transition */
-
-            /* Add Animated Gradient Background */
-            background: linear-gradient(to right, #ff7e7e, #ffae70, #fff078, #ffae70, #ff7e7e); /* Red -> Orange -> Yellow -> Orange -> Red */
-            background-size: 300% 100%; /* Make gradient much wider than the box */
-            animation: pulseGradient 30s ease-in-out infinite; /* Apply the animation */
-        }
-
-        #wip-popup p {
-            margin: 0;
-            font-size: 0.8rem;
-            /* Use primary text color for better contrast switching */
-            color: var(--text-primary);
-            text-align: center;
-            white-space: nowrap;
-             /* Add subtle shadow for readability */
-            text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.4);
-        }
-        /* Dark theme adjustments for WIP popup */
-        body.dark-theme #wip-popup {
-            /* Background is handled by animation, only need to adjust border */
-            border-color: var(--glass-border-dark);
-        }
-
-        body.dark-theme #wip-popup p {
-            /* Text color should inherit correctly via var(--text-primary) */
-            /* Adjust shadow for dark mode if needed */
-             text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.6);
-        }
+        /* WIP Popup */
+        #wip-popup { position: fixed; bottom: 43px; right: 15px; z-index: 1001; padding: 8px 12px; border: 1px solid var(--glass-border-light); border-radius: 6px; box-shadow: 0 2px 6px var(--shadow-color); transition: border-color 0.3s ease, color 0.3s ease; background: linear-gradient(to right, #ff7e7e, #ffae70, #fff078, #ffae70, #ff7e7e); background-size: 300% 100%; animation: pulseGradient 30s ease-in-out infinite; }
+        #wip-popup p { margin: 0; font-size: 0.8rem; color: var(--text-primary); text-align: center; white-space: nowrap; text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.4); }
+        body.dark-theme #wip-popup { border-color: var(--glass-border-dark); }
+        body.dark-theme #wip-popup p { text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.6); }
 
     </style>
 </head>
@@ -473,40 +213,62 @@
     <script>
         // --- Map Data Configuration ---
         const mapData = [
-            { id: 'world1', name: 'Icebeach', width: 7016, height: 4960, imageUrl: 'maps/IceBeach.png', pointsOfInterest: [
-                 { coords: [4960 * 0.5, 7016 * 0.5], name: "Center Point", description: "The very middle." },
-                 { coords: [4960 * 0.8, 7016 * 0.2], name: "North East Camp", description: "A small outpost." },
-                 { coords: [4960 * 0.15, 7016 * 0.75], name: "Southern Ruins", description: "Old stones." },
-            ] },
-            { id: 'world2', name: 'Temp World Map', width: 1680, height: 1120, imageUrl: 'maps/cos-map.jpg', pointsOfInterest: [
-                 { coords: [1120 * 0.75, 1680 * 0.5], name: "Capital City", description: "The bustling heart of the kingdom." },
-                 { coords: [1120 * 0.3, 1680 * 0.2], name: "Ancient Ruins", description: "Whispers of a forgotten era linger here." },
-                 { coords: [1120 * 0.5, 1680 * 0.8], name: "Whispering Woods", description: "An old forest, said to be enchanted." },
-                 { coords: [1120 * 0.8, 1680 * 0.3], name: "Frozen Peak", description: "A treacherous climb." },
-                 { coords: [1120 * 0.4, 1680 * 0.7], name: "Coastal Village", description: "A small fishing community." }
-            ] }
-        ]; // (Ensure your POIs are correctly defined here)
+            {
+                type: 'folder', // It's a folder...
+                id: 'main_continent', // ...but it also represents/links to this map ID
+                name: 'Content Map', // Display name for the folder/link
+                // Include map details for the folder's own map here
+                width: 1680,
+                height: 1120,
+                imageUrl: 'maps/cos-map.jpg',
+                pointsOfInterest: [ // Points relevant to the main world map
+                     { coords: [1120 * 0.75, 1680 * 0.5], name: "Capital City", description: "..." },
+                     { coords: [1120 * 0.3, 1680 * 0.2], name: "Ancient Ruins", description: "..." },
+                     { coords: [1120 * 0.5, 1680 * 0.8], name: "Whispering Woods", description: "..." },
+                     { coords: [1120 * 0.8, 1680 * 0.3], name: "Frozen Peak", description: "..." },
+                     { coords: [1120 * 0.4, 1680 * 0.7], name: "Coastal Village", description: "..." },
+                     { coords: [1120 * 0.2, 1680 * 0.15], name: "Icebeach Region", description: "..." }
+                ],
+                // Children maps nested within this folder
+                children: [
+                    {
+                        id: 'icebeach_detail', // ID for the detail map
+                        name: 'Icebeach', // Display name for the sub-link
+                        width: 7016,
+                        height: 4960,
+                        imageUrl: 'maps/IceBeach.png',
+                        pointsOfInterest: [ // Points specific to the Icebeach map
+                            { coords: [3516, 3698], name: "Castgate", description: "Renowned for its picturesque beauty and Firmament dome that maintains a temperate climate, this coastal town thrives on fishing, and gemstone mining, bearing scars and monuments from past divine conflicts." },
+                            { coords: [4002, 3488], name: "Winrich Fortress", description: "..." },
+                            { coords: [4266, 3192], name: "Whitedrift", description: "..." },
+                            { coords: [3876, 2990], name: "Icemoor", description: "Once tasked with watching the Winrich Glacier and Fortress from its tall tower, this settlement is now mostly abandoned, left with only a few older guard maintaining the vigil after the endless winter." },
+                            { coords: [4358, 2976], name: "Little Roc", description: "..." },
+                            { coords: [1664, 3372], name: "Ottiker (Ottiken)", description: "Founded by immigrants on the shores of Sleetmond Lake, this town is recognized for its winery, despite recent conflicts with local druids halting deliveries" },
+                            { coords: [2310, 2722], name: "Fractured Point", description: "Perched on a rocky crag, this walled town often serves as the first stop for all who go into the heart of Icebeach, acting as a lighthouse and beacon where traders find ways to prosper despite the harsh conditions." },
+                            { coords: [2036, 3074], name: "The Hope Tree", description: "..." },
+                            { coords: [1210, 3924], name: "Quilt", description: "Situated on the Foaming Loch, this small community practices fish farming and is named for the distinctive dyed quilts crafted from local Icesheep wool." },
+                        ]
+                    },
+                    // Add other regional detail maps here if needed
+                ]
+            }
+            // Add other top-level folders or maps here
+        ];
 
         // --- Initialize Leaflet Map ---
         const map = L.map('map', { crs: L.CRS.Simple, minZoom: -2, maxZoom: 3, attributionControl: false });
 
         // --- Global variables ---
-        let currentImageLayer = null;
-        let currentMarkers = [];
-        let currentBounds = null;
-        let currentlyLoadedMapId = null;
-        let currentSidebarState = 'o'; // 'o' for open, 'c' for closed. Default open.
+        let currentImageLayer = null; let currentMarkers = []; let currentBounds = null;
+        let currentlyLoadedMapId = null; let currentSidebarState = 'o';
 
         // --- DOM Elements ---
-        const container = document.querySelector('.container');
-        const sidebar = document.getElementById('sidebar');
-        const mapListElement = document.getElementById('map-list');
-        const toggleBtn = document.getElementById('toggle-sidebar-btn');
-        const themeToggle = document.getElementById('theme-checkbox');
-        const bodyElement = document.body;
+        const container = document.querySelector('.container'); const sidebar = document.getElementById('sidebar');
+        const mapListElement = document.getElementById('map-list'); const toggleBtn = document.getElementById('toggle-sidebar-btn');
+        const themeToggle = document.getElementById('theme-checkbox'); const bodyElement = document.body;
         const transitionDuration = 300;
 
-        // --- Helper Function to Parse Hash ---
+        // --- Helper Functions ---
         function parseHash() {
             const hash = window.location.hash.substring(1);
             let mapId = null;
@@ -518,18 +280,30 @@
                     sidebarState = parts[1];
                 }
             }
+             // Find the default map ID more robustly for initialization
+            let defaultMapId = null;
+            function findFirstId(items) {
+                for (const item of items) {
+                    if (item.id) return item.id; // Found an ID (folder or map)
+                    if (item.type === 'folder' && item.children) {
+                        const foundId = findFirstId(item.children);
+                        if (foundId) return foundId; // Found ID in children
+                    }
+                }
+                return null;
+            }
+            defaultMapId = findFirstId(mapData);
+
             return {
-                mapId: mapId || (mapData.length > 0 ? mapData[0].id : null),
+                mapId: mapId || defaultMapId, // Use hash ID if present, else default
                 sidebarState: sidebarState || 'o'
             };
         }
-
-        // --- Helper Function to Generate Hash ---
         function generateHash(mapId, sidebarState) {
             return `#${mapId}-s=${sidebarState}`;
         }
 
-        // --- Function to Set Sidebar State (Visual + Optional Hash Update) ---
+        // --- Function to Set Sidebar State ---
         function setSidebarState(state, updateHash = true) {
             const shouldBeCollapsed = (state === 'c');
             const isCurrentlyCollapsed = container.classList.contains('sidebar-collapsed');
@@ -556,43 +330,78 @@
 
         // --- Function to Load/Switch Map ---
         function loadMap(mapId, updateHash = true) {
-            if (mapId === currentlyLoadedMapId) {
-                console.log(`Map ${mapId} is already loaded.`);
-                if (updateHash) {
-                    const currentHash = generateHash(mapId, currentSidebarState);
-                    if (window.location.hash !== currentHash) {
-                         console.log("Updating hash from loadMap (state change only):", currentHash);
-                         history.replaceState(null, '', currentHash);
+            // Find the map data recursively
+            let selectedMap = null;
+            function findMap(items, id) {
+                for (const item of items) {
+                    if (item.id === id) { return item; } // Check item itself
+                    if (item.type === 'folder' && item.children) { // Search children
+                        const found = findMap(item.children, id);
+                        if (found) return found;
                     }
                 }
+                return null;
+            }
+            selectedMap = findMap(mapData, mapId);
+
+            if (!selectedMap) { console.error("Map data not found for ID:", mapId); return; }
+
+            // Prevent reload only if map ID AND the actual map data object are the same
+            if (mapId === currentlyLoadedMapId && selectedMap.type !== 'folder') {
+                 console.log(`Map ${mapId} is already loaded.`);
+                 if (updateHash) {
+                     const currentHash = generateHash(mapId, currentSidebarState);
+                     if (window.location.hash !== currentHash) {
+                          console.log("Updating hash from loadMap (state change only):", currentHash);
+                          history.replaceState(null, '', currentHash);
+                     }
+                 }
+                 return;
+            }
+
+            console.log(`Loading map: ${selectedMap.name} (ID: ${mapId})`);
+
+            // --- Map Loading Logic ---
+            if (currentImageLayer) map.removeLayer(currentImageLayer);
+            currentMarkers.forEach(marker => map.removeLayer(marker)); currentMarkers = [];
+            const mapHeight = selectedMap.height; const mapWidth = selectedMap.width;
+            if (isNaN(mapHeight) || isNaN(mapWidth)) {
+                console.error(`Invalid dimensions for map ID ${mapId}: H=${mapHeight}, W=${mapWidth}`);
                 return;
             }
-            const selectedMap = mapData.find(m => m.id === mapId);
-            if (!selectedMap) {
-                console.error("Map data not found for ID:", mapId); return;
-            }
-            console.log(`Loading map: ${selectedMap.name} (ID: ${mapId})`);
-            if (currentImageLayer) map.removeLayer(currentImageLayer);
-            currentMarkers.forEach(marker => map.removeLayer(marker));
-            currentMarkers = [];
-            const mapHeight = selectedMap.height;
-            const mapWidth = selectedMap.width;
             currentBounds = [[0, 0], [mapHeight, mapWidth]];
             currentImageLayer = L.imageOverlay(selectedMap.imageUrl, currentBounds).addTo(map);
-            // Ensure POIs are correctly added
-            selectedMap.pointsOfInterest.forEach(point => {
+            (selectedMap.pointsOfInterest || []).forEach(point => {
                 if (point.coords && point.coords.length === 2 && !isNaN(point.coords[0]) && !isNaN(point.coords[1])) {
                     if (point.coords[0] >= 0 && point.coords[0] <= mapHeight && point.coords[1] >= 0 && point.coords[1] <= mapWidth) {
                          const marker = L.marker(point.coords).addTo(map);
-                         marker.bindPopup(`<h3>${point.name}</h3><p>${point.description}</p>`);
+                         marker.bindPopup(`<h3>${point.name}</h3><p>${point.description || ''}</p>`);
                          currentMarkers.push(marker);
                     } else { console.warn(`POI coordinates out of bounds for map ${selectedMap.name}: ${point.name}`, point.coords); }
                 } else { console.warn(`Invalid coordinates for POI: ${point.name}`, point.coords); }
             });
             map.fitBounds(currentBounds);
-            document.querySelectorAll('#map-list li').forEach(li => {
-                li.classList.toggle('active', li.dataset.mapId === mapId);
-            });
+            // --- End Map Loading Logic ---
+
+            // --- Update Sidebar Active State ---
+            document.querySelectorAll('#map-list .map-item, #map-list .folder-header').forEach(item => item.classList.remove('active'));
+            const activeMapItem = document.querySelector(`#map-list .map-item[data-map-id="${mapId}"]`);
+            const activeFolderHeader = document.querySelector(`#map-list .folder-header[data-map-id="${mapId}"]`);
+            if (activeMapItem) {
+                activeMapItem.classList.add('active');
+                let parent = activeMapItem.closest('.nested-list');
+                while (parent) {
+                    const folderLi = parent.closest('.folder');
+                    if (folderLi && folderLi.classList.contains('closed')) { folderLi.classList.remove('closed'); }
+                    parent = folderLi?.parentElement.closest('.nested-list');
+                }
+            } else if (activeFolderHeader) {
+                activeFolderHeader.classList.add('active');
+                 const folderLi = activeFolderHeader.closest('.folder');
+                 if (folderLi && folderLi.classList.contains('closed')) { folderLi.classList.remove('closed'); }
+            }
+            // --- End Active State Update ---
+
             currentlyLoadedMapId = mapId;
             if (updateHash) {
                 const newHash = generateHash(mapId, currentSidebarState);
@@ -602,14 +411,67 @@
             console.log(`Finished loading map: ${selectedMap.name}`);
         }
 
-        // --- Populate Sidebar ---
-        mapData.forEach(mapInfo => {
-            const listItem = document.createElement('li');
-            listItem.textContent = mapInfo.name;
-            listItem.dataset.mapId = mapInfo.id;
-            listItem.addEventListener('click', () => { loadMap(mapInfo.id, true); });
-            mapListElement.appendChild(listItem);
-        });
+        // --- Populate Sidebar (Recursive Function) ---
+        function populateSidebar(parentElement, items) {
+            items.forEach(item => {
+                const listItem = document.createElement('li');
+
+                if (item.type === 'folder') {
+                    listItem.classList.add('folder', 'closed'); // Start folders closed
+
+                    const header = document.createElement('div');
+                    header.classList.add('folder-header');
+                    header.innerHTML = `<span class="folder-toggle-icon"></span><span>${item.name}</span>`;
+
+                    // Create nested list for children
+                    const nestedList = document.createElement('ul');
+                    nestedList.classList.add('nested-list');
+                    if (item.children && item.children.length > 0) {
+                        populateSidebar(nestedList, item.children);
+                    }
+
+                    // --- Event Listeners for Folder Header ---
+                    // Single click: ONLY toggle visibility
+                    header.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent potential parent handlers
+                        listItem.classList.toggle('closed');
+                        console.log(`Folder '${item.name}' toggled.`);
+                    });
+
+                    // Double click: Load map IF the folder has an associated map ID
+                    if (item.id) {
+                        header.dataset.mapId = item.id; // Keep for active state styling
+                        // Add a title attribute for better UX
+                        header.title = `Click to toggle '${item.name}', double-click to load map.`;
+                        header.addEventListener('dblclick', (e) => {
+                            e.stopPropagation(); // Prevent potential parent handlers
+                            console.log(`Folder header double-clicked, loading map: ${item.id}`);
+                            loadMap(item.id, true); // Load THIS folder's map
+                        });
+                    } else {
+                         // Title for folders that only toggle
+                         header.title = `Click to toggle '${item.name}'.`;
+                    }
+                    // --- End Event Listeners ---
+
+                    listItem.appendChild(header);
+                    listItem.appendChild(nestedList);
+
+                } else {
+                    // It's a map item (inside a folder or top-level)
+                    listItem.classList.add('map-item');
+                    listItem.textContent = item.name;
+                    listItem.dataset.mapId = item.id;
+                    // Single click loads the map for map items
+                    listItem.addEventListener('click', (e) => {
+                         e.stopPropagation(); // Prevent folder click handler
+                        loadMap(item.id, true);
+                    });
+                }
+                parentElement.appendChild(listItem);
+            });
+        }
+        populateSidebar(mapListElement, mapData); // Initial population call
 
         // --- Sidebar Toggle Button Logic ---
         toggleBtn.addEventListener('click', () => {
@@ -619,11 +481,8 @@
 
         // --- Theme Toggle Logic ---
         function applyTheme(theme) {
-            if (theme === 'dark') {
-                bodyElement.classList.add('dark-theme'); themeToggle.checked = true;
-            } else {
-                bodyElement.classList.remove('dark-theme'); themeToggle.checked = false;
-            }
+            if (theme === 'dark') { bodyElement.classList.add('dark-theme'); themeToggle.checked = true; }
+            else { bodyElement.classList.remove('dark-theme'); themeToggle.checked = false; }
         }
         themeToggle.addEventListener('change', () => {
             const newTheme = themeToggle.checked ? 'dark' : 'light';
@@ -634,19 +493,19 @@
 
         // --- Helper: Log Coordinates on Click ---
         map.on('click', function(e) {
-            if (currentBounds) {
-                 console.log(`Map clicked at: [${Math.round(e.latlng.lat)}, ${Math.round(e.latlng.lng)}] (Y, X from bottom-left)`);
-            }
+            if (currentBounds) { console.log(`Map clicked at: [${Math.round(e.latlng.lat)}, ${Math.round(e.latlng.lng)}] (Y, X from bottom-left)`); }
         });
 
         // --- Handle Hash Changes ---
         window.addEventListener('hashchange', () => {
             console.log("Hash changed event. New hash:", window.location.hash);
             const { mapId: mapIdFromHash, sidebarState: stateFromHash } = parseHash();
+            // Check if map needs changing (and isn't just a folder click re-triggering)
             if (mapIdFromHash && mapIdFromHash !== currentlyLoadedMapId) {
                 console.log("Hashchange: Loading map", mapIdFromHash);
                 loadMap(mapIdFromHash, false);
             }
+            // Check if sidebar needs changing
             if (stateFromHash && stateFromHash !== currentSidebarState) {
                  console.log("Hashchange: Setting sidebar state", stateFromHash);
                  setSidebarState(stateFromHash, false);
@@ -655,13 +514,47 @@
 
         // --- Initial Page Load Logic ---
         function initializeApp() {
-            const { mapId: initialMapId, sidebarState: initialSidebarState } = parseHash();
-            console.log("Initializing App. Initial Map ID:", initialMapId, "Initial Sidebar State:", initialSidebarState);
-            setSidebarState(initialSidebarState, false); // Set sidebar first
-            if (initialMapId) {
-                loadMap(initialMapId, false); // Load map
+             // Find the default map ID (first ID encountered, could be folder or map)
+            let defaultMapId = null;
+            function findFirstId(items) {
+                for (const item of items) {
+                    if (item.id) return item.id; // Found an ID (folder or map)
+                    if (item.type === 'folder' && item.children) {
+                        const foundId = findFirstId(item.children);
+                        if (foundId) return foundId; // Found ID in children
+                    }
+                }
+                return null;
+            }
+            defaultMapId = findFirstId(mapData);
+
+            const { mapId: hashId, sidebarState: initialSidebarState } = parseHash();
+            // Use hash ID if valid, otherwise use the found default ID
+            let mapIdToLoad = null;
+            // Need findMap helper available here too
+            function findMap(items, id) {
+                for (const item of items) {
+                    if (item.id === id) { return item; }
+                    if (item.type === 'folder' && item.children) {
+                        const found = findMap(item.children, id);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            }
+            if (hashId && findMap(mapData, hashId)) { // Check if hashId is valid
+                 mapIdToLoad = hashId;
             } else {
-                console.error("No map data configured.");
+                 mapIdToLoad = defaultMapId;
+            }
+
+            console.log("Initializing App. Map to Load:", mapIdToLoad, "Initial Sidebar State:", initialSidebarState);
+
+            setSidebarState(initialSidebarState, false); // Set sidebar first
+            if (mapIdToLoad) {
+                loadMap(mapIdToLoad, false); // Load map
+            } else {
+                console.error("No map data configured or default map ID found.");
                 sidebar.innerHTML = '<h2>Select Map</h2><p>No maps configured.</p>';
                 return;
             }
@@ -671,8 +564,7 @@
             history.replaceState({ mapId: currentlyLoadedMapId, sidebarState: currentSidebarState }, '', correctInitialHash);
         }
 
-        // Run initialization
-        initializeApp();
+        initializeApp(); // Run initialization
 
     </script>
 
