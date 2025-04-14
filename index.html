@@ -75,6 +75,13 @@
             100% { background-position: 0% 50%; }
         }
 
+        /* --- Keyframes for Twinkling Stars --- */
+        @keyframes twinkle {
+            0% { opacity: 0; }
+            50% { opacity: 100; } /* Adjust max brightness */
+            100% { opacity: 0; }
+        }
+
         /* Apply Variables & Base Styles */
         html, body {
             height: 100%; margin: 0; padding: 0; font-family: var(--font-family-main);
@@ -132,8 +139,61 @@
 
         /* Map container */
         #map-container { flex-grow: 1; height: 100%; position: relative; overflow: hidden; }
-        #map { height: 100%; width: 100%; background-color: var(--bg-secondary); transition: background-color 0.3s ease; }
-        body.dark-theme #map { background-image: url('images/night-sky.png'); background-repeat: repeat; background-color: #050510; }
+        #map {
+            height: 100%; width: 100%;
+            background-color: var(--bg-secondary);
+            transition: background-color 0.3s ease;
+            position: relative; /* Needed for pseudo-elements */
+            overflow: hidden; /* Needed for pseudo-elements */
+        }
+        body.dark-theme #map {
+            background-image: url('images/night-sky.png'); /* Base static stars */
+            background-repeat: repeat;
+            background-color: #050510;
+            /* position: relative; Inherited */
+            /* overflow: hidden; Inherited */
+        }
+
+        /* --- Twinkling Star Effect (Dark Mode Only) --- */
+        body.dark-theme #map::before,
+        body.dark-theme #map::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Make sure they don't block map clicks */
+            background-repeat: repeat;
+            opacity: 0; /* Start invisible, animation handles fading */
+            z-index: 0; /* Position behind map tiles but above map background */
+        }
+
+        /* Star Layer 1 */
+        body.dark-theme #map::before {
+            /* Tiny white dot gradient, repeated */
+            background-image: radial-gradient(circle, white 1px, transparent 1.5px);
+            /* Adjust size for star density */
+            background-size: 75px 75px;
+            background-position: 0 0;
+            /* Apply animation */
+            animation: twinkle 6s linear infinite; /* Slower twinkle */
+            animation-delay: 0s;
+        }
+
+        /* Star Layer 2 (Slightly different density, offset, and speed) */
+        body.dark-theme #map::after {
+            background-image: radial-gradient(circle, white 1px, transparent 1.5px);
+            /* Denser stars */
+            background-size: 55px 55px;
+            /* Offset position */
+            background-position: 25px 25px;
+            /* Apply animation */
+            animation: twinkle 4s linear infinite; /* Faster twinkle */
+            animation-delay: 2s; /* Start later than the first layer */
+        }
+        /* --- End Twinkling Star Effect --- */
+
 
         /* Map Blurb */
         #map-blurb {
@@ -260,8 +320,6 @@
         body.dark-theme #wip-popup { border-color: var(--glass-border-dark); }
         body.dark-theme #wip-popup p { text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.6); }
 
-        /* --- REMOVED Leaflet Measure Plugin Customization --- */
-
     </style>
 </head>
 <body>
@@ -304,8 +362,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
         crossorigin=""></script>
-
-    <!-- REMOVED Leaflet Measure Plugin JS -->
 
     <!-- Main Application JS -->
     <script>
@@ -369,7 +425,6 @@
             minZoom: -2,
             maxZoom: 3,
             attributionControl: false,
-            // No need for measureControl: false here anymore
         });
 
         // --- Global variables ---
@@ -378,7 +433,6 @@
         let currentBounds = null;
         let currentlyLoadedMapId = null;
         let currentSidebarState = 'o';
-        // let measureControl = null; // REMOVED
         let markersVisible = true; // Track marker visibility state
 
         // --- DOM Elements ---
@@ -490,11 +544,6 @@
             // Remove previous layers
             if (currentImageLayer) map.removeLayer(currentImageLayer);
             if (currentMarkerGroup) map.removeLayer(currentMarkerGroup); // Remove marker group
-
-            // *** REMOVED Clear measurements ***
-            // if (measureControl) {
-            //     measureControl.clearAllMeasurements();
-            // }
 
             // Create new marker group for this map
             currentMarkerGroup = L.layerGroup();
@@ -684,8 +733,6 @@
             console.log(`Markers toggled. Visible: ${markersVisible}`);
         });
 
-        // --- REMOVED Initialize Measure Control ---
-
         // --- Initial Page Load Logic ---
         function initializeApp() {
              // Find the default map ID (first ID encountered, could be folder or map)
@@ -739,7 +786,6 @@
                 // Hide blurb and toggle button if no map loads
                 mapBlurbElement.classList.remove('visible');
                 toggleMarkersBtn.style.display = 'none';
-                // REMOVED measure control removal
                 return;
             }
             // Ensure URL reflects actual initial state
