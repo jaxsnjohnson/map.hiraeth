@@ -78,9 +78,16 @@
         /* --- Keyframes for Twinkling Stars --- */
         @keyframes twinkle {
             0% { opacity: 0; }
-            50% { opacity: 100; } /* Adjust max brightness */
+            50% { opacity: 0.6; } /* Adjust max brightness */
             100% { opacity: 0; }
         }
+
+        /* --- Keyframes for Moving Clouds --- */
+        @keyframes moveClouds {
+            from { background-position-x: 0; }
+            to { background-position-x: 1000px; } /* Adjust value based on image width & desired speed */
+        }
+
 
         /* Apply Variables & Base Styles */
         html, body {
@@ -137,6 +144,25 @@
         .nested-list { list-style: none; padding: 0; margin: 0 0 0 15px; max-height: 1000px; overflow: hidden; transition: max-height 0.3s ease-out; }
         .folder.closed > .nested-list { max-height: 0; }
 
+        /* --- Coming Soon Sidebar Item Styling --- */
+        .map-item.coming-soon {
+            color: var(--text-secondary); /* Use secondary text color */
+            font-style: italic;
+            cursor: not-allowed; /* Indicate non-interactive */
+            opacity: 0.7;
+        }
+        /* Optional: Prevent hover effect or use a different one */
+        .map-item.coming-soon:hover {
+            background-color: transparent; /* No highlight on hover */
+        }
+        /* Ensure dark theme also looks disabled */
+        body.dark-theme .map-item.coming-soon {
+             color: var(--text-secondary); /* Already uses variable */
+        }
+        body.dark-theme .map-item.coming-soon:hover {
+             background-color: transparent;
+        }
+
         /* Map container */
         #map-container { flex-grow: 1; height: 100%; position: relative; overflow: hidden; }
         #map {
@@ -150,40 +176,73 @@
             background-image: url('images/night-sky.png'); /* Base static stars */
             background-repeat: repeat;
             background-color: #050510;
-            /* position: relative; Inherited */
-            /* overflow: hidden; Inherited */
+        }
+
+        /* --- Moving Clouds Effect (Light Mode Only) --- */
+        /* Apply ONLY when dark-theme class is NOT present */
+        body:not(.dark-theme) #map::before,
+        body:not(.dark-theme) #map::after {
+            /* --- IMPORTANT: Create or find a seamless tileable cloud image --- */
+            /* --- Save it as images/clouds.png or update the path below --- */
+            background-image: url('images/clouds.png');
+            background-repeat: repeat-x; /* Repeat horizontally */
+            background-size: auto 300px; /* Auto width, fixed height - adjust height as needed */
+            /* background-size: cover; */ /* Alternative: stretches to cover, might distort clouds */
+            width: 100%; /* Ensure it covers width */
+            animation-name: moveClouds;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            transition: opacity 0.5s ease-in-out; /* Smooth fade when changing themes */
+            z-index: 0; /* Position behind map tiles but above map background */
+            content: ''; /* Required for pseudo-elements */
+            position: absolute; /* Position relative to #map */
+            top: 0;
+            left: 0;
+            height: 100%; /* Cover height */
+            pointer-events: none; /* Don't block map clicks */
+        }
+
+        /* Cloud Layer 1 (e.g., slightly faster, higher) */
+        body:not(.dark-theme) #map::before {
+            background-position: 0 5%; /* Start near top */
+            opacity: 0.45; /* Adjust transparency */
+            animation-duration: 75s; /* Adjust speed */
+        }
+
+        /* Cloud Layer 2 (e.g., slower, lower, more transparent) */
+        body:not(.dark-theme) #map::after {
+            background-position: 0 20%; /* Start lower down */
+            opacity: 0.3; /* Adjust transparency */
+            animation-duration: 110s; /* Adjust speed (make different from layer 1) */
+            animation-delay: -10s; /* Offset start time slightly */
+        }
+
+        /* --- Ensure Dark Theme Hides Clouds --- */
+        /* Explicitly hide cloud pseudo-elements in dark mode */
+        /* And define star styles */
+        body.dark-theme #map::before,
+        body.dark-theme #map::after {
+            opacity: 0; /* Hide clouds by default in dark mode */
+            /* Star styles below will override specific properties */
         }
 
         /* --- Twinkling Star Effect (Dark Mode Only) --- */
-        body.dark-theme #map::before,
-        body.dark-theme #map::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none; /* Make sure they don't block map clicks */
-            background-repeat: repeat;
-            opacity: 0; /* Start invisible, animation handles fading */
-            z-index: 0; /* Position behind map tiles but above map background */
-        }
-
         /* Star Layer 1 */
         body.dark-theme #map::before {
             /* Tiny white dot gradient, repeated */
-            background-image: radial-gradient(circle, white 1px, transparent 1.5px);
+            background-image: radial-gradient(circle, white 1px, transparent 1.5px); /* Override cloud image */
             /* Adjust size for star density */
             background-size: 75px 75px;
             background-position: 0 0;
             /* Apply animation */
             animation: twinkle 6s linear infinite; /* Slower twinkle */
             animation-delay: 0s;
+            opacity: 1; /* Base opacity for stars (animation will vary it) */
         }
 
         /* Star Layer 2 (Slightly different density, offset, and speed) */
         body.dark-theme #map::after {
-            background-image: radial-gradient(circle, white 1px, transparent 1.5px);
+            background-image: radial-gradient(circle, white 1px, transparent 1.5px); /* Override cloud image */
             /* Denser stars */
             background-size: 55px 55px;
             /* Offset position */
@@ -191,8 +250,9 @@
             /* Apply animation */
             animation: twinkle 4s linear infinite; /* Faster twinkle */
             animation-delay: 2s; /* Start later than the first layer */
+            opacity: 1; /* Base opacity for stars (animation will vary it) */
         }
-        /* --- End Twinkling Star Effect --- */
+        /* --- End Theme Effects --- */
 
 
         /* Map Blurb */
@@ -231,6 +291,26 @@
         .leaflet-popup-content h3 { margin-top: 0; margin-bottom: 10px; font-size: 1.3rem; font-weight: 600; color: var(--popup-text); }
         .dark-theme .leaflet-popup-close-button { color: var(--text-secondary); }
         .dark-theme .leaflet-popup-close-button:hover { color: var(--text-primary); }
+
+        /* --- Popup Link Styling --- */
+        .leaflet-popup-content h3 a,
+        .leaflet-popup-content h3 a:link,
+        .leaflet-popup-content h3 a:visited {
+            color: inherit; /* Inherit color from the h3 (uses --popup-text) */
+            text-decoration: none; /* Remove default underline */
+            border-bottom: 1px dotted; /* Subtle underline */
+            transition: color 0.2s ease, border-bottom-color 0.2s ease;
+        }
+        .leaflet-popup-content h3 a:hover,
+        .leaflet-popup-content h3 a:active {
+            color: var(--text-secondary); /* Use secondary color on hover */
+            border-bottom-style: solid; /* Make underline solid on hover */
+        }
+        /* Ensure dark theme hover looks okay */
+        body.dark-theme .leaflet-popup-content h3 a:hover,
+        body.dark-theme .leaflet-popup-content h3 a:active {
+             color: var(--text-secondary); /* Already uses variable */
+        }
 
         /* Buttons */
         #toggle-sidebar-btn { position: absolute; bottom: 43px; left: 15px; z-index: 1000; background-color: var(--glass-bg-light); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid var(--glass-border-light); color: var(--text-primary); border-radius: 4px; padding: 5px 8px; cursor: pointer; font-size: 1.2rem; line-height: 1; box-shadow: 0 1px 5px var(--shadow-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
@@ -375,14 +455,15 @@
                 width: 1680,
                 height: 1120,
                 imageUrl: 'maps/cos-map.jpg',
-                blurb: "The main continent, featuring diverse regions from frozen peaks to bustling capitals.", // <-- ADDED BLURB
+                blurb: "The main continent, featuring diverse regions from frozen peaks to bustling capitals.",
                 pointsOfInterest: [ // Points relevant to the main world map
-                     { coords: [1120 * 0.75, 1680 * 0.5], name: "Capital City", description: "..." },
-                     { coords: [1120 * 0.3, 1680 * 0.2], name: "Ancient Ruins", description: "..." },
-                     { coords: [1120 * 0.5, 1680 * 0.8], name: "Whispering Woods", description: "..." },
-                     { coords: [1120 * 0.8, 1680 * 0.3], name: "Frozen Peak", description: "..." },
-                     { coords: [1120 * 0.4, 1680 * 0.7], name: "Coastal Village", description: "..." },
-                     { coords: [1120 * 0.2, 1680 * 0.15], name: "Icebeach Region", description: "..." }
+                     // Example with wikiLink
+                     { coords: [1120 * 0.75, 1680 * 0.5], name: "Capital City", description: "The bustling heart of the kingdom.", wikiLink: "https://your-wiki.com/Capital_City" },
+                     { coords: [1120 * 0.3, 1680 * 0.2], name: "Ancient Ruins", description: "Mysterious remnants of a bygone era." }, // No link
+                     { coords: [1120 * 0.5, 1680 * 0.8], name: "Whispering Woods", description: "An old forest where secrets linger.", wikiLink: "https://your-wiki.com/Whispering_Woods" },
+                     { coords: [1120 * 0.8, 1680 * 0.3], name: "Frozen Peak", description: "The highest, coldest mountain.", wikiLink: "https://your-wiki.com/Frozen_Peak" },
+                     { coords: [1120 * 0.4, 1680 * 0.7], name: "Coastal Village", description: "A small fishing settlement." },
+                     { coords: [1120 * 0.2, 1680 * 0.15], name: "Icebeach Region", description: "Link to the detailed map.", wikiLink: "https://your-wiki.com/Icebeach" } // Link to general region
                 ],
                 // Children maps nested within this folder
                 children: [
@@ -392,29 +473,49 @@
                         width: 7016,
                         height: 4960,
                         imageUrl: 'maps/IceBeach.png',
-                        blurb: "A detailed view of the Icebeach region, known for its harsh climate and resilient settlements.", // <-- ADDED BLURB
+                        blurb: "A detailed view of the Icebeach region, known for its harsh climate and resilient settlements.",
                         pointsOfInterest: [
-                            { coords: [3516, 3698], name: "Castgate", description: "Renowned for its picturesque beauty and protective magical dome, this town thrives on fishing, shipbuilding, and gemstone mining, serving as a hub influenced by the Athenaeum and marked by historical battles." },
-                            { coords: [4002, 3488], name: "Winrich Fortress", description: "The Ancient fortress of a long dead and powerful Lich" },
-                            { coords: [4266, 3192], name: "Whitedrift", description: "Located at the mouth of the Curse Run near the Winrich glacier, this small town houses an unstable population tasked with monitoring the glacier, including some former asylum inmates." },
-                            { coords: [3876, 2990], name: "Icemoor", description: "Once tasked with watching the Winrich Glacier from its tall tower, this settlement is now mostly abandoned, left with only a few older men maintaining the vigil after the endless winter." },
-                            { coords: [4358, 2976], name: "Little Rock Mentle Asylam", description: "This small institution holds some of the most hardened crimnals of the Gilded Nations." },
-                            { coords: [1664, 3372], name: "Ottiker", description: "Founded by immigrants on the shores of Sleetmond Lake, this town is recognized for its winery, despite recent conflicts with local druids halting deliveries." },
-                            { coords: [2310, 2722], name: "Fractured Point", description: "Perched on a rocky crag, this walled town often serves as the first stop for visitors, acting as a lighthouse and beacon where traders find ways to prosper despite the harsh conditions." },
-                            { coords: [2036, 3074], name: "The Hope Tree", description: "A tall tree provides shelter and wamth in the surrounding area.  It is said the tree is super magical and its leaves can make a healing tea." },
-                            { coords: [1210, 3924], name: "Quilt", description: "Situated on the Foaming Loch, this small community practices fish farming and is named for the distinctive dyed quilts crafted from local Icesheep wool." },
-                            { coords: [2154, 3588], name: "Sleetmond", description: "Home to druidic practices centered around The Hope Tree and a Sugar Maple orchard, this small lakeside town supplements its diet with fish and unique Icebeach sheep, though its ways are sometimes distrusted." },
+                            // Add wikiLink properties here as needed
+                            { coords: [3516, 3698], name: "Castgate", description: "Renowned for its picturesque beauty and protective magical dome, this town thrives on fishing, shipbuilding, and gemstone mining, serving as a hub influenced by the Athenaeum and marked by historical battles.", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate" },
+                            { coords: [4002, 3488], name: "Winrich Fortress", description: "The Ancient fortress of a long dead and powerful Lich", wikiLink: "https://your-wiki.com/Winrich_Fortress" },
+                            { coords: [4266, 3192], name: "Whitedrift", description: "Located at the mouth of the Curse Run near the Winrich glacier, this small town houses an unstable population tasked with monitoring the glacier, including some former asylum inmates.", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/whitedrift" }, // No link example
+                            { coords: [3876, 2990], name: "Icemoor", description: "Once tasked with watching the Winrich Glacier from its tall tower, this settlement is now mostly abandoned, left with only a few older men maintaining the vigil after the endless winter.", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/icemoor" },
+                            { coords: [4358, 2976], name: "Little Rock Mentle Asylam", description: "This small institution holds some of the most hardened crimnals of the Gilded Nations.", wikiLink: "https://your-wiki.com/Little_Rock_Asylum" },
+                            { coords: [1664, 3372], name: "Ottiker", description: "Founded by immigrants on the shores of Sleetmond Lake, this town is recognized for its winery, despite recent conflicts with local druids halting deliveries.", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/niror" },
+                            { coords: [2310, 2722], name: "Fractured Point", description: "Perched on a rocky crag, this walled town often serves as the first stop for visitors, acting as a lighthouse and beacon where traders find ways to prosper despite the harsh conditions.", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/the-fractured-point" },
+                            { coords: [2036, 3074], name: "The Hope Tree", description: "A tall tree provides shelter and wamth in the surrounding area.  It is said the tree is super magical and its leaves can make a healing tea.", wikiLink: "https://your-wiki.com/Hope_Tree" },
+                            { coords: [1210, 3924], name: "Quilt", description: "Situated on the Foaming Loch, this small community practices fish farming and is named for the distinctive dyed quilts crafted from local Icesheep wool.", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/quilt" },
+                            { coords: [2154, 3588], name: "Sleetmond", description: "Home to druidic practices centered around The Hope Tree and a Sugar Maple orchard, this small lakeside town supplements its diet with fish and unique Icebeach sheep, though its ways are sometimes distrusted.", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/sleetmond" },
                             { coords: [1116, 4038], name: "The Foaming Burrow", description: "The origin of the river, how water bubbles forth outo of this cave." },
-                            { coords: [2862, 4840], name: "Thrawbreak", description: "Nestled below the Auruan mountains, this quiet, isolated town originated as a mountaineering camp and is now known for its resilient tavern culture amidst surrounding ruins." },
-                            { coords: [3422, 4370], name: "Gernerum", description: "Now destroyed after a battle with a mechanical dragon, this former town was once home to several notable figures from Icebeach history, with only a hag rumored to have survived." },
-                            { coords: [2938, 4182], name: "Morana's Fang", description: "The tallest point in the world." },
-                            { coords: [1356, 1620], name: "Shiverwallow", description: "Protected by a wooden wall extending into the now-frozen harbor, this town boasts the largest fishing fleet, adapting its industry to ice fishing during the eternal winter." },
-                            { coords: [604, 2416], name: "Mt. Solaria", description: "A large mountian said to be inhabited by a dragon." },
-                            { coords: [780, 1080], name: "Houlen Top", description: "Known as the \"breadbasket of the north,\" this southernmost town cultivates grains and root vegetables in its valley, though its inhabitants are notably guarded against outsiders." },
-                            { coords: [716, 1508], name: "Wynwood Peak", description: "This smaller mountian is said to be a place were the..." }
+                            { coords: [2862, 4840], name: "Thrawbreak", description: "Nestled below the Auruan mountains, this quiet, isolated town originated as a mountaineering camp and is now known for its resilient tavern culture amidst surrounding ruins.", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/thrawbreak" },
+                            { coords: [3422, 4370], name: "Gernerum", description: "Now destroyed after a battle with a mechanical dragon, this former town was once home to several notable figures from Icebeach history, with only a hag rumored to have survived.", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/gernerum" },
+                            { coords: [2938, 4182], name: "Morana's Fang", description: "The tallest point in the world.", wikiLink: "https://your-wiki.com/Moranas_Fang" },
+                            { coords: [1356, 1620], name: "Shiverwallow", description: "Protected by a wooden wall extending into the now-frozen harbor, this town boasts the largest fishing fleet, adapting its industry to ice fishing during the eternal winter.", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/shiverwallow" },
+                            { coords: [604, 2416], name: "Mt. Solaria", description: "A large mountian said to be inhabited by a dragon.", wikiLink: "https://your-wiki.com/Mt_Solaria" },
+                            { coords: [780, 1080], name: "Houlen Top", description: "Known as the \"breadbasket of the north,\" this southernmost town cultivates grains and root vegetables in its valley, though its inhabitants are notably guarded against outsiders.", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/howlentop" },
+                            { coords: [716, 1508], name: "Wynwood Peak", description: "This smaller mountian is said to be a place were the...", wikiLink: "https://your-wiki.com/Wynwood_Peak" }
                         ]
+                    },
+                    // --- Example "Coming Soon" Item ---
+                    {
+                        id: 'Old-Lin', // Still needs an ID for potential future use
+                        name: 'Old-Lin',
+                        status: 'coming-soon' // Mark as coming soon
+                        // No width, height, imageUrl, blurb, or pointsOfInterest needed yet
+                    },
+                    {
+                        id: 'southern-thalassia', // Still needs an ID for potential future use
+                        name: 'Southern Thalassia',
+                        status: 'coming-soon' // Mark as coming soon
+                        // No width, height, imageUrl, blurb, or pointsOfInterest needed yet
                     }
                 ]
+            },
+            // --- Example Top-Level "Coming Soon" Item ---
+            {
+                 id: 'system',
+                 name: 'Solar System',
+                 status: 'coming-soon'
             }
             // Add other top-level folders or maps here
         ];
@@ -462,11 +563,20 @@
             let defaultMapId = null;
             function findFirstId(items) {
                 for (const item of items) {
-                    if (item.id) return item.id; // Found an ID (folder or map)
+                    // Skip coming soon items when looking for the first *loadable* map
+                    if (item.id && item.status !== 'coming-soon') return item.id;
                     if (item.type === 'folder' && item.children) {
                         const foundId = findFirstId(item.children);
-                        if (foundId) return foundId; // Found ID in children
+                        if (foundId) return foundId; // Found loadable ID in children
                     }
+                }
+                // Fallback: If *only* coming-soon items exist, return the first ID found anyway
+                for (const item of items) {
+                     if (item.id) return item.id;
+                     if (item.type === 'folder' && item.children) {
+                         const foundId = findFirstId(item.children); // Re-run without status check
+                         if (foundId) return foundId;
+                     }
                 }
                 return null;
             }
@@ -523,7 +633,15 @@
             }
             selectedMap = findMap(mapData, mapId);
 
-            if (!selectedMap) { console.error("Map data not found for ID:", mapId); return; }
+            // --- Check if map is coming soon BEFORE trying to load ---
+            if (!selectedMap || selectedMap.status === 'coming-soon') {
+                console.warn("Attempted to load map data not found or coming soon:", mapId);
+                if (selectedMap) { // Only alert if found but coming soon
+                     alert(`The map "${selectedMap.name}" is coming soon!`);
+                }
+                // Potentially clear the map or show a placeholder? For now, just return.
+                return;
+            }
 
             // Prevent reload only if map ID AND the actual map data object are the same
             if (mapId === currentlyLoadedMapId && selectedMap.type !== 'folder') {
@@ -562,11 +680,24 @@
                 if (point.coords && point.coords.length === 2 && !isNaN(point.coords[0]) && !isNaN(point.coords[1])) {
                     if (point.coords[0] >= 0 && point.coords[0] <= mapHeight && point.coords[1] >= 0 && point.coords[1] <= mapWidth) {
                          const marker = L.marker(point.coords); // Create marker
-                         marker.bindPopup(`<h3>${point.name}</h3><p>${point.description || ''}</p>`);
+
+                         // --- Create Popup Content with Conditional Link ---
+                         let popupContent = '';
+                         if (point.wikiLink) {
+                             // Use rel="noopener noreferrer" for security with target="_blank"
+                             popupContent += `<h3><a href="${point.wikiLink}" target="_blank" rel="noopener noreferrer" title="Visit wiki page for ${point.name}">${point.name}</a></h3>`;
+                         } else {
+                             popupContent += `<h3>${point.name}</h3>`;
+                         }
+                         popupContent += `<p>${point.description || ''}</p>`;
+                         // --- End Popup Content Creation ---
+
+                         marker.bindPopup(popupContent); // Bind the generated content
                          marker.addTo(currentMarkerGroup); // Add to the group
                     } else { console.warn(`POI coordinates out of bounds for map ${selectedMap.name}: ${point.name}`, point.coords); }
                 } else { console.warn(`Invalid coordinates for POI: ${point.name}`, point.coords); }
             });
+
 
             // Add marker group to map *if* markers should be visible
             if (markersVisible) {
@@ -622,54 +753,75 @@
                 const listItem = document.createElement('li');
 
                 if (item.type === 'folder') {
-                    listItem.classList.add('folder', 'closed'); // Start folders closed
+                    // --- Folder Logic ---
+                    listItem.classList.add('folder', 'closed');
 
                     const header = document.createElement('div');
                     header.classList.add('folder-header');
                     header.innerHTML = `<span class="folder-toggle-icon"></span><span>${item.name}</span>`;
 
-                    // Create nested list for children
                     const nestedList = document.createElement('ul');
                     nestedList.classList.add('nested-list');
                     if (item.children && item.children.length > 0) {
                         populateSidebar(nestedList, item.children);
                     }
 
-                    // --- Event Listeners for Folder Header ---
-                    // Single click: ONLY toggle visibility
+                    // Single click: Toggle visibility
                     header.addEventListener('click', (e) => {
-                        e.stopPropagation(); // Prevent potential parent handlers
+                        e.stopPropagation();
                         listItem.classList.toggle('closed');
                         console.log(`Folder '${item.name}' toggled.`);
                     });
 
-                    // Double click: Load map IF the folder has an associated map ID
+                    // Double click: Load map IF the folder has an associated map ID AND is not 'coming-soon'
                     if (item.id) {
                         header.dataset.mapId = item.id; // Keep for active state styling
-                        // Add a title attribute for better UX
-                        header.title = `Click to toggle '${item.name}', double-click to load map.`;
-                        header.addEventListener('dblclick', (e) => {
-                            e.stopPropagation(); // Prevent potential parent handlers
-                            console.log(`Folder header double-clicked, loading map: ${item.id}`);
-                            loadMap(item.id, true); // Load THIS folder's map
-                        });
+                        if (item.status === 'coming-soon') {
+                            header.title = `${item.name} - Coming Soon!`;
+                            header.classList.add('coming-soon'); // Add class for potential styling
+                            header.addEventListener('dblclick', (e) => {
+                                e.stopPropagation();
+                                alert(`The map "${item.name}" is coming soon!`);
+                            });
+                        } else {
+                            header.title = `Click to toggle '${item.name}', double-click to load map.`;
+                            header.addEventListener('dblclick', (e) => {
+                                e.stopPropagation();
+                                console.log(`Folder header double-clicked, loading map: ${item.id}`);
+                                loadMap(item.id, true); // Load THIS folder's map
+                            });
+                        }
                     } else {
-                         // Title for folders that only toggle
+                         // Title for folders that only toggle (no associated map)
                          header.title = `Click to toggle '${item.name}'.`;
                     }
-                    // --- End Event Listeners ---
 
                     listItem.appendChild(header);
                     listItem.appendChild(nestedList);
 
+                } else if (item.status === 'coming-soon') {
+                    // --- Handle "Coming Soon" Map Items ---
+                    listItem.classList.add('map-item', 'coming-soon');
+                    listItem.textContent = `${item.name} (Soon)`; // Indicate status
+                    listItem.title = `${item.name} - Coming Soon!`; // Tooltip
+                    listItem.dataset.mapId = item.id; // Keep ID for potential future use
+
+                    // Add a click listener for an alert
+                    listItem.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        alert(`The map "${item.name}" is coming soon!`);
+                    });
+
                 } else {
-                    // It's a map item (inside a folder or top-level)
+                    // --- Handle Regular Map Items ---
                     listItem.classList.add('map-item');
                     listItem.textContent = item.name;
                     listItem.dataset.mapId = item.id;
-                    // Single click loads the map for map items
+                    listItem.title = `Load map: ${item.name}`; // Tooltip
+
+                    // Single click loads the map
                     listItem.addEventListener('click', (e) => {
-                         e.stopPropagation(); // Prevent folder click handler
+                         e.stopPropagation();
                         loadMap(item.id, true);
                     });
                 }
@@ -705,10 +857,27 @@
         window.addEventListener('hashchange', () => {
             console.log("Hash changed event. New hash:", window.location.hash);
             const { mapId: mapIdFromHash, sidebarState: stateFromHash } = parseHash();
-            // Check if map needs changing (and isn't just a folder click re-triggering)
-            if (mapIdFromHash && mapIdFromHash !== currentlyLoadedMapId) {
+
+            // Find the map data to check its status
+            let mapDataFromHash = null;
+            function findMap(items, id) {
+                for (const item of items) {
+                    if (item.id === id) { return item; }
+                    if (item.type === 'folder' && item.children) {
+                        const found = findMap(item.children, id);
+                        if (found) return found;
+                    }
+                } return null;
+            }
+            mapDataFromHash = findMap(mapData, mapIdFromHash);
+
+            // Check if map needs changing AND isn't coming soon
+            if (mapIdFromHash && mapIdFromHash !== currentlyLoadedMapId && mapDataFromHash?.status !== 'coming-soon') {
                 console.log("Hashchange: Loading map", mapIdFromHash);
                 loadMap(mapIdFromHash, false);
+            } else if (mapDataFromHash?.status === 'coming-soon') {
+                 console.log("Hashchange: Map is coming soon, not loading.", mapIdFromHash);
+                 // Optionally show alert or update UI to reflect 'coming soon' state
             }
             // Check if sidebar needs changing
             if (stateFromHash && stateFromHash !== currentSidebarState) {
@@ -735,23 +904,30 @@
 
         // --- Initial Page Load Logic ---
         function initializeApp() {
-             // Find the default map ID (first ID encountered, could be folder or map)
+             // Find the default map ID (first *loadable* ID encountered)
             let defaultMapId = null;
-            function findFirstId(items) {
+            function findFirstLoadableId(items) {
                 for (const item of items) {
-                    if (item.id) return item.id; // Found an ID (folder or map)
+                    if (item.id && item.status !== 'coming-soon') return item.id;
                     if (item.type === 'folder' && item.children) {
-                        const foundId = findFirstId(item.children);
-                        if (foundId) return foundId; // Found ID in children
+                        const foundId = findFirstLoadableId(item.children);
+                        if (foundId) return foundId;
                     }
                 }
+                 // Fallback: If only coming-soon items exist, return the first ID found
+                 for (const item of items) {
+                     if (item.id) return item.id;
+                     if (item.type === 'folder' && item.children) {
+                         const foundId = findFirstLoadableId(item.children); // Re-run without status check
+                         if (foundId) return foundId;
+                     }
+                 }
                 return null;
             }
-            defaultMapId = findFirstId(mapData);
+            defaultMapId = findFirstLoadableId(mapData);
 
             const { mapId: hashId, sidebarState: initialSidebarState } = parseHash();
-            // Use hash ID if valid, otherwise use the found default ID
-            let mapIdToLoad = null;
+
             // Need findMap helper available here too
             function findMap(items, id) {
                 for (const item of items) {
@@ -763,16 +939,39 @@
                 }
                 return null;
             }
-            if (hashId && findMap(mapData, hashId)) { // Check if hashId is valid
-                 mapIdToLoad = hashId;
-            } else {
-                 mapIdToLoad = defaultMapId;
+
+            let mapToLoadData = null;
+            let mapIdToLoad = null;
+
+            // Prioritize hash ID if it exists and is valid (not coming soon)
+            if (hashId) {
+                const potentialMap = findMap(mapData, hashId);
+                if (potentialMap && potentialMap.status !== 'coming-soon') {
+                    mapToLoadData = potentialMap;
+                    mapIdToLoad = hashId;
+                } else {
+                     console.log("Hash ID points to invalid or coming-soon map, falling back to default.");
+                }
             }
+
+            // If hash didn't provide a loadable map, use the default
+            if (!mapIdToLoad && defaultMapId) {
+                 mapToLoadData = findMap(mapData, defaultMapId);
+                 // Check if the default itself is coming soon (edge case)
+                 if (mapToLoadData && mapToLoadData.status !== 'coming-soon') {
+                     mapIdToLoad = defaultMapId;
+                 } else {
+                      console.log("Default map ID is coming soon or invalid.");
+                      mapToLoadData = null; // Ensure we don't try to load it
+                 }
+            }
+
 
             console.log("Initializing App. Map to Load:", mapIdToLoad, "Initial Sidebar State:", initialSidebarState);
 
             setSidebarState(initialSidebarState, false); // Set sidebar first
-            if (mapIdToLoad) {
+
+            if (mapIdToLoad && mapToLoadData) {
                 // Initialize marker visibility state BEFORE loading the first map
                 markersVisible = true; // Default to visible
                 toggleMarkersBtn.classList.remove('markers-hidden');
@@ -781,17 +980,25 @@
 
                 loadMap(mapIdToLoad, false); // Load map
             } else {
-                console.error("No map data configured or default map ID found.");
-                sidebar.innerHTML = '<h2>Select Map</h2><p>No maps configured.</p>';
+                console.error("No loadable map data configured or default map ID found.");
+                sidebar.innerHTML = '<h2>Select Map</h2><p>No maps available.</p>';
                 // Hide blurb and toggle button if no map loads
                 mapBlurbElement.classList.remove('visible');
                 toggleMarkersBtn.style.display = 'none';
+                // Ensure URL doesn't point to a non-existent/coming-soon map
+                history.replaceState(null, '', generateHash('', initialSidebarState)); // Clear map part of hash
                 return;
             }
-            // Ensure URL reflects actual initial state
-            const correctInitialHash = generateHash(currentlyLoadedMapId, currentSidebarState);
-            console.log("Replacing initial history state with:", correctInitialHash);
-            history.replaceState({ mapId: currentlyLoadedMapId, sidebarState: currentSidebarState }, '', correctInitialHash);
+
+            // Ensure URL reflects actual initial state (only if a map was loaded)
+            if (currentlyLoadedMapId) {
+                const correctInitialHash = generateHash(currentlyLoadedMapId, currentSidebarState);
+                console.log("Replacing initial history state with:", correctInitialHash);
+                history.replaceState({ mapId: currentlyLoadedMapId, sidebarState: currentSidebarState }, '', correctInitialHash);
+            } else {
+                 // If we ended up here without loading a map (e.g., only coming soon exist)
+                 history.replaceState(null, '', generateHash('', currentSidebarState));
+            }
         }
 
         initializeApp(); // Run initialization
