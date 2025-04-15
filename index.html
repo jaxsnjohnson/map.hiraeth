@@ -13,6 +13,8 @@
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
         crossorigin=""/>
 
+    <!-- REMOVED: Leaflet-MiniMap CSS Link -->
+
     <!-- Google Font: EB Garamond -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -145,21 +147,23 @@
         .folder.closed > .nested-list { max-height: 0; }
 
         /* --- Coming Soon Sidebar Item Styling --- */
-        .map-item.coming-soon {
+        .map-item.coming-soon, .folder-header.coming-soon {
             color: var(--text-secondary); /* Use secondary text color */
             font-style: italic;
             cursor: not-allowed; /* Indicate non-interactive */
             opacity: 0.7;
         }
         /* Optional: Prevent hover effect or use a different one */
-        .map-item.coming-soon:hover {
+        .map-item.coming-soon:hover, .folder-header.coming-soon:hover {
             background-color: transparent; /* No highlight on hover */
         }
         /* Ensure dark theme also looks disabled */
-        body.dark-theme .map-item.coming-soon {
+        body.dark-theme .map-item.coming-soon,
+        body.dark-theme .folder-header.coming-soon {
              color: var(--text-secondary); /* Already uses variable */
         }
-        body.dark-theme .map-item.coming-soon:hover {
+        body.dark-theme .map-item.coming-soon:hover,
+        body.dark-theme .folder-header.coming-soon:hover {
              background-color: transparent;
         }
 
@@ -179,79 +183,50 @@
         }
 
         /* --- Moving Clouds Effect (Light Mode Only) --- */
-        /* Apply ONLY when dark-theme class is NOT present */
         body:not(.dark-theme) #map::before,
         body:not(.dark-theme) #map::after {
-            /* --- IMPORTANT: Create or find a seamless tileable cloud image --- */
-            /* --- Save it as images/clouds.png or update the path below --- */
             background-image: url('images/clouds.png');
-            background-repeat: repeat-x; /* Repeat horizontally */
-            background-size: auto 300px; /* Auto width, fixed height - adjust height as needed */
+            background-repeat: repeat-x;
+            background-size: auto 300px;
             background-color: #87CEEB;
-            /* background-size: cover; */ /* Alternative: stretches to cover, might distort clouds */
-            width: 100%; /* Ensure it covers width */
+            width: 100%;
             animation-name: moveClouds;
             animation-timing-function: linear;
             animation-iteration-count: infinite;
-            transition: opacity 0.5s ease-in-out; /* Smooth fade when changing themes */
-            z-index: 0; /* Position behind map tiles but above map background */
-            content: ''; /* Required for pseudo-elements */
-            position: absolute; /* Position relative to #map */
+            transition: opacity 0.5s ease-in-out;
+            z-index: 0;
+            content: '';
+            position: absolute;
             top: 0;
             left: 0;
-            height: 100%; /* Cover height */
-            pointer-events: none; /* Don't block map clicks */
+            height: 100%;
+            pointer-events: none;
         }
-
-        /* Cloud Layer 1 (e.g., slightly faster, higher) */
         body:not(.dark-theme) #map::before {
-            background-position: 0 5%; /* Start near top */
-            opacity: 0.45; /* Adjust transparency */
-            animation-duration: 75s; /* Adjust speed */
+            background-position: 0 5%; opacity: 0.45; animation-duration: 75s;
         }
-
-        /* Cloud Layer 2 (e.g., slower, lower, more transparent) */
         body:not(.dark-theme) #map::after {
-            background-position: 0 20%; /* Start lower down */
-            opacity: 0.3; /* Adjust transparency */
-            animation-duration: 110s; /* Adjust speed (make different from layer 1) */
-            animation-delay: -10s; /* Offset start time slightly */
+            background-position: 0 20%; opacity: 0.3; animation-duration: 110s; animation-delay: -10s;
         }
 
-        /* --- Ensure Dark Theme Hides Clouds --- */
-        /* Explicitly hide cloud pseudo-elements in dark mode */
-        /* And define star styles */
+        /* --- Ensure Dark Theme Hides Clouds & Defines Stars --- */
         body.dark-theme #map::before,
         body.dark-theme #map::after {
-            opacity: 0; /* Hide clouds by default in dark mode */
-            /* Star styles below will override specific properties */
+            opacity: 0; /* Hide clouds by default */
         }
-
-        /* --- Twinkling Star Effect (Dark Mode Only) --- */
-        /* Star Layer 1 */
         body.dark-theme #map::before {
-            /* Tiny white dot gradient, repeated */
-            background-image: radial-gradient(circle, white 1px, transparent 1.5px); /* Override cloud image */
-            /* Adjust size for star density */
-            background-size: 75px 75px;
-            background-position: 0 0;
-            /* Apply animation */
-            animation: twinkle 6s linear infinite; /* Slower twinkle */
-            animation-delay: 0s;
-            opacity: 1; /* Base opacity for stars (animation will vary it) */
+            background-image: radial-gradient(circle, white 1px, transparent 1.5px);
+            background-size: 75px 75px; background-position: 0 0;
+            animation: twinkle 6s linear infinite; animation-delay: 0s;
+            opacity: 1; /* Base opacity for stars */
+            z-index: 0; content: ''; position: absolute; top: 0; left: 0; height: 100%; width: 100%; pointer-events: none;
         }
-
-        /* Star Layer 2 (Slightly different density, offset, and speed) */
         body.dark-theme #map::after {
-            background-image: radial-gradient(circle, white 1px, transparent 1.5px); /* Override cloud image */
-            /* Denser stars */
-            background-size: 55px 55px;
-            /* Offset position */
-            background-position: 25px 25px;
-            /* Apply animation */
-            animation: twinkle 4s linear infinite; /* Faster twinkle */
-            animation-delay: 2s; /* Start later than the first layer */
-            opacity: 1; /* Base opacity for stars (animation will vary it) */
+            background-image: radial-gradient(circle, white 1px, transparent 1.5px);
+            background-size: 55px 55px; background-position: 25px 25px;
+            animation: twinkle 4s linear infinite; animation-delay: 2s;
+            opacity: 1; /* Base opacity for stars */
+             z-index: 0; content: ''; position: absolute; top: 0; left: 0; height: 100%; width: 100%; pointer-events: none;
         }
         /* --- End Theme Effects --- */
 
@@ -260,7 +235,7 @@
         #map-blurb {
             position: absolute;
             top: 10px;
-            right: 10px;
+            right: 10px; /* Back to default right */
             z-index: 999; /* Below controls but above map */
             background-color: var(--glass-bg-light);
             backdrop-filter: blur(8px);
@@ -319,6 +294,8 @@
         body.dark-theme #toggle-sidebar-btn { background-color: var(--glass-bg-dark); border-color: var(--glass-border-dark); }
         body.dark-theme #toggle-sidebar-btn:hover { background-color: rgba(70, 70, 70, 0.75); }
         .container.sidebar-collapsed #sidebar { width: 0; padding-left: 0; padding-right: 0; overflow: hidden; border-right: none; }
+
+        /* Default Leaflet Zoom Control Styling */
         .leaflet-control-zoom a { background-color: var(--glass-bg-light); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid var(--glass-border-light); color: var(--text-primary); border-bottom: 1px solid var(--glass-border-light); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
         .leaflet-control-zoom-in { border-bottom: 1px solid var(--glass-border-light); border-radius: 4px 4px 0 0; }
         .leaflet-control-zoom-out { border-radius: 0 0 4px 4px; border: 1px solid var(--glass-border-light); border-top: none; }
@@ -332,7 +309,7 @@
         #toggle-markers-btn {
             position: absolute;
             top: 78px; /* Position below zoom controls */
-            left: 12px;
+            left: 12px; /* Adjusted slightly for default zoom control */
             z-index: 1000;
             background-color: var(--glass-bg-light);
             backdrop-filter: blur(8px);
@@ -349,11 +326,9 @@
             text-align: center;
             box-shadow: 0 1px 5px var(--shadow-color);
             transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-            /* Add icon content via pseudo-element */
             content: ''; /* Required for pseudo */
         }
         #toggle-markers-btn::before {
-             /* Using a simple marker-like icon */
             content: '📍';
             opacity: 1; /* Default: visible */
             transition: opacity 0.2s ease;
@@ -382,7 +357,9 @@
         .theme-switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--slider-bg); transition: .4s; }
         .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; }
-        input:checked + .slider { background-color: #2196F3; }
+        input:checked + .slider { background-color: #2196F3; } /* Keep blue for dark mode toggle */
+        body.dark-theme input:checked + .slider { background-color: var(--slider-color); } /* Use theme variable for dark mode */
+        body.dark-theme .slider { background-color: var(--slider-bg); } /* Use theme variable for dark mode */
         input:checked + .slider:before { transform: translateX(26px); }
         .slider.round { border-radius: 24px; }
         .slider.round:before { border-radius: 50%; }
@@ -400,6 +377,10 @@
         #wip-popup p { margin: 0; font-size: 0.8rem; color: var(--text-primary); text-align: center; white-space: nowrap; text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.4); }
         body.dark-theme #wip-popup { border-color: var(--glass-border-dark); }
         body.dark-theme #wip-popup p { text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.6); }
+
+        /* --- REMOVED: Zoom Level Indicator CSS --- */
+
+        /* --- REMOVED: Minimap Styling CSS --- */
 
     </style>
 </head>
@@ -429,6 +410,8 @@
             <!-- Marker Toggle Button -->
             <button id="toggle-markers-btn" title="Toggle Markers" class="leaflet-control"></button>
 
+            <!-- REMOVED: Zoom Level Indicator Div -->
+
             <!-- Bottom Link Bar -->
             <div id="bottom-link-bar">
                 <a href="https://jsnj.link/maps-to-wiki" target="_blank">Wiki</a> |
@@ -444,42 +427,41 @@
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
         crossorigin=""></script>
 
+    <!-- REMOVED: Leaflet-MiniMap JS Script -->
+
     <!-- Main Application JS -->
     <script>
         // --- Map Data Configuration ---
+        // IMPORTANT: Ensure you have created .webp versions of your map images!
         const mapData = [
             {
-                type: 'folder', // It's a folder...
-                id: 'main_continent', // ...but it also represents/links to this map ID
-                name: 'Content Map', // Display name for the folder/link
-                // Include map details for the folder's own map here
+                type: 'folder',
+                id: 'main_continent',
+                name: 'Content Map',
                 width: 1680,
                 height: 1120,
-                imageUrl: 'maps/cos-map.jpg',
+                imageUrl: 'maps/cos-map.webp', // <-- Changed to webp
                 blurb: "The main continent, featuring diverse regions from frozen peaks to bustling capitals.",
-                pointsOfInterest: [ // Points relevant to the main world map
-                     // Example with wikiLink
+                pointsOfInterest: [
                      { coords: [1120 * 0.75, 1680 * 0.5], name: "Capital City", description: "The bustling heart of the kingdom.", wikiLink: "https://your-wiki.com/Capital_City" },
-                     { coords: [1120 * 0.3, 1680 * 0.2], name: "Ancient Ruins", description: "Mysterious remnants of a bygone era." }, // No link
+                     { coords: [1120 * 0.3, 1680 * 0.2], name: "Ancient Ruins", description: "Mysterious remnants of a bygone era." },
                      { coords: [1120 * 0.5, 1680 * 0.8], name: "Whispering Woods", description: "An old forest where secrets linger.", wikiLink: "https://your-wiki.com/Whispering_Woods" },
                      { coords: [1120 * 0.8, 1680 * 0.3], name: "Frozen Peak", description: "The highest, coldest mountain.", wikiLink: "https://your-wiki.com/Frozen_Peak" },
                      { coords: [1120 * 0.4, 1680 * 0.7], name: "Coastal Village", description: "A small fishing settlement." },
-                     { coords: [1120 * 0.2, 1680 * 0.15], name: "Icebeach Region", description: "Link to the detailed map.", wikiLink: "https://your-wiki.com/Icebeach" } // Link to general region
+                     { coords: [1120 * 0.2, 1680 * 0.15], name: "Icebeach Region", description: "Link to the detailed map.", wikiLink: "https://your-wiki.com/Icebeach" }
                 ],
-                // Children maps nested within this folder
                 children: [
                     {
-                        id: 'icebeach_detail', // ID for the detail map
-                        name: 'Icebeach', // Display name for the sub-link
+                        id: 'icebeach_detail',
+                        name: 'Icebeach',
                         width: 7016,
                         height: 4960,
-                        imageUrl: 'maps/IceBeach.png',
+                        imageUrl: 'maps/IceBeach.webp', // <-- Changed to webp
                         blurb: "A detailed view of the Icebeach region, known for its harsh climate and resilient settlements.",
                         pointsOfInterest: [
-                            // Add wikiLink properties here as needed
                             { coords: [3516, 3698], name: "Castgate", description: "Renowned for its picturesque beauty and protective magical dome, this town thrives on fishing, shipbuilding, and gemstone mining, serving as a hub influenced by the Athenaeum and marked by historical battles.", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate" },
                             { coords: [4002, 3488], name: "Winrich Fortress", description: "The Ancient fortress of a long dead and powerful Lich", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/winrich-fortress" },
-                            { coords: [4266, 3192], name: "Whitedrift", description: "Located at the mouth of the Curse Run near the Winrich glacier, this small town houses an unstable population tasked with monitoring the glacier, including some former asylum inmates.", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/whitedrift" }, // No link example
+                            { coords: [4266, 3192], name: "Whitedrift", description: "Located at the mouth of the Curse Run near the Winrich glacier, this small town houses an unstable population tasked with monitoring the glacier, including some former asylum inmates.", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/whitedrift" },
                             { coords: [3876, 2990], name: "Icemoor", description: "Once tasked with watching the Winrich Glacier from its tall tower, this settlement is now mostly abandoned, left with only a few older men maintaining the vigil after the endless winter.", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/icemoor" },
                             { coords: [4358, 2976], name: "Little Rock Mentle Asylam", description: "This small institution holds some of the most hardened crimnals of the Gilded Nations.", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/little-rock-mental-asylum" },
                             { coords: [1664, 3372], name: "Ottiker", description: "Founded by immigrants on the shores of Sleetmond Lake, this town is recognized for its winery, despite recent conflicts with local druids halting deliveries.", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/niror" },
@@ -497,28 +479,23 @@
                             { coords: [716, 1508], name: "Wynwood Peak", description: "This smaller mountian is said to be a place were the...", wikiLink: "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/wynwood-peak" }
                         ]
                     },
-                    // --- Example "Coming Soon" Item ---
                     {
-                        id: 'Old-Lin', // Still needs an ID for potential future use
+                        id: 'Old-Lin',
                         name: 'Old-Lin',
-                        status: 'coming-soon' // Mark as coming soon
-                        // No width, height, imageUrl, blurb, or pointsOfInterest needed yet
+                        status: 'coming-soon'
                     },
                     {
-                        id: 'southern-thalassia', // Still needs an ID for potential future use
+                        id: 'southern-thalassia',
                         name: 'Southern Thalassia',
-                        status: 'coming-soon' // Mark as coming soon
-                        // No width, height, imageUrl, blurb, or pointsOfInterest needed yet
+                        status: 'coming-soon'
                     }
                 ]
             },
-            // --- Example Top-Level "Coming Soon" Item ---
             {
                  id: 'system',
                  name: 'Solar System',
                  status: 'coming-soon'
             }
-            // Add other top-level folders or maps here
         ];
 
         // --- Initialize Leaflet Map ---
@@ -527,15 +504,20 @@
             minZoom: -2,
             maxZoom: 3,
             attributionControl: false,
+            // zoomControl: true, // Default is true, so this line can be removed or kept
         });
+        // REMOVED: Manual zoom control addition
+
 
         // --- Global variables ---
         let currentImageLayer = null;
-        let currentMarkerGroup = null; // To manage markers as a layer
+        let currentMarkerGroup = null;
         let currentBounds = null;
         let currentlyLoadedMapId = null;
         let currentSidebarState = 'o';
-        let markersVisible = true; // Track marker visibility state
+        let markersVisible = true;
+        // REMOVED: currentMinimapControl variable
+        const transitionDuration = 300; // ms for sidebar animation
 
         // --- DOM Elements ---
         const container = document.querySelector('.container');
@@ -544,11 +526,41 @@
         const toggleBtn = document.getElementById('toggle-sidebar-btn');
         const themeToggle = document.getElementById('theme-checkbox');
         const bodyElement = document.body;
-        const mapBlurbElement = document.getElementById('map-blurb'); // Get blurb element
-        const toggleMarkersBtn = document.getElementById('toggle-markers-btn'); // Get marker toggle button
-        const transitionDuration = 300;
+        const mapBlurbElement = document.getElementById('map-blurb');
+        const toggleMarkersBtn = document.getElementById('toggle-markers-btn');
+        // REMOVED: zoomLevelIndicator DOM element reference
 
         // --- Helper Functions ---
+        function findMapRecursive(items, id) {
+            for (const item of items) {
+                if (item.id === id) { return item; }
+                if (item.type === 'folder' && item.children) {
+                    const found = findMapRecursive(item.children, id);
+                    if (found) return found;
+                }
+            }
+            return null;
+        }
+
+        function findFirstLoadableIdRecursive(items) {
+            for (const item of items) {
+                if (item.id && item.status !== 'coming-soon') return item.id;
+                if (item.type === 'folder' && item.children) {
+                    const foundId = findFirstLoadableIdRecursive(item.children);
+                    if (foundId) return foundId;
+                }
+            }
+            // Fallback: If only coming-soon items exist, return the first ID found
+            for (const item of items) {
+                 if (item.id) return item.id;
+                 if (item.type === 'folder' && item.children) {
+                     const foundId = findFirstLoadableIdRecursive(item.children); // Re-run without status check
+                     if (foundId) return foundId;
+                 }
+            }
+            return null;
+        }
+
         function parseHash() {
             const hash = window.location.hash.substring(1);
             let mapId = null;
@@ -560,37 +572,18 @@
                     sidebarState = parts[1];
                 }
             }
-             // Find the default map ID more robustly for initialization
-            let defaultMapId = null;
-            function findFirstId(items) {
-                for (const item of items) {
-                    // Skip coming soon items when looking for the first *loadable* map
-                    if (item.id && item.status !== 'coming-soon') return item.id;
-                    if (item.type === 'folder' && item.children) {
-                        const foundId = findFirstId(item.children);
-                        if (foundId) return foundId; // Found loadable ID in children
-                    }
-                }
-                // Fallback: If *only* coming-soon items exist, return the first ID found anyway
-                for (const item of items) {
-                     if (item.id) return item.id;
-                     if (item.type === 'folder' && item.children) {
-                         const foundId = findFirstId(item.children); // Re-run without status check
-                         if (foundId) return foundId;
-                     }
-                }
-                return null;
-            }
-            defaultMapId = findFirstId(mapData);
+            const defaultMapId = findFirstLoadableIdRecursive(mapData);
 
             return {
-                mapId: mapId || defaultMapId, // Use hash ID if present, else default
+                mapId: mapId || defaultMapId,
                 sidebarState: sidebarState || 'o'
             };
         }
         function generateHash(mapId, sidebarState) {
-            return `#${mapId}-s=${sidebarState}`;
+            return `#${mapId || ''}-s=${sidebarState}`;
         }
+
+        // --- REMOVED: Function to Update Zoom Level Display ---
 
         // --- Function to Set Sidebar State ---
         function setSidebarState(state, updateHash = true) {
@@ -599,18 +592,17 @@
             if (shouldBeCollapsed !== isCurrentlyCollapsed) {
                 console.log(`Setting sidebar state to: ${state}`);
                 container.classList.toggle('sidebar-collapsed', shouldBeCollapsed);
-                if (shouldBeCollapsed) {
-                    toggleBtn.innerHTML = '&raquo;'; toggleBtn.title = 'Expand Sidebar';
-                } else {
-                    toggleBtn.innerHTML = '&laquo;'; toggleBtn.title = 'Collapse Sidebar';
-                }
+                toggleBtn.innerHTML = shouldBeCollapsed ? '&raquo;' : '&laquo;';
+                toggleBtn.title = shouldBeCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar';
 
+                // Invalidate map size after CSS transition completes
                 setTimeout(() => { map.invalidateSize({ animate: true }); }, transitionDuration);
+
                  currentSidebarState = state;
                  if (updateHash && currentlyLoadedMapId) {
                      const newHash = generateHash(currentlyLoadedMapId, state);
                      console.log("Updating hash from setSidebarState:", newHash);
-                     history.replaceState(null, '', newHash);
+                     history.replaceState(null, '', newHash); // Use replaceState for sidebar toggle
                  }
             } else {
                  currentSidebarState = state;
@@ -620,38 +612,39 @@
 
         // --- Function to Load/Switch Map ---
         function loadMap(mapId, updateHash = true) {
-            // Find the map data recursively
-            let selectedMap = null;
-            function findMap(items, id) {
-                for (const item of items) {
-                    if (item.id === id) { return item; } // Check item itself
-                    if (item.type === 'folder' && item.children) { // Search children
-                        const found = findMap(item.children, id);
-                        if (found) return found;
-                    }
-                }
-                return null;
-            }
-            selectedMap = findMap(mapData, mapId);
+            const selectedMap = findMapRecursive(mapData, mapId);
 
-            // --- Check if map is coming soon BEFORE trying to load ---
             if (!selectedMap || selectedMap.status === 'coming-soon') {
                 console.warn("Attempted to load map data not found or coming soon:", mapId);
-                if (selectedMap) { // Only alert if found but coming soon
+                if (selectedMap) {
                      alert(`The map "${selectedMap.name}" is coming soon!`);
                 }
-                // Potentially clear the map or show a placeholder? For now, just return.
+                // Clear map elements if loading fails or is 'coming soon'
+                if (currentImageLayer) map.removeLayer(currentImageLayer);
+                if (currentMarkerGroup) map.removeLayer(currentMarkerGroup);
+                // REMOVED: Minimap removal
+                currentImageLayer = null;
+                currentMarkerGroup = null;
+                // REMOVED: Minimap variable reset
+                currentlyLoadedMapId = null; // Reset loaded ID
+                mapBlurbElement.classList.remove('visible');
+                toggleMarkersBtn.style.display = 'none'; // Hide marker toggle
+                // REMOVED: Zoom display reset
+                // Update hash to reflect no map loaded
+                if (updateHash) {
+                    history.pushState(null, '', generateHash('', currentSidebarState));
+                }
                 return;
             }
 
-            // Prevent reload only if map ID AND the actual map data object are the same
-            if (mapId === currentlyLoadedMapId && selectedMap.type !== 'folder') {
+            // Prevent reload only if map ID is the same
+            if (mapId === currentlyLoadedMapId) {
                  console.log(`Map ${mapId} is already loaded.`);
                  if (updateHash) {
                      const currentHash = generateHash(mapId, currentSidebarState);
                      if (window.location.hash !== currentHash) {
                           console.log("Updating hash from loadMap (state change only):", currentHash);
-                          history.replaceState(null, '', currentHash);
+                          history.replaceState(null, '', currentHash); // Use replaceState if only state changes
                      }
                  }
                  return;
@@ -660,53 +653,56 @@
             console.log(`Loading map: ${selectedMap.name} (ID: ${mapId})`);
 
             // --- Map Loading Logic ---
-            // Remove previous layers
+            // Remove previous layers/controls
             if (currentImageLayer) map.removeLayer(currentImageLayer);
-            if (currentMarkerGroup) map.removeLayer(currentMarkerGroup); // Remove marker group
+            if (currentMarkerGroup) map.removeLayer(currentMarkerGroup);
+            // REMOVED: Minimap removal
 
-            // Create new marker group for this map
-            currentMarkerGroup = L.layerGroup();
+            currentMarkerGroup = L.layerGroup(); // Create new marker group
 
             const mapHeight = selectedMap.height;
             const mapWidth = selectedMap.width;
-            if (isNaN(mapHeight) || isNaN(mapWidth)) {
-                console.error(`Invalid dimensions for map ID ${mapId}: H=${mapHeight}, W=${mapWidth}`);
+            if (isNaN(mapHeight) || isNaN(mapWidth) || !selectedMap.imageUrl) {
+                console.error(`Invalid dimensions or missing imageUrl for map ID ${mapId}`);
+                // Handle error state similar to 'coming soon'
+                mapBlurbElement.classList.remove('visible');
+                toggleMarkersBtn.style.display = 'none';
+                // REMOVED: Zoom display reset
+                currentlyLoadedMapId = null;
+                if (updateHash) {
+                    history.pushState(null, '', generateHash('', currentSidebarState));
+                }
                 return;
             }
             currentBounds = [[0, 0], [mapHeight, mapWidth]];
+
+            // Main Image Layer
             currentImageLayer = L.imageOverlay(selectedMap.imageUrl, currentBounds).addTo(map);
 
-            // Add Points of Interest to the Marker Group
+            // Add Points of Interest
             (selectedMap.pointsOfInterest || []).forEach(point => {
                 if (point.coords && point.coords.length === 2 && !isNaN(point.coords[0]) && !isNaN(point.coords[1])) {
                     if (point.coords[0] >= 0 && point.coords[0] <= mapHeight && point.coords[1] >= 0 && point.coords[1] <= mapWidth) {
-                         const marker = L.marker(point.coords); // Create marker
-
-                         // --- Create Popup Content with Conditional Link ---
+                         const marker = L.marker(point.coords);
                          let popupContent = '';
                          if (point.wikiLink) {
-                             // Use rel="noopener noreferrer" for security with target="_blank"
                              popupContent += `<h3><a href="${point.wikiLink}" target="_blank" rel="noopener noreferrer" title="Visit wiki page for ${point.name}">${point.name}</a></h3>`;
                          } else {
                              popupContent += `<h3>${point.name}</h3>`;
                          }
                          popupContent += `<p>${point.description || ''}</p>`;
-                         // --- End Popup Content Creation ---
-
-                         marker.bindPopup(popupContent); // Bind the generated content
-                         marker.addTo(currentMarkerGroup); // Add to the group
+                         marker.bindPopup(popupContent);
+                         marker.addTo(currentMarkerGroup);
                     } else { console.warn(`POI coordinates out of bounds for map ${selectedMap.name}: ${point.name}`, point.coords); }
                 } else { console.warn(`Invalid coordinates for POI: ${point.name}`, point.coords); }
             });
 
-
-            // Add marker group to map *if* markers should be visible
+            // Add marker group if visible
             if (markersVisible) {
                 currentMarkerGroup.addTo(map);
             }
-            // Update marker toggle button state visually
             toggleMarkersBtn.classList.toggle('markers-hidden', !markersVisible);
-
+            toggleMarkersBtn.style.display = ''; // Ensure button is visible
 
             map.fitBounds(currentBounds);
 
@@ -718,7 +714,10 @@
                 mapBlurbElement.textContent = '';
                 mapBlurbElement.classList.remove('visible');
             }
-            // --- End Map Loading Logic ---
+
+            // --- REMOVED: Minimap Creation ---
+
+            // --- REMOVED: Update Zoom Level Display Call ---
 
             // --- Update Sidebar Active State ---
             document.querySelectorAll('#map-list .map-item, #map-list .folder-header').forEach(item => item.classList.remove('active'));
@@ -726,6 +725,7 @@
             const activeFolderHeader = document.querySelector(`#map-list .folder-header[data-map-id="${mapId}"]`);
             if (activeMapItem) {
                 activeMapItem.classList.add('active');
+                // Expand parent folders if needed
                 let parent = activeMapItem.closest('.nested-list');
                 while (parent) {
                     const folderLi = parent.closest('.folder');
@@ -737,12 +737,12 @@
                  const folderLi = activeFolderHeader.closest('.folder');
                  if (folderLi && folderLi.classList.contains('closed')) { folderLi.classList.remove('closed'); }
             }
-            // --- End Active State Update ---
 
             currentlyLoadedMapId = mapId;
             if (updateHash) {
                 const newHash = generateHash(mapId, currentSidebarState);
                 console.log("Updating hash from loadMap:", newHash);
+                // Use pushState when navigating to a new map
                 history.pushState({ mapId: mapId, sidebarState: currentSidebarState }, selectedMap.name, newHash);
             }
             console.log(`Finished loading map: ${selectedMap.name}`);
@@ -754,32 +754,26 @@
                 const listItem = document.createElement('li');
 
                 if (item.type === 'folder') {
-                    // --- Folder Logic ---
                     listItem.classList.add('folder', 'closed');
-
                     const header = document.createElement('div');
                     header.classList.add('folder-header');
                     header.innerHTML = `<span class="folder-toggle-icon"></span><span>${item.name}</span>`;
-
                     const nestedList = document.createElement('ul');
                     nestedList.classList.add('nested-list');
                     if (item.children && item.children.length > 0) {
                         populateSidebar(nestedList, item.children);
                     }
 
-                    // Single click: Toggle visibility
                     header.addEventListener('click', (e) => {
                         e.stopPropagation();
                         listItem.classList.toggle('closed');
-                        console.log(`Folder '${item.name}' toggled.`);
                     });
 
-                    // Double click: Load map IF the folder has an associated map ID AND is not 'coming-soon'
                     if (item.id) {
-                        header.dataset.mapId = item.id; // Keep for active state styling
+                        header.dataset.mapId = item.id;
                         if (item.status === 'coming-soon') {
                             header.title = `${item.name} - Coming Soon!`;
-                            header.classList.add('coming-soon'); // Add class for potential styling
+                            header.classList.add('coming-soon');
                             header.addEventListener('dblclick', (e) => {
                                 e.stopPropagation();
                                 alert(`The map "${item.name}" is coming soon!`);
@@ -788,48 +782,40 @@
                             header.title = `Click to toggle '${item.name}', double-click to load map.`;
                             header.addEventListener('dblclick', (e) => {
                                 e.stopPropagation();
-                                console.log(`Folder header double-clicked, loading map: ${item.id}`);
-                                loadMap(item.id, true); // Load THIS folder's map
+                                loadMap(item.id, true);
                             });
                         }
                     } else {
-                         // Title for folders that only toggle (no associated map)
                          header.title = `Click to toggle '${item.name}'.`;
                     }
-
                     listItem.appendChild(header);
                     listItem.appendChild(nestedList);
 
-                } else if (item.status === 'coming-soon') {
-                    // --- Handle "Coming Soon" Map Items ---
-                    listItem.classList.add('map-item', 'coming-soon');
-                    listItem.textContent = `${item.name} (Soon)`; // Indicate status
-                    listItem.title = `${item.name} - Coming Soon!`; // Tooltip
-                    listItem.dataset.mapId = item.id; // Keep ID for potential future use
-
-                    // Add a click listener for an alert
-                    listItem.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        alert(`The map "${item.name}" is coming soon!`);
-                    });
-
-                } else {
-                    // --- Handle Regular Map Items ---
+                } else { // Regular map item or coming soon map item
                     listItem.classList.add('map-item');
                     listItem.textContent = item.name;
                     listItem.dataset.mapId = item.id;
-                    listItem.title = `Load map: ${item.name}`; // Tooltip
 
-                    // Single click loads the map
-                    listItem.addEventListener('click', (e) => {
-                         e.stopPropagation();
-                        loadMap(item.id, true);
-                    });
+                    if (item.status === 'coming-soon') {
+                        listItem.classList.add('coming-soon');
+                        listItem.textContent = `${item.name} (Soon)`;
+                        listItem.title = `${item.name} - Coming Soon!`;
+                        listItem.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            alert(`The map "${item.name}" is coming soon!`);
+                        });
+                    } else {
+                        listItem.title = `Load map: ${item.name}`;
+                        listItem.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            loadMap(item.id, true);
+                        });
+                    }
                 }
                 parentElement.appendChild(listItem);
             });
         }
-        populateSidebar(mapListElement, mapData); // Initial population call
+        populateSidebar(mapListElement, mapData);
 
         // --- Sidebar Toggle Button Logic ---
         toggleBtn.addEventListener('click', () => {
@@ -841,6 +827,7 @@
         function applyTheme(theme) {
             if (theme === 'dark') { bodyElement.classList.add('dark-theme'); themeToggle.checked = true; }
             else { bodyElement.classList.remove('dark-theme'); themeToggle.checked = false; }
+            // REMOVED: Minimap redraw hack
         }
         themeToggle.addEventListener('change', () => {
             const newTheme = themeToggle.checked ? 'dark' : 'light';
@@ -854,43 +841,64 @@
             if (currentBounds) { console.log(`Map clicked at: [${Math.round(e.latlng.lat)}, ${Math.round(e.latlng.lng)}] (Y, X from bottom-left)`); }
         });
 
-        // --- Handle Hash Changes ---
-        window.addEventListener('hashchange', () => {
-            console.log("Hash changed event. New hash:", window.location.hash);
+        // --- REMOVED: Update Zoom Level on Zoom End Listener ---
+
+        // --- Handle Hash Changes / Back/Forward Navigation ---
+        window.addEventListener('popstate', (event) => {
+            console.log("Popstate event. State:", event.state, "New hash:", window.location.hash);
             const { mapId: mapIdFromHash, sidebarState: stateFromHash } = parseHash();
 
-            // Find the map data to check its status
-            let mapDataFromHash = null;
-            function findMap(items, id) {
-                for (const item of items) {
-                    if (item.id === id) { return item; }
-                    if (item.type === 'folder' && item.children) {
-                        const found = findMap(item.children, id);
-                        if (found) return found;
-                    }
-                } return null;
+            // Check if map needs changing
+            if (mapIdFromHash && mapIdFromHash !== currentlyLoadedMapId) {
+                const mapDataFromHash = findMapRecursive(mapData, mapIdFromHash);
+                if (mapDataFromHash?.status !== 'coming-soon') {
+                    console.log("Popstate: Loading map", mapIdFromHash);
+                    loadMap(mapIdFromHash, false); // Don't update history again
+                } else {
+                    console.log("Popstate: Map is coming soon, not loading.", mapIdFromHash);
+                    // Potentially clear the map if navigating back to a 'coming soon' state
+                     if (currentImageLayer) map.removeLayer(currentImageLayer);
+                     if (currentMarkerGroup) map.removeLayer(currentMarkerGroup);
+                     // REMOVED: Minimap removal
+                     currentImageLayer = null;
+                     currentMarkerGroup = null;
+                     // REMOVED: Minimap variable reset
+                     currentlyLoadedMapId = null;
+                     mapBlurbElement.classList.remove('visible');
+                     toggleMarkersBtn.style.display = 'none';
+                     // REMOVED: Zoom display reset
+                     // Update sidebar active state
+                     document.querySelectorAll('#map-list .map-item, #map-list .folder-header').forEach(item => item.classList.remove('active'));
+                     const comingSoonItem = document.querySelector(`#map-list [data-map-id="${mapIdFromHash}"]`);
+                     if (comingSoonItem) comingSoonItem.classList.add('active'); // Highlight coming soon item
+                }
+            } else if (!mapIdFromHash && currentlyLoadedMapId) {
+                 // Handle case where hash becomes empty (e.g., back to initial state before map load)
+                 console.log("Popstate: Hash cleared, unloading map.");
+                 if (currentImageLayer) map.removeLayer(currentImageLayer);
+                 if (currentMarkerGroup) map.removeLayer(currentMarkerGroup);
+                 // REMOVED: Minimap removal
+                 currentImageLayer = null;
+                 currentMarkerGroup = null;
+                 // REMOVED: Minimap variable reset
+                 currentlyLoadedMapId = null;
+                 mapBlurbElement.classList.remove('visible');
+                 toggleMarkersBtn.style.display = 'none';
+                 // REMOVED: Zoom display reset
+                 document.querySelectorAll('#map-list .map-item, #map-list .folder-header').forEach(item => item.classList.remove('active'));
             }
-            mapDataFromHash = findMap(mapData, mapIdFromHash);
 
-            // Check if map needs changing AND isn't coming soon
-            if (mapIdFromHash && mapIdFromHash !== currentlyLoadedMapId && mapDataFromHash?.status !== 'coming-soon') {
-                console.log("Hashchange: Loading map", mapIdFromHash);
-                loadMap(mapIdFromHash, false);
-            } else if (mapDataFromHash?.status === 'coming-soon') {
-                 console.log("Hashchange: Map is coming soon, not loading.", mapIdFromHash);
-                 // Optionally show alert or update UI to reflect 'coming soon' state
-            }
             // Check if sidebar needs changing
             if (stateFromHash && stateFromHash !== currentSidebarState) {
-                 console.log("Hashchange: Setting sidebar state", stateFromHash);
-                 setSidebarState(stateFromHash, false);
+                 console.log("Popstate: Setting sidebar state", stateFromHash);
+                 setSidebarState(stateFromHash, false); // Don't update history again
             }
         });
 
         // --- Marker Toggle Button Logic ---
         toggleMarkersBtn.addEventListener('click', () => {
-            markersVisible = !markersVisible; // Toggle state
-            if (currentMarkerGroup) { // Ensure group exists
+            markersVisible = !markersVisible;
+            if (currentMarkerGroup) {
                 if (markersVisible) {
                     map.addLayer(currentMarkerGroup);
                     toggleMarkersBtn.title = "Hide Markers";
@@ -905,101 +913,39 @@
 
         // --- Initial Page Load Logic ---
         function initializeApp() {
-             // Find the default map ID (first *loadable* ID encountered)
-            let defaultMapId = null;
-            function findFirstLoadableId(items) {
-                for (const item of items) {
-                    if (item.id && item.status !== 'coming-soon') return item.id;
-                    if (item.type === 'folder' && item.children) {
-                        const foundId = findFirstLoadableId(item.children);
-                        if (foundId) return foundId;
-                    }
-                }
-                 // Fallback: If only coming-soon items exist, return the first ID found
-                 for (const item of items) {
-                     if (item.id) return item.id;
-                     if (item.type === 'folder' && item.children) {
-                         const foundId = findFirstLoadableId(item.children); // Re-run without status check
-                         if (foundId) return foundId;
-                     }
-                 }
-                return null;
+            const { mapId: initialMapId, sidebarState: initialSidebarState } = parseHash();
+            let mapToLoadData = findMapRecursive(mapData, initialMapId);
+            let mapIdToLoad = initialMapId;
+
+            // If hash points to 'coming soon' or invalid, find the first available default
+            if (!mapToLoadData || mapToLoadData.status === 'coming-soon') {
+                console.log("Initial hash map not loadable, finding default.");
+                mapIdToLoad = findFirstLoadableIdRecursive(mapData);
+                mapToLoadData = findMapRecursive(mapData, mapIdToLoad);
             }
-            defaultMapId = findFirstLoadableId(mapData);
-
-            const { mapId: hashId, sidebarState: initialSidebarState } = parseHash();
-
-            // Need findMap helper available here too
-            function findMap(items, id) {
-                for (const item of items) {
-                    if (item.id === id) { return item; }
-                    if (item.type === 'folder' && item.children) {
-                        const found = findMap(item.children, id);
-                        if (found) return found;
-                    }
-                }
-                return null;
-            }
-
-            let mapToLoadData = null;
-            let mapIdToLoad = null;
-
-            // Prioritize hash ID if it exists and is valid (not coming soon)
-            if (hashId) {
-                const potentialMap = findMap(mapData, hashId);
-                if (potentialMap && potentialMap.status !== 'coming-soon') {
-                    mapToLoadData = potentialMap;
-                    mapIdToLoad = hashId;
-                } else {
-                     console.log("Hash ID points to invalid or coming-soon map, falling back to default.");
-                }
-            }
-
-            // If hash didn't provide a loadable map, use the default
-            if (!mapIdToLoad && defaultMapId) {
-                 mapToLoadData = findMap(mapData, defaultMapId);
-                 // Check if the default itself is coming soon (edge case)
-                 if (mapToLoadData && mapToLoadData.status !== 'coming-soon') {
-                     mapIdToLoad = defaultMapId;
-                 } else {
-                      console.log("Default map ID is coming soon or invalid.");
-                      mapToLoadData = null; // Ensure we don't try to load it
-                 }
-            }
-
 
             console.log("Initializing App. Map to Load:", mapIdToLoad, "Initial Sidebar State:", initialSidebarState);
 
             setSidebarState(initialSidebarState, false); // Set sidebar first
 
-            if (mapIdToLoad && mapToLoadData) {
-                // Initialize marker visibility state BEFORE loading the first map
+            if (mapIdToLoad && mapToLoadData && mapToLoadData.status !== 'coming-soon') {
                 markersVisible = true; // Default to visible
-                toggleMarkersBtn.classList.remove('markers-hidden');
-                toggleMarkersBtn.title = "Hide Markers";
-                toggleMarkersBtn.style.display = ''; // Ensure button is visible
-
-                loadMap(mapIdToLoad, false); // Load map
+                loadMap(mapIdToLoad, false); // Load map without pushing history initially
             } else {
-                console.error("No loadable map data configured or default map ID found.");
+                console.error("No loadable map data found for initialization.");
                 sidebar.innerHTML = '<h2>Select Map</h2><p>No maps available.</p>';
-                // Hide blurb and toggle button if no map loads
                 mapBlurbElement.classList.remove('visible');
                 toggleMarkersBtn.style.display = 'none';
-                // Ensure URL doesn't point to a non-existent/coming-soon map
-                history.replaceState(null, '', generateHash('', initialSidebarState)); // Clear map part of hash
-                return;
+                // REMOVED: Zoom display reset
+                // Ensure URL reflects the initial state (no map loaded)
+                history.replaceState(null, '', generateHash('', initialSidebarState));
+                return; // Stop initialization here
             }
 
-            // Ensure URL reflects actual initial state (only if a map was loaded)
-            if (currentlyLoadedMapId) {
-                const correctInitialHash = generateHash(currentlyLoadedMapId, currentSidebarState);
-                console.log("Replacing initial history state with:", correctInitialHash);
-                history.replaceState({ mapId: currentlyLoadedMapId, sidebarState: currentSidebarState }, '', correctInitialHash);
-            } else {
-                 // If we ended up here without loading a map (e.g., only coming soon exist)
-                 history.replaceState(null, '', generateHash('', currentSidebarState));
-            }
+            // Correct the initial history entry to reflect the loaded state
+            const correctInitialHash = generateHash(currentlyLoadedMapId, currentSidebarState);
+            console.log("Replacing initial history state with:", correctInitialHash);
+            history.replaceState({ mapId: currentlyLoadedMapId, sidebarState: currentSidebarState }, mapToLoadData?.name || '', correctInitialHash);
         }
 
         initializeApp(); // Run initialization
