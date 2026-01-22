@@ -795,7 +795,7 @@ body.dark-theme #search-control-container {
 /* --- Search Results Container --- */
 #search-results-container {
     position: absolute;
-    bottom: 80px; /* Above search bar */
+    bottom: 85px; /* Above search bar */
     left: 50%;
     transform: translateX(-50%);
     z-index: 1001; /* Above search bar, potentially above other controls */
@@ -1050,6 +1050,15 @@ body.dark-theme #wip-popup p { text-shadow: none; }
         #bottom-link-bar a {
             margin: 2px 5px;
         }
+
+    #search-control-container {
+        bottom: 70px;
+        z-index: 1005;
+    }
+    #search-results-container {
+        bottom: 115px;
+        z-index: 1006;
+    }
 }
 @media (max-width: 600px) { /* Adjust breakpoint as needed */
     #wip-popup {

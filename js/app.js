@@ -432,6 +432,9 @@ function updateVisibleMarkersAndSearch() {
         if (!poi) return;
 
         const nameMatch = !searchTerm || poi.name.toLowerCase().includes(searchTerm);
+        const descriptionMatch = poi.description && poi.description.toLowerCase().includes(searchTerm);
+        const summaryMatch = poi.summary && poi.summary.toLowerCase().includes(searchTerm);
+        const isMatch = nameMatch || descriptionMatch || summaryMatch;
 
         const specificType = poi.type || 'Unknown';
         const poiGroup = typeToGroupMap[specificType] || 'Other';
@@ -439,7 +442,7 @@ function updateVisibleMarkersAndSearch() {
         const groupMatch = allPoiGroupsChecked || activeSpecificGroupFilters.has(poiGroup);
 
         // Update marker visibility on map
-        if (markersVisible && nameMatch && groupMatch) { // Governed by markersVisible
+        if (markersVisible && isMatch && groupMatch) { // Governed by markersVisible
             if (!currentMarkerGroup.hasLayer(marker)) {
                 currentMarkerGroup.addLayer(marker);
             }
@@ -450,14 +453,20 @@ function updateVisibleMarkersAndSearch() {
         }
 
         // --- Populate Search Results ---
-        if (searchTerm && nameMatch) { // Only add to results if search term exists and name matches
+        if (searchTerm && isMatch) { // Only add to results if search term exists and match found
             searchResultFound = true;
             const resultItem = document.createElement('div');
             resultItem.className = 'search-result-item';
-            const highlightedName = poi.name.replace(
+            let highlightedName = poi.name.replace(
                 new RegExp(searchTerm, 'gi'),
                 '<strong>$&</strong>'
             );
+
+            // Add a small indicator if matched by description or summary but not name
+            if (!nameMatch && (descriptionMatch || summaryMatch)) {
+                highlightedName += ` <small style="opacity:0.7; font-size:0.8em;">(Matched content)</small>`;
+            }
+
             resultItem.innerHTML = highlightedName;
             resultItem.title = `Go to ${poi.name}`;
             resultItem.addEventListener('click', () => {
