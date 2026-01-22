@@ -92,6 +92,9 @@
                 <button id="toggle-coords-btn" title="Toggle Coordinate Display" aria-label="Toggle Coordinate Display" class="map-control-button" style="display: none;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"/></svg>
                 </button>
+                <button id="help-btn" title="Help & About" aria-label="Help and About" class="map-control-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                </button>
             </div>
 
             <div id="coordinate-display" class="coordinate-control" style="display: none;">
@@ -118,7 +121,7 @@
             <div id="bottom-link-bar">
                 <a href="https://jsnj.link/maps-to-wiki" target="_blank">Wiki</a> |
                 <a href="https://jsnj.link/maps-blog-post" target="_blank">Blog</a> |
-                <a href="about.html" class="back-link">About </a> |
+                <a href="#" id="about-link" class="back-link">About</a> |
                 <a href="https://jsnj.link/map-hiraeth-source" target="_blank">Source </a>
             </div>
         </div>
@@ -142,22 +145,94 @@
         <p>This site is a Work in Progress</p>
         <p>Markers, Names, and Map May Not Be Acurate</p>
     </div>
-    <div id="keyboard-help-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
-        <div style="background-color: var(--bg-secondary); color: var(--text-primary); padding: 25px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 5px 20px var(--shadow-color); position: relative;">
-            <button id="close-keyboard-help-btn" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 1.5rem; color: var(--text-primary); cursor: pointer;">&times;</button>
-            <h2 style="margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Keyboard Shortcuts</h2>
-            <ul style="list-style: none; padding: 0;">
-                <li style="margin-bottom: 8px;"><kbd>+</kbd> / <kbd>=</kbd> : Zoom In</li>
-                <li style="margin-bottom: 8px;"><kbd>-</kbd> : Zoom Out</li>
-                <li style="margin-bottom: 8px;"><kbd>s</kbd> : Toggle Sidebar</li>
-                <li style="margin-bottom: 8px;"><kbd>t</kbd> : Toggle Theme</li>
-                <li style="margin-bottom: 8px;"><kbd>m</kbd> : Toggle Measurement Tool</li>
-                <li style="margin-bottom: 8px;"><kbd>h</kbd> : Toggle Markers/Regions</li>
-                <li style="margin-bottom: 8px;"><kbd>f</kbd> : Toggle Filters Panel</li>
-                <li style="margin-bottom: 8px;"><kbd>/</kbd> : Focus Search Bar</li>
-                <li style="margin-bottom: 8px;"><kbd>Esc</kbd> : Close Popup / Panel / Cancel Measurement</li>
-                <li style="margin-bottom: 8px;"><kbd>?</kbd> : Show/Hide this Help</li>
-                </ul>
+    <div id="about-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button id="close-about-modal-btn" class="modal-close-btn" aria-label="Close Modal">&times;</button>
+
+            <div class="modal-tabs">
+                <button class="tab-btn active" data-tab="guide">Traveler's Guide</button>
+                <button class="tab-btn" data-tab="lore">The Setting</button>
+                <button class="tab-btn" data-tab="changelog">Changelog</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Tab: Traveler's Guide -->
+                <div id="tab-guide" class="tab-content active">
+                    <div class="guide-grid">
+                        <div class="guide-section">
+                            <h3>Navigation & Interaction</h3>
+                            <p>Move freely through the map by clicking and dragging. Use your mouse wheel or trackpad to zoom in for detail or out for an overview.</p>
+                            <ul>
+                                <li><strong>Single Click:</strong> Identify a location or select a point for measurement.</li>
+                                <li><strong>Double Click:</strong> Lock the coordinate display to a specific point (useful for copying exact coordinates).</li>
+                                <li><strong>Click Links:</strong> Shareable links to specific Points of Interest (POIs) can be copied by clicking the share icon in any popup.</li>
+                            </ul>
+
+                            <h3>Toolbar Controls</h3>
+                            <ul>
+                                <li><strong>Sidebar:</strong> Toggle the map list on the left.</li>
+                                <li><strong>Markers (Eye Icon):</strong> Show or hide all map markers and regions for a clear view of the terrain.</li>
+                                <li><strong>Filters:</strong> Open the filter panel to toggle specific categories of locations.</li>
+                                <li><strong>Ruler:</strong> Activate the distance measurement tool. Click multiple points to measure a path; double-click to finish.</li>
+                                <li><strong>Sound:</strong> Toggle ambient background audio (themed for Day/Night modes).</li>
+                            </ul>
+                        </div>
+
+                        <div class="guide-section">
+                            <h3>Keyboard Shortcuts</h3>
+                            <p>Master these keys to navigate the realm swiftly.</p>
+                            <div class="shortcut-grid">
+                                <kbd>+</kbd> <span class="shortcut-desc">Zoom In</span>
+                                <kbd>-</kbd> <span class="shortcut-desc">Zoom Out</span>
+                                <kbd>S</kbd> <span class="shortcut-desc">Toggle Sidebar</span>
+                                <kbd>T</kbd> <span class="shortcut-desc">Toggle Theme</span>
+                                <kbd>M</kbd> <span class="shortcut-desc">Measurement Tool</span>
+                                <kbd>H</kbd> <span class="shortcut-desc">Toggle Markers</span>
+                                <kbd>F</kbd> <span class="shortcut-desc">Toggle Filters</span>
+                                <kbd>/</kbd> <span class="shortcut-desc">Search</span>
+                                <kbd>?</kbd> <span class="shortcut-desc">Help</span>
+                                <kbd>Esc</kbd> <span class="shortcut-desc">Close / Cancel</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: The Setting -->
+                <div id="tab-lore" class="tab-content">
+                    <div class="lore-text">
+                        <h3>The World of Hiraeth</h3>
+                        <p>
+                            Hiraeth is a realm born of imagination, nurtured through more than a decade of shared stories and dedicated world-building by its creator and founding Dungeon Master Jax SN Johnson. Its landscapes, cities, and hidden corners have echoed with the footsteps of heroes and the schemes of villains, meticulously charted and brought to life over countless campaigns.
+                        </p>
+                        <p>
+                            This interactive atlas is more than just a collection of locations; it is a living window into a world that has breathed and evolved. What began as a setting for short stories in middle school and fun campaigns in high school—full of hand-drawn sketches shared around the gaming table—has grown into this digital archive. It is born from a deep passion for this cherished setting and the collaborative magic of tabletop roleplaying.
+                        </p>
+                        <p>
+                            Here, you are invited to delve into the details of bustling port cities like Rockdrift, trace the paths of ancient roads in Icebeach, or uncover the secrets whispered in forgotten ruins in Astrousia. These maps are resources designed to spark imagination, provide context, and help you visualize the stage upon which your own Hiraeth adventures will unfold.
+                        </p>
+                        <p>
+                            Explore. Discover. The journey awaits.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tab: Changelog -->
+                <div id="tab-changelog" class="tab-content">
+                    <div class="changelog-entry">
+                        <div class="changelog-header">
+                            <h3>Initial Release</h3>
+                            <span class="version-pill">v1.0.0</span>
+                        </div>
+                        <ul class="changelog-list">
+                            <li>Launched the interactive map viewer!</li>
+                            <li>Explore various regions of Hiraeth with seamless zooming and panning.</li>
+                            <li>Find key locations with the search and filter tools.</li>
+                            <li>Measure distances for travel planning.</li>
+                            <li>Toggle between Day and Night themes.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
