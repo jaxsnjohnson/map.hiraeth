@@ -795,7 +795,7 @@ body.dark-theme #search-control-container {
 /* --- Search Results Container --- */
 #search-results-container {
     position: absolute;
-    bottom: 85px; /* Above search bar */
+    bottom: 90px; /* Above search bar */
     left: 50%;
     transform: translateX(-50%);
     z-index: 1001; /* Above search bar, potentially above other controls */
