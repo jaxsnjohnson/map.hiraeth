@@ -2223,23 +2223,52 @@ async function loadMapData() {
         const aboutLink = document.getElementById('about-link');
         const tabBtns = document.querySelectorAll('.tab-btn');
         const tabContents = document.querySelectorAll('.tab-content');
+        let lastFocus = null;
 
         function toggleAboutModal(show, tabName = 'guide') {
             if (!aboutModal) return;
 
             if (show) {
+                lastFocus = document.activeElement; // Save focus
                 aboutModal.style.display = 'flex';
                 // Small delay to allow display:flex to apply before adding visible class for transition
                 requestAnimationFrame(() => {
                     aboutModal.classList.add('visible');
+                    // Focus management: Focus the active tab or first tab
+                    const focusTarget = aboutModal.querySelector('.tab-btn.active') || aboutModal.querySelector('.tab-btn') || closeAboutModalBtn;
+                    if (focusTarget) focusTarget.focus();
                 });
                 if (tabName) switchTab(tabName);
             } else {
                 aboutModal.classList.remove('visible');
                 setTimeout(() => {
                     aboutModal.style.display = 'none';
+                    if (lastFocus) lastFocus.focus(); // Restore focus
                 }, 300); // Match transition duration
             }
+        }
+
+        // Trap focus inside modal
+        if (aboutModal) {
+            aboutModal.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    const focusableContent = aboutModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                    const first = focusableContent[0];
+                    const last = focusableContent[focusableContent.length - 1];
+
+                    if (e.shiftKey) { // Shift + Tab
+                        if (document.activeElement === first) {
+                            last.focus();
+                            e.preventDefault();
+                        }
+                    } else { // Tab
+                        if (document.activeElement === last) {
+                            first.focus();
+                            e.preventDefault();
+                        }
+                    }
+                }
+            });
         }
 
         function switchTab(tabName) {

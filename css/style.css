@@ -1106,7 +1106,8 @@ body.dark-theme #wip-popup p { text-shadow: none; }
     border-radius: 12px;
     width: 100%;
     max-width: 800px;
-    max-height: 85vh;
+    height: 80vh; /* Fixed height for stability */
+    max-height: 80vh;
     box-shadow: 0 10px 30px var(--shadow-color);
     position: relative;
     display: flex;
@@ -1163,10 +1164,14 @@ body.dark-theme .modal-tabs {
     border: none;
     font-family: var(--font-family-main);
     font-size: 1.1rem;
-    color: var(--text-secondary);
+    color: rgba(107, 44, 37, 0.7); /* Darker inactive for light mode */
     cursor: pointer;
     border-bottom: 3px solid transparent;
     transition: all 0.2s ease;
+}
+
+body.dark-theme .tab-btn {
+    color: var(--text-secondary);
 }
 
 .tab-btn:hover {
@@ -1280,4 +1285,59 @@ kbd {
     padding-top: 4px;
     color: var(--slider-bg); /* Use accent color */
     font-weight: 700;
+}
+
+/* --- Changelog Styling --- */
+.changelog-entry {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--glass-border-light);
+}
+
+body.dark-theme .changelog-entry {
+    border-bottom-color: var(--glass-border-dark);
+}
+
+.changelog-entry:last-child {
+    border-bottom: none;
+}
+
+.changelog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.changelog-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+}
+
+.version-pill {
+    background-color: var(--active-bg);
+    color: var(--text-primary);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid var(--glass-border-light);
+}
+
+body.dark-theme .version-pill {
+    background-color: var(--active-bg);
+    border-color: var(--glass-border-dark);
+}
+
+.changelog-list {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin: 0;
+}
+
+.changelog-list li {
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+    line-height: 1.5;
 }
