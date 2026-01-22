@@ -487,6 +487,10 @@ body.dark-theme .leaflet-control-zoom a:hover { background-color: rgba(70, 70, 7
 
 /* --- Coordinate Display Control --- */
 .coordinate-control {
+    position: absolute;
+    top: 10px;
+    left: 50px; /* Offset to the right of the button stack */
+    z-index: 1000;
     background-color: var(--glass-bg-light);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -498,7 +502,6 @@ body.dark-theme .leaflet-control-zoom a:hover { background-color: rgba(70, 70, 7
     box-shadow: 0 1px 5px var(--shadow-color);
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
     display: none; /* Hide by default */
-    /* margin-left: 10px; Removed to fit in flex stack */
     white-space: nowrap; /* Prevent wrapping */
 }
 body.dark-theme .coordinate-control {
