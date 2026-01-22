@@ -1050,15 +1050,6 @@ body.dark-theme #wip-popup p { text-shadow: none; }
         #bottom-link-bar a {
             margin: 2px 5px;
         }
-
-    #search-control-container {
-        bottom: 70px;
-        z-index: 1005;
-    }
-    #search-results-container {
-        bottom: 110px;
-        z-index: 1006;
-    }
 }
 @media (max-width: 600px) { /* Adjust breakpoint as needed */
     #wip-popup {
@@ -1349,4 +1340,17 @@ body.dark-theme .version-pill {
     margin-bottom: 6px;
     font-size: 0.95rem;
     line-height: 1.5;
+}
+
+/* --- Utility Classes --- */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
