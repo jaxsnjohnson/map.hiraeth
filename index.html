@@ -45,7 +45,7 @@
             </div>
         </div>
         <div id="map-container">
-            <button id="toggle-sidebar-btn" title="Collapse Sidebar">
+            <button id="toggle-sidebar-btn" title="Collapse Sidebar" aria-label="Collapse Sidebar">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </button>
             <div id="map"></div>
@@ -56,7 +56,7 @@
             </div>
 
             <div id="map-blurb"></div>
-            <button id="toggle-blurb-btn" class="map-control-button leaflet-control" title="Toggle Map Info">
+            <button id="toggle-blurb-btn" class="map-control-button leaflet-control" title="Toggle Map Info" aria-label="Toggle Map Info">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
             </button>
 
@@ -69,34 +69,37 @@
             </div>
 
             <div id="map-controls-container">
-                <button id="custom-zoom-in" title="Zoom In" class="map-control-button">
+                <button id="custom-zoom-in" title="Zoom In" aria-label="Zoom In" class="map-control-button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 </button>
-                <button id="custom-zoom-out" title="Zoom Out" class="map-control-button">
+                <button id="custom-zoom-out" title="Zoom Out" aria-label="Zoom Out" class="map-control-button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 </button>
-                <button id="toggle-markers-btn" title="Toggle Markers" class="map-control-button">
+                <button id="toggle-markers-btn" title="Toggle Markers" aria-label="Toggle Markers" class="map-control-button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
                 </button>
-                <button id="toggle-filters-btn" title="Toggle Filters" class="map-control-button">
+                <button id="toggle-filters-btn" title="Toggle Filters" aria-label="Toggle Filters" class="map-control-button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
                 </button>
-                <button id="measure-tool-btn" title="Measure Distance" class="map-control-button">
+                <button id="measure-tool-btn" title="Measure Distance" aria-label="Measure Distance" class="map-control-button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.8 13.598 10.402 2.201a3 3 0 0 0-4.243 0L2.2 6.157a3 3 0 0 0 0 4.243l11.398 11.398a3 3 0 0 0 4.243 0l3.957-3.957a3 3 0 0 0 0-4.243Z"/><path d="m6 10 2-2"/><path d="m10 14 2-2"/><path d="m14 18 2-2"/></svg>
                 </button>
-                <button id="toggle-sound-btn" title="Toggle Sound" class="map-control-button">
+                <button id="toggle-sound-btn" title="Toggle Sound" aria-label="Toggle Sound" class="map-control-button">
                     <span id="sound-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" x2="17" y1="9" y2="15"/><line x1="17" x2="23" y1="9" y2="15"/></svg>
                     </span>
                 </button>
-                <button id="toggle-coords-btn" title="Toggle Coordinate Display" class="map-control-button" style="display: none;">
+                <button id="toggle-coords-btn" title="Toggle Coordinate Display" aria-label="Toggle Coordinate Display" class="map-control-button" style="display: none;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"/></svg>
+                </button>
+                <button id="help-btn" title="Help & About" aria-label="Help and About" class="map-control-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
                 </button>
             </div>
 
             <div id="coordinate-display" class="coordinate-control" style="display: none;">
                 <span>0.0° N, 0.0° W</span>
-                <button class="copy-coords-btn" title="Copy Coordinates">
+                <button class="copy-coords-btn" title="Copy Coordinates" aria-label="Copy Coordinates">
                     <span class="copy-coords-icon">📋</span>
                     <span class="copy-coords-copied-msg">✔</span>
                 </button>
@@ -117,7 +120,7 @@
             <div id="bottom-link-bar">
                 <a href="https://jsnj.link/maps-to-wiki" target="_blank">Wiki</a> |
                 <a href="https://jsnj.link/maps-blog-post" target="_blank">Blog</a> |
-                <a href="about.html" class="back-link">About </a> |
+                <a href="#" id="about-link" class="back-link">About</a> |
                 <a href="https://jsnj.link/map-hiraeth-source" target="_blank">Source </a>
             </div>
         </div>
@@ -141,22 +144,76 @@
         <p>This site is a Work in Progress</p>
         <p>Markers, Names, and Map May Not Be Acurate</p>
     </div>
-    <div id="keyboard-help-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
-        <div style="background-color: var(--bg-secondary); color: var(--text-primary); padding: 25px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 5px 20px var(--shadow-color); position: relative;">
-            <button id="close-keyboard-help-btn" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 1.5rem; color: var(--text-primary); cursor: pointer;">&times;</button>
-            <h2 style="margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Keyboard Shortcuts</h2>
-            <ul style="list-style: none; padding: 0;">
-                <li style="margin-bottom: 8px;"><kbd>+</kbd> / <kbd>=</kbd> : Zoom In</li>
-                <li style="margin-bottom: 8px;"><kbd>-</kbd> : Zoom Out</li>
-                <li style="margin-bottom: 8px;"><kbd>s</kbd> : Toggle Sidebar</li>
-                <li style="margin-bottom: 8px;"><kbd>t</kbd> : Toggle Theme</li>
-                <li style="margin-bottom: 8px;"><kbd>m</kbd> : Toggle Measurement Tool</li>
-                <li style="margin-bottom: 8px;"><kbd>h</kbd> : Toggle Markers/Regions</li>
-                <li style="margin-bottom: 8px;"><kbd>f</kbd> : Toggle Filters Panel</li>
-                <li style="margin-bottom: 8px;"><kbd>/</kbd> : Focus Search Bar</li>
-                <li style="margin-bottom: 8px;"><kbd>Esc</kbd> : Close Popup / Panel / Cancel Measurement</li>
-                <li style="margin-bottom: 8px;"><kbd>?</kbd> : Show/Hide this Help</li>
-                </ul>
+    <div id="about-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button id="close-about-modal-btn" class="modal-close-btn" aria-label="Close Modal">&times;</button>
+
+            <div class="modal-tabs">
+                <button class="tab-btn active" data-tab="guide">Traveler's Guide</button>
+                <button class="tab-btn" data-tab="lore">The World</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Tab: Traveler's Guide -->
+                <div id="tab-guide" class="tab-content active">
+                    <div class="guide-grid">
+                        <div class="guide-section">
+                            <h3>Navigation & Interaction</h3>
+                            <p>Move freely through the map by clicking and dragging. Use your mouse wheel or trackpad to zoom in for detail or out for an overview.</p>
+                            <ul>
+                                <li><strong>Single Click:</strong> Identify a location or select a point for measurement.</li>
+                                <li><strong>Double Click:</strong> Lock the coordinate display to a specific point (useful for copying exact coordinates).</li>
+                                <li><strong>Click Links:</strong> Shareable links to specific Points of Interest (POIs) can be copied by clicking the share icon in any popup.</li>
+                            </ul>
+
+                            <h3>Toolbar Controls</h3>
+                            <ul>
+                                <li><strong>Sidebar:</strong> Toggle the map list on the left.</li>
+                                <li><strong>Markers (Eye Icon):</strong> Show or hide all map markers and regions for a clear view of the terrain.</li>
+                                <li><strong>Filters:</strong> Open the filter panel to toggle specific categories of locations.</li>
+                                <li><strong>Ruler:</strong> Activate the distance measurement tool. Click multiple points to measure a path; double-click to finish.</li>
+                                <li><strong>Sound:</strong> Toggle ambient background audio (themed for Day/Night modes).</li>
+                            </ul>
+                        </div>
+
+                        <div class="guide-section">
+                            <h3>Keyboard Shortcuts</h3>
+                            <p>Master these keys to navigate the realm swiftly.</p>
+                            <div class="shortcut-grid">
+                                <kbd>+</kbd> <span class="shortcut-desc">Zoom In</span>
+                                <kbd>-</kbd> <span class="shortcut-desc">Zoom Out</span>
+                                <kbd>S</kbd> <span class="shortcut-desc">Toggle Sidebar</span>
+                                <kbd>T</kbd> <span class="shortcut-desc">Toggle Theme</span>
+                                <kbd>M</kbd> <span class="shortcut-desc">Measurement Tool</span>
+                                <kbd>H</kbd> <span class="shortcut-desc">Toggle Markers</span>
+                                <kbd>F</kbd> <span class="shortcut-desc">Toggle Filters</span>
+                                <kbd>/</kbd> <span class="shortcut-desc">Search</span>
+                                <kbd>?</kbd> <span class="shortcut-desc">Help</span>
+                                <kbd>Esc</kbd> <span class="shortcut-desc">Close / Cancel</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: The World -->
+                <div id="tab-lore" class="tab-content">
+                    <div class="lore-text">
+                        <h3>The World of Hiraeth</h3>
+                        <p>
+                            Hiraeth is a realm born of imagination, nurtured through more than a decade of shared stories and dedicated world-building by its creator and founding Dungeon Master Jax SN Johnson. Its landscapes, cities, and hidden corners have echoed with the footsteps of heroes and the schemes of villains, meticulously charted and brought to life over countless campaigns.
+                        </p>
+                        <p>
+                            This interactive atlas is more than just a collection of locations; it is a living window into a world that has breathed and evolved. What began as a setting for short stories in middle school and fun campaigns in high school—full of hand-drawn sketches shared around the gaming table—has grown into this digital archive. It is born from a deep passion for this cherished setting and the collaborative magic of tabletop roleplaying.
+                        </p>
+                        <p>
+                            Here, you are invited to delve into the details of bustling port cities like Rockdrift, trace the paths of ancient roads in Icebeach, or uncover the secrets whispered in forgotten ruins in Astrousia. These maps are resources designed to spark imagination, provide context, and help you visualize the stage upon which your own Hiraeth adventures will unfold.
+                        </p>
+                        <p>
+                            Explore. Discover. The journey awaits.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

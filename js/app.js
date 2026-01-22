@@ -2216,15 +2216,73 @@ async function loadMapData() {
             loadingIndicator.querySelector('.progress-bar').style.width = '100%';
         }
 
-        // --- Keyboard Shortcut Logic ---
-        const keyboardHelpModal = document.getElementById('keyboard-help-modal');
-        const closeKeyboardHelpBtn = document.getElementById('close-keyboard-help-btn');
+        // --- Keyboard Shortcut & Modal Logic ---
+        const aboutModal = document.getElementById('about-modal');
+        const closeAboutModalBtn = document.getElementById('close-about-modal-btn');
+        const helpBtn = document.getElementById('help-btn');
+        const aboutLink = document.getElementById('about-link');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
 
-        if (closeKeyboardHelpBtn) { // Check if modal exists
-            closeKeyboardHelpBtn.addEventListener('click', () => {
-                if (keyboardHelpModal) keyboardHelpModal.style.display = 'none';
+        function toggleAboutModal(show, tabName = 'guide') {
+            if (!aboutModal) return;
+
+            if (show) {
+                aboutModal.style.display = 'flex';
+                // Small delay to allow display:flex to apply before adding visible class for transition
+                requestAnimationFrame(() => {
+                    aboutModal.classList.add('visible');
+                });
+                if (tabName) switchTab(tabName);
+            } else {
+                aboutModal.classList.remove('visible');
+                setTimeout(() => {
+                    aboutModal.style.display = 'none';
+                }, 300); // Match transition duration
+            }
+        }
+
+        function switchTab(tabName) {
+            tabBtns.forEach(btn => {
+                if (btn.dataset.tab === tabName) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            tabContents.forEach(content => {
+                if (content.id === `tab-${tabName}`) content.classList.add('active');
+                else content.classList.remove('active');
             });
         }
+
+        // Event Listeners for Modal
+        if (closeAboutModalBtn) {
+            closeAboutModalBtn.addEventListener('click', () => toggleAboutModal(false));
+        }
+
+        if (aboutModal) {
+            aboutModal.addEventListener('click', (e) => {
+                if (e.target === aboutModal) toggleAboutModal(false);
+            });
+        }
+
+        if (helpBtn) {
+            helpBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleAboutModal(true, 'guide');
+            });
+        }
+
+        if (aboutLink) {
+            aboutLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleAboutModal(true, 'lore');
+            });
+        }
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                switchTab(btn.dataset.tab);
+            });
+        });
 
         function isInputFocused() {
             const activeElement = document.activeElement;
@@ -2238,17 +2296,18 @@ async function loadMapData() {
             if (e.key === '?') {
                 if (!isInputFocused()) { // Don't trigger if typing '?' in search
                     e.preventDefault();
-                    if (keyboardHelpModal) {
-                        keyboardHelpModal.style.display = keyboardHelpModal.style.display === 'none' ? 'flex' : 'none';
+                    if (aboutModal) {
+                        const isVisible = aboutModal.classList.contains('visible');
+                        toggleAboutModal(!isVisible, 'guide');
                     }
                     return;
                 }
             }
 
             // If help modal is open, Esc should close it
-            if (keyboardHelpModal && keyboardHelpModal.style.display !== 'none' && e.key === 'Escape') {
+            if (aboutModal && aboutModal.classList.contains('visible') && e.key === 'Escape') {
                 e.preventDefault();
-                keyboardHelpModal.style.display = 'none';
+                toggleAboutModal(false);
                 return;
             }
 
