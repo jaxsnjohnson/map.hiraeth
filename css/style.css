@@ -1050,6 +1050,15 @@ body.dark-theme #wip-popup p { text-shadow: none; }
         #bottom-link-bar a {
             margin: 2px 5px;
         }
+
+    #search-control-container {
+        bottom: 70px;
+        z-index: 1005;
+    }
+    #search-results-container {
+        bottom: 110px;
+        z-index: 1006;
+    }
 }
 @media (max-width: 600px) { /* Adjust breakpoint as needed */
     #wip-popup {
