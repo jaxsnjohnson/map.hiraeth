@@ -498,7 +498,8 @@ body.dark-theme .leaflet-control-zoom a:hover { background-color: rgba(70, 70, 7
     box-shadow: 0 1px 5px var(--shadow-color);
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
     display: none; /* Hide by default */
-    margin-left: 10px;
+    /* margin-left: 10px; Removed to fit in flex stack */
+    white-space: nowrap; /* Prevent wrapping */
 }
 body.dark-theme .coordinate-control {
     background-color: var(--glass-bg-dark);
@@ -549,6 +550,7 @@ body.dark-theme .coordinate-control {
     display: flex;
     flex-direction: column;
     gap: 5px; /* Space between buttons */
+    align-items: flex-start; /* Prevent stretching buttons to width of coordinates */
 }
 
 /* --- Map Control Buttons Common Style --- */
