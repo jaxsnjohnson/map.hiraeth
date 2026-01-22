@@ -57,10 +57,12 @@ if (copyCoordsBtn) {
         navigator.clipboard.writeText(coordsText).then(() => {
             copyCoordsBtn.classList.add('copied');
             copyCoordsBtn.title = "Copied!";
+            copyCoordsBtn.setAttribute('aria-label', "Copied!");
 
             setTimeout(() => {
                 copyCoordsBtn.classList.remove('copied');
                 copyCoordsBtn.title = "Copy Coordinates";
+                copyCoordsBtn.setAttribute('aria-label', "Copy Coordinates");
             }, 1500); // Reset after 1.5 seconds
         }).catch(err => {
             console.error('Failed to copy coordinates: ', err);
@@ -330,10 +332,14 @@ function setSidebarState(state, updateHash = true) {
             // Point Right (Expand)
              toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`;
              toggleBtn.title = 'Expand Sidebar';
+             toggleBtn.setAttribute('aria-label', 'Expand Sidebar');
+             toggleBtn.setAttribute('aria-expanded', 'false');
         } else {
             // Point Left (Collapse)
             toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>`;
             toggleBtn.title = 'Collapse Sidebar';
+            toggleBtn.setAttribute('aria-label', 'Collapse Sidebar');
+            toggleBtn.setAttribute('aria-expanded', 'true');
         }
 
         // Invalidate map size after CSS transition completes
@@ -1570,7 +1576,11 @@ function initializeSoundState() {
 
     if (soundEnabled) {
         soundIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`;
-        if (toggleSoundBtn) toggleSoundBtn.title = "Mute Sound";
+            if (toggleSoundBtn) {
+                toggleSoundBtn.title = "Mute Sound";
+                toggleSoundBtn.setAttribute('aria-label', "Mute Sound");
+                toggleSoundBtn.setAttribute('aria-pressed', "true");
+            }
         // Start playing the correct track based on the current theme
         const currentTheme = bodyElement.classList.contains('dark-theme') ? 'dark' : 'light';
         if (currentTheme === 'dark') {
@@ -1580,7 +1590,11 @@ function initializeSoundState() {
         }
     } else {
         soundIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" x2="17" y1="9" y2="15"/><line x1="17" x2="23" y1="9" y2="15"/></svg>`;
-        if (toggleSoundBtn) toggleSoundBtn.title = "Unmute Sound";
+        if (toggleSoundBtn) {
+            toggleSoundBtn.title = "Unmute Sound";
+            toggleSoundBtn.setAttribute('aria-label', "Unmute Sound");
+            toggleSoundBtn.setAttribute('aria-pressed', "false");
+        }
     }
     // Make button visible now that state is set (only if not embedded)
     if (toggleSoundBtn) toggleSoundBtn.style.display = 'block';
@@ -1595,6 +1609,8 @@ if (toggleSoundBtn) {
         if (soundEnabled) {
             soundIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`;
             toggleSoundBtn.title = "Mute Sound";
+            toggleSoundBtn.setAttribute('aria-label', "Mute Sound");
+            toggleSoundBtn.setAttribute('aria-pressed', "true");
 
             const currentTheme = bodyElement.classList.contains('dark-theme') ? 'dark' : 'light';
             if (currentTheme === 'dark') {
@@ -1605,6 +1621,8 @@ if (toggleSoundBtn) {
         } else {
             soundIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" x2="17" y1="9" y2="15"/><line x1="17" x2="23" y1="9" y2="15"/></svg>`;
             toggleSoundBtn.title = "Unmute Sound";
+            toggleSoundBtn.setAttribute('aria-label', "Unmute Sound");
+            toggleSoundBtn.setAttribute('aria-pressed', "false");
 
             fadeAudio(lightAmbient, 0);
             fadeAudio(darkAmbient, 0);
@@ -1724,6 +1742,7 @@ toggleMarkersBtn.addEventListener('click', () => {
     regionsVisible = markersVisible; // Sync regions with markers
 
     toggleMarkersBtn.title = markersVisible ? "Hide Markers & Regions" : "Show Markers & Regions";
+    toggleMarkersBtn.setAttribute('aria-label', markersVisible ? "Hide Markers & Regions" : "Show Markers & Regions");
     toggleMarkersBtn.classList.toggle('markers-hidden', !markersVisible);
 
     updateVisibleRegions(); // Update regions visibility
@@ -1735,6 +1754,7 @@ toggleBlurbBtn.addEventListener('click', (e) => {
     e.stopPropagation(); // Prevent map click event
     mapBlurbElement.classList.toggle('visible');
     toggleBlurbBtn.classList.toggle('active');
+    toggleBlurbBtn.setAttribute('aria-expanded', mapBlurbElement.classList.contains('visible'));
 });
 
 // --- Filter Panel Toggle Logic ---
@@ -1743,6 +1763,8 @@ function toggleFilterPanel() {
     poiFilterContainer.classList.toggle('visible', filtersPanelVisible);
     toggleFiltersBtn.classList.toggle('active', filtersPanelVisible);
     toggleFiltersBtn.title = filtersPanelVisible ? "Hide Filters" : "Show Filters";
+    toggleFiltersBtn.setAttribute('aria-label', filtersPanelVisible ? "Hide Filters" : "Show Filters");
+    toggleFiltersBtn.setAttribute('aria-expanded', filtersPanelVisible);
 }
 toggleFiltersBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -1917,6 +1939,7 @@ function handleMeasurementClick(e) {
 function toggleMeasurementTool() {
     isMeasuringMultiPoint = !isMeasuringMultiPoint; // Use the new state variable
     measureToolBtn.classList.toggle('active', isMeasuringMultiPoint);
+    measureToolBtn.setAttribute('aria-pressed', isMeasuringMultiPoint);
     mapElement.classList.toggle('measuring-cursor', isMeasuringMultiPoint);
 
     if (isMeasuringMultiPoint) {
