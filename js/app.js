@@ -43,7 +43,7 @@ let temporaryMouseMoveTooltip = null; // L.Tooltip for the temporary line's leng
 
 // --- Initialize Leaflet Map ---
 // Add styled zoom control
-L.control.zoom({ position: 'topleft' }).addTo(map);
+// L.control.zoom({ position: 'topleft' }).addTo(map); // Removed in favor of custom buttons
 
 // --- Coordinate Display Control ---
 const coordinateControl = L.Control.extend({
@@ -1706,6 +1706,24 @@ window.addEventListener('beforeunload', () => {
     if (loadingProgressInterval) clearInterval(loadingProgressInterval);
 });
 
+
+// --- Custom Zoom Control Logic ---
+const customZoomInBtn = document.getElementById('custom-zoom-in');
+const customZoomOutBtn = document.getElementById('custom-zoom-out');
+
+if (customZoomInBtn) {
+    customZoomInBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        map.zoomIn();
+    });
+}
+
+if (customZoomOutBtn) {
+    customZoomOutBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        map.zoomOut();
+    });
+}
 
 // --- Marker Toggle Button Logic ---
 toggleMarkersBtn.addEventListener('click', () => {
