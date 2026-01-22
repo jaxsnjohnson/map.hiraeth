@@ -268,6 +268,15 @@ let soundEnabled = false;
 
 
 // --- Helper Functions ---
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+}
+
 function findMapRecursive(items, id) {
     for (const item of items) {
         if (item.id === id) { return item; }
@@ -1730,7 +1739,8 @@ toggleFiltersBtn.addEventListener('click', (e) => {
 });
 
 // --- Search Input Logic ---
-poiSearchInput.addEventListener('input', updateVisibleMarkersAndSearch);
+const debouncedUpdateVisibleMarkersAndSearch = debounce(updateVisibleMarkersAndSearch, 300);
+poiSearchInput.addEventListener('input', debouncedUpdateVisibleMarkersAndSearch);
 poiSearchInput.addEventListener('click', (e) => e.stopPropagation());
 searchResultsContainer.addEventListener('click', (e) => e.stopPropagation());
 
