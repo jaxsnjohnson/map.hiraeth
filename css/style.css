@@ -779,7 +779,7 @@ body.dark-theme #search-control-container {
     border-color: var(--glass-border-dark);
 }
 #poi-search-input {
-    width: 250px; /* Adjust width */
+    width: 300px; /* Adjust width */
     padding: 6px 8px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
