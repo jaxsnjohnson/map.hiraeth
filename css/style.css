@@ -487,6 +487,10 @@ body.dark-theme .leaflet-control-zoom a:hover { background-color: rgba(70, 70, 7
 
 /* --- Coordinate Display Control --- */
 .coordinate-control {
+    position: absolute;
+    top: 10px;
+    left: 50px; /* Offset to the right of the button stack */
+    z-index: 1000;
     background-color: var(--glass-bg-light);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -498,7 +502,7 @@ body.dark-theme .leaflet-control-zoom a:hover { background-color: rgba(70, 70, 7
     box-shadow: 0 1px 5px var(--shadow-color);
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
     display: none; /* Hide by default */
-    margin-left: 10px;
+    white-space: nowrap; /* Prevent wrapping */
 }
 body.dark-theme .coordinate-control {
     background-color: var(--glass-bg-dark);
@@ -540,15 +544,21 @@ body.dark-theme .coordinate-control {
     opacity: 1;
     transform: translateY(0);
 }
-#toggle-coords-btn {
-    top: 226px; /* Position below sound toggle */
+/* --- Map Control Container --- */
+#map-controls-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Space between buttons */
+    align-items: flex-start; /* Prevent stretching buttons to width of coordinates */
 }
 
 /* --- Map Control Buttons Common Style --- */
 .map-control-button {
-    position: absolute;
-    left: 12px; /* Adjusted slightly for default zoom control */
-    z-index: 1000;
+    /* No absolute positioning here anymore */
     background-color: var(--glass-bg-light);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -572,11 +582,16 @@ body.dark-theme .coordinate-control {
     box-shadow: 0 4px 8px var(--shadow-color);
 }
 
+/* --- Zoom Buttons (Custom) --- */
+#custom-zoom-in, #custom-zoom-out {
+    display: block; /* Always visible */
+}
+
 /* --- CORRECTED: Blurb Toggle Button --- */
 #toggle-blurb-btn {
+    position: absolute; /* Keep it absolute */
     top: 10px;
     right: 10px; /* Position in the top right corner */
-    left: auto; /* IMPORTANT: Override the 'left' from .map-control-button */
     z-index: 1000; /* Ensure it's above the map */
     display: none; /* Hide by default, JS will show it */
 }
@@ -597,7 +612,6 @@ body.dark-theme .map-control-button:hover {
 
 /* Marker Toggle Button (Now controls Markers & Regions) */
 #toggle-markers-btn {
-    top: 78px; /* Position below zoom controls */
     /* Inherits from .map-control-button */
 }
 #toggle-markers-btn svg {
@@ -610,7 +624,6 @@ body.dark-theme .map-control-button:hover {
 
 /* --- Filter Toggle Button (Now uses Map Icon) --- */
 #toggle-filters-btn {
-    top: 115px; /* Position below marker toggle */
     /* Inherits from .map-control-button */
 }
 #toggle-filters-btn.active {
@@ -722,7 +735,6 @@ body.dark-theme #poi-filter-container h3 {
 
 /* Measure Tool Button */
 #measure-tool-btn {
-    top: 152px; /* Position below filter toggle */
     /* Inherits from .map-control-button */
 }
 #measure-tool-btn svg {
@@ -741,7 +753,6 @@ body.dark-theme #measure-tool-btn.active {
 
 /* Sound Toggle Button */
 #toggle-sound-btn {
-    top: 189px; /* Position below measure tool */
     /* Inherits from .map-control-button */
     display: block; /* Make visible by default */
 }
@@ -994,10 +1005,7 @@ body.dark-theme #wip-popup p { text-shadow: none; }
     }
 
     /* Adjust button positions if needed */
-    #toggle-markers-btn { top: 70px; }
-    #toggle-filters-btn { top: 118px; }
-    #measure-tool-btn { top: 166px; }
-    #toggle-sound-btn { top: 214px; }
+    /* Flex container handles positioning now */
 
     #poi-search-input {
     width: 180px; /* Example: Adjust search input width */

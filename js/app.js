@@ -43,49 +43,37 @@ let temporaryMouseMoveTooltip = null; // L.Tooltip for the temporary line's leng
 
 // --- Initialize Leaflet Map ---
 // Add styled zoom control
-L.control.zoom({ position: 'topleft' }).addTo(map);
+// L.control.zoom({ position: 'topleft' }).addTo(map); // Removed in favor of custom buttons
 
-// --- Coordinate Display Control ---
-const coordinateControl = L.Control.extend({
-    onAdd: function(map) {
-        const container = L.DomUtil.create('div', 'coordinate-control');
-        container.innerHTML = `
-            <span>0.0° N, 0.0° W</span>
-            <button class="copy-coords-btn" title="Copy Coordinates">
-                <span class="copy-coords-icon">📋</span>
-                <span class="copy-coords-copied-msg">✔</span>
-            </button>
-        `;
+// --- Coordinate Display Logic ---
+const coordinateDisplay = document.getElementById('coordinate-display');
+const copyCoordsBtn = coordinateDisplay.querySelector('.copy-coords-btn');
 
-        const copyBtn = container.querySelector('.copy-coords-btn');
-        copyBtn.addEventListener('click', () => {
-            if (copyBtn.classList.contains('copied')) return; // Prevent re-clicking
+if (copyCoordsBtn) {
+    copyCoordsBtn.addEventListener('click', () => {
+        if (copyCoordsBtn.classList.contains('copied')) return; // Prevent re-clicking
 
-            const coordsText = container.querySelector('span').innerText;
-            navigator.clipboard.writeText(coordsText).then(() => {
-                copyBtn.classList.add('copied');
-                copyBtn.title = "Copied!";
+        const coordsText = coordinateDisplay.querySelector('span').innerText;
+        navigator.clipboard.writeText(coordsText).then(() => {
+            copyCoordsBtn.classList.add('copied');
+            copyCoordsBtn.title = "Copied!";
 
-                setTimeout(() => {
-                    copyBtn.classList.remove('copied');
-                    copyBtn.title = "Copy Coordinates";
-                }, 1500); // Reset after 1.5 seconds
-            }).catch(err => {
-                console.error('Failed to copy coordinates: ', err);
-                // Optional: handle error visually
-            });
+            setTimeout(() => {
+                copyCoordsBtn.classList.remove('copied');
+                copyCoordsBtn.title = "Copy Coordinates";
+            }, 1500); // Reset after 1.5 seconds
+        }).catch(err => {
+            console.error('Failed to copy coordinates: ', err);
         });
+    });
+}
 
-        return container;
-    },
-    update: function(lat, lon) {
-        const latString = `${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'N' : 'S'}`;
-        const lonString = `${Math.abs(lon).toFixed(2)}° ${lon >= 0 ? 'W' : 'E'}`;
-        this.getContainer().querySelector('span').innerHTML = `${latString}, ${lonString}`;
-    }
-});
-const coords = new coordinateControl({ position: 'topleft' });
-coords.addTo(map);
+function updateCoordinateDisplay(lat, lon) {
+    if (!coordinateDisplay) return;
+    const latString = `${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'N' : 'S'}`;
+    const lonString = `${Math.abs(lon).toFixed(2)}° ${lon >= 0 ? 'W' : 'E'}`;
+    coordinateDisplay.querySelector('span').innerHTML = `${latString}, ${lonString}`;
+}
 
 const poiTypeGroups = {
     "Settlements": ["City", "Town", "Village", "Hamlet", "Settlement", "Capital"],
@@ -1184,17 +1172,22 @@ function loadMap(mapId, updateHash = true) {
 
     // --- Coordinate Display Logic ---
     const toggleCoordsBtn = document.getElementById('toggle-coords-btn');
-    const coordsControl = document.querySelector('.coordinate-control');
+    const coordinateDisplay = document.getElementById('coordinate-display');
 
     if (selectedMap.latLonBounds) {
         currentLatLonBounds = selectedMap.latLonBounds;
         toggleCoordsBtn.style.display = 'block';
-        coordsControl.style.display = 'block';
+        // Only show the display if the toggle was active, or just hide by default and let user toggle
+        // For now, let's respect the user's previous preference if we could store it, but here we'll default to hidden unless toggled.
+        // Actually, the toggle button logic controls visibility.
+        // If we want it to persist, we check display.
+        // BUT, on map load, we reset.
+        coordinateDisplay.style.display = 'none'; // Default hidden on new map load
         map.on('mousemove', updateCoordinates);
     } else {
         currentLatLonBounds = null;
         toggleCoordsBtn.style.display = 'none';
-        coordsControl.style.display = 'none';
+        coordinateDisplay.style.display = 'none';
         map.off('mousemove', updateCoordinates);
     }
 
@@ -1649,7 +1642,7 @@ function updateCoordinates(e) {
     const lon = west + (e.latlng.lng / mapWidth) * (east - west);
     const lat = south + (e.latlng.lat / mapHeight) * (north - south);
     lockedCoords = { lat, lon };
-    coords.update(lat, lon);
+    updateCoordinateDisplay(lat, lon);
 }
 
 // --- Map Click Handler ---
@@ -1683,9 +1676,9 @@ mapBlurbElement.addEventListener('click', (e) => e.stopPropagation());
 
 // --- Coordinate Toggle Button Logic ---
 document.getElementById('toggle-coords-btn').addEventListener('click', function () {
-    const coordsControl = document.querySelector('.coordinate-control');
-    const isVisible = coordsControl.style.display === 'block';
-    coordsControl.style.display = isVisible ? 'none' : 'block';
+    const coordinateDisplay = document.getElementById('coordinate-display');
+    const isVisible = coordinateDisplay.style.display === 'block';
+    coordinateDisplay.style.display = isVisible ? 'none' : 'block';
 });
 
 // --- Handle Hash Changes / Back/Forward Navigation ---
@@ -1706,6 +1699,24 @@ window.addEventListener('beforeunload', () => {
     if (loadingProgressInterval) clearInterval(loadingProgressInterval);
 });
 
+
+// --- Custom Zoom Control Logic ---
+const customZoomInBtn = document.getElementById('custom-zoom-in');
+const customZoomOutBtn = document.getElementById('custom-zoom-out');
+
+if (customZoomInBtn) {
+    customZoomInBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        map.zoomIn();
+    });
+}
+
+if (customZoomOutBtn) {
+    customZoomOutBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        map.zoomOut();
+    });
+}
 
 // --- Marker Toggle Button Logic ---
 toggleMarkersBtn.addEventListener('click', () => {
