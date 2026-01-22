@@ -1,0 +1,3 @@
+## 2024-05-22 - Accessibility Fundamentals in Legacy Code
+**Learning:** This project lacks a build system (no package.json), which limits automated testing but simplifies the architecture. Adding accessibility features like `aria-label` requires careful manual synchronization in vanilla JS event handlers, unlike modern frameworks where state binding handles this automatically.
+**Action:** When working in vanilla JS environments, always double-check event listeners to ensure accessibility attributes (`aria-expanded`, `aria-pressed`, `aria-label`) are updated alongside visual state changes (classes/styles).
