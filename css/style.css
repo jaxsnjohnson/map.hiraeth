@@ -1221,7 +1221,7 @@ body.dark-theme .tab-btn {
 
 .guide-section h3, .lore-text h3 {
     margin-top: 0;
-    color: var(--text-secondary); /* or highlight */
+    color: var(--text-primary); /* Darker for better contrast in light mode */
     border-bottom: 1px solid var(--glass-border-light);
     padding-bottom: 8px;
     margin-bottom: 15px;
@@ -1230,6 +1230,7 @@ body.dark-theme .tab-btn {
 
 body.dark-theme .guide-section h3,
 body.dark-theme .lore-text h3 {
+    color: var(--text-secondary); /* Keep secondary for dark mode */
     border-bottom-color: var(--glass-border-dark);
 }
 
