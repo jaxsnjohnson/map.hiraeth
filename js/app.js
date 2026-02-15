@@ -503,6 +503,14 @@ function isLocalHost() {
     return host === 'localhost' || host === '127.0.0.1' || host === '[::1]';
 }
 
+function isPublicHost() {
+    return !isLocalHost();
+}
+
+function canAccessGMToolkit() {
+    return isLocalHost();
+}
+
 function setGMVisibility(enabled, source = 'manual') {
     gmContentVisible = !!enabled;
     safeSetStorage(UX_STORAGE_KEYS.gmUnlocked, gmContentVisible ? 'true' : 'false');
@@ -552,8 +560,9 @@ function initializeGMVisibility() {
         setGMVisibility(true, 'localhost');
         return;
     }
-    const stored = safeGetStorage(UX_STORAGE_KEYS.gmUnlocked);
-    setGMVisibility(stored === 'true', 'persisted');
+    if (isPublicHost()) {
+        setGMVisibility(false, 'public_host_forced_off');
+    }
 }
 
 function visibilityAllowed(item) {
@@ -836,6 +845,7 @@ function updateCurrentControlVisibility(selectedMap = null) {
         typeof mapInfo.scaleKilometers === 'number' && mapInfo.scaleKilometers > 0;
 
     const showAdvancedControls = advancedControlsUnlocked && !isEmbeddedView;
+    const allowGMToolkit = canAccessGMToolkit() && !isEmbeddedView;
 
     toggleMarkersBtn.style.display = (hasPOIs || hasRegions) ? 'block' : 'none';
     searchControlContainer.style.display = (hasPOIs || hasRegions) ? 'block' : 'none';
@@ -844,12 +854,12 @@ function updateCurrentControlVisibility(selectedMap = null) {
     if (toggleSoundBtn) toggleSoundBtn.style.display = showAdvancedControls ? 'block' : 'none';
     toggleBlurbBtn.style.display = showAdvancedControls && !!mapInfo.blurb ? 'block' : 'none';
     toggleCoordsBtn.style.display = showAdvancedControls && !!mapInfo.latLonBounds ? 'block' : 'none';
-    if (toggleGMPanelBtn) toggleGMPanelBtn.style.display = showAdvancedControls && !isEmbeddedView ? 'block' : 'none';
-    if (toggleToolkitPanelBtn) toggleToolkitPanelBtn.style.display = showAdvancedControls && !isEmbeddedView ? 'block' : 'none';
+    if (toggleGMPanelBtn) toggleGMPanelBtn.style.display = showAdvancedControls && allowGMToolkit ? 'block' : 'none';
+    if (toggleToolkitPanelBtn) toggleToolkitPanelBtn.style.display = showAdvancedControls && allowGMToolkit ? 'block' : 'none';
     toggleCoordsBtn.setAttribute('aria-pressed', coordsDisplayEnabled ? 'true' : 'false');
     if (routePanel) routePanel.style.display = currentRoutes && currentRoutes.length > 0 && !isEmbeddedView ? 'block' : 'none';
-    if (sessionToolkitPanel) sessionToolkitPanel.style.display = !isEmbeddedView && toolkitPanelVisible ? 'block' : 'none';
-    if (gmPill) gmPill.style.display = !isEmbeddedView && gmPanelVisible ? 'flex' : 'none';
+    if (sessionToolkitPanel) sessionToolkitPanel.style.display = allowGMToolkit && toolkitPanelVisible ? 'block' : 'none';
+    if (gmPill) gmPill.style.display = allowGMToolkit && gmPanelVisible ? 'flex' : 'none';
 
     if (!showAdvancedControls) {
         if (filtersPanelVisible) {
@@ -1032,6 +1042,7 @@ if (toolkitCollapseBtn) {
 
 if (gmToggleBtn) {
     gmToggleBtn.addEventListener('click', () => {
+        if (!canAccessGMToolkit()) return;
         if (!gmContentVisible && !isLocalHost()) {
             const pass = prompt('Enter GM passphrase (leave blank to cancel):', '');
             if (!pass) return;
@@ -1042,6 +1053,7 @@ if (gmToggleBtn) {
 if (toggleGMPanelBtn) {
     toggleGMPanelBtn.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (!canAccessGMToolkit()) return;
         unlockAdvancedControls('gm_panel_toggle');
         gmPanelVisible = !gmPanelVisible;
         safeSetStorage(UX_STORAGE_KEYS.gmPanelVisible, gmPanelVisible ? 'true' : 'false');
@@ -1051,6 +1063,7 @@ if (toggleGMPanelBtn) {
 if (toggleToolkitPanelBtn) {
     toggleToolkitPanelBtn.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (!canAccessGMToolkit()) return;
         unlockAdvancedControls('toolkit_panel_toggle');
         toolkitPanelVisible = !toolkitPanelVisible;
         safeSetStorage(UX_STORAGE_KEYS.toolkitPanelVisible, toolkitPanelVisible ? 'true' : 'false');
