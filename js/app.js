@@ -73,7 +73,6 @@ let visibleRoutes = [];
 let currentRoute = null;
 let currentRouteStepIndex = -1;
 let currentEncounterTables = [];
-let sessionNotes = [];
 let lastMeasuredDistanceKm = null;
 let visiblePointsCache = [];
 let visibleRegionsCache = [];
@@ -203,21 +202,16 @@ function createPopupContent(data, type) {
         // Escape both single and double quotes for the onclick attribute
         const escapedName = data.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
         let shareButtonHtml = '';
-        let noteButtonHtml = '';
         if (type) {
             // Using an SVG icon to match the site theme
             const linkIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
             shareButtonHtml = ` <button class="share-btn" onclick="copyFeatureLink(this, '${type}', '${escapedName}')" title="Share this location">${linkIconSvg}</button>`;
-            if (typeof addNoteFromPopup === 'function' && notesList) {
-                const noteIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9l7 7v9a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7"/><path d="M17 13H7"/></svg>`;
-                noteButtonHtml = ` <button class="share-btn" onclick="addNoteFromPopup('${escapedName}', '${type}')" title="Save to notes">${noteIconSvg}</button>`;
-            }
         }
 
         if (data.wikiLink) {
-            headerHtml += `<div class="popup-header-row"><h3><a href="${data.wikiLink}" target="_blank" rel="noopener noreferrer" title="Visit wiki page for ${data.name}">${data.name}</a></h3>${shareButtonHtml}${noteButtonHtml}</div>`;
+            headerHtml += `<div class="popup-header-row"><h3><a href="${data.wikiLink}" target="_blank" rel="noopener noreferrer" title="Visit wiki page for ${data.name}">${data.name}</a></h3>${shareButtonHtml}</div>`;
         } else {
-            headerHtml += `<div class="popup-header-row"><h3>${data.name}</h3>${shareButtonHtml}${noteButtonHtml}</div>`;
+            headerHtml += `<div class="popup-header-row"><h3>${data.name}</h3>${shareButtonHtml}</div>`;
         }
     }
     if (data.pronunciation) {
@@ -439,8 +433,6 @@ const encounterRollBtn = document.getElementById('encounter-roll-btn');
 const encounterViewBtn = document.getElementById('encounter-view-btn');
 const encounterResult = document.getElementById('encounter-result');
 const encounterTableList = document.getElementById('encounter-table-list');
-const notesList = document.getElementById('notes-list');
-const notesCopyBtn = document.getElementById('notes-copy-btn');
 let soundEnabled = false;
 const storedAdvancedControlsFlag = safeGetStorage(UX_STORAGE_KEYS.advancedControlsUnlocked);
 const storedOnboardingFlag = safeGetStorage(UX_STORAGE_KEYS.onboardingSeen);
@@ -1096,18 +1088,6 @@ if (travelDistanceInput) {
 if (travelModeSelect) {
     travelModeSelect.addEventListener('change', updateTravelTime);
 }
-if (notesCopyBtn) {
-    notesCopyBtn.addEventListener('click', async () => {
-        try {
-            await navigator.clipboard.writeText(sessionNotes.join('\\n'));
-            notesCopyBtn.textContent = 'Copied';
-            setTimeout(() => notesCopyBtn.textContent = 'Copy', 1200);
-        } catch (e) {
-            notesCopyBtn.textContent = 'Copy failed';
-            setTimeout(() => notesCopyBtn.textContent = 'Copy', 1200);
-        }
-    });
-}
 
 // --- Function to Update Visible Markers AND Search Results ---
 function updateVisibleMarkersAndSearch() {
@@ -1571,27 +1551,6 @@ function updateTravelTime() {
     const days = hours / 24;
     travelTimeOutput.textContent = `${hours.toFixed(1)} hours (~${days.toFixed(2)} days)`;
 }
-
-function addNote(text) {
-    if (!text || !notesList) return;
-    const item = document.createElement('div');
-    item.className = 'list-item';
-    item.textContent = text;
-    notesList.appendChild(item);
-    sessionNotes.push(text);
-}
-
-function addNoteFromData(data, type) {
-    const name = data?.name || data?.title || 'Untitled';
-    const note = `[${type}] ${name}`;
-    addNote(note);
-}
-
-window.addNoteFromPopup = function(name, type) {
-    const safeName = name || 'Untitled';
-    addNote(`[${type}] ${safeName}`);
-};
-
 
 // --- Function to Populate Filter Checkboxes (in the panel) ---
 function populateFilters(pointsOfInterest, mapId) {

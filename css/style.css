@@ -1151,9 +1151,6 @@ body.dark-theme .tool-block { border-color: var(--glass-border-dark); }
     color: var(--text-secondary);
     font-weight: 700;
 }
-#notes-list { min-height: 32px; }
-#notes-list .list-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-#notes-copy-btn { padding: 4px 8px; border-radius: 4px; border: 1px solid var(--glass-border-light); background: var(--bg-secondary); cursor: pointer; }
 
 .badge-kind { font-size: 0.75rem; padding: 2px 6px; border-radius: 999px; border: 1px solid var(--glass-border-light); margin-left: 6px; }
 
