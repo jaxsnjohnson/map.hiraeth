@@ -31,6 +31,7 @@
     --scrollbar-track: rgba(0, 0, 0, 0.05);
     --scrollbar-thumb: rgba(160, 82, 45, 0.5);
     --scrollbar-thumb-hover: rgba(160, 82, 45, 0.7);
+    --focus-ring: #2c7be5;
 }
 
 /* --- Custom Scrollbars --- */
@@ -77,6 +78,7 @@ body.dark-theme {
     --scrollbar-track: rgba(255, 255, 255, 0.05);
     --scrollbar-thumb: rgba(114, 111, 150, 0.6);
     --scrollbar-thumb-hover: rgba(114, 111, 150, 0.8);
+    --focus-ring: #74b9ff;
 }
 
 /* --- Keyframes for WIP Popup Gradient Pulse --- */
@@ -139,6 +141,16 @@ html, body {
     overflow: hidden; transition: background-color 0.3s ease, color 0.3s ease;
 }
 .container { display: flex; height: 100%; width: 100%; }
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+.map-item:focus-visible,
+.folder-header:focus-visible,
+.search-result-item:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
 
 /* Sidebar styling */
 #sidebar {
@@ -217,6 +229,28 @@ body.dark-theme .folder-header.coming-soon:hover {
     position: relative; /* Needed for pseudo-elements */
     overflow: hidden; /* Needed for pseudo-elements */
 }
+
+/* Keep Leaflet panes above decorative overlays even if external Leaflet CSS is delayed/missing. */
+#map .leaflet-map-pane { z-index: 100; }
+#map .leaflet-overlay-pane { z-index: 400; }
+#map .leaflet-marker-pane { z-index: 500; }
+#map .leaflet-tooltip-pane { z-index: 650; }
+#map .leaflet-popup-pane { z-index: 700; }
+#map .leaflet-control-container { z-index: 1000; }
+#map .leaflet-image-layer {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+#sidebar-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 1200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
 /* --- NEW: Cursor style for measurement tool --- */
 #map.measuring-cursor {
     cursor: crosshair;
@@ -283,7 +317,7 @@ body.embedded-view #search-control-container {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 100; /* Ensure it overlays the map if needed, or sits on top of background */
+    z-index: 20; /* Decorative only: below Leaflet panes/controls */
 }
 
 /* Base styles for stars */
@@ -356,6 +390,9 @@ body.dark-theme .leaflet-popup-content-wrapper { background: var(--glass-bg-dark
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
+}
+.popup-map-jump {
+    margin: -4px 0 10px;
 }
 .share-btn {
     background: none;
@@ -446,6 +483,41 @@ body.dark-theme .leaflet-popup-content h3 a:hover,
 body.dark-theme .leaflet-popup-content h3 a:active {
         color: var(--text-secondary); /* Already uses variable */
 }
+.leaflet-popup-content .popup-map-jump a,
+.leaflet-popup-content .popup-map-jump a:link,
+.leaflet-popup-content .popup-map-jump a:visited {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    border: 1px solid var(--glass-border-light);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 0.83rem;
+    line-height: 1;
+    transition: transform 0.15s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+.leaflet-popup-content .popup-map-jump a:hover,
+.leaflet-popup-content .popup-map-jump a:active {
+    transform: translateY(-1px);
+    border-color: var(--text-secondary);
+    background: var(--glass-bg-light);
+}
+.leaflet-popup-content .popup-map-jump svg {
+    opacity: 0.9;
+}
+body.dark-theme .leaflet-popup-content .popup-map-jump a,
+body.dark-theme .leaflet-popup-content .popup-map-jump a:link,
+body.dark-theme .leaflet-popup-content .popup-map-jump a:visited {
+    border-color: var(--glass-border-dark);
+    background: rgba(255, 255, 255, 0.04);
+}
+body.dark-theme .leaflet-popup-content .popup-map-jump a:hover,
+body.dark-theme .leaflet-popup-content .popup-map-jump a:active {
+    background: rgba(255, 255, 255, 0.08);
+}
 /* Buttons */
 #toggle-sidebar-btn {
     position: absolute;
@@ -484,6 +556,10 @@ body.dark-theme .leaflet-control-zoom a { background-color: var(--glass-bg-dark)
 body.dark-theme .leaflet-control-zoom-in { border-bottom: 1px solid var(--glass-border-dark); }
 body.dark-theme .leaflet-control-zoom-out { border: 1px solid var(--glass-border-dark); border-top: none; }
 body.dark-theme .leaflet-control-zoom a:hover { background-color: rgba(70, 70, 70, 0.75); color: #fff; }
+
+.leaflet-marker-icon.poi-custom-icon {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
 
 /* --- Coordinate Display Control --- */
 .coordinate-control {
@@ -556,6 +632,51 @@ body.dark-theme .coordinate-control {
     align-items: flex-start; /* Prevent stretching buttons to width of coordinates */
 }
 
+#onboarding-coachmark {
+    position: absolute;
+    top: 12px;
+    left: 58px;
+    max-width: 290px;
+    z-index: 1100;
+    background-color: var(--glass-bg-light);
+    border: 1px solid var(--glass-border-light);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    padding: 10px 12px;
+    font-size: 0.92rem;
+}
+
+body.dark-theme #onboarding-coachmark {
+    background-color: var(--glass-bg-dark);
+    border-color: var(--glass-border-dark);
+}
+
+#onboarding-coachmark p {
+    margin: 0 0 10px 0;
+    line-height: 1.4;
+}
+
+.onboarding-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.onboarding-actions button {
+    border: 1px solid var(--glass-border-light);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+body.dark-theme .onboarding-actions button {
+    border-color: var(--glass-border-dark);
+}
+
 /* --- Map Control Buttons Common Style --- */
 .map-control-button {
     /* No absolute positioning here anymore */
@@ -588,15 +709,26 @@ body.dark-theme .coordinate-control {
 }
 
 /* --- CORRECTED: Blurb Toggle Button --- */
-#toggle-blurb-btn {
-    position: absolute; /* Keep it absolute */
+#info-controls-container {
+    position: absolute;
     top: 10px;
-    right: 10px; /* Position in the top right corner */
-    z-index: 1000; /* Ensure it's above the map */
+    right: 10px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-end;
+}
+
+#toggle-blurb-btn {
     display: none; /* Hide by default, JS will show it */
 }
 #toggle-blurb-btn.active {
-        background-color: var(--active-bg);
+    background-color: var(--active-bg);
+}
+#toggle-gm-panel-btn.active,
+#toggle-toolkit-panel-btn.active {
+    background-color: var(--active-bg);
 }
 /* --- END CORRECTION --- */
 
@@ -637,8 +769,8 @@ body.dark-theme #toggle-filters-btn.active {
 /* --- Filter Panel Styling (Now includes POI and Region filters) --- */
 #poi-filter-container {
     position: absolute;
-    top: 110px; /* Align near the filter button */
-    left: 50px; /* Position to the right of the button */
+    top: 110px;
+    left: 10px;
     z-index: 999; /* Below controls, above map */
     background-color: var(--glass-bg-light);
     backdrop-filter: blur(8px);
@@ -647,7 +779,8 @@ body.dark-theme #toggle-filters-btn.active {
     color: var(--text-primary);
     border-radius: 6px;
     padding: 10px 15px;
-    width: 180px; /* Adjust width as needed */
+    width: min(260px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
     max-height: calc(100vh - 200px); /* Limit height */
     overflow-y: auto;
     box-shadow: 0 1px 5px var(--shadow-color);
@@ -778,9 +911,39 @@ body.dark-theme #search-control-container {
     background-color: var(--glass-bg-dark);
     border-color: var(--glass-border-dark);
 }
+
+.search-input-shell {
+    position: relative;
+}
+
+.search-inline-actions {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 2;
+}
+
+.search-inline-actions button {
+    border: 1px solid var(--glass-border-light);
+    border-radius: 3px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.72rem;
+    padding: 2px 6px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+body.dark-theme .search-inline-actions button {
+    border-color: var(--glass-border-dark);
+}
 #poi-search-input {
     width: 300px; /* Adjust width */
-    padding: 6px 8px;
+    padding: 6px 110px 6px 8px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     background-color: var(--bg-secondary);
@@ -789,6 +952,32 @@ body.dark-theme #search-control-container {
     font-family: inherit;
     font-size: 0.95rem;
     outline: none;
+}
+
+#search-meta {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(100% + 6px);
+    font-size: 0.78rem;
+    color: var(--text-primary);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0 2px;
+    line-height: 1.3;
+    box-sizing: border-box;
+    box-shadow: none;
+}
+
+body.dark-theme #search-meta {
+    background: transparent;
+    border-color: transparent;
+}
+
+#search-control-container.is-searching #search-meta {
+    display: block;
 }
 /* --- END: Search Control Container --- */
 
@@ -806,12 +995,17 @@ body.dark-theme #search-control-container {
     border-radius: 6px;
     padding: 5px;
     box-shadow: 0 -1px 5px var(--shadow-color);
-    width: 270px; /* Match search bar width roughly */
+    width: min(300px, calc(100vw - 20px));
     max-height: 150px; /* Limit height */
     overflow-y: auto;
     display: none; /* Hidden by default */
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
+
+#search-results-container.with-search-meta {
+    bottom: 130px;
+}
+
 body.dark-theme #search-results-container {
     background-color: var(--glass-bg-dark);
     border-color: var(--glass-border-dark);
@@ -837,7 +1031,200 @@ body.dark-theme #search-results-container {
     font-weight: bold;
     color: var(--text-secondary); /* Or another highlight color */
 }
+
+.search-results-empty {
+    padding: 8px 10px;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+}
 /* --- END: Search Results Container --- */
+
+/* --- Route, GM, Toolkit Panels --- */
+#route-panel, #session-toolkit, #gm-pill {
+    position: absolute;
+    right: 10px;
+    z-index: 1001;
+    background: var(--glass-bg-light);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border-light);
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 6px 20px var(--shadow-color);
+    color: var(--text-primary);
+}
+body.dark-theme #route-panel,
+body.dark-theme #session-toolkit,
+body.dark-theme #gm-pill {
+    background: var(--glass-bg-dark);
+    border-color: var(--glass-border-dark);
+}
+
+#gm-pill {
+    top: 44px;
+    right: 50px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    user-select: none;
+}
+#gm-pill.dragging { opacity: 0.92; }
+.gm-drag-handle { cursor: move; }
+#gm-pill button { padding: 4px 8px; border-radius: 4px; border: 1px solid var(--glass-border-light); background: var(--bg-secondary); cursor: pointer; }
+body.dark-theme #gm-pill button { border-color: var(--glass-border-dark); }
+
+#route-panel { top: 64px; width: 260px; }
+#session-toolkit {
+    top: 78px;
+    right: 50px;
+    left: auto;
+    bottom: auto;
+    width: 300px;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+.panel-actions button { padding: 4px 8px; border-radius: 4px; border: 1px solid var(--glass-border-light); background: var(--bg-secondary); cursor: pointer; }
+body.dark-theme .panel-actions button { border-color: var(--glass-border-dark); }
+#toolkit-collapse-btn {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--glass-border-light);
+    background: var(--bg-secondary);
+    cursor: pointer;
+}
+body.dark-theme #toolkit-collapse-btn {
+    border-color: var(--glass-border-dark);
+}
+
+.pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 0.8rem; border: 1px solid var(--glass-border-light); }
+.pill.muted { color: var(--text-secondary); }
+
+.stacked-list { display: flex; flex-direction: column; gap: 6px; }
+.stacked-list .list-item { padding: 6px 8px; border-radius: 6px; border: 1px solid var(--glass-border-light); background: var(--bg-secondary); cursor: pointer; }
+.stacked-list .list-item.active { border-color: var(--text-secondary); background: var(--highlight-bg); }
+body.dark-theme .stacked-list .list-item { border-color: var(--glass-border-dark); }
+
+#route-select, #travel-distance-input, #travel-mode-select, #encounter-select {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 8px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--glass-border-light);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+body.dark-theme #route-select,
+body.dark-theme #travel-distance-input,
+body.dark-theme #travel-mode-select,
+body.dark-theme #encounter-select {
+    border-color: var(--glass-border-dark);
+}
+
+.tool-block { margin-bottom: 10px; padding: 8px; border-radius: 6px; border: 1px dashed var(--glass-border-light); background: var(--bg-secondary); }
+body.dark-theme .tool-block { border-color: var(--glass-border-dark); }
+.tool-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.tool-row label { flex: 1; font-size: 0.9rem; }
+.tool-row input, .tool-row select { flex: 1.2; }
+.tool-output { font-size: 0.95rem; color: var(--text-primary); }
+
+#encounter-result { min-height: 32px; }
+#encounter-table-list {
+    margin-top: 8px;
+    max-height: 180px;
+    overflow-y: auto;
+}
+#encounter-table-list .list-item {
+    cursor: default;
+    font-size: 0.88rem;
+}
+#encounter-table-list .encounter-weight {
+    display: inline-block;
+    min-width: 28px;
+    color: var(--text-secondary);
+    font-weight: 700;
+}
+#notes-list { min-height: 32px; }
+#notes-list .list-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+#notes-copy-btn { padding: 4px 8px; border-radius: 4px; border: 1px solid var(--glass-border-light); background: var(--bg-secondary); cursor: pointer; }
+
+.badge-kind { font-size: 0.75rem; padding: 2px 6px; border-radius: 999px; border: 1px solid var(--glass-border-light); margin-left: 6px; }
+
+#route-panel.collapsed label,
+#route-panel.collapsed select,
+#route-panel.collapsed #route-step-list {
+    display: none;
+}
+#session-toolkit.collapsed .tool-block {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    #route-panel {
+        right: 6px;
+        width: 220px;
+    }
+    #session-toolkit {
+        right: 50px;
+        left: auto;
+        top: 78px;
+        width: min(320px, calc(100vw - 16px));
+    }
+    #gm-pill { right: 50px; top: 44px; }
+}
+
+#active-filters-container {
+    position: absolute;
+    bottom: 132px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1002;
+    display: none;
+    flex-wrap: wrap;
+    gap: 6px;
+    width: min(460px, calc(100vw - 20px));
+    justify-content: center;
+    pointer-events: auto;
+}
+
+/* Replaced by inline refinement toolbar above search input. */
+#active-filters-container {
+    display: none !important;
+}
+
+.active-filter-chip {
+    border: 1px solid var(--glass-border-light);
+    border-radius: 999px;
+    background: var(--glass-bg-light);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.active-filter-chip button {
+    border: none;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-size: 0.95rem;
+    line-height: 1;
+    padding: 0;
+}
+
+body.dark-theme .active-filter-chip {
+    border-color: var(--glass-border-dark);
+    background: var(--glass-bg-dark);
+}
 
 
 /* Theme Toggle */
@@ -884,7 +1271,7 @@ body.dark-theme #bottom-link-bar a:hover { color: var(--text-primary); }
     border-left: 4px solid #ffae70; /* Accent colored border */
 }
 
-#wip-popup p { margin: 0; font-size: 0.85rem; color: var(--text-primary); text-align: left; white-space: nowrap; font-weight: 500; }
+#wip-popup p { margin: 0; font-size: 0.85rem; color: var(--text-primary); text-align: left; font-weight: 500; }
 body.dark-theme #wip-popup {
     background: var(--glass-bg-dark);
     border-color: var(--glass-border-dark);
@@ -981,83 +1368,121 @@ body.dark-theme #wip-popup p { text-shadow: none; }
     border-width: 4px;
 }
 
+#loading-retry-btn {
+    margin-top: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    font-size: 0.95rem;
+    padding: 6px 12px;
+    cursor: pointer;
+    display: none;
+}
+
+#loading-indicator.initial-loader #loading-retry-btn {
+    border-color: var(--border-color);
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 @media (max-width: 768px) {
-    /* Styles specifically for screens 768px wide or less */
-
     #sidebar {
-    width: 200px; /* Example: Make sidebar narrower */
-    /* Or you might hide it completely and use the toggle */
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: min(82vw, 310px);
+        z-index: 1300;
+        transform: translateX(0);
+        transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
     }
-    .leaflet-control-zoom {
-    display: none;
+
+    .container.sidebar-collapsed #sidebar {
+        width: min(82vw, 310px);
+        transform: translateX(-105%);
+        border-right: 1px solid var(--glass-border-light);
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    body.dark-theme .container.sidebar-collapsed #sidebar {
+        border-right-color: var(--glass-border-dark);
+    }
+
+    .container.mobile-sidebar-open #sidebar-backdrop {
+        opacity: 1;
+        pointer-events: auto;
     }
 
     .map-control-button {
-    /* Example: Make map buttons larger for touch */
-    width: 40px;
-    height: 40px;
-    font-size: 1.6rem;
-    line-height: 40px; /* Adjust line-height too */
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
     }
 
-    /* Adjust button positions if needed */
-    /* Flex container handles positioning now */
+    #toggle-sidebar-btn {
+        z-index: 1401;
+        left: 10px;
+    }
+
+    #onboarding-coachmark {
+        max-width: 250px;
+        left: 58px;
+        top: 10px;
+    }
 
     #poi-search-input {
-    width: 180px; /* Example: Adjust search input width */
-    }
-    #search-control-container {
-        /* Maybe adjust padding or position */
-        padding: 5px;
+        width: 220px;
+        padding-right: 104px;
     }
 
     #map-blurb {
-    max-width: 150px;
-    font-size: 0.8rem;
-    padding: 6px 10px;
+        max-width: 200px;
+        font-size: 0.85rem;
+        padding: 6px 10px;
     }
-
-    .leaflet-popup-content {
-        font-size: 1rem; /* Slightly smaller popup text */
-    }
-
-    /* Add other adjustments as needed: font sizes, padding, margins */
 }
 
 @media (max-width: 480px) {
-    /* Styles for even smaller screens (optional) */
-    #sidebar {
-        /* Maybe hide it by default on very small screens */
-        /* width: 0; */
-        /* position: fixed; /* Example: make it an overlay */
-        /* height: 100%; */
-        /* left: -200px; /* Start off-screen */
-        /* transition: left 0.3s ease; */
-    }
-    /* Add styles to show/hide overlay sidebar */
-
     #bottom-link-bar {
-        font-size: 0.75rem; /* Smaller text on bottom bar */
-        height: auto; /* Allow wrapping */
+        font-size: 0.75rem;
+        height: auto;
         padding: 5px;
-        flex-wrap: wrap; /* Allow links to wrap */
+        flex-wrap: wrap;
         justify-content: space-around;
     }
-        #bottom-link-bar a {
-            margin: 2px 5px;
-        }
+
+    #bottom-link-bar a {
+        margin: 2px 5px;
+    }
 
     #search-control-container {
         bottom: 70px;
         z-index: 1005;
     }
+
     #search-results-container {
-        bottom: 115px;
+        bottom: 125px;
         z-index: 1006;
+    }
+
+    #search-results-container.with-search-meta {
+        bottom: 165px;
+    }
+
+    #active-filters-container {
+        bottom: 200px;
+        width: calc(100vw - 12px);
+    }
+
+    #onboarding-coachmark {
+        left: 10px;
+        right: 10px;
+        max-width: none;
     }
 }
 @media (max-width: 600px) { /* Adjust breakpoint as needed */

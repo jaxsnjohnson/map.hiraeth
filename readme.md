@@ -68,8 +68,8 @@ The map data is stored in JSON files within the `maps/` directory.
     *   `id`, `name`, `width`, `height`, `imageUrl`
     *   `scalePixels`, `scaleKilometers`: For the measurement tool.
     *   `blurb`: A short HTML description displayed on the map.
-    *   `pointsOfInterest`: An array of POI objects (`coords`, `name`, `type`, `description`, `wikiLink`).
-    *   `regions`: An array of region objects (`id`, `name`, `description`, `type`, `color`, `fillColor`, `fillOpacity`, `wikiLink`, `coordinates`).
+    *   `pointsOfInterest`: An array of POI objects (`coords`, `name`, `type`, `description`, `wikiLink`, optional `linkedMapId`).
+    *   `regions`: An array of region objects (`id`, `name`, `description`, `type`, `color`, `fillColor`, `fillOpacity`, `wikiLink`, `coordinates`, optional `linkedMapId`).
 
 ## Features
 
