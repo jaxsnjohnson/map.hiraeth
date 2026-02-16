@@ -35,6 +35,12 @@ let isAboutModalVisible = () => false;
 let loadingMapId = null;
 let lastTrackedSearchSignature = '';
 
+function refreshLucideIcons() {
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+    }
+}
+
 // --- Measurement Tool State ---
 let isMeasuring = false; // Existing
 let measurementStartPoint = null; // Existing
@@ -51,6 +57,7 @@ const map = L.map('map', {
 
 // Register URL update listeners
 map.on('moveend zoomend', updateURLWithMapView);
+map.on('popupopen', refreshLucideIcons);
 
 // NOW Initialize measurementLayerGroup
 measurementLayerGroup = L.layerGroup().addTo(map);
@@ -204,8 +211,8 @@ function createPopupContent(data, type) {
         let shareButtonHtml = '';
         if (type) {
             // Using an SVG icon to match the site theme
-            const linkIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
-            shareButtonHtml = ` <button class="share-btn" onclick="copyFeatureLink(this, '${type}', '${escapedName}')" title="Share this location">${linkIconSvg}</button>`;
+            const linkIcon = `<i class="ui-icon" data-lucide="link-2" aria-hidden="true"></i>`;
+            shareButtonHtml = ` <button class="share-btn" onclick="copyFeatureLink(this, '${type}', '${escapedName}')" title="Share this location">${linkIcon}</button>`;
         }
 
         if (data.wikiLink) {
@@ -221,7 +228,7 @@ function createPopupContent(data, type) {
     if (linkedMap) {
         const escapedLinkedMapId = escapeForSingleQuotedAttribute(linkedMap.id);
         const linkedMapName = sanitizeTextForHtml(linkedMap.name);
-        const mapJumpIcon = `<svg aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v12H3z"/><path d="m9 10 3 2-3 2"/></svg>`;
+        const mapJumpIcon = `<i class="ui-icon" data-lucide="map" aria-hidden="true"></i>`;
         headerHtml += `<div class="popup-map-jump"><a href="#" onclick="return openLinkedMapFromPopup(event, '${escapedLinkedMapId}')" title="Open map: ${linkedMapName}">${mapJumpIcon}<span>Open ${linkedMapName} map</span></a></div>`;
     }
 
@@ -729,17 +736,18 @@ function setSidebarState(state, updateHash = true) {
         // Update SVG direction
         if (shouldBeCollapsed) {
             // Point Right (Expand)
-             toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`;
+             toggleBtn.innerHTML = `<i class="ui-icon" data-lucide="chevron-right" aria-hidden="true"></i>`;
              toggleBtn.title = 'Expand Sidebar';
              toggleBtn.setAttribute('aria-label', 'Expand Sidebar');
              toggleBtn.setAttribute('aria-expanded', 'false');
         } else {
             // Point Left (Collapse)
-            toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>`;
+            toggleBtn.innerHTML = `<i class="ui-icon" data-lucide="chevron-left" aria-hidden="true"></i>`;
             toggleBtn.title = 'Collapse Sidebar';
             toggleBtn.setAttribute('aria-label', 'Collapse Sidebar');
             toggleBtn.setAttribute('aria-expanded', 'true');
         }
+        refreshLucideIcons();
 
         // Invalidate map size after CSS transition completes
         setTimeout(() => { map.invalidateSize({ animate: true }); }, transitionDuration);
@@ -1670,7 +1678,11 @@ function populateFilters(pointsOfInterest, mapId) {
 
                     const groupHeader = document.createElement('div');
                     groupHeader.className = 'filter-group-header';
-                    groupHeader.innerHTML = `<span class="folder-toggle-icon"></span>`;
+                    groupHeader.innerHTML = `
+                        <span class="filter-chevron-icon" aria-hidden="true">
+                            <i class="ui-icon" data-lucide="chevron-right"></i>
+                        </span>
+                    `;
 
                     const groupDiv = document.createElement('div');
                     groupDiv.className = 'filter-item';
@@ -1769,6 +1781,7 @@ function populateFilters(pointsOfInterest, mapId) {
     if (filtersPanelVisible) {
         positionFilterPanel();
     }
+    refreshLucideIcons();
 
     // Set initial state of the master toggle
     updateToggleAllCheckboxState();
@@ -2274,13 +2287,19 @@ function loadMap(mapId, updateHash = true) {
         let parent = activeMapItem.closest('.nested-list');
         while (parent) {
             const folderLi = parent.closest('.folder');
-            if (folderLi && folderLi.classList.contains('closed')) folderLi.classList.remove('closed');
+            if (folderLi && folderLi.classList.contains('closed')) {
+                folderLi.classList.remove('closed');
+                syncFolderExpandedAria(folderLi);
+            }
             parent = folderLi?.parentElement.closest('.nested-list');
         }
     } else if (activeFolderHeader) {
         activeFolderHeader.classList.add('active');
         const folderLi = activeFolderHeader.closest('.folder');
-        if (folderLi && folderLi.classList.contains('closed')) folderLi.classList.remove('closed');
+        if (folderLi && folderLi.classList.contains('closed')) {
+            folderLi.classList.remove('closed');
+            syncFolderExpandedAria(folderLi);
+        }
     }
 
     currentlyLoadedMapId = mapId;
@@ -2397,72 +2416,131 @@ function updateVisibleRegions() {
 }
 
 // --- Populate Sidebar (Recursive Function) ---
-function populateSidebar(parentElement, items) {
-    // Add this log at the start of the function
+function syncFolderExpandedAria(folderListItem) {
+    if (!folderListItem) return;
+    const header = folderListItem.querySelector('.folder-header');
+    if (!header) return;
+    const expanded = !folderListItem.classList.contains('closed');
+    const expandedText = expanded ? 'true' : 'false';
+    const toggleBtn = header.querySelector('.folder-toggle-btn');
+    const mainAction = header.querySelector('.folder-main-action');
+    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', expandedText);
+    if (mainAction) mainAction.setAttribute('aria-expanded', expandedText);
+}
 
+function populateSidebar(parentElement, items) {
     parentElement.innerHTML = '';
     items.forEach(item => {
-        // Add this log inside the loop
-
         const listItem = document.createElement('li');
 
         if (item.type === 'folder') {
-            // Add this log for folders
-
             listItem.classList.add('folder', 'closed');
             const header = document.createElement('div');
             header.classList.add('folder-header');
-            header.tabIndex = 0;
-            header.setAttribute('role', 'button');
-            // This line includes the fix from before
-            header.innerHTML = `<span class="folder-toggle-icon"></span><span>${item.name || 'Unnamed Folder!'}</span>`; // Add fallback text
+            const folderName = item.name || 'Unnamed Folder!';
+            const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+            const isComingSoon = item.status === 'coming-soon';
+            const isLoadable = !!item.id && !isComingSoon;
+
+            const toggleBtn = document.createElement('button');
+            toggleBtn.type = 'button';
+            toggleBtn.className = 'folder-toggle-btn';
+            toggleBtn.setAttribute('aria-label', `Toggle folder: ${folderName}`);
+            toggleBtn.innerHTML = `
+                <span class="sidebar-chevron-icon" aria-hidden="true">
+                    <i class="ui-icon" data-lucide="chevron-right"></i>
+                </span>
+            `;
+            if (!hasChildren) {
+                toggleBtn.disabled = true;
+                toggleBtn.setAttribute('aria-hidden', 'true');
+                toggleBtn.tabIndex = -1;
+            }
+
+            const mainAction = document.createElement('button');
+            mainAction.type = 'button';
+            mainAction.className = 'folder-main-action';
+            if (isLoadable) {
+                const loadIcon = document.createElement('span');
+                loadIcon.className = 'folder-load-icon';
+                loadIcon.setAttribute('aria-hidden', 'true');
+                loadIcon.innerHTML = `<i class="ui-icon" data-lucide="map-pin"></i>`;
+                mainAction.appendChild(loadIcon);
+            }
+            const mainActionLabel = document.createElement('span');
+            mainActionLabel.className = 'folder-main-action-label';
+            mainActionLabel.textContent = `${folderName}${isComingSoon ? ' (Soon)' : ''}`;
+            mainAction.appendChild(mainActionLabel);
+
             const nestedList = document.createElement('ul');
             nestedList.classList.add('nested-list');
 
-            if (item.children && item.children.length > 0) {
-                // Log before recursion
+            if (hasChildren) {
                 populateSidebar(nestedList, item.children);
-            } else {
-                // Log if no children
             }
 
-            header.addEventListener('click', (e) => {
+            const toggleFolderOpen = (e) => {
                 e.stopPropagation();
+                if (!hasChildren) return;
                 listItem.classList.toggle('closed');
-            });
-            header.addEventListener('keydown', (e) => {
+                syncFolderExpandedAria(listItem);
+            };
+
+            toggleBtn.addEventListener('click', toggleFolderOpen);
+            toggleBtn.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    header.click();
+                    toggleFolderOpen(e);
                 }
             });
 
-            if (item.id && item.status !== 'coming-soon') {
+            if (isLoadable) {
                 header.dataset.mapId = item.id;
-                header.title = `Click to toggle '${item.name}', double-click to load map.`;
-                header.addEventListener('dblclick', (e) => {
+                mainAction.title = `Load map: ${folderName}`;
+                mainAction.setAttribute('aria-label', `Load map: ${folderName}`);
+                mainAction.addEventListener('click', (e) => {
                     e.stopPropagation();
                     unlockAdvancedControls('map_selected');
                     loadMap(item.id, true);
                 });
-            } else if (item.status === 'coming-soon') {
+                mainAction.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        mainAction.click();
+                    }
+                });
+            } else if (isComingSoon) {
                 header.classList.add('coming-soon');
-                // Apply the (Soon) text suffix and title
-                header.innerHTML = `<span class="folder-toggle-icon"></span><span>${item.name || 'Unnamed Folder!'} (Soon)</span>`;
-                header.title = `${item.name || 'Coming Soon!'} - Coming Soon!`;
-                header.addEventListener('dblclick', (e) => {
+                mainAction.title = `${folderName} - Coming Soon!`;
+                mainAction.setAttribute('aria-label', `${folderName} coming soon`);
+                mainAction.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    alert(`The map "${item.name || 'this map'}" is coming soon!`);
+                    alert(`The map "${folderName}" is coming soon!`);
+                });
+                mainAction.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        mainAction.click();
+                    }
                 });
             } else {
-                header.title = `Click to toggle '${item.name || 'Unnamed Folder!'}'.`;
+                mainAction.title = `Toggle folder: ${folderName}`;
+                mainAction.setAttribute('aria-label', `Toggle folder: ${folderName}`);
+                mainAction.addEventListener('click', toggleFolderOpen);
+                mainAction.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleFolderOpen(e);
+                    }
+                });
             }
+            syncFolderExpandedAria(listItem);
+            header.appendChild(toggleBtn);
+            header.appendChild(mainAction);
             listItem.appendChild(header);
             listItem.appendChild(nestedList);
 
         } else { // Map Item
-            // Add this log for map items
-
             listItem.classList.add('map-item');
             listItem.textContent = item.name || 'Unnamed Map!'; // Add fallback text
             listItem.dataset.mapId = item.id;
@@ -2500,6 +2578,7 @@ function populateSidebar(parentElement, items) {
         }
         parentElement.appendChild(listItem);
     });
+    refreshLucideIcons();
 }
 // populateSidebar is now called within initializeApp after data is loaded
 
@@ -2667,12 +2746,18 @@ function addRoadsToMap(mapId) {
 }
 
 function initializeSoundState() {
+    const setSoundIcon = (enabled) => {
+        if (!soundIcon) return;
+        soundIcon.innerHTML = `<i class="ui-icon" data-lucide="${enabled ? 'volume-2' : 'volume-x'}" aria-hidden="true"></i>`;
+        refreshLucideIcons();
+    };
+
     // --- NEW: Check for embedded mode ---
     const urlParams = getUrlParameters(); // Need to get params here too
     if (urlParams.embed === 'true' || urlParams.hideUI === 'true') {
         soundEnabled = false; // Ensure state reflects no sound
         // Set icon/title to muted state (even though button is hidden)
-        soundIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" x2="17" y1="9" y2="15"/><line x1="17" x2="23" y1="9" y2="15"/></svg>`;
+        setSoundIcon(false);
         if (toggleSoundBtn) toggleSoundBtn.title = "Unmute Sound"; // Check if button exists before setting title
         return; // Exit early, do not proceed with sound logic
     }
@@ -2689,7 +2774,7 @@ function initializeSoundState() {
     darkAmbient.volume = 0;
 
     if (soundEnabled && canUseSoundNow) {
-        soundIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`;
+        setSoundIcon(true);
             if (toggleSoundBtn) {
                 toggleSoundBtn.title = "Mute Sound";
                 toggleSoundBtn.setAttribute('aria-label', "Mute Sound");
@@ -2705,7 +2790,7 @@ function initializeSoundState() {
     } else {
         fadeAudio(lightAmbient, 0);
         fadeAudio(darkAmbient, 0);
-        soundIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" x2="17" y1="9" y2="15"/><line x1="17" x2="23" y1="9" y2="15"/></svg>`;
+        setSoundIcon(false);
         if (toggleSoundBtn) {
             toggleSoundBtn.title = "Unmute Sound";
             toggleSoundBtn.setAttribute('aria-label', "Unmute Sound");
@@ -2724,7 +2809,8 @@ if (toggleSoundBtn) {
         safeSetStorage(UX_STORAGE_KEYS.soundEnabled, String(soundEnabled));
 
         if (soundEnabled) {
-            soundIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`;
+            soundIcon.innerHTML = `<i class="ui-icon" data-lucide="volume-2" aria-hidden="true"></i>`;
+            refreshLucideIcons();
             toggleSoundBtn.title = "Mute Sound";
             toggleSoundBtn.setAttribute('aria-label', "Mute Sound");
             toggleSoundBtn.setAttribute('aria-pressed', "true");
@@ -2736,7 +2822,8 @@ if (toggleSoundBtn) {
                 fadeAudio(lightAmbient, 0.3);
             }
         } else {
-            soundIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" x2="17" y1="9" y2="15"/><line x1="17" x2="23" y1="9" y2="15"/></svg>`;
+            soundIcon.innerHTML = `<i class="ui-icon" data-lucide="volume-x" aria-hidden="true"></i>`;
+            refreshLucideIcons();
             toggleSoundBtn.title = "Unmute Sound";
             toggleSoundBtn.setAttribute('aria-label', "Unmute Sound");
             toggleSoundBtn.setAttribute('aria-pressed', "false");
