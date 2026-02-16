@@ -146,7 +146,8 @@ a:focus-visible,
 button:focus-visible,
 input:focus-visible,
 .map-item:focus-visible,
-.folder-header:focus-visible,
+.folder-toggle-btn:focus-visible,
+.folder-main-action:focus-visible,
 .search-result-item:focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: 2px;
@@ -180,43 +181,109 @@ body.dark-theme #sidebar h2 { border-bottom-color: var(--glass-border-dark); }
 .map-item:hover { background-color: var(--highlight-bg); }
 .map-item.active { background-color: var(--active-bg); font-weight: 600; }
 .folder-header {
-    padding: 10px 5px; cursor: pointer; font-weight: bold; display: flex;
-    align-items: center; transition: background-color 0.2s ease; background-color: transparent;
-    user-select: none; /* Prevent text selection on double click */
+    display: flex;
+    align-items: stretch;
+    gap: 2px;
+    background-color: transparent;
+    user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
 }
-.folder-header:hover { background-color: var(--highlight-bg); }
-/* Style active folder header */
-.folder-header.active {
-        background-color: var(--active-bg);
-        font-weight: 600; /* Match map item active style */
+.folder-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    min-width: 30px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    margin: 2px 0 2px 3px;
 }
-.folder-toggle-icon { display: inline-block; width: 1.2em; text-align: center; margin-right: 5px; transition: transform 0.2s ease-in-out; }
-.folder.closed > .folder-header .folder-toggle-icon::before { content: '▸'; }
-.folder:not(.closed) > .folder-header .folder-toggle-icon::before { content: '▾'; }
+.folder-toggle-btn:hover {
+    background-color: var(--highlight-bg);
+    color: var(--text-primary);
+}
+.folder-toggle-btn:disabled {
+    opacity: 0;
+    pointer-events: none;
+}
+.sidebar-chevron-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease-in-out;
+}
+.sidebar-chevron-icon .ui-icon {
+    width: 14px;
+    height: 14px;
+}
+.folder:not(.closed) > .folder-header .sidebar-chevron-icon {
+    transform: rotate(90deg);
+}
+.folder-main-action {
+    flex: 1;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 10px 10px 6px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+.folder-main-action:hover {
+    background-color: var(--highlight-bg);
+}
+.folder-main-action-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.folder-load-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+.folder-load-icon .ui-icon {
+    width: 14px;
+    height: 14px;
+}
+.folder-header.active .folder-main-action {
+    background-color: var(--active-bg);
+    font-weight: 600;
+}
 .nested-list { list-style: none; padding: 0; margin: 0 0 0 15px; max-height: 1000px; overflow: hidden; transition: max-height 0.3s ease-out; }
 .folder.closed > .nested-list { max-height: 0; }
 
 /* --- Coming Soon Sidebar Item Styling --- */
-.map-item.coming-soon, .folder-header.coming-soon {
+.map-item.coming-soon, .folder-header.coming-soon .folder-main-action {
     color: var(--text-secondary); /* Use secondary text color */
     font-style: italic;
     cursor: not-allowed; /* Indicate non-interactive */
     opacity: 0.7;
 }
 /* Optional: Prevent hover effect or use a different one */
-.map-item.coming-soon:hover, .folder-header.coming-soon:hover {
+.map-item.coming-soon:hover, .folder-header.coming-soon .folder-main-action:hover {
     background-color: transparent; /* No highlight on hover */
 }
 /* Ensure dark theme also looks disabled */
 body.dark-theme .map-item.coming-soon,
-body.dark-theme .folder-header.coming-soon {
+body.dark-theme .folder-header.coming-soon .folder-main-action {
         color: var(--text-secondary); /* Already uses variable */
 }
 body.dark-theme .map-item.coming-soon:hover,
-body.dark-theme .folder-header.coming-soon:hover {
+body.dark-theme .folder-header.coming-soon .folder-main-action:hover {
         background-color: transparent;
 }
 
@@ -531,12 +598,19 @@ body.dark-theme .leaflet-popup-content .popup-map-jump a:active {
     border: 1px solid var(--glass-border-light);
     color: var(--text-primary);
     border-radius: 4px;
-    padding: 5px 8px;
+    width: 34px;
+    height: 30px;
+    padding: 0;
     cursor: pointer;
-    font-size: 1.2rem;
-    line-height: 1;
+    line-height: 0;
     box-shadow: 0 1px 5px var(--shadow-color);
     transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+#toggle-sidebar-btn .ui-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 #toggle-sidebar-btn:hover { background-color: rgba(255, 255, 255, 0.75); }
 body.dark-theme #toggle-sidebar-btn { background-color: var(--glass-bg-dark); border-color: var(--glass-border-dark); }
@@ -588,19 +662,26 @@ body.dark-theme .coordinate-control {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 1.1em;
-    padding: 0 0 0 5px;
+    padding: 0;
+    margin-left: 5px;
     transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
     position: relative; /* For positioning copied message */
     width: 20px; /* Give it a fixed width */
-    text-align: center;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 .copy-coords-btn .copy-coords-icon {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
 .copy-coords-btn .copy-coords-copied-msg {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     position: absolute;
     left: 0;
     right: 0;
@@ -611,6 +692,11 @@ body.dark-theme .coordinate-control {
     font-weight: bold;
     color: var(--text-secondary);
     pointer-events: none; /* Don't intercept clicks */
+}
+.copy-coords-btn .copy-coords-icon .ui-icon,
+.copy-coords-btn .copy-coords-copied-msg .ui-icon {
+    width: 15px;
+    height: 15px;
 }
 .copy-coords-btn.copied .copy-coords-icon {
     opacity: 0;
@@ -690,12 +776,31 @@ body.dark-theme .onboarding-actions button {
     width: 32px; /* Match zoom control width */
     height: 30px; /* Match zoom control height */
     cursor: pointer;
-    font-size: 1.4rem; /* Adjust icon size */
-    line-height: 30px; /* Center icon vertically */
+    line-height: 0;
     text-align: center;
     box-shadow: 0 1px 5px var(--shadow-color);
     transition: all 0.2s ease; /* Smooth transition for all properties */
     display: none; /* Hide by default, shown via JS */
+    position: relative;
+}
+.ui-icon {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+    color: currentColor;
+}
+#toggle-sidebar-btn .ui-icon,
+.map-control-button .ui-icon,
+#sound-icon .ui-icon {
+    width: 20px;
+    height: 20px;
+}
+.map-control-button .ui-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 .map-control-button:hover {
     background-color: var(--highlight-bg); /* Use theme highlight */
@@ -839,18 +944,19 @@ body.dark-theme #poi-filter-container h3 {
     align-items: center;
     font-weight: bold; /* Make the group name stand out */
 }
-.filter-group-header .folder-toggle-icon { /* Re-use folder icon style */
-    display: inline-block;
-    width: 1.2em;
-    text-align: center;
+.filter-chevron-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     margin-right: 5px;
     transition: transform 0.2s ease-in-out;
 }
-.filter-group.closed > .filter-group-header .folder-toggle-icon::before {
-    content: '▸';
+.filter-chevron-icon .ui-icon {
+    width: 14px;
+    height: 14px;
 }
-.filter-group:not(.closed) > .filter-group-header .folder-toggle-icon::before {
-    content: '▾';
+.filter-group:not(.closed) > .filter-group-header .filter-chevron-icon {
+    transform: rotate(90deg);
 }
 .nested-filter-list {
     list-style: none;
