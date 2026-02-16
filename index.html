@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <meta property="og:description" content="Explore interactive maps, discover points of interest, and measure distances in Hiraeth!">
 
     <meta property="og:image" content="https://maps.hiraeth.wiki/images/hiraeth-maps-preview.png">
@@ -22,7 +23,50 @@
 
     <script>
         // Bump this value on each deploy that changes local JS/CSS/images behavior.
-        window.APP_ASSET_VERSION = "2026.02.15.1";
+        window.APP_ASSET_VERSION = "2026.02.16.7";
+        window.THEME_STORAGE_KEYS = {
+            legacyTheme: "theme",
+            themePreference: "themePreference"
+        };
+
+        (function applyInitialTheme() {
+            const root = document.documentElement;
+            const keys = window.THEME_STORAGE_KEYS;
+            const safeGet = (key) => {
+                try {
+                    return localStorage.getItem(key);
+                } catch (error) {
+                    return null;
+                }
+            };
+            const safeSet = (key, value) => {
+                try {
+                    localStorage.setItem(key, value);
+                } catch (error) {
+                    // Ignore storage failures.
+                }
+            };
+            const isValidPreference = (value) => value === "light" || value === "dark" || value === "system";
+            const systemTheme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+
+            let preference = safeGet(keys.themePreference);
+            if (!isValidPreference(preference)) {
+                const legacyTheme = safeGet(keys.legacyTheme);
+                if (legacyTheme === "light" || legacyTheme === "dark") {
+                    preference = legacyTheme;
+                    safeSet(keys.themePreference, preference);
+                } else {
+                    preference = "system";
+                    safeSet(keys.themePreference, preference);
+                }
+            }
+
+            const effectiveTheme = preference === "system" ? systemTheme : preference;
+            root.setAttribute("data-theme", effectiveTheme);
+            root.style.colorScheme = effectiveTheme;
+            window.__INITIAL_THEME_PREFERENCE__ = preference;
+            window.__INITIAL_EFFECTIVE_THEME__ = effectiveTheme;
+        })();
 
         (function injectVersionedStyles() {
             const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
@@ -42,12 +86,6 @@
     </script>
 </head>
 <body>
-    <script>
-        // Apply theme immediately to prevent flash
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-theme');
-        }
-    </script>
     <div class="container">
         <div id="sidebar">
             <h2>Select Map</h2>
@@ -55,10 +93,10 @@
                 </ul>
             <div class="theme-switch-wrapper">
                 <label class="theme-switch" for="theme-checkbox">
-                    <input type="checkbox" id="theme-checkbox" aria-label="Toggle Dark Mode" />
+                    <input type="checkbox" id="theme-checkbox" aria-label="Switch to dark theme" title="Switch to dark theme" />
                     <div class="slider round"></div>
                 </label>
-                <span>Dark Mode</span>
+                <span>Theme</span>
             </div>
         </div>
         <div id="map-container">
