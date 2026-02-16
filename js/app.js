@@ -11,6 +11,7 @@ let miniMapControl = null; // Global MiniMap control instance
 const sessionStartedAt = Date.now();
 const UX_STORAGE_KEYS = {
     theme: 'theme',
+    themePreference: 'themePreference',
     soundEnabled: 'soundEnabled',
     sidebarState: 'sidebarState',
     filterPanelOpen: 'filterPanelOpen',
@@ -54,6 +55,8 @@ const map = L.map('map', {
     attributionControl: false,
     zoomControl: false // Disable default zoom, using custom styled one
 });
+
+let atmosphereLayer = null;
 
 // Register URL update listeners
 map.on('moveend zoomend', updateURLWithMapView);
@@ -391,6 +394,13 @@ const toggleBtn = document.getElementById('toggle-sidebar-btn');
 const themeToggle = document.getElementById('theme-checkbox');
 const bodyElement = document.body;
 const mapElement = document.getElementById('map'); // Get map div
+const mapContainerElement = document.getElementById('map-container');
+if (mapContainerElement) {
+    atmosphereLayer = document.createElement('div');
+    atmosphereLayer.id = 'atmosphere-layer';
+    atmosphereLayer.setAttribute('aria-hidden', 'true');
+    mapContainerElement.appendChild(atmosphereLayer);
+}
 const toggleBlurbBtn = document.getElementById('toggle-blurb-btn');
 const toggleGMPanelBtn = document.getElementById('toggle-gm-panel-btn');
 const toggleToolkitPanelBtn = document.getElementById('toggle-toolkit-panel-btn');
@@ -440,10 +450,23 @@ const encounterRollBtn = document.getElementById('encounter-roll-btn');
 const encounterViewBtn = document.getElementById('encounter-view-btn');
 const encounterResult = document.getElementById('encounter-result');
 const encounterTableList = document.getElementById('encounter-table-list');
+const rootElement = document.documentElement;
 let soundEnabled = false;
+let themePreference = 'system';
+let currentEffectiveTheme = 'light';
+const systemThemeMediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+let themeAnimationTimeoutId = null;
+const THEME_CLOUD_HANDOFF_CLASS = 'theme-cloud-handoff';
+const THEME_ANIMATION_BUFFER_MS = 40;
+const THEME_ANIMATION_FALLBACK_MS = 560;
+const activeAudioFadeFrameIds = new WeakMap();
+let currentAtmosphereConfig = null;
 const storedAdvancedControlsFlag = safeGetStorage(UX_STORAGE_KEYS.advancedControlsUnlocked);
 const storedOnboardingFlag = safeGetStorage(UX_STORAGE_KEYS.onboardingSeen);
-const hasPriorPreferenceState = safeGetStorage(UX_STORAGE_KEYS.theme) !== null || safeGetStorage(UX_STORAGE_KEYS.soundEnabled) !== null;
+const hasPriorPreferenceState =
+    safeGetStorage(UX_STORAGE_KEYS.themePreference) !== null ||
+    safeGetStorage(UX_STORAGE_KEYS.theme) !== null ||
+    safeGetStorage(UX_STORAGE_KEYS.soundEnabled) !== null;
 advancedControlsUnlocked = storedAdvancedControlsFlag === 'true' ||
     (storedAdvancedControlsFlag === null && storedOnboardingFlag === null && hasPriorPreferenceState);
 coordsDisplayEnabled = safeGetStorage(UX_STORAGE_KEYS.coordsVisible) === 'true';
@@ -479,6 +502,14 @@ function safeSetStorage(key, value) {
     }
 }
 
+function safeRemoveStorage(key) {
+    try {
+        localStorage.removeItem(key);
+    } catch (error) {
+        // Ignore storage quota and private-mode failures.
+    }
+}
+
 function safeGetJSON(key, fallback = null) {
     const raw = safeGetStorage(key);
     if (!raw) return fallback;
@@ -495,6 +526,151 @@ function safeSetJSON(key, value) {
     } catch (error) {
         // Ignore storage quota and private-mode failures.
     }
+}
+
+function withAssetVersion(url) {
+    const version = encodeURIComponent(window.APP_ASSET_VERSION || '0');
+    const separator = String(url).includes('?') ? '&' : '?';
+    return `${url}${separator}v=${version}`;
+}
+
+function isValidThemePreference(value) {
+    return value === 'light' || value === 'dark' || value === 'system';
+}
+
+function resolveSystemTheme() {
+    return systemThemeMediaQuery && systemThemeMediaQuery.matches ? 'dark' : 'light';
+}
+
+function resolveThemePreference() {
+    const prebootPreference = window.__INITIAL_THEME_PREFERENCE__;
+    if (isValidThemePreference(prebootPreference)) {
+        return prebootPreference;
+    }
+
+    const savedPreference = safeGetStorage(UX_STORAGE_KEYS.themePreference);
+    if (isValidThemePreference(savedPreference)) {
+        return savedPreference;
+    }
+
+    const legacyTheme = safeGetStorage(UX_STORAGE_KEYS.theme);
+    if (legacyTheme === 'light' || legacyTheme === 'dark') {
+        safeSetStorage(UX_STORAGE_KEYS.themePreference, legacyTheme);
+        return legacyTheme;
+    }
+
+    safeSetStorage(UX_STORAGE_KEYS.themePreference, 'system');
+    return 'system';
+}
+
+function resolveEffectiveTheme(preference = themePreference) {
+    if (preference === 'light' || preference === 'dark') {
+        return preference;
+    }
+    return resolveSystemTheme();
+}
+
+function syncThemeToggleA11y(theme) {
+    if (!themeToggle) return;
+    const switchingTo = theme === 'dark' ? 'light' : 'dark';
+    const label = `Switch to ${switchingTo} theme`;
+    themeToggle.setAttribute('aria-label', label);
+    themeToggle.setAttribute('title', label);
+}
+
+function normalizeAtmosphereMode(value) {
+    if (typeof value !== 'string') return '';
+    const mode = value.trim().toLowerCase();
+    return mode === 'aurora' || mode === 'snow' ? mode : '';
+}
+
+function normalizeAtmosphereConfig(rawConfig) {
+    if (!rawConfig) return null;
+    if (typeof rawConfig === 'string') {
+        const mode = normalizeAtmosphereMode(rawConfig);
+        return mode ? { day: mode, night: mode } : null;
+    }
+    if (typeof rawConfig !== 'object') return null;
+
+    const day = normalizeAtmosphereMode(rawConfig.day);
+    const night = normalizeAtmosphereMode(rawConfig.night);
+    const fallback = normalizeAtmosphereMode(rawConfig.default || rawConfig.all || rawConfig.both);
+    const resolvedDay = day || fallback;
+    const resolvedNight = night || fallback;
+
+    if (!resolvedDay && !resolvedNight) return null;
+    return { day: resolvedDay, night: resolvedNight };
+}
+
+function resolveAtmosphereMode() {
+    if (!currentAtmosphereConfig) return '';
+    const themeSlot = currentEffectiveTheme === 'dark' ? 'night' : 'day';
+    return currentAtmosphereConfig[themeSlot] || '';
+}
+
+function applyAtmosphereLayer() {
+    if (!mapContainerElement || !atmosphereLayer) return;
+
+    const mode = resolveAtmosphereMode();
+    const currentMode = mapContainerElement.getAttribute('data-atmosphere') || '';
+    const nextClass = mode ? `atmosphere-${mode}` : '';
+
+    if (mode === currentMode) {
+        if (!nextClass) {
+            atmosphereLayer.classList.remove('atmosphere-aurora', 'atmosphere-snow');
+            return;
+        }
+        if (atmosphereLayer.classList.contains(nextClass)) {
+            return;
+        }
+        atmosphereLayer.classList.remove('atmosphere-aurora', 'atmosphere-snow');
+        atmosphereLayer.classList.add(nextClass);
+        return;
+    }
+
+    if (!mode) {
+        mapContainerElement.removeAttribute('data-atmosphere');
+        atmosphereLayer.classList.remove('atmosphere-aurora', 'atmosphere-snow');
+        return;
+    }
+
+    mapContainerElement.setAttribute('data-atmosphere', mode);
+    atmosphereLayer.classList.remove('atmosphere-aurora', 'atmosphere-snow');
+    atmosphereLayer.classList.add(nextClass);
+}
+
+function setMapAtmosphere(rawConfig) {
+    currentAtmosphereConfig = normalizeAtmosphereConfig(rawConfig);
+    applyAtmosphereLayer();
+}
+
+function shouldAnimateThemeTransition() {
+    return !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+
+function parseCssDurationToMs(rawValue) {
+    if (typeof rawValue !== 'string') return null;
+    const value = rawValue.trim();
+    if (!value) return null;
+    if (value.endsWith('ms')) {
+        const parsed = Number.parseFloat(value);
+        return Number.isFinite(parsed) ? parsed : null;
+    }
+    if (value.endsWith('s')) {
+        const parsed = Number.parseFloat(value);
+        return Number.isFinite(parsed) ? parsed * 1000 : null;
+    }
+    return null;
+}
+
+function getThemeAnimationDurationMs() {
+    const computedStyle = window.getComputedStyle(rootElement);
+    const totalDuration = parseCssDurationToMs(computedStyle.getPropertyValue('--theme-transition-total'));
+    if (totalDuration !== null && totalDuration >= 0) {
+        return Math.ceil(totalDuration + THEME_ANIMATION_BUFFER_MS);
+    }
+
+    return THEME_ANIMATION_FALLBACK_MS;
 }
 
 function isLocalHost() {
@@ -1658,10 +1834,7 @@ function populateFilters(pointsOfInterest, mapId) {
             if (hasPOIs) {
                 const divider = document.createElement('hr');
                 divider.style.margin = '10px 0';
-                divider.style.borderColor = 'var(--glass-border-light)';
-                if (bodyElement.classList.contains('dark-theme')) {
-                    divider.style.borderColor = 'var(--glass-border-dark)';
-                }
+                divider.style.borderColor = 'var(--glass-border)';
                 poiFilterContainer.appendChild(divider);
             }
             const regionHeader = document.createElement('h3');
@@ -1734,8 +1907,7 @@ function populateFilters(pointsOfInterest, mapId) {
         if (hasPOIs || hasRegions) { // Add divider if other filters are present
             const divider = document.createElement('hr');
             divider.style.margin = '10px 0';
-            divider.style.borderColor = 'var(--glass-border-light)';
-            bodyElement.classList.contains('dark-theme') && (divider.style.borderColor = 'var(--glass-border-dark)');
+            divider.style.borderColor = 'var(--glass-border)';
             poiFilterContainer.appendChild(divider);
         }
 
@@ -1943,6 +2115,7 @@ function loadMap(mapId, updateHash = true) {
     const loadStartedAt = performance.now();
     loadingMapId = mapId;
     trackAnalytics('map_load_started', { mapId });
+    setMapAtmosphere(selectedMap?.atmosphere || null);
 
     if (currentlyLoadedMapId && currentlyLoadedMapId !== mapId) {
         trackAnalytics('map_switched', {
@@ -2014,6 +2187,7 @@ function loadMap(mapId, updateHash = true) {
         loadingProgressInterval = null;
         loadingMapId = null;
         currentlyLoadedMapId = null;
+        setMapAtmosphere(null);
         mapBlurbElement.classList.remove('visible');
         toggleMarkersBtn.style.display = 'none';
         measureToolBtn.style.display = 'none';
@@ -2067,6 +2241,7 @@ function loadMap(mapId, updateHash = true) {
         if (loadingProgressInterval) clearInterval(loadingProgressInterval);
         loadingProgressInterval = null;
         currentlyLoadedMapId = null;
+        setMapAtmosphere(null);
         toggleMarkersBtn.style.display = 'none';
         measureToolBtn.style.display = 'none';
         toggleFiltersBtn.style.display = 'none';
@@ -2189,6 +2364,7 @@ function loadMap(mapId, updateHash = true) {
         if (currentImageLayer) map.removeLayer(currentImageLayer);
         currentImageLayer = null;
         currentlyLoadedMapId = null;
+        setMapAtmosphere(null);
         toggleMarkersBtn.style.display = 'none';
         measureToolBtn.style.display = 'none';
         toggleFiltersBtn.style.display = 'none';
@@ -2618,26 +2794,85 @@ if (loadingRetryBtn) {
 }
 
 // --- Theme Toggle Logic ---
-function applyTheme(theme) {
-    if (theme === 'dark') { bodyElement.classList.add('dark-theme'); themeToggle.checked = true; }
-    else { bodyElement.classList.remove('dark-theme'); themeToggle.checked = false; }
-    // Update divider color in filter panel
-    const divider = poiFilterContainer.querySelector('hr');
-    if (divider) {
-        divider.style.borderColor = theme === 'dark' ? 'var(--glass-border-dark)' : 'var(--glass-border-light)';
+function applyTheme(theme, options = {}) {
+    const { animate = true } = options;
+    const normalizedTheme = theme === 'dark' ? 'dark' : 'light';
+    const shouldAnimate = animate && shouldAnimateThemeTransition();
+    const previousEffectiveTheme = currentEffectiveTheme;
+    const shouldUseCloudHandoff = shouldAnimate && previousEffectiveTheme === 'light' && normalizedTheme === 'dark';
+
+    if (shouldAnimate) {
+        rootElement.classList.add('theme-animating');
+    }
+
+    if (shouldUseCloudHandoff) {
+        rootElement.classList.add(THEME_CLOUD_HANDOFF_CLASS);
+    } else {
+        rootElement.classList.remove(THEME_CLOUD_HANDOFF_CLASS);
+    }
+
+    currentEffectiveTheme = normalizedTheme;
+    rootElement.setAttribute('data-theme', normalizedTheme);
+    rootElement.style.colorScheme = normalizedTheme;
+    bodyElement.classList.toggle('dark-theme', normalizedTheme === 'dark'); // Backward-compatibility class.
+    if (themeToggle) {
+        themeToggle.checked = normalizedTheme === 'dark';
+    }
+    syncThemeToggleA11y(normalizedTheme);
+    applyAtmosphereLayer();
+
+    if (themeAnimationTimeoutId) {
+        clearTimeout(themeAnimationTimeoutId);
+        themeAnimationTimeoutId = null;
+    }
+    if (shouldAnimate) {
+        const transitionDurationMs = getThemeAnimationDurationMs();
+        themeAnimationTimeoutId = window.setTimeout(() => {
+            rootElement.classList.remove('theme-animating');
+            rootElement.classList.remove(THEME_CLOUD_HANDOFF_CLASS);
+            themeAnimationTimeoutId = null;
+        }, transitionDurationMs);
+    } else {
+        rootElement.classList.remove('theme-animating');
+        rootElement.classList.remove(THEME_CLOUD_HANDOFF_CLASS);
+    }
+}
+
+function setThemePreference(preference) {
+    const normalizedPreference = isValidThemePreference(preference) ? preference : 'system';
+    themePreference = normalizedPreference;
+    safeSetStorage(UX_STORAGE_KEYS.themePreference, normalizedPreference);
+    if (normalizedPreference === 'light' || normalizedPreference === 'dark') {
+        safeSetStorage(UX_STORAGE_KEYS.theme, normalizedPreference); // Legacy key compatibility.
+    } else {
+        safeRemoveStorage(UX_STORAGE_KEYS.theme);
+    }
+    applyTheme(resolveEffectiveTheme(normalizedPreference), { animate: true });
+}
+
+function handleSystemThemeChange() {
+    if (themePreference !== 'system') return;
+    applyTheme(resolveEffectiveTheme('system'), { animate: true });
+}
+
+if (systemThemeMediaQuery) {
+    if (typeof systemThemeMediaQuery.addEventListener === 'function') {
+        systemThemeMediaQuery.addEventListener('change', handleSystemThemeChange);
+    } else if (typeof systemThemeMediaQuery.addListener === 'function') {
+        systemThemeMediaQuery.addListener(handleSystemThemeChange);
     }
 }
 
 themeToggle.addEventListener('change', () => {
     unlockAdvancedControls('theme_toggle');
-    const newTheme = themeToggle.checked ? 'dark' : 'light';
-    applyTheme(newTheme);
-    safeSetStorage(UX_STORAGE_KEYS.theme, newTheme);
-    trackAnalytics('theme_changed', { theme: newTheme });
+    const newThemePreference = themeToggle.checked ? 'dark' : 'light';
+    setThemePreference(newThemePreference);
+    const effectiveTheme = resolveEffectiveTheme(newThemePreference);
+    trackAnalytics('theme_changed', { theme: effectiveTheme, preference: newThemePreference });
 
     // Update audio track if sound is enabled
     if (soundEnabled) {
-        if (newTheme === 'dark') {
+        if (effectiveTheme === 'dark') {
             fadeAudio(lightAmbient, 0);
             fadeAudio(darkAmbient, 0.3);
         } else {
@@ -2648,36 +2883,54 @@ themeToggle.addEventListener('change', () => {
 });
 
 // --- Sound Control Logic ---
-function fadeAudio(audioElement, targetVolume, duration = 1500) { // Shorter fade
+function fadeAudio(audioElement, targetVolume, duration = 1800) {
+    if (!audioElement) return;
+    const existingFrame = activeAudioFadeFrameIds.get(audioElement);
+    if (existingFrame) {
+        cancelAnimationFrame(existingFrame);
+        activeAudioFadeFrameIds.delete(audioElement);
+    }
+
+    const clampedTarget = Math.max(0, Math.min(1, targetVolume));
+    const easeInOutCubic = (t) => (t < 0.5)
+        ? 4 * t * t * t
+        : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
     const startVolume = audioElement.volume;
-    const volumeChange = targetVolume - startVolume;
-    if (volumeChange === 0 && (targetVolume === 0 || !audioElement.paused)) return; // No change needed
+    const volumeChange = clampedTarget - startVolume;
+    if (volumeChange === 0 && (clampedTarget === 0 || !audioElement.paused)) return;
 
     const startTime = Date.now();
 
     function updateVolume() {
         const elapsed = Date.now() - startTime;
         const progress = Math.min(1, elapsed / duration);
-        audioElement.volume = Math.max(0, Math.min(1, startVolume + (volumeChange * progress))); // Clamp volume
+        const easedProgress = easeInOutCubic(progress);
+        audioElement.volume = Math.max(0, Math.min(1, startVolume + (volumeChange * easedProgress)));
 
         if (progress < 1) {
-            requestAnimationFrame(updateVolume);
+            const frameId = requestAnimationFrame(updateVolume);
+            activeAudioFadeFrameIds.set(audioElement, frameId);
         } else {
-            if (targetVolume === 0 && !audioElement.paused) {
+            activeAudioFadeFrameIds.delete(audioElement);
+            if (clampedTarget === 0 && !audioElement.paused) {
                 audioElement.pause();
             }
         }
     }
 
-    if (targetVolume > 0 && audioElement.paused) {
+    if (clampedTarget > 0 && audioElement.paused) {
         audioElement.volume = 0; // Start from silent
         audioElement.play().then(() => {
-            requestAnimationFrame(updateVolume);
+            const frameId = requestAnimationFrame(updateVolume);
+            activeAudioFadeFrameIds.set(audioElement, frameId);
         }).catch(e => console.warn('Audio play prevented:', e));
-    } else if (targetVolume > 0 && !audioElement.paused) {
-        requestAnimationFrame(updateVolume); // Already playing, just adjust volume
-    } else if (targetVolume === 0) {
-        requestAnimationFrame(updateVolume); // Fading out
+    } else if (clampedTarget > 0 && !audioElement.paused) {
+        const frameId = requestAnimationFrame(updateVolume);
+        activeAudioFadeFrameIds.set(audioElement, frameId);
+    } else if (clampedTarget === 0) {
+        const frameId = requestAnimationFrame(updateVolume);
+        activeAudioFadeFrameIds.set(audioElement, frameId);
     }
 }
 // --- Function to add roads to map ---
@@ -2781,7 +3034,7 @@ function initializeSoundState() {
                 toggleSoundBtn.setAttribute('aria-pressed', "true");
             }
         // Start playing the correct track based on the current theme
-        const currentTheme = bodyElement.classList.contains('dark-theme') ? 'dark' : 'light';
+        const currentTheme = currentEffectiveTheme;
         if (currentTheme === 'dark') {
             fadeAudio(darkAmbient, 0.3);
         } else {
@@ -2815,7 +3068,7 @@ if (toggleSoundBtn) {
             toggleSoundBtn.setAttribute('aria-label', "Mute Sound");
             toggleSoundBtn.setAttribute('aria-pressed', "true");
 
-            const currentTheme = bodyElement.classList.contains('dark-theme') ? 'dark' : 'light';
+            const currentTheme = currentEffectiveTheme;
             if (currentTheme === 'dark') {
                 fadeAudio(darkAmbient, 0.3);
             } else {
@@ -2838,8 +3091,8 @@ if (toggleSoundBtn) {
 
 
 // Apply initial theme from storage
-const savedTheme = safeGetStorage(UX_STORAGE_KEYS.theme) || 'light';
-applyTheme(savedTheme);
+themePreference = resolveThemePreference();
+applyTheme(resolveEffectiveTheme(themePreference), { animate: false });
 
 // --- NEW: Expand/Collapse Popup Logic ---
 function togglePopupExpand(button) {
@@ -3470,7 +3723,7 @@ async function loadMapData() {
             });
         }
 
-        const response = await fetch('maps/maps.json');
+        const response = await fetch(withAssetVersion('maps/maps.json'));
         if (!response.ok) throw new Error(`Failed to load maps.json: ${response.statusText}`);
         const maps = await response.json();
 
@@ -3753,7 +4006,7 @@ async function processChild(childId, level = 0) {
         // }
 
         // Fetch the child map data
-        const response = await fetch(`maps/${childId}.json`);
+        const response = await fetch(withAssetVersion(`maps/${childId}.json`));
 
         if (response.ok) {
             let childData = await response.json();
