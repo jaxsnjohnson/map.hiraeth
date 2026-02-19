@@ -877,21 +877,27 @@ function findMapRecursive(items, id) {
     return null;
 }
 
+function isRenderableMapEntry(item) {
+    if (!item || typeof item !== 'object') return false;
+    if (item.status === 'coming-soon') return false;
+    if (!String(item.id || '').trim()) return false;
+
+    const width = Number(item.width);
+    const height = Number(item.height);
+    const imageUrl = String(item.imageUrl || '').trim();
+
+    return Number.isFinite(width) && width > 0 &&
+        Number.isFinite(height) && height > 0 &&
+        !!imageUrl;
+}
+
 function findFirstLoadableIdRecursive(items) {
     for (const item of items) {
-        if (item.id && item.status !== 'coming-soon') return item.id;
+        if (isRenderableMapEntry(item)) return item.id;
         if (item.type === 'folder' && item.children) {
             const foundId = findFirstLoadableIdRecursive(item.children);
             if (foundId) return foundId;
         }
-    }
-    // Fallback: If only coming-soon items exist, return the first ID found
-    for (const item of items) {
-            if (item.id) return item.id;
-            if (item.type === 'folder' && item.children) {
-                const foundId = findFirstLoadableIdRecursive(item.children); // Re-run without status check
-                if (foundId) return foundId;
-            }
     }
     return null;
 }
@@ -4222,8 +4228,8 @@ function initializeApp() {
         mapToLoadData = findMapRecursive(mapData, mapIdToLoad);
     }
 
-    // If hash map is invalid/missing/coming-soon, or no hash map, find the default
-    if (!mapToLoadData || mapToLoadData.status === 'coming-soon') {
+    // If hash/storage target is invalid or non-renderable, fall back to first renderable map
+    if (!isRenderableMapEntry(mapToLoadData)) {
         mapIdToLoad = findFirstLoadableIdRecursive(mapData);
         mapToLoadData = findMapRecursive(mapData, mapIdToLoad);
     }
@@ -4242,7 +4248,7 @@ function initializeApp() {
     poiFilterContainer.classList.remove('visible');
 
     // Load the determined map
-    if (mapIdToLoad && mapToLoadData && mapToLoadData.status !== 'coming-soon') {
+    if (mapIdToLoad && isRenderableMapEntry(mapToLoadData)) {
         markersVisible = true; // Default to visible
         regionsVisible = true;
         loadMap(mapIdToLoad, false); // Load map, don't update hash yet
