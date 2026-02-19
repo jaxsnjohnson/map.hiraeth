@@ -23,4 +23,7 @@ assert.doesNotThrow(() => {
     assert.equal(params.bad, '%E0%A4%A');
 });
 
+global.window = { location: { search: '?token=abc=def==&region=south' } };
+assert.deepEqual(getUrlParameters(), { token: 'abc=def==', region: 'south' });
+
 console.log('getUrlParameters regression checks passed');

@@ -148,7 +148,9 @@ function getUrlParameters() {
     };
     
     for (const pair of pairs) {
-        const [key, value] = pair.split('=');
+        const separatorIndex = pair.indexOf('=');
+        const key = separatorIndex >= 0 ? pair.slice(0, separatorIndex) : pair;
+        const value = separatorIndex >= 0 ? pair.slice(separatorIndex + 1) : '';
         const decodedKey = safeDecode(key);
         if (decodedKey) params[decodedKey] = safeDecode(value);
     }
