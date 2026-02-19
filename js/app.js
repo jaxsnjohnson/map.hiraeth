@@ -140,10 +140,11 @@ function getUrlParameters() {
     const queryString = window.location.search.substring(1);
     const pairs = queryString.split('&');
     const safeDecode = (value) => {
+        const normalized = String(value || '').replace(/\+/g, ' ');
         try {
-            return decodeURIComponent(value || '');
+            return decodeURIComponent(normalized);
         } catch (error) {
-            return value || '';
+            return normalized;
         }
     };
     

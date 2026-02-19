@@ -17,6 +17,9 @@ eval(fnSource);
 global.window = { location: { search: '?name=old%20lin&region=south' } };
 assert.deepEqual(getUrlParameters(), { name: 'old lin', region: 'south' });
 
+global.window = { location: { search: '?name=old+lin&region=south' } };
+assert.deepEqual(getUrlParameters(), { name: 'old lin', region: 'south' });
+
 global.window = { location: { search: '?bad=%E0%A4%A' } };
 assert.doesNotThrow(() => {
     const params = getUrlParameters();
