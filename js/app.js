@@ -139,10 +139,18 @@ function getUrlParameters() {
     const params = {};
     const queryString = window.location.search.substring(1);
     const pairs = queryString.split('&');
+    const safeDecode = (value) => {
+        try {
+            return decodeURIComponent(value || '');
+        } catch (error) {
+            return value || '';
+        }
+    };
     
     for (const pair of pairs) {
         const [key, value] = pair.split('=');
-        if (key) params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+        const decodedKey = safeDecode(key);
+        if (decodedKey) params[decodedKey] = safeDecode(value);
     }
     return params;
 }
@@ -159,7 +167,7 @@ function formatPropertiesForPopup(properties, hasFollowingDescription) {
             hasContent = true;
             // Sanitize key and value to prevent basic HTML injection
             const sanKey = key.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            const sanValue = properties[key].replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const sanValue = String(properties[key]).replace(/</g, "&lt;").replace(/>/g, "&gt;");
             listItems += `<li><strong>${sanKey}:</strong> ${sanValue}</li>`;
         }
     }
