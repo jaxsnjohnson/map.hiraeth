@@ -2207,7 +2207,16 @@ function loadMap(mapId, updateHash = true) {
         if (updateHash) {
             const newHash = generateHash('', currentSidebarState);
             const currentSearch = window.location.search;
-            history.pushState(null, '', `${currentSearch}${newHash}`);
+            history.pushState(
+                {
+                    mapId: null,
+                    sidebarState: currentSidebarState,
+                    search: currentSearch,
+                    hash: newHash
+                },
+                '',
+                `${currentSearch}${newHash}`
+            );
         }
         trackAnalytics('map_load_failed', { mapId, reason: 'unavailable' });
         return;
@@ -2253,7 +2262,16 @@ function loadMap(mapId, updateHash = true) {
         if (updateHash) {
             const newHash = generateHash('', currentSidebarState);
             const currentSearch = window.location.search;
-            history.pushState(null, '', `${currentSearch}${newHash}`);
+            history.pushState(
+                {
+                    mapId: null,
+                    sidebarState: currentSidebarState,
+                    search: currentSearch,
+                    hash: newHash
+                },
+                '',
+                `${currentSearch}${newHash}`
+            );
         }
         trackAnalytics('map_load_failed', { mapId, reason: 'invalid_data' });
         return;
@@ -2369,6 +2387,20 @@ function loadMap(mapId, updateHash = true) {
         measureToolBtn.style.display = 'none';
         toggleFiltersBtn.style.display = 'none';
         searchControlContainer.style.display = 'none';
+        if (updateHash) {
+            const newHash = generateHash('', currentSidebarState);
+            const currentSearch = window.location.search;
+            history.pushState(
+                {
+                    mapId: null,
+                    sidebarState: currentSidebarState,
+                    search: currentSearch,
+                    hash: newHash
+                },
+                '',
+                `${currentSearch}${newHash}`
+            );
+        }
         trackAnalytics('map_load_failed', { mapId, reason: 'image_error' });
     });
 
