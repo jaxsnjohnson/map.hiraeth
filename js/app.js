@@ -2489,10 +2489,16 @@ function loadMap(mapId, updateHash = true) {
     if (updateHash) {
         const newHash = generateHash(mapId, currentSidebarState);
         const currentSearch = window.location.search;
+        const newUrl = `${currentSearch}${newHash}`;
         history.pushState(
-            { mapId, sidebarState: currentSidebarState },
+            {
+                mapId,
+                sidebarState: currentSidebarState,
+                search: currentSearch,
+                hash: newHash
+            },
             selectedMap.name,
-            `${currentSearch}${newHash}`
+            newUrl
         );
     }
 }
