@@ -938,7 +938,18 @@ function setSidebarState(state, updateHash = true) {
             const newHash = generateHash(currentlyLoadedMapId, state);
             const currentSearch = window.location.search;
             const newUrl = buildAppUrlWithHash(newHash, currentSearch);
-            history.replaceState(null, '', newUrl); // Use replaceState for sidebar toggle
+            const currentState = (history.state && typeof history.state === 'object') ? history.state : {};
+            history.replaceState(
+                {
+                    ...currentState,
+                    mapId: currentlyLoadedMapId,
+                    sidebarState: state,
+                    search: currentSearch,
+                    hash: newHash
+                },
+                '',
+                newUrl
+            ); // Use replaceState for sidebar toggle
             }
             if (!isInitializing) {
                 trackAnalytics('sidebar_toggled', { state: currentSidebarState });
