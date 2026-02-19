@@ -20,6 +20,11 @@ assert.doesNotThrow(() => {
 });
 
 assert.doesNotThrow(() => {
+    const html = formatPropertiesForPopup({ elevation: 0 }, false);
+    assert.ok(html.includes('0'));
+});
+
+assert.doesNotThrow(() => {
     const html = formatPropertiesForPopup({ hazard: '<script>alert(1)</script>' }, false);
     assert.ok(html.includes('&lt;script&gt;alert(1)&lt;/script&gt;'));
 });

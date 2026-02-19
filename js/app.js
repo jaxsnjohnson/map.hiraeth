@@ -166,11 +166,17 @@ function formatPropertiesForPopup(properties, hasFollowingDescription) {
     let hasContent = false;
     let listItems = '';
     for (const key in properties) {
-        if (Object.hasOwnProperty.call(properties, key) && properties[key]) {
+        const value = properties[key];
+        if (
+            Object.hasOwnProperty.call(properties, key) &&
+            value !== undefined &&
+            value !== null &&
+            value !== ''
+        ) {
             hasContent = true;
             // Sanitize key and value to prevent basic HTML injection
             const sanKey = key.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            const sanValue = String(properties[key]).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const sanValue = String(value).replace(/</g, "&lt;").replace(/>/g, "&gt;");
             listItems += `<li><strong>${sanKey}:</strong> ${sanValue}</li>`;
         }
     }
