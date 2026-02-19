@@ -2234,7 +2234,16 @@ function loadMap(mapId, updateHash = true) {
             const currentSearch = window.location.search;
             const newUrl = buildAppUrlWithHash(newHash, currentSearch);
             if (window.location.href !== new URL(newUrl, window.location.href).href) {
-                history.replaceState(null, '', newUrl);
+                history.replaceState(
+                    {
+                        mapId,
+                        sidebarState: currentSidebarState,
+                        search: currentSearch,
+                        hash: newHash
+                    },
+                    '',
+                    newUrl
+                );
             }
         }
         if (loadingIndicator) {
