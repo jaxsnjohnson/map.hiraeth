@@ -902,6 +902,10 @@ function generateHash(mapId, sidebarState) {
     return `#${mapId || ''}-s=${sidebarState}`;
 }
 
+function buildAppUrlWithHash(hash, search = window.location.search) {
+    return `${window.location.pathname}${search}${hash}`;
+}
+
 // --- Function to Set Sidebar State ---
 function setSidebarState(state, updateHash = true) {
     const shouldBeCollapsed = (state === 'c');
@@ -933,7 +937,7 @@ function setSidebarState(state, updateHash = true) {
             // --- FIX: Update history with search params and new hash ---
             const newHash = generateHash(currentlyLoadedMapId, state);
             const currentSearch = window.location.search;
-            const newUrl = `${currentSearch}${newHash}`;
+            const newUrl = buildAppUrlWithHash(newHash, currentSearch);
             history.replaceState(null, '', newUrl); // Use replaceState for sidebar toggle
             }
             if (!isInitializing) {
@@ -2207,6 +2211,7 @@ function loadMap(mapId, updateHash = true) {
         if (updateHash) {
             const newHash = generateHash('', currentSidebarState);
             const currentSearch = window.location.search;
+            const newUrl = buildAppUrlWithHash(newHash, currentSearch);
             history.pushState(
                 {
                     mapId: null,
@@ -2215,7 +2220,7 @@ function loadMap(mapId, updateHash = true) {
                     hash: newHash
                 },
                 '',
-                `${currentSearch}${newHash}`
+                newUrl
             );
         }
         trackAnalytics('map_load_failed', { mapId, reason: 'unavailable' });
@@ -2227,7 +2232,7 @@ function loadMap(mapId, updateHash = true) {
         if (updateHash) {
             const newHash = generateHash(mapId, currentSidebarState);
             const currentSearch = window.location.search;
-            const newUrl = `${currentSearch}${newHash}`;
+            const newUrl = buildAppUrlWithHash(newHash, currentSearch);
             if (window.location.href !== new URL(newUrl, window.location.href).href) {
                 history.replaceState(null, '', newUrl);
             }
@@ -2262,6 +2267,7 @@ function loadMap(mapId, updateHash = true) {
         if (updateHash) {
             const newHash = generateHash('', currentSidebarState);
             const currentSearch = window.location.search;
+            const newUrl = buildAppUrlWithHash(newHash, currentSearch);
             history.pushState(
                 {
                     mapId: null,
@@ -2270,7 +2276,7 @@ function loadMap(mapId, updateHash = true) {
                     hash: newHash
                 },
                 '',
-                `${currentSearch}${newHash}`
+                newUrl
             );
         }
         trackAnalytics('map_load_failed', { mapId, reason: 'invalid_data' });
@@ -2390,6 +2396,7 @@ function loadMap(mapId, updateHash = true) {
         if (updateHash) {
             const newHash = generateHash('', currentSidebarState);
             const currentSearch = window.location.search;
+            const newUrl = buildAppUrlWithHash(newHash, currentSearch);
             history.pushState(
                 {
                     mapId: null,
@@ -2398,7 +2405,7 @@ function loadMap(mapId, updateHash = true) {
                     hash: newHash
                 },
                 '',
-                `${currentSearch}${newHash}`
+                newUrl
             );
         }
         trackAnalytics('map_load_failed', { mapId, reason: 'image_error' });
@@ -2521,7 +2528,7 @@ function loadMap(mapId, updateHash = true) {
     if (updateHash) {
         const newHash = generateHash(mapId, currentSidebarState);
         const currentSearch = window.location.search;
-        const newUrl = `${currentSearch}${newHash}`;
+        const newUrl = buildAppUrlWithHash(newHash, currentSearch);
         history.pushState(
             {
                 mapId,
@@ -4208,7 +4215,8 @@ function initializeApp() {
         // Ensure loading indicator is hidden if it somehow wasn't
         if (loadingIndicator) loadingIndicator.style.display = 'none';
         // Set a clean hash state
-        history.replaceState(null, '', generateHash('', effectiveSidebarState));
+        const fallbackHash = generateHash('', effectiveSidebarState);
+        history.replaceState(null, '', buildAppUrlWithHash(fallbackHash, window.location.search));
         isInitializing = false;
         return; // Stop initialization
     }
@@ -4220,7 +4228,7 @@ function initializeApp() {
     // Set the correct initial history state *after* loading the map
     const correctInitialHash = generateHash(currentlyLoadedMapId, currentSidebarState);
     const currentSearch = window.location.search; // Get current search params like ?embed=true
-    const finalUrl = `${currentSearch}${correctInitialHash}`;
+    const finalUrl = buildAppUrlWithHash(correctInitialHash, currentSearch);
     history.replaceState({ mapId: currentlyLoadedMapId, sidebarState: currentSidebarState }, mapToLoadData?.name || '', finalUrl);
 
     if (!isEmbeddedView) {
