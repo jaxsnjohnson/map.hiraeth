@@ -897,9 +897,10 @@ function parseHash() {
     };
 }
 
-// --- FIX: Corrected generateHash to only return the hash fragment ---
 function generateHash(mapId, sidebarState) {
-    return `#${mapId || ''}-s=${sidebarState}`;
+    const normalizedMapId = (mapId || '').trim();
+    const normalizedSidebarState = ['o', 'c'].includes(sidebarState) ? sidebarState : 'o';
+    return `#${normalizedMapId}-s=${normalizedSidebarState}`;
 }
 
 function buildAppUrlWithHash(hash, search = window.location.search) {
