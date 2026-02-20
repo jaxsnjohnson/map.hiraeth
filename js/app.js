@@ -213,7 +213,7 @@ function resolveLinkedMapData(featureData) {
     if (!linkedMapId) return null;
 
     const linkedMap = findMapRecursive(mapData, linkedMapId);
-    if (!linkedMap || linkedMap.status === 'coming-soon') {
+    if (!isRenderableMapEntry(linkedMap)) {
         return null;
     }
 
@@ -920,6 +920,11 @@ function parseHash() {
         mapId: mapId, // May be null initially
         sidebarState: sidebarState || 'o'
     };
+}
+
+function getHistoryStateValue(state, key, fallbackValue) {
+    if (!state || typeof state !== 'object') return fallbackValue;
+    return Object.prototype.hasOwnProperty.call(state, key) ? state[key] : fallbackValue;
 }
 
 function generateHash(mapId, sidebarState) {
@@ -1629,7 +1634,12 @@ function focusRouteStep(route, step) {
         }
         case 'map': {
             if (step.targetId && step.targetId !== currentlyLoadedMapId) {
-                loadMap(step.targetId, true);
+                const targetMap = findMapRecursive(mapData, step.targetId);
+                if (isRenderableMapEntry(targetMap)) {
+                    loadMap(step.targetId, true);
+                } else {
+                    trackAnalytics('route_step_map_unavailable', { routeId: route.id, targetMapId: step.targetId });
+                }
             }
             break;
         }
@@ -2035,7 +2045,7 @@ window.openLinkedMapFromPopup = function(event, mapId) {
     }
 
     const targetMap = findMapRecursive(mapData, trimmedMapId);
-    if (!targetMap || targetMap.status === 'coming-soon') {
+    if (!isRenderableMapEntry(targetMap)) {
         alert(`Linked map "${trimmedMapId}" is not currently available.`);
         trackAnalytics('linked_map_open_failed', { linkedMapId: trimmedMapId, reason: 'not_available' });
         return false;
@@ -2707,7 +2717,7 @@ function populateSidebar(parentElement, items) {
             const folderName = item.name || 'Unnamed Folder!';
             const hasChildren = Array.isArray(item.children) && item.children.length > 0;
             const isComingSoon = item.status === 'coming-soon';
-            const isLoadable = !!item.id && !isComingSoon;
+            const isLoadable = isRenderableMapEntry(item);
 
             const toggleBtn = document.createElement('button');
             toggleBtn.type = 'button';
@@ -2821,6 +2831,20 @@ function populateSidebar(parentElement, items) {
                 listItem.addEventListener('click', (e) => {
                     e.stopPropagation();
                     alert(`The map "${item.name || 'this map'}" is coming soon!`);
+                });
+                listItem.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        listItem.click();
+                    }
+                });
+            } else if (!isRenderableMapEntry(item)) {
+                listItem.classList.add('coming-soon');
+                listItem.textContent = `${item.name || 'Unnamed Map!'} (Unavailable)`;
+                listItem.title = `${item.name || 'This map'} is not currently available`;
+                listItem.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    alert(`The map "${item.name || 'this map'}" is not currently available.`);
                 });
                 listItem.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -3255,12 +3279,12 @@ if (toggleCoordsBtn) {
 // --- Handle Hash Changes / Back/Forward Navigation ---
 window.addEventListener('popstate', (event) => {
     const { mapId: hashMpId, sidebarState: hashSidebarState } = parseHash(); // Re-parse hash
-    const targetMapId = event.state?.mapId || hashMpId;
-    const targetSidebarState = event.state?.sidebarState || hashSidebarState;
+    const targetMapId = getHistoryStateValue(event.state, 'mapId', hashMpId);
+    const targetSidebarState = getHistoryStateValue(event.state, 'sidebarState', hashSidebarState);
 
 
-    if (targetMapId && targetMapId !== currentlyLoadedMapId) {
-        loadMap(targetMapId, false); // Load map without pushing new state
+    if (targetMapId !== currentlyLoadedMapId) {
+        loadMap(targetMapId || '', false); // Load map without pushing new state
     }
     if (targetSidebarState && targetSidebarState !== currentSidebarState) {
         setSidebarState(targetSidebarState, false); // Set sidebar without updating hash
