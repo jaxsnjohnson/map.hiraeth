@@ -122,9 +122,11 @@ if (copyCoordsBtn) {
 
 function updateCoordinateDisplay(lat, lon) {
     if (!coordinateDisplay) return;
+    const displaySpan = coordinateDisplay.querySelector('span');
+    if (!displaySpan) return;
     const latString = `${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'N' : 'S'}`;
     const lonString = `${Math.abs(lon).toFixed(2)}° ${lon >= 0 ? 'E' : 'W'}`;
-    coordinateDisplay.querySelector('span').innerHTML = `${latString}, ${lonString}`;
+    displaySpan.innerHTML = `${latString}, ${lonString}`;
 }
 
 const poiTypeGroups = {

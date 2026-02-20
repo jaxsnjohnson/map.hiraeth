@@ -30,4 +30,12 @@ assert.equal(spanEl.innerHTML, '10.00° N, 20.00° E');
 updateCoordinateDisplay(-5, -122.5);
 assert.equal(spanEl.innerHTML, '5.00° S, 122.50° W');
 
+// Missing DOM node should not crash coordinate updates.
+global.coordinateDisplay = {
+    querySelector() {
+        return null;
+    }
+};
+assert.doesNotThrow(() => updateCoordinateDisplay(0, 0));
+
 console.log('updateCoordinateDisplay regression checks passed');
