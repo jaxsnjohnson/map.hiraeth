@@ -29,4 +29,9 @@ assert.doesNotThrow(() => {
     assert.ok(html.includes('&lt;script&gt;alert(1)&lt;/script&gt;'));
 });
 
+assert.doesNotThrow(() => {
+    const html = formatPropertiesForPopup({ faction: 'A & B' }, false);
+    assert.ok(html.includes('A &amp; B'));
+});
+
 console.log('formatPropertiesForPopup regression checks passed');

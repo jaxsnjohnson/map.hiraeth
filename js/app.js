@@ -177,8 +177,8 @@ function formatPropertiesForPopup(properties, hasFollowingDescription) {
         ) {
             hasContent = true;
             // Sanitize key and value to prevent basic HTML injection
-            const sanKey = key.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            const sanValue = String(value).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const sanKey = key.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const sanValue = String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             listItems += `<li><strong>${sanKey}:</strong> ${sanValue}</li>`;
         }
     }
