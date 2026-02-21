@@ -112,7 +112,7 @@
 }
 
 :root[data-theme="dark"] #map {
-    background: transparent !important;
+    background: var(--bg-secondary) !important;
     position: relative;
     overflow: hidden;
 }
@@ -343,6 +343,7 @@ input:focus-visible,
     background-color: var(--bg-secondary);
     transition: background-color var(--theme-transition-base) var(--theme-transition-ease);
     position: relative; /* Needed for pseudo-elements */
+    z-index: 10; /* Keep map + Leaflet panes above decorative siblings */
     overflow: hidden; /* Needed for pseudo-elements */
 }
 
@@ -380,6 +381,16 @@ input:focus-visible,
 /* --- Moving Clouds + Theme Sky Transition --- */
 :root[data-theme="light"] #map {
     background: linear-gradient(to top, #fdfaf6 0%, #BFE9FF 100%);
+}
+
+#map {
+    will-change: transform, opacity;
+}
+
+.leaflet-pane,
+.leaflet-image-layer,
+#atmosphere-layer {
+    will-change: transform, opacity;
 }
 
 #map::before,
@@ -464,7 +475,7 @@ input:focus-visible,
     position: absolute;
     inset: 0;
     pointer-events: none;
-    z-index: 320;
+    z-index: 20; /* Decorative background: below Leaflet map-pane (100) */
     opacity: 0;
     transition: opacity var(--theme-transition-total) var(--theme-transition-ease);
 }
@@ -530,7 +541,7 @@ input:focus-visible,
 }
 
 :root[data-theme="dark"] #map-container[data-atmosphere="aurora"] #map .leaflet-image-layer {
-    opacity: 0.88 !important;
+    opacity: 1 !important;
 }
 
 #atmosphere-layer.atmosphere-snow::before,
@@ -560,6 +571,50 @@ input:focus-visible,
     animation: snowfallDriftFast 9.5s linear infinite;
 }
 
+:root.is-firefox #map-container[data-atmosphere="aurora"] #atmosphere-layer::before,
+:root.is-firefox #map-container[data-atmosphere="aurora"] #atmosphere-layer::after {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.32;
+    mix-blend-mode: normal;
+    -webkit-mask-image: none;
+    mask-image: none;
+    background: radial-gradient(120% 120% at 60% 70%, rgba(120, 200, 255, 0.5), rgba(0, 0, 0, 0)),
+        radial-gradient(140% 140% at 40% 50%, rgba(90, 255, 210, 0.45), rgba(0, 0, 0, 0));
+    animation: auroraFirefoxDrift 48s ease-in-out infinite;
+}
+
+:root.is-firefox #atmosphere-layer.atmosphere-snow::before,
+:root.is-firefox #atmosphere-layer.atmosphere-snow::after {
+    background-image:
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.85) 0, rgba(255, 255, 255, 0) 55%),
+        radial-gradient(circle at 80% 40%, rgba(255, 255, 255, 0.75) 0, rgba(255, 255, 255, 0) 50%),
+        radial-gradient(circle at 50% 70%, rgba(255, 255, 255, 0.9) 0, rgba(255, 255, 255, 0) 60%);
+    background-repeat: repeat;
+    background-size: 160px 180px, 220px 240px, 260px 280px;
+    opacity: 0.36;
+    animation: firefoxSnowFall 14s linear infinite;
+}
+
+:root.is-firefox #atmosphere-layer.atmosphere-snow::after {
+    opacity: 0.46;
+    animation-duration: 18s;
+    animation-delay: -6s;
+    transform: translate3d(0, -8%, 0);
+}
+
+@keyframes auroraFirefoxDrift {
+    0% { transform: translate3d(-6%, 2%, 0) scale(1); }
+    50% { transform: translate3d(6%, -3%, 0) scale(1.05); }
+    100% { transform: translate3d(-6%, 2%, 0) scale(1); }
+}
+
+@keyframes firefoxSnowFall {
+    from { transform: translate3d(0, -12%, 0); }
+    to { transform: translate3d(0, 12%, 0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
     #map::before,
     #map::after,
@@ -580,10 +635,7 @@ body.embedded-view #search-control-container {
     bottom: 10px; /* Adjust from 40px when bottom bar is hidden */
 }
 /* --- Generative Dark Theme Stars --- */
-/*
-   Star field is generated via CSS box-shadows.
-   See css/stars.css for the actual star definitions to keep this file clean.
-*/
+/* Star field visuals are drawn on canvas in js/starfield.js; CSS keeps the layer positioned. */
 #star-field {
     position: absolute;
     top: 0;
@@ -591,40 +643,21 @@ body.embedded-view #search-control-container {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 20; /* Decorative only: below Leaflet panes/controls */
+    z-index: 10; /* Decorative background: below Leaflet map-pane (100) */
     opacity: 0;
     transition: opacity var(--theme-transition-total) var(--theme-transition-ease);
+    will-change: opacity, transform;
 }
 
 :root[data-theme="dark"] #star-field {
     opacity: 0.82;
 }
 
-/* Base styles for stars */
-.star-layer {
-    content: ' ';
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: transparent;
-    border-radius: 50%;
-    filter: blur(0.2px);
-}
-
-/* Specific layers */
-.stars-small {
-    width: var(--stars-small);
-    height: var(--stars-small);
-}
-
-.stars-medium {
-    width: var(--stars-medium);
-    height: var(--stars-medium);
-}
-
-.stars-large {
-    width: var(--stars-large);
-    height: var(--stars-large);
+#star-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.18));
 }
 /* --- End Theme Effects --- */
 

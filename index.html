@@ -23,7 +23,7 @@
 
     <script>
         // Bump this value on each deploy that changes local JS/CSS/images behavior.
-        window.APP_ASSET_VERSION = "2026.02.16.7";
+        window.APP_ASSET_VERSION = "2026.02.16.12";
         window.THEME_STORAGE_KEYS = {
             legacyTheme: "theme",
             themePreference: "themePreference"
@@ -103,11 +103,10 @@
             <button id="toggle-sidebar-btn" title="Collapse Sidebar" aria-label="Collapse Sidebar" aria-expanded="true">
                 <i class="ui-icon" data-lucide="chevron-left" aria-hidden="true"></i>
             </button>
-            <div id="map"></div>
-            <div id="star-field">
-                <div class="star-layer stars-small"></div>
-                <div class="star-layer stars-medium"></div>
-                <div class="star-layer stars-large"></div>
+            <div id="map">
+                <div id="star-field">
+                    <canvas id="star-canvas" aria-hidden="true"></canvas>
+                </div>
             </div>
 
             <div id="map-blurb"></div>
@@ -293,7 +292,9 @@
             }
 
             appendScript("js/libs/Control.MiniMap.min.js", () => {
-                appendScript("js/app.js");
+                appendScript("js/starfield.js", () => {
+                    appendScript("js/app.js");
+                });
             });
         })();
     </script>
@@ -375,6 +376,19 @@
 
                 <!-- Tab: Changelog -->
                 <div id="tab-changelog" class="tab-content">
+                    <div class="changelog-entry">
+                        <div class="changelog-header">
+                            <h3>Stability + UX Polish</h3>
+                            <span class="version-pill">v1.1.2</span>
+                        </div>
+                        <ul class="changelog-list">
+                            <li>Safer, cleaner popups and links with improved rendering, escaping, and link sanitization to reduce broken or unsafe content.</li>
+                            <li>More reliable shared links and map state, with URL/hash/history behavior that better preserves context while loading maps, toggling the sidebar, and recovering from load failures.</li>
+                            <li>Coordinate and map-load polish, including hemisphere label and coordinate display fixes plus better fallback behavior when a map cannot load right away.</li>
+                            <li>UI and control refinements, including icon and transition updates for smoother map interactions.</li>
+                            <li>GM/DM workflow visibility improvements with better support for GM-facing controls and related panel behavior.</li>
+                        </ul>
+                    </div>
                     <div class="changelog-entry">
                         <div class="changelog-header">
                             <h3>Map Editor Coastline Workflow</h3>

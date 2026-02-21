@@ -35,6 +35,11 @@ let closeAboutModal = null;
 let isAboutModalVisible = () => false;
 let loadingMapId = null;
 let lastTrackedSearchSignature = '';
+const isFirefox = typeof navigator !== 'undefined' && /firefox|fxios/i.test(navigator.userAgent);
+
+if (typeof document !== 'undefined') {
+    document.documentElement.classList.toggle('is-firefox', isFirefox);
+}
 
 function refreshLucideIcons() {
     if (window.lucide && typeof window.lucide.createIcons === 'function') {
@@ -48,13 +53,21 @@ let measurementStartPoint = null; // Existing
 let measurementLayerGroup; // Declare it here
 
 // --- Initialize Leaflet Map ---
-const map = L.map('map', {
+const mapOptions = {
     crs: L.CRS.Simple,
     minZoom: -3,
     maxZoom: 4,
     attributionControl: false,
     zoomControl: false // Disable default zoom, using custom styled one
-});
+};
+
+if (isFirefox) {
+    mapOptions.preferCanvas = true;
+    mapOptions.markerZoomAnimation = false;
+    mapOptions.fadeAnimation = false;
+}
+
+const map = L.map('map', mapOptions);
 
 let atmosphereLayer = null;
 
@@ -391,6 +404,7 @@ function getPoiIcon(groupName) {
 
 // --- More Global variables ---
 let currentImageLayer = null;
+let currentMapUnderlay = null;
 let currentMarkerGroup = null; // Holds currently *visible* markers
 let allMapMarkers = []; // Holds *all* markers for the loaded map
 let currentBounds = null;
@@ -402,6 +416,27 @@ let coordsLocked = false;
 let lockedCoords = null;
 const transitionDuration = 300; // ms for sidebar animation
 let filtersPanelVisible = false; // State for combined filter panel visibility
+
+const DEFAULT_MAP_BACKGROUND_COLORS = {
+    light: '#f4f0eb',
+    dark: '#050510'
+};
+
+function getMapBackgroundColor(mapEntry) {
+    const candidate = String(mapEntry?.backgroundColor || '').trim();
+    if (candidate) return candidate;
+    return currentEffectiveTheme === 'dark'
+        ? DEFAULT_MAP_BACKGROUND_COLORS.dark
+        : DEFAULT_MAP_BACKGROUND_COLORS.light;
+}
+
+function updateMapUnderlayColor(mapEntry = null) {
+    if (!currentMapUnderlay) return;
+    currentMapUnderlay.setStyle({
+        fillColor: getMapBackgroundColor(mapEntry),
+        color: getMapBackgroundColor(mapEntry)
+    });
+}
 
 // --- Visibility helpers for GM/Public split ---
 function getVisiblePoints(mapObj) {
@@ -447,11 +482,11 @@ const themeToggle = document.getElementById('theme-checkbox');
 const bodyElement = document.body;
 const mapElement = document.getElementById('map'); // Get map div
 const mapContainerElement = document.getElementById('map-container');
-if (mapContainerElement) {
+if (mapElement) {
     atmosphereLayer = document.createElement('div');
     atmosphereLayer.id = 'atmosphere-layer';
     atmosphereLayer.setAttribute('aria-hidden', 'true');
-    mapContainerElement.appendChild(atmosphereLayer);
+    mapElement.appendChild(atmosphereLayer);
 }
 const toggleBlurbBtn = document.getElementById('toggle-blurb-btn');
 const toggleGMPanelBtn = document.getElementById('toggle-gm-panel-btn');
@@ -2252,6 +2287,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     filterToggleAllCheckbox.indeterminate = false;
 
     if (currentImageLayer) map.removeLayer(currentImageLayer);
+    if (currentMapUnderlay) map.removeLayer(currentMapUnderlay);
     if (miniMapControl) miniMapControl.remove();
     miniMapControl = null;
     if (currentMarkerGroup) map.removeLayer(currentMarkerGroup);
@@ -2259,6 +2295,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     if (currentRoadGroup) map.removeLayer(currentRoadGroup);
 
     currentImageLayer = null;
+    currentMapUnderlay = null;
     currentMarkerGroup = null;
     currentRegionGroup = null;
     currentRoadGroup = null;
@@ -2373,6 +2410,15 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     }
 
     currentBounds = [[0, 0], [mapHeight, mapWidth]];
+    currentMapUnderlay = L.rectangle(currentBounds, {
+        stroke: false,
+        fill: true,
+        fillOpacity: 1,
+        fillColor: getMapBackgroundColor(selectedMap),
+        color: getMapBackgroundColor(selectedMap),
+        interactive: false,
+        pane: 'tilePane'
+    });
     currentImageLayer = L.imageOverlay(selectedMap.imageUrl, currentBounds);
 
     const preloadImg = new Image();
@@ -2384,7 +2430,10 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         loadingComplete = true;
         clearTimeout(loadingTimeout);
 
-        // Defensive: if layer got detached during async startup, attach it again.
+        // Defensive: if layers got detached during async startup, attach them again.
+        if (currentMapUnderlay && !map.hasLayer(currentMapUnderlay)) {
+            currentMapUnderlay.addTo(map);
+        }
         if (currentImageLayer && !map.hasLayer(currentImageLayer)) {
             currentImageLayer.addTo(map);
         }
@@ -2475,7 +2524,9 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
             { showSpinner: false, showProgress: false, showRetry: true }
         );
         if (currentImageLayer) map.removeLayer(currentImageLayer);
+        if (currentMapUnderlay) map.removeLayer(currentMapUnderlay);
         currentImageLayer = null;
+        currentMapUnderlay = null;
         currentlyLoadedMapId = null;
         setMapAtmosphere(null);
         toggleMarkersBtn.style.display = 'none';
@@ -2505,6 +2556,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         finishLoading();
     }, 8000);
 
+    currentMapUnderlay.addTo(map);
     preloadImg.src = selectedMap.imageUrl;
     currentImageLayer.addTo(map);
 
@@ -2968,6 +3020,7 @@ function applyTheme(theme, options = {}) {
     }
     syncThemeToggleA11y(normalizedTheme);
     applyAtmosphereLayer();
+    updateMapUnderlayColor(findMapRecursive(mapData, currentlyLoadedMapId));
 
     if (themeAnimationTimeoutId) {
         clearTimeout(themeAnimationTimeoutId);
