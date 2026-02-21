@@ -1909,6 +1909,11 @@ html.embedded-view #loading-indicator.initial-loader {
     }
 }
 
+/* Keep the mini-map above the bottom link bar in non-embed mode. */
+body:not(.embedded-view) .leaflet-control-minimap {
+    margin-bottom: 108px !important;
+}
+
 /* --- About / Help Modal --- */
 .modal-overlay {
     position: fixed;
