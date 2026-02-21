@@ -57,4 +57,27 @@ assert.ok(
     'share link handler argument should preserve backslashes safely'
 );
 
+const unsafeHtml = createPopupContent(
+    {
+        name: 'Unsafe Example',
+        pronunciation: '<img src=x onerror=alert(1)>',
+        summary: '<script>alert("summary")</script>',
+        description: '<svg onload=alert("description")></svg>'
+    },
+    'poi'
+);
+
+assert.ok(
+    !unsafeHtml.includes('<script>alert("summary")</script>'),
+    'summary should not render raw script tags'
+);
+assert.ok(
+    !unsafeHtml.includes('<svg onload=alert("description")></svg>'),
+    'description should not render raw SVG payloads'
+);
+assert.ok(
+    !unsafeHtml.includes('<img src=x onerror=alert(1)>'),
+    'pronunciation should not render raw HTML'
+);
+
 console.log('createPopupContent regression checks passed');

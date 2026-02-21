@@ -225,6 +225,10 @@ function resolveLinkedMapData(featureData) {
 
 // --- NEW: Unified Popup Content Generator ---
 function createPopupContent(data, type) {
+    const safePronunciation = data.pronunciation ? sanitizeTextForHtml(data.pronunciation) : '';
+    const safeSummary = data.summary ? sanitizeTextForHtml(data.summary) : '';
+    const safeDescription = data.description ? sanitizeTextForHtml(data.description) : '';
+
     // Part 1: Build the header, which is always visible.
     let headerHtml = '';
     if (data.name) {
@@ -243,8 +247,8 @@ function createPopupContent(data, type) {
             headerHtml += `<div class="popup-header-row"><h3>${safeName}</h3>${shareButtonHtml}</div>`;
         }
     }
-    if (data.pronunciation) {
-        headerHtml += `<p style="margin-top: -10px; margin-bottom: 5px;"><em>${data.pronunciation}</em></p>`;
+    if (safePronunciation) {
+        headerHtml += `<p style="margin-top: -10px; margin-bottom: 5px;"><em>${safePronunciation}</em></p>`;
     }
     const linkedMap = resolveLinkedMapData(data);
     if (linkedMap) {
@@ -262,13 +266,13 @@ function createPopupContent(data, type) {
         const typeString = data.type.charAt(0).toUpperCase() + data.type.slice(1);
         fullContentInnerHtml += `<p><em>Type: ${typeString}</em></p>`;
     }
-    fullContentInnerHtml += formatPropertiesForPopup(data.properties, !!data.description);
-    if (data.description) {
-        fullContentInnerHtml += `<p>${data.description}</p>`;
+    fullContentInnerHtml += formatPropertiesForPopup(data.properties, !!safeDescription);
+    if (safeDescription) {
+        fullContentInnerHtml += `<p>${safeDescription}</p>`;
     }
 
     // Part 3: Check for summary and full content presence.
-    const hasSummary = data.summary && data.summary.trim() !== '';
+    const hasSummary = safeSummary && safeSummary.trim() !== '';
     const hasFullContent = fullContentInnerHtml.trim() !== '';
 
     // If there's nothing to show, just return the header.
@@ -285,7 +289,7 @@ function createPopupContent(data, type) {
         mainContent = `
             <div class="popup-content-container">
                 <div class="popup-summary">
-                    <p>${data.summary}</p>
+                    <p>${safeSummary}</p>
                 </div>
                 <div class="popup-full-content">
                     ${fullContentInnerHtml}
