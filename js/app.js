@@ -228,8 +228,8 @@ function createPopupContent(data, type) {
     // Part 1: Build the header, which is always visible.
     let headerHtml = '';
     if (data.name) {
-        // Escape both single and double quotes for the onclick attribute
-        const escapedName = data.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        const safeName = sanitizeTextForHtml(data.name);
+        const escapedName = escapeForSingleQuotedAttribute(data.name);
         let shareButtonHtml = '';
         if (type) {
             // Using an SVG icon to match the site theme
@@ -238,9 +238,9 @@ function createPopupContent(data, type) {
         }
 
         if (data.wikiLink) {
-            headerHtml += `<div class="popup-header-row"><h3><a href="${data.wikiLink}" target="_blank" rel="noopener noreferrer" title="Visit wiki page for ${data.name}">${data.name}</a></h3>${shareButtonHtml}</div>`;
+            headerHtml += `<div class="popup-header-row"><h3><a href="${data.wikiLink}" target="_blank" rel="noopener noreferrer" title="Visit wiki page for ${safeName}">${safeName}</a></h3>${shareButtonHtml}</div>`;
         } else {
-            headerHtml += `<div class="popup-header-row"><h3>${data.name}</h3>${shareButtonHtml}</div>`;
+            headerHtml += `<div class="popup-header-row"><h3>${safeName}</h3>${shareButtonHtml}</div>`;
         }
     }
     if (data.pronunciation) {
