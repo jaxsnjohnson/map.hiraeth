@@ -1636,7 +1636,7 @@ function focusRouteStep(route, step) {
             if (step.targetId && step.targetId !== currentlyLoadedMapId) {
                 const targetMap = findMapRecursive(mapData, step.targetId);
                 if (isRenderableMapEntry(targetMap)) {
-                    loadMap(step.targetId, true);
+                    loadMap(step.targetId, true, targetMap);
                 } else {
                     trackAnalytics('route_step_map_unavailable', { routeId: route.id, targetMapId: step.targetId });
                 }
@@ -2053,7 +2053,7 @@ window.openLinkedMapFromPopup = function(event, mapId) {
 
     if (trimmedMapId !== currentlyLoadedMapId) {
         trackAnalytics('linked_map_opened', { linkedMapId: trimmedMapId, fromMapId: currentlyLoadedMapId });
-        loadMap(trimmedMapId, true);
+        loadMap(trimmedMapId, true, targetMap);
     } else {
         map.closePopup();
     }
@@ -2161,8 +2161,8 @@ function updateURLWithMapView() {
 }
 
 // --- Function to Load/Switch Map ---
-function loadMap(mapId, updateHash = true) {
-    const selectedMap = findMapRecursive(mapData, mapId);
+function loadMap(mapId, updateHash = true, preResolvedMap = null) {
+    const selectedMap = preResolvedMap || findMapRecursive(mapData, mapId);
     const loadStartedAt = performance.now();
     loadingMapId = mapId;
     trackAnalytics('map_load_started', { mapId });
@@ -3232,6 +3232,8 @@ function updateCoordinates(e) {
     const { north, south, east, west } = currentLatLonBounds;
 
     const lon = west + (e.latlng.lng / mapWidth) * (east - west);
+    // In Leaflet CRS.Simple, lat=0 is the bottom and lat=mapHeight is the top.
+    // Interpolate from south (bottom) to north (top).
     const lat = south + (e.latlng.lat / mapHeight) * (north - south);
     lockedCoords = { lat, lon };
     updateCoordinateDisplay(lat, lon);
