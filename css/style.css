@@ -631,6 +631,25 @@ input:focus-visible,
     }
 }
 
+html.embedded-view #sidebar {
+    width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    overflow: hidden;
+    border-right: none;
+}
+
+html.embedded-view #toggle-sidebar-btn,
+html.embedded-view #bottom-link-bar,
+html.embedded-view #wip-popup,
+html.embedded-view #toggle-blurb-btn,
+html.embedded-view #toggle-gm-panel-btn,
+html.embedded-view #toggle-toolkit-panel-btn,
+html.embedded-view #toggle-sound-btn {
+    display: none !important;
+}
+
+html.embedded-view #search-control-container,
 body.embedded-view #search-control-container {
     bottom: 10px; /* Adjust from 40px when bottom bar is hidden */
 }
@@ -1701,6 +1720,11 @@ input:checked + .slider:before { transform: translateX(26px); }
     z-index: 9999;
 }
 
+html.embedded-view #loading-indicator.initial-loader {
+    z-index: 10000;
+    pointer-events: auto;
+}
+
 .loading-text {
     margin: 10px 0;
 }
@@ -1883,11 +1907,6 @@ input:checked + .slider:before { transform: translateX(26px); }
             transform: translateY(15px); /* Optional slide down */
             pointer-events: none; /* Prevent interaction after fading */
     }
-}
-
-/* --- MiniMap Positioning --- */
-.leaflet-control-minimap {
-    margin-bottom: 120px !important; /* Move above the WIP banner */
 }
 
 /* --- About / Help Modal --- */

@@ -26,7 +26,7 @@ const UX_STORAGE_KEYS = {
     gmPanelVisible: 'gmPanelVisible',
     toolkitPanelVisible: 'toolkitPanelVisible'
 };
-let isEmbeddedView = false;
+let isEmbeddedView = window.__INITIAL_EMBEDDED_VIEW__ === true;
 let isInitializing = true;
 let advancedControlsUnlocked = false;
 let coordsDisplayEnabled = false;
@@ -171,6 +171,11 @@ function getUrlParameters() {
         if (decodedKey) params[decodedKey] = safeDecode(value);
     }
     return params;
+}
+
+function isEmbedModeFromUrl() {
+    const urlParams = getUrlParameters();
+    return urlParams.embed === 'true' || urlParams.hideUI === 'true';
 }
 
 // --- NEW: Format Custom Properties for Popups ---
@@ -557,6 +562,12 @@ const hasPriorPreferenceState =
 advancedControlsUnlocked = storedAdvancedControlsFlag === 'true' ||
     (storedAdvancedControlsFlag === null && storedOnboardingFlag === null && hasPriorPreferenceState);
 coordsDisplayEnabled = safeGetStorage(UX_STORAGE_KEYS.coordsVisible) === 'true';
+
+if (isEmbeddedView) {
+    if (bodyElement) bodyElement.classList.add('embedded-view');
+    if (container) container.classList.add('sidebar-collapsed');
+    currentSidebarState = 'c';
+}
 
 
 // --- Helper Functions ---
@@ -3206,20 +3217,15 @@ function initializeSoundState() {
         refreshLucideIcons();
     };
 
-    // --- NEW: Check for embedded mode ---
-    const urlParams = getUrlParameters(); // Need to get params here too
-    if (urlParams.embed === 'true' || urlParams.hideUI === 'true') {
+    if (isEmbeddedView) {
         soundEnabled = false; // Ensure state reflects no sound
         // Set icon/title to muted state (even though button is hidden)
         setSoundIcon(false);
         if (toggleSoundBtn) toggleSoundBtn.title = "Unmute Sound"; // Check if button exists before setting title
         return; // Exit early, do not proceed with sound logic
     }
-    // --- END: Embedded mode check ---
-
 
     const savedSoundState = safeGetStorage(UX_STORAGE_KEYS.soundEnabled);
-    // Only proceed if not in embedded mode (checked above)
     soundEnabled = savedSoundState === 'true'; // Convert string to boolean
     const canUseSoundNow = advancedControlsUnlocked && !isEmbeddedView;
 
@@ -4261,8 +4267,14 @@ async function processMapData(maps) {
 }
 
 function initializeApp() {
-    const urlParams = getUrlParameters();
-    isEmbeddedView = urlParams.embed === 'true' || urlParams.hideUI === 'true';
+    isEmbeddedView = isEmbedModeFromUrl();
+    if (bodyElement) bodyElement.classList.toggle('embedded-view', isEmbeddedView);
+    if (typeof document !== 'undefined') {
+        document.documentElement.classList.toggle('embedded-view', isEmbeddedView);
+    }
+    if (isEmbeddedView && container) {
+        container.classList.add('sidebar-collapsed');
+    }
     if (advancedControlsUnlocked) {
         safeSetStorage(UX_STORAGE_KEYS.advancedControlsUnlocked, 'true');
     }
@@ -4303,9 +4315,6 @@ function initializeApp() {
 
         // Force sidebar to be collapsed initially
         setSidebarState('c', false);
-
-        // Optional: Add a class to the body for additional styling
-        document.body.classList.add('embedded-view');
 
         if (window.innerWidth <= 600) { // Or your preferred mobile breakpoint
             const wipPopup = document.getElementById('wip-popup');

@@ -68,6 +68,13 @@
             window.__INITIAL_EFFECTIVE_THEME__ = effectiveTheme;
         })();
 
+        (function applyInitialEmbedMode() {
+            const params = new URLSearchParams(window.location.search || "");
+            const isEmbed = params.get("embed") === "true" || params.get("hideUI") === "true";
+            window.__INITIAL_EMBEDDED_VIEW__ = isEmbed;
+            document.documentElement.classList.toggle("embedded-view", isEmbed);
+        })();
+
         (function injectVersionedStyles() {
             const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
             const localStylesheets = [
