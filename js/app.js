@@ -208,6 +208,34 @@ function escapeForSingleQuotedAttribute(value) {
         .replace(/'/g, "\\'");
 }
 
+function sanitizeWikiLinkForHref(value) {
+    const rawValue = String(value || '').trim();
+    if (!rawValue) return null;
+    if (/[\u0000-\u001F\u007F]/.test(rawValue)) return null;
+
+    // Reject protocol-relative links (e.g., //example.com) to keep behavior constrained
+    // to explicit http(s) or local-relative/hash navigation.
+    if (rawValue.startsWith('//')) return null;
+
+    if (rawValue.startsWith('#') || rawValue.startsWith('/') || rawValue.startsWith('./') || rawValue.startsWith('../')) {
+        // Keep href attribute safe and reject malformed local links.
+        if (/["'<>`]/.test(rawValue)) return null;
+        if (/\s/.test(rawValue)) return null;
+        return rawValue;
+    }
+
+    try {
+        const parsed = new URL(rawValue);
+        const protocol = String(parsed.protocol || '').toLowerCase();
+        if (protocol !== 'http:' && protocol !== 'https:') {
+            return null;
+        }
+        return parsed.href;
+    } catch (error) {
+        return null;
+    }
+}
+
 function resolveLinkedMapData(featureData) {
     const linkedMapId = String(featureData?.linkedMapId || '').trim();
     if (!linkedMapId) return null;
@@ -234,6 +262,7 @@ function createPopupContent(data, type) {
     if (data.name) {
         const safeName = sanitizeTextForHtml(data.name);
         const escapedName = escapeForSingleQuotedAttribute(data.name);
+        const safeWikiHref = sanitizeWikiLinkForHref(data.wikiLink);
         let shareButtonHtml = '';
         if (type) {
             // Using an SVG icon to match the site theme
@@ -241,8 +270,8 @@ function createPopupContent(data, type) {
             shareButtonHtml = ` <button class="share-btn" onclick="copyFeatureLink(this, '${type}', '${escapedName}')" title="Share this location">${linkIcon}</button>`;
         }
 
-        if (data.wikiLink) {
-            headerHtml += `<div class="popup-header-row"><h3><a href="${data.wikiLink}" target="_blank" rel="noopener noreferrer" title="Visit wiki page for ${safeName}">${safeName}</a></h3>${shareButtonHtml}</div>`;
+        if (safeWikiHref) {
+            headerHtml += `<div class="popup-header-row"><h3><a href="${safeWikiHref}" target="_blank" rel="noopener noreferrer" title="Visit wiki page for ${safeName}">${safeName}</a></h3>${shareButtonHtml}</div>`;
         } else {
             headerHtml += `<div class="popup-header-row"><h3>${safeName}</h3>${shareButtonHtml}</div>`;
         }
