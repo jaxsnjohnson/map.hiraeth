@@ -2089,27 +2089,130 @@ function populateFilters(pointsOfInterest, mapId) {
     updateToggleAllCheckboxState();
     updateActiveFilterChips();
 }
-// Global function for onclick
-window.copyFeatureLink = function(btn, type, name) {
+const sharedLinkOpenSessionKeys = new Set();
+
+function trackShareLinkOpenFromParams(params, focusedType, focusedName) {
+    if (!(params instanceof URLSearchParams)) return;
+
+    const source = String(params.get('src') || '').trim().toLowerCase();
+    const sharedType = String(params.get('stype') || '').trim().toLowerCase();
+    const normalizedFocusedType = String(focusedType || '').trim().toLowerCase();
+    const normalizedFocusedName = String(focusedName || '').trim();
+
+    if (source !== 'share') return;
+    if (!['poi', 'region', 'line'].includes(sharedType)) return;
+    if (!normalizedFocusedType || sharedType !== normalizedFocusedType) return;
+    if (!normalizedFocusedName) return;
+
+    const sessionKey = `${sharedType}:${normalizedFocusedName.toLowerCase()}`;
+    if (sharedLinkOpenSessionKeys.has(sessionKey)) return;
+    sharedLinkOpenSessionKeys.add(sessionKey);
+
+    trackAnalytics('share_link_opened', {
+        source,
+        sharedType,
+        featureType: normalizedFocusedType,
+        featureName: normalizedFocusedName
+    });
+}
+
+function buildFeatureShareUrl(type, name) {
+    const normalizedType = String(type || '').trim().toLowerCase();
+    const normalizedName = String(name || '').trim();
+
+    if (!['poi', 'region', 'line'].includes(normalizedType)) return null;
+    if (!normalizedName) return null;
+
     const url = new URL(window.location.href);
-    // Clean existing params
     url.searchParams.delete('poi');
     url.searchParams.delete('region');
     url.searchParams.delete('line');
+    url.searchParams.set(normalizedType, normalizedName);
+    url.searchParams.set('src', 'share');
+    url.searchParams.set('stype', normalizedType);
+    return url.toString();
+}
 
-    url.searchParams.set(type, name);
+function canUseNativeShare(shareUrl) {
+    if (typeof navigator === 'undefined' || typeof navigator.share !== 'function') {
+        return false;
+    }
+    if (typeof navigator.canShare === 'function') {
+        try {
+            return navigator.canShare({ url: shareUrl });
+        } catch (error) {
+            return false;
+        }
+    }
+    return true;
+}
 
-    navigator.clipboard.writeText(url.toString()).then(() => {
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '✔';
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-        }, 1500);
-        trackAnalytics('share_link_copied', { featureType: type, featureName: name });
-    }).catch(err => {
+function showShareButtonSuccessState(btn) {
+    if (!btn) return;
+    if (!btn.dataset.originalInnerHtml) {
+        btn.dataset.originalInnerHtml = btn.innerHTML;
+    }
+    btn.innerHTML = '✔';
+    if (btn.__shareResetTimeoutId) {
+        clearTimeout(btn.__shareResetTimeoutId);
+    }
+    btn.__shareResetTimeoutId = setTimeout(() => {
+        btn.innerHTML = btn.dataset.originalInnerHtml;
+    }, 1500);
+}
+
+// Global function for onclick
+window.copyFeatureLink = async function(btn, type, name) {
+    const featureType = String(type || '').trim().toLowerCase();
+    const featureName = String(name || '').trim();
+    const shareUrl = buildFeatureShareUrl(featureType, featureName);
+
+    if (!shareUrl) return;
+
+    const nativeShareSupported = canUseNativeShare(shareUrl);
+    trackAnalytics('share_clicked', {
+        featureType,
+        featureName,
+        nativeShareSupported
+    });
+
+    if (nativeShareSupported) {
+        const shareData = {
+            title: `Hiraeth Maps: ${featureName}`,
+            text: `Explore ${featureName} on the Hiraeth map.`,
+            url: shareUrl
+        };
+
+        try {
+            await navigator.share(shareData);
+            showShareButtonSuccessState(btn);
+            trackAnalytics('share_native_completed', { featureType, featureName });
+            return;
+        } catch (error) {
+            const errorName = error && error.name ? String(error.name) : 'unknown';
+            if (errorName === 'AbortError') {
+                trackAnalytics('share_native_cancelled', { featureType, featureName });
+                return;
+            }
+            console.warn('Native share failed; falling back to clipboard.', error);
+            trackAnalytics('share_native_failed', { featureType, featureName, errorName });
+        }
+    }
+
+    if (typeof navigator === 'undefined' || !navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
+        alert("Sharing is not supported in this browser.");
+        trackAnalytics('share_copy_unavailable', { featureType, featureName });
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(shareUrl);
+        showShareButtonSuccessState(btn);
+        trackAnalytics('share_link_copied', { featureType, featureName });
+    } catch (err) {
         console.error('Failed to copy link: ', err);
         alert("Failed to copy link to clipboard.");
-    });
+    }
 };
 
 window.openLinkedMapFromPopup = function(event, mapId) {
@@ -2146,6 +2249,8 @@ function checkAndFocusFeature() {
     const regionName = params.get('region');
     const lineName = params.get('line');
     let focused = false;
+    let focusedType = '';
+    let focusedName = '';
 
     if (poiName) {
         // Search allMapMarkers
@@ -2163,6 +2268,8 @@ function checkAndFocusFeature() {
             map.setView(marker.getLatLng(), Math.max(map.getZoom(), 2), { animate: false });
             marker.openPopup();
             focused = true;
+            focusedType = 'poi';
+            focusedName = poiName;
         } else {
             console.warn("POI not found for focus:", poiName);
         }
@@ -2179,6 +2286,8 @@ function checkAndFocusFeature() {
              map.fitBounds(targetLayer.getBounds(), { animate: false });
              targetLayer.openPopup();
              focused = true;
+             focusedType = 'region';
+             focusedName = regionName;
         } else {
              console.warn("Region not found for focus:", regionName);
          }
@@ -2195,9 +2304,14 @@ function checkAndFocusFeature() {
              map.fitBounds(targetLayer.getBounds(), { animate: false });
              targetLayer.openPopup();
              focused = true;
+             focusedType = 'line';
+             focusedName = lineName;
          } else {
              console.warn("Line not found for focus:", lineName);
          }
+    }
+    if (focused) {
+        trackShareLinkOpenFromParams(params, focusedType, focusedName);
     }
     return focused;
 }
