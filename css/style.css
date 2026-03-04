@@ -24,13 +24,13 @@
     --glass-border-light: rgba(160, 82, 45, 0.3); /* Based on Shelf Color w/ alpha */
     --glass-bg: var(--glass-bg-light);
     --glass-border: var(--glass-border-light);
-    --popup-glass-bg-light: rgba(253, 250, 246, 0.56);
-    --popup-glass-bg-fallback-light: rgba(253, 250, 246, 0.82);
+    --popup-glass-bg-light: rgba(253, 250, 246, 0.72);
+    --popup-glass-bg-fallback-light: rgba(253, 250, 246, 0.9);
     --popup-frost-overlay-light: linear-gradient(
         180deg,
-        rgba(255, 255, 255, 0.34) 0%,
-        rgba(255, 255, 255, 0.12) 55%,
-        rgba(255, 255, 255, 0.03) 100%
+        rgba(255, 255, 255, 0.16) 0%,
+        rgba(255, 255, 255, 0.06) 55%,
+        rgba(255, 255, 255, 0.01) 100%
     );
     --popup-inner-highlight-light: rgba(255, 255, 255, 0.48);
     --popup-shadow-light: 0 6px 18px rgba(107, 44, 37, 0.13);
@@ -99,13 +99,13 @@
     --glass-border-dark: rgba(245, 67, 91, 0.3); /* Based on Shelf Color w/ alpha */
     --glass-bg: var(--glass-bg-dark);
     --glass-border: var(--glass-border-dark);
-    --popup-glass-bg-dark: rgba(34, 33, 50, 0.52);
-    --popup-glass-bg-fallback-dark: rgba(34, 33, 50, 0.76);
+    --popup-glass-bg-dark: rgba(34, 33, 50, 0.68);
+    --popup-glass-bg-fallback-dark: rgba(34, 33, 50, 0.84);
     --popup-frost-overlay-dark: linear-gradient(
         180deg,
-        rgba(242, 246, 255, 0.2) 0%,
-        rgba(232, 238, 255, 0.09) 55%,
-        rgba(220, 231, 255, 0.02) 100%
+        rgba(242, 246, 255, 0.12) 0%,
+        rgba(232, 238, 255, 0.05) 55%,
+        rgba(220, 231, 255, 0.01) 100%
     );
     --popup-inner-highlight-dark: rgba(226, 237, 255, 0.24);
     --popup-shadow-dark: 0 8px 22px rgba(0, 0, 0, 0.28);
