@@ -24,6 +24,21 @@
     --glass-border-light: rgba(160, 82, 45, 0.3); /* Based on Shelf Color w/ alpha */
     --glass-bg: var(--glass-bg-light);
     --glass-border: var(--glass-border-light);
+    --popup-glass-bg-light: rgba(253, 250, 246, 0.56);
+    --popup-glass-bg-fallback-light: rgba(253, 250, 246, 0.82);
+    --popup-frost-overlay-light: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.34) 0%,
+        rgba(255, 255, 255, 0.12) 55%,
+        rgba(255, 255, 255, 0.03) 100%
+    );
+    --popup-inner-highlight-light: rgba(255, 255, 255, 0.48);
+    --popup-shadow-light: 0 6px 18px rgba(107, 44, 37, 0.13);
+    --popup-glass-bg: var(--popup-glass-bg-light);
+    --popup-glass-bg-fallback: var(--popup-glass-bg-fallback-light);
+    --popup-frost-overlay: var(--popup-frost-overlay-light);
+    --popup-inner-highlight: var(--popup-inner-highlight-light);
+    --popup-shadow: var(--popup-shadow-light);
 
     /* Star Field Variables */
     --stars-small: 2px;
@@ -84,6 +99,21 @@
     --glass-border-dark: rgba(245, 67, 91, 0.3); /* Based on Shelf Color w/ alpha */
     --glass-bg: var(--glass-bg-dark);
     --glass-border: var(--glass-border-dark);
+    --popup-glass-bg-dark: rgba(34, 33, 50, 0.52);
+    --popup-glass-bg-fallback-dark: rgba(34, 33, 50, 0.76);
+    --popup-frost-overlay-dark: linear-gradient(
+        180deg,
+        rgba(242, 246, 255, 0.2) 0%,
+        rgba(232, 238, 255, 0.09) 55%,
+        rgba(220, 231, 255, 0.02) 100%
+    );
+    --popup-inner-highlight-dark: rgba(226, 237, 255, 0.24);
+    --popup-shadow-dark: 0 8px 22px rgba(0, 0, 0, 0.28);
+    --popup-glass-bg: var(--popup-glass-bg-dark);
+    --popup-glass-bg-fallback: var(--popup-glass-bg-fallback-dark);
+    --popup-frost-overlay: var(--popup-frost-overlay-dark);
+    --popup-inner-highlight: var(--popup-inner-highlight-dark);
+    --popup-shadow: var(--popup-shadow-dark);
 
     /* Scrollbar Variables (Dark) */
     --scrollbar-track: rgba(255, 255, 255, 0.05);
@@ -715,13 +745,19 @@ body.embedded-view #search-control-container {
     pointer-events: auto;
 }
 /* Popups */
-.leaflet-popup-content-wrapper { background: var(--glass-bg); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: var(--popup-text); border-radius: 8px; box-shadow: 0 3px 14px var(--shadow-color); border: 1px solid var(--glass-border); }
+.leaflet-popup-content-wrapper { background: var(--popup-frost-overlay), var(--popup-glass-bg); backdrop-filter: blur(6px) saturate(112%); -webkit-backdrop-filter: blur(6px) saturate(112%); color: var(--popup-text); border-radius: 8px; box-shadow: var(--popup-shadow), inset 0 1px 0 var(--popup-inner-highlight); border: 1px solid var(--glass-border); }
 .leaflet-popup-content-wrapper {
     transition:
         background-color var(--theme-transition-base) var(--theme-transition-ease),
         border-color var(--theme-transition-base) var(--theme-transition-ease),
         color var(--theme-transition-fast) var(--theme-transition-ease),
         box-shadow var(--theme-transition-base) var(--theme-transition-ease);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .leaflet-popup-content-wrapper {
+        background: var(--popup-frost-overlay), var(--popup-glass-bg-fallback);
+    }
 }
 .leaflet-popup-tip { background: transparent; box-shadow: none; }
 .leaflet-popup-content { margin: 15px; font-size: 1.1rem; line-height: 1.5; }
