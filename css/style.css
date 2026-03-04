@@ -2212,3 +2212,120 @@ kbd {
     white-space: nowrap;
     border: 0;
 }
+
+/* --- Mobile Layout V2 --- */
+:root {
+    --app-height: 100dvh;
+    --bottom-link-bar-height: 28px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+    --mobile-bottom-offset: 10px;
+}
+
+html.mobile-layout-v2,
+html.mobile-layout-v2 body,
+html.mobile-layout-v2 .container,
+html.mobile-layout-v2 #map-container {
+    height: var(--app-height);
+    min-height: var(--app-height);
+}
+
+@media (max-width: 768px) {
+    html.mobile-layout-v2 #map-controls-container {
+        top: calc(var(--safe-top) + 10px);
+        left: calc(var(--safe-left) + 10px);
+    }
+
+    html.mobile-layout-v2 #info-controls-container {
+        top: calc(var(--safe-top) + 10px);
+        right: calc(var(--safe-right) + 10px);
+    }
+
+    html.mobile-layout-v2 #toggle-sidebar-btn {
+        top: calc(var(--safe-top) + 10px);
+        left: calc(var(--safe-left) + 10px);
+        bottom: auto;
+    }
+
+    html.mobile-layout-v2 .map-control-button,
+    html.mobile-layout-v2 #toggle-sidebar-btn,
+    html.mobile-layout-v2 .panel-actions button,
+    html.mobile-layout-v2 #toolkit-collapse-btn,
+    html.mobile-layout-v2 #gm-pill button,
+    html.mobile-layout-v2 .search-inline-actions button {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    html.mobile-layout-v2 .map-control-button {
+        width: 44px;
+        height: 44px;
+    }
+
+    html.mobile-layout-v2 #search-control-container {
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: calc(var(--safe-bottom) + var(--bottom-link-bar-height) + var(--mobile-bottom-offset));
+        width: min(520px, calc(100vw - var(--safe-left) - var(--safe-right) - 16px));
+    }
+
+    html.mobile-layout-v2 #poi-search-input {
+        width: 100%;
+    }
+
+    html.mobile-layout-v2 #search-results-container {
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(520px, calc(100vw - var(--safe-left) - var(--safe-right) - 16px));
+        bottom: calc(var(--safe-bottom) + var(--bottom-link-bar-height) + var(--mobile-bottom-offset) + 64px);
+        max-height: min(40vh, 260px);
+    }
+
+    html.mobile-layout-v2 #search-results-container.with-search-meta {
+        bottom: calc(var(--safe-bottom) + var(--bottom-link-bar-height) + var(--mobile-bottom-offset) + 84px);
+    }
+
+    html.mobile-layout-v2 #active-filters-container {
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: calc(var(--safe-bottom) + var(--bottom-link-bar-height) + var(--mobile-bottom-offset) + 154px);
+        width: min(520px, calc(100vw - var(--safe-left) - var(--safe-right) - 16px));
+        justify-content: flex-start;
+    }
+
+    html.mobile-layout-v2 #poi-filter-container {
+        left: 10px;
+        right: 10px;
+        width: auto;
+        max-width: none;
+        max-height: min(62vh, 420px);
+    }
+
+    html.mobile-layout-v2 #route-panel,
+    html.mobile-layout-v2 #session-toolkit,
+    html.mobile-layout-v2 #gm-pill {
+        right: calc(var(--safe-right) + 10px);
+        left: auto;
+        max-width: min(420px, calc(100vw - var(--safe-left) - var(--safe-right) - 20px));
+    }
+}
+
+html.mobile-layout-v2.map-interacting .map-control-button,
+html.mobile-layout-v2.map-interacting #search-control-container,
+html.mobile-layout-v2.map-interacting #search-results-container,
+html.mobile-layout-v2.map-interacting #poi-filter-container,
+html.mobile-layout-v2.map-interacting #route-panel,
+html.mobile-layout-v2.map-interacting #session-toolkit,
+html.mobile-layout-v2.map-interacting #gm-pill,
+html.mobile-layout-v2.map-interacting #map-blurb {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+html.mobile-layout-v2.is-mobile-layout *,
+html.mobile-layout-v2.is-mobile-layout *::before,
+html.mobile-layout-v2.is-mobile-layout *::after {
+    transition-duration: 140ms;
+}

@@ -75,6 +75,34 @@
             document.documentElement.classList.toggle("embedded-view", isEmbed);
         })();
 
+        (function applyInitialMobileLayoutMode() {
+            const params = new URLSearchParams(window.location.search || "");
+            const modeFromUrl = String(params.get("mobileLayout") || "").trim().toLowerCase();
+            const validModes = new Set(["v2", "legacy"]);
+            const storageKey = "mobileLayoutMode";
+            const safeGet = () => {
+                try {
+                    return localStorage.getItem(storageKey);
+                } catch (error) {
+                    return null;
+                }
+            };
+            const safeSet = (value) => {
+                try {
+                    localStorage.setItem(storageKey, value);
+                } catch (error) {
+                    // Ignore storage failures.
+                }
+            };
+
+            let mode = validModes.has(modeFromUrl) ? modeFromUrl : safeGet();
+            if (!validModes.has(mode)) {
+                mode = "v2";
+            }
+            safeSet(mode);
+            document.documentElement.classList.toggle("mobile-layout-v2", mode === "v2");
+        })();
+
         (function injectVersionedStyles() {
             const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
             const localStylesheets = [
@@ -161,6 +189,9 @@
                 </button>
                 <button id="toggle-coords-btn" title="Toggle Coordinate Display" aria-label="Toggle Coordinate Display" class="map-control-button" style="display: none;">
                     <i class="ui-icon" data-lucide="globe" aria-hidden="true"></i>
+                </button>
+                <button id="share-view-btn" title="Share Current View" aria-label="Share Current View" class="map-control-button">
+                    <i class="ui-icon" data-lucide="share-2" aria-hidden="true"></i>
                 </button>
                 <button id="help-btn" title="Help & About" aria-label="Help and About" class="map-control-button">
                     <i class="ui-icon" data-lucide="circle-help" aria-hidden="true"></i>

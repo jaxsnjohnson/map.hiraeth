@@ -24,7 +24,8 @@ const UX_STORAGE_KEYS = {
     routePanelCollapsed: 'routePanelCollapsed',
     toolkitPanelCollapsed: 'toolkitPanelCollapsed',
     gmPanelVisible: 'gmPanelVisible',
-    toolkitPanelVisible: 'toolkitPanelVisible'
+    toolkitPanelVisible: 'toolkitPanelVisible',
+    mobileLayoutMode: 'mobileLayoutMode'
 };
 let isEmbeddedView = window.__INITIAL_EMBEDDED_VIEW__ === true;
 let isInitializing = true;
@@ -36,6 +37,11 @@ let isAboutModalVisible = () => false;
 let loadingMapId = null;
 let lastTrackedSearchSignature = '';
 const isFirefox = typeof navigator !== 'undefined' && /firefox|fxios/i.test(navigator.userAgent);
+const MOBILE_LAYOUT_BREAKPOINT = 768;
+const MOBILE_LAYOUT_QUERY_PARAM = 'mobileLayout';
+const MOBILE_LAYOUT_MODE_V2 = 'v2';
+const MOBILE_LAYOUT_MODE_LEGACY = 'legacy';
+const MOBILE_PANEL_MARGIN = 10;
 
 if (typeof document !== 'undefined') {
     document.documentElement.classList.toggle('is-firefox', isFirefox);
@@ -74,6 +80,24 @@ let atmosphereLayer = null;
 // Register URL update listeners
 map.on('moveend zoomend', updateURLWithMapView);
 map.on('popupopen', refreshLucideIcons);
+let interactionCooldownId = null;
+const beginMapInteraction = () => {
+    if (mobileLayoutV2Enabled && isMobileLayoutActive) {
+        rootElement.classList.add('map-interacting');
+    }
+    if (interactionCooldownId) {
+        clearTimeout(interactionCooldownId);
+        interactionCooldownId = null;
+    }
+};
+const endMapInteraction = () => {
+    if (interactionCooldownId) clearTimeout(interactionCooldownId);
+    interactionCooldownId = setTimeout(() => {
+        rootElement.classList.remove('map-interacting');
+    }, 140);
+};
+map.on('movestart zoomstart', beginMapInteraction);
+map.on('moveend zoomend', endMapInteraction);
 
 // NOW Initialize measurementLayerGroup
 measurementLayerGroup = L.layerGroup().addTo(map);
@@ -516,6 +540,7 @@ const onboardingCoachmark = document.getElementById('onboarding-coachmark');
 const onboardingOpenHelpBtn = document.getElementById('onboarding-open-help-btn');
 const onboardingDismissBtn = document.getElementById('onboarding-dismiss-btn');
 const toggleCoordsBtn = document.getElementById('toggle-coords-btn');
+const shareViewBtn = document.getElementById('share-view-btn');
 // Sound elements
 const lightAmbient = document.getElementById('light-ambient');
 const darkAmbient = document.getElementById('dark-ambient');
@@ -553,6 +578,9 @@ const THEME_ANIMATION_BUFFER_MS = 40;
 const THEME_ANIMATION_FALLBACK_MS = 560;
 const activeAudioFadeFrameIds = new WeakMap();
 let currentAtmosphereConfig = null;
+let mobileLayoutV2Enabled = false;
+let isMobileLayoutActive = false;
+let lastControlTouchAt = 0;
 const storedAdvancedControlsFlag = safeGetStorage(UX_STORAGE_KEYS.advancedControlsUnlocked);
 const storedOnboardingFlag = safeGetStorage(UX_STORAGE_KEYS.onboardingSeen);
 const hasPriorPreferenceState =
@@ -562,6 +590,8 @@ const hasPriorPreferenceState =
 advancedControlsUnlocked = storedAdvancedControlsFlag === 'true' ||
     (storedAdvancedControlsFlag === null && storedOnboardingFlag === null && hasPriorPreferenceState);
 coordsDisplayEnabled = safeGetStorage(UX_STORAGE_KEYS.coordsVisible) === 'true';
+mobileLayoutV2Enabled = resolveMobileLayoutV2Enabled();
+updateMobileLayoutState();
 
 if (isEmbeddedView) {
     if (bodyElement) bodyElement.classList.add('embedded-view');
@@ -624,6 +654,152 @@ function safeSetJSON(key, value) {
     } catch (error) {
         // Ignore storage quota and private-mode failures.
     }
+}
+
+function normalizeMobileLayoutMode(rawValue) {
+    const normalized = String(rawValue || '').trim().toLowerCase();
+    if (normalized === MOBILE_LAYOUT_MODE_V2 || normalized === MOBILE_LAYOUT_MODE_LEGACY) {
+        return normalized;
+    }
+    return null;
+}
+
+function getMobileLayoutModeFromUrl() {
+    const urlParams = getUrlParameters();
+    return normalizeMobileLayoutMode(urlParams[MOBILE_LAYOUT_QUERY_PARAM]);
+}
+
+function resolveMobileLayoutV2Enabled() {
+    const modeFromUrl = getMobileLayoutModeFromUrl();
+    if (modeFromUrl) {
+        safeSetStorage(UX_STORAGE_KEYS.mobileLayoutMode, modeFromUrl);
+        return modeFromUrl === MOBILE_LAYOUT_MODE_V2;
+    }
+
+    const modeFromStorage = normalizeMobileLayoutMode(safeGetStorage(UX_STORAGE_KEYS.mobileLayoutMode));
+    if (modeFromStorage) {
+        return modeFromStorage === MOBILE_LAYOUT_MODE_V2;
+    }
+
+    // Default to v2 for new sessions while allowing explicit query/storage rollback.
+    safeSetStorage(UX_STORAGE_KEYS.mobileLayoutMode, MOBILE_LAYOUT_MODE_V2);
+    return true;
+}
+
+function syncDynamicViewportHeight() {
+    const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    rootElement.style.setProperty('--app-height', `${Math.round(viewportHeight)}px`);
+}
+
+function syncBottomBarHeightVariable() {
+    const bottomLinkBar = document.getElementById('bottom-link-bar');
+    const bottomBarHeight = (!isEmbeddedView && bottomLinkBar && bottomLinkBar.style.display !== 'none')
+        ? Math.ceil(bottomLinkBar.getBoundingClientRect().height)
+        : 0;
+    rootElement.style.setProperty('--bottom-link-bar-height', `${bottomBarHeight}px`);
+}
+
+function getViewportHeight() {
+    return window.visualViewport ? window.visualViewport.height : window.innerHeight;
+}
+
+function clampPanelToViewport(panelElement, {
+    alignRight = true,
+    minTop = MOBILE_PANEL_MARGIN
+} = {}) {
+    if (!panelElement || panelElement.style.display === 'none') return;
+    if (!isMobileLayoutActive) return;
+
+    const viewportHeight = getViewportHeight();
+    const maxHeight = Math.max(120, Math.floor(viewportHeight * 0.62));
+    panelElement.style.maxHeight = `${maxHeight}px`;
+
+    const rect = panelElement.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+
+    const bottomLimit = viewportHeight - MOBILE_PANEL_MARGIN;
+    let top = rect.top;
+    if (rect.bottom > bottomLimit) {
+        top -= (rect.bottom - bottomLimit);
+    }
+    if (top < minTop) {
+        top = minTop;
+    }
+    panelElement.style.top = `${Math.round(top)}px`;
+
+    if (alignRight) {
+        panelElement.style.right = `${MOBILE_PANEL_MARGIN}px`;
+        panelElement.style.left = 'auto';
+    }
+}
+
+function clampFloatingPanels() {
+    if (!mobileLayoutV2Enabled) return;
+    if (!isMobileLayoutActive) {
+        [routePanel, sessionToolkitPanel, gmPill].forEach((panel) => {
+            if (panel) panel.style.maxHeight = '';
+        });
+        return;
+    }
+
+    clampPanelToViewport(routePanel);
+    clampPanelToViewport(sessionToolkitPanel);
+    clampPanelToViewport(gmPill);
+    if (filtersPanelVisible) {
+        clampPanelToViewport(poiFilterContainer, { alignRight: false, minTop: 8 });
+    }
+}
+
+function updateMobileLayoutState() {
+    syncDynamicViewportHeight();
+    syncBottomBarHeightVariable();
+
+    const active = mobileLayoutV2Enabled && window.innerWidth <= MOBILE_LAYOUT_BREAKPOINT;
+    isMobileLayoutActive = active;
+
+    rootElement.classList.toggle('mobile-layout-v2', mobileLayoutV2Enabled);
+    rootElement.classList.toggle('is-mobile-layout', active);
+    bodyElement.classList.toggle('mobile-layout-v2', mobileLayoutV2Enabled);
+    bodyElement.classList.toggle('is-mobile-layout', active);
+    container.classList.toggle('is-mobile-layout', active);
+
+    rootElement.style.setProperty('--mobile-bottom-offset', active ? '14px' : '10px');
+    clampFloatingPanels();
+}
+
+function markControlTouch(event) {
+    const target = event?.target;
+    if (!(target instanceof Element)) return;
+    if (!target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #sidebar, #sidebar-backdrop, .modal-overlay, .modal-content')) return;
+    lastControlTouchAt = Date.now();
+}
+
+function shouldIgnoreMapPointerEvent(event) {
+    const target = event?.originalEvent?.target;
+    if (target instanceof Element && target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #sidebar, .modal-overlay, .modal-content')) {
+        return true;
+    }
+    if (isMobileLayoutActive && (Date.now() - lastControlTouchAt) < 150) {
+        return true;
+    }
+    return false;
+}
+
+function getPreferredMapImageUrl(mapInfo) {
+    if (!mapInfo) return '';
+    const defaultUrl = String(mapInfo.imageUrl || '').trim();
+    if (!defaultUrl) return '';
+
+    if (!mobileLayoutV2Enabled || !isMobileLayoutActive) return defaultUrl;
+
+    const candidateKeys = ['mobileImageUrl', 'imageUrlMobile', 'smallImageUrl', 'imageUrlSmall'];
+    for (const key of candidateKeys) {
+        const candidate = String(mapInfo[key] || '').trim();
+        if (candidate) {
+            return candidate;
+        }
+    }
+    return defaultUrl;
 }
 
 function withAssetVersion(url) {
@@ -904,6 +1080,13 @@ function setLoadingMessage(message, options = {}) {
 
 function positionFilterPanel() {
     if (!poiFilterContainer || !toggleFiltersBtn) return;
+    if (isMobileLayoutActive) {
+        poiFilterContainer.style.left = `${MOBILE_PANEL_MARGIN}px`;
+        poiFilterContainer.style.right = `${MOBILE_PANEL_MARGIN}px`;
+        poiFilterContainer.style.top = `${MOBILE_PANEL_MARGIN}px`;
+        clampPanelToViewport(poiFilterContainer, { alignRight: false, minTop: MOBILE_PANEL_MARGIN });
+        return;
+    }
     const mapContainer = document.getElementById('map-container');
     if (!mapContainer) return;
 
@@ -939,12 +1122,14 @@ function setOnboardingVisibility(visible) {
 }
 
 function syncSidebarBackdropState() {
-    const isMobile = window.innerWidth <= 768;
+    updateMobileLayoutState();
+    const isMobile = window.innerWidth <= MOBILE_LAYOUT_BREAKPOINT;
     const sidebarIsOpen = !container.classList.contains('sidebar-collapsed');
     container.classList.toggle('mobile-sidebar-open', isMobile && sidebarIsOpen);
     if (sidebarBackdrop) {
         sidebarBackdrop.setAttribute('aria-hidden', isMobile && sidebarIsOpen ? 'false' : 'true');
     }
+    clampFloatingPanels();
 }
 
 function findMapRecursive(items, id) {
@@ -1155,6 +1340,7 @@ function updateCurrentControlVisibility(selectedMap = null) {
     if (toggleSoundBtn) toggleSoundBtn.style.display = showAdvancedControls ? 'block' : 'none';
     toggleBlurbBtn.style.display = showAdvancedControls && !!mapInfo.blurb ? 'block' : 'none';
     toggleCoordsBtn.style.display = showAdvancedControls && !!mapInfo.latLonBounds ? 'block' : 'none';
+    if (shareViewBtn) shareViewBtn.style.display = showAdvancedControls ? 'block' : 'none';
     if (toggleGMPanelBtn) toggleGMPanelBtn.style.display = showAdvancedControls && allowGMToolkit ? 'block' : 'none';
     if (toggleToolkitPanelBtn) toggleToolkitPanelBtn.style.display = showAdvancedControls && allowGMToolkit ? 'block' : 'none';
     toggleCoordsBtn.setAttribute('aria-pressed', coordsDisplayEnabled ? 'true' : 'false');
@@ -1188,6 +1374,7 @@ function updateCurrentControlVisibility(selectedMap = null) {
         coordinateDisplay.style.display = 'none';
     }
     updatePanelToggleButtons();
+    clampFloatingPanels();
 
 }
 
@@ -1816,41 +2003,48 @@ function renderEncounterTableList(tableId) {
 function initializeGMPillDrag() {
     if (!gmPill || !mapElement) return;
     const dragHandle = gmPill.querySelector('.gm-drag-handle') || gmPill;
-    let dragging = false;
+    let draggingPointerId = null;
     let offsetX = 0;
     let offsetY = 0;
 
-    const onMouseMove = (event) => {
-        if (!dragging) return;
+    const positionPill = (clientX, clientY) => {
         const mapRect = mapElement.getBoundingClientRect();
         const pillRect = gmPill.getBoundingClientRect();
         const maxLeft = Math.max(0, mapRect.width - pillRect.width);
         const maxTop = Math.max(0, mapRect.height - pillRect.height);
-        const left = Math.min(Math.max(0, event.clientX - mapRect.left - offsetX), maxLeft);
-        const top = Math.min(Math.max(0, event.clientY - mapRect.top - offsetY), maxTop);
+        const left = Math.min(Math.max(0, clientX - mapRect.left - offsetX), maxLeft);
+        const top = Math.min(Math.max(0, clientY - mapRect.top - offsetY), maxTop);
         gmPill.style.left = `${left}px`;
         gmPill.style.top = `${top}px`;
         gmPill.style.right = 'auto';
     };
 
-    const onMouseUp = () => {
-        if (!dragging) return;
-        dragging = false;
-        gmPill.classList.remove('dragging');
+    const onPointerMove = (event) => {
+        if (draggingPointerId === null || event.pointerId !== draggingPointerId) return;
+        positionPill(event.clientX, event.clientY);
     };
 
-    dragHandle.addEventListener('mousedown', (event) => {
+    const onPointerUp = (event) => {
+        if (draggingPointerId === null || event.pointerId !== draggingPointerId) return;
+        draggingPointerId = null;
+        gmPill.classList.remove('dragging');
+        dragHandle.releasePointerCapture?.(event.pointerId);
+    };
+
+    dragHandle.addEventListener('pointerdown', (event) => {
         if (event.target === gmToggleBtn) return;
         const pillRect = gmPill.getBoundingClientRect();
-        dragging = true;
+        draggingPointerId = event.pointerId;
         offsetX = event.clientX - pillRect.left;
         offsetY = event.clientY - pillRect.top;
+        dragHandle.setPointerCapture?.(event.pointerId);
         gmPill.classList.add('dragging');
         event.preventDefault();
     });
 
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('pointermove', onPointerMove);
+    document.addEventListener('pointerup', onPointerUp);
+    document.addEventListener('pointercancel', onPointerUp);
 }
 
 function updateTravelTime() {
@@ -2116,6 +2310,30 @@ function trackShareLinkOpenFromParams(params, focusedType, focusedName) {
     });
 }
 
+function trackShareViewOpenFromParams(params, viewParam) {
+    if (!(params instanceof URLSearchParams)) return;
+
+    const source = String(params.get('src') || '').trim().toLowerCase();
+    const sharedType = String(params.get('stype') || '').trim().toLowerCase();
+    const normalizedView = String(viewParam || '').trim();
+
+    if (source !== 'share') return;
+    if (sharedType !== 'view') return;
+    if (!normalizedView) return;
+
+    const sessionKey = `view:${normalizedView}`;
+    if (sharedLinkOpenSessionKeys.has(sessionKey)) return;
+    sharedLinkOpenSessionKeys.add(sessionKey);
+
+    trackAnalytics('share_link_opened', {
+        source,
+        sharedType,
+        featureType: 'view',
+        featureName: 'current_view',
+        view: normalizedView
+    });
+}
+
 function buildFeatureShareUrl(type, name) {
     const normalizedType = String(type || '').trim().toLowerCase();
     const normalizedName = String(name || '').trim();
@@ -2130,6 +2348,25 @@ function buildFeatureShareUrl(type, name) {
     url.searchParams.set(normalizedType, normalizedName);
     url.searchParams.set('src', 'share');
     url.searchParams.set('stype', normalizedType);
+    return url.toString();
+}
+
+function buildCurrentViewShareUrl() {
+    if (!map || !currentlyLoadedMapId) return null;
+
+    const center = map.getCenter();
+    const zoom = map.getZoom();
+    const lat = parseFloat(center.lat.toFixed(4));
+    const lng = parseFloat(center.lng.toFixed(4));
+    const view = `${lat},${lng},${zoom}`;
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete('poi');
+    url.searchParams.delete('region');
+    url.searchParams.delete('line');
+    url.searchParams.set('view', view);
+    url.searchParams.set('src', 'share');
+    url.searchParams.set('stype', 'view');
     return url.toString();
 }
 
@@ -2214,6 +2451,59 @@ window.copyFeatureLink = async function(btn, type, name) {
         alert("Failed to copy link to clipboard.");
     }
 };
+
+async function shareCurrentView(btn) {
+    const shareUrl = buildCurrentViewShareUrl();
+    if (!shareUrl) return;
+
+    const featureType = 'view';
+    const featureName = 'current_view';
+    const nativeShareSupported = canUseNativeShare(shareUrl);
+    trackAnalytics('share_clicked', {
+        featureType,
+        featureName,
+        nativeShareSupported,
+        entryPoint: 'map_controls'
+    });
+
+    if (nativeShareSupported) {
+        const shareData = {
+            title: 'Hiraeth Maps: Current View',
+            text: 'Explore this map view on Hiraeth Maps.',
+            url: shareUrl
+        };
+
+        try {
+            await navigator.share(shareData);
+            showShareButtonSuccessState(btn);
+            trackAnalytics('share_native_completed', { featureType, featureName });
+            return;
+        } catch (error) {
+            const errorName = error && error.name ? String(error.name) : 'unknown';
+            if (errorName === 'AbortError') {
+                trackAnalytics('share_native_cancelled', { featureType, featureName });
+                return;
+            }
+            console.warn('Native share failed; falling back to clipboard.', error);
+            trackAnalytics('share_native_failed', { featureType, featureName, errorName });
+        }
+    }
+
+    if (typeof navigator === 'undefined' || !navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
+        alert("Sharing is not supported in this browser.");
+        trackAnalytics('share_copy_unavailable', { featureType, featureName });
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(shareUrl);
+        showShareButtonSuccessState(btn);
+        trackAnalytics('share_link_copied', { featureType, featureName });
+    } catch (err) {
+        console.error('Failed to copy link: ', err);
+        alert("Failed to copy link to clipboard.");
+    }
+}
 
 window.openLinkedMapFromPopup = function(event, mapId) {
     if (event) {
@@ -2501,7 +2791,10 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
 
     const mapHeight = selectedMap.height;
     const mapWidth = selectedMap.width;
-    if (isNaN(mapHeight) || isNaN(mapWidth) || !selectedMap.imageUrl) {
+    const mapImageUrl = getPreferredMapImageUrl(selectedMap);
+    const defaultImageUrl = String(selectedMap.imageUrl || '').trim();
+    const usingAlternateMobileImage = !!defaultImageUrl && mapImageUrl !== defaultImageUrl;
+    if (isNaN(mapHeight) || isNaN(mapWidth) || !mapImageUrl) {
         console.error(`Invalid dimensions or missing imageUrl for map ID ${mapId}`);
         if (loadingProgressInterval) clearInterval(loadingProgressInterval);
         loadingProgressInterval = null;
@@ -2544,7 +2837,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         interactive: false,
         pane: 'tilePane'
     });
-    currentImageLayer = L.imageOverlay(selectedMap.imageUrl, currentBounds);
+    currentImageLayer = L.imageOverlay(mapImageUrl, currentBounds);
 
     const preloadImg = new Image();
     let loadingComplete = false;
@@ -2587,11 +2880,15 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         }
 
         if (!featureFocused) {
-            const viewParam = params.get('view') || getSavedMapView(mapId);
+            const explicitViewParam = params.get('view');
+            const viewParam = explicitViewParam || getSavedMapView(mapId);
             if (viewParam) {
                 const [lat, lng, zoom] = viewParam.split(',').map(Number);
                 if (!isNaN(lat) && !isNaN(lng) && !isNaN(zoom)) {
                     map.setView([lat, lng], zoom, { animate: false });
+                    if (explicitViewParam) {
+                        trackShareViewOpenFromParams(params, explicitViewParam);
+                    }
                 } else {
                     map.fitBounds(currentBounds);
                 }
@@ -2600,7 +2897,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
             }
         }
 
-        const miniMapLayer = L.imageOverlay(selectedMap.imageUrl, currentBounds);
+        const miniMapLayer = L.imageOverlay(mapImageUrl, currentBounds);
         const maxMiniMapSize = 200;
         let miniMapWidth;
         let miniMapHeight;
@@ -2631,8 +2928,10 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         trackAnalytics('map_load_success', {
             mapId,
             mapName: selectedMap.name,
+            imageVariant: usingAlternateMobileImage ? 'mobile' : 'default',
             durationMs: Math.round(performance.now() - loadStartedAt)
         });
+        clampFloatingPanels();
     }
 
     preloadImg.onload = function () { finishLoading(); };
@@ -2641,7 +2940,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         if (loadingComplete) return;
         loadingComplete = true;
         clearTimeout(loadingTimeout);
-        console.error('Image overlay failed to load:', selectedMap.imageUrl);
+        console.error('Image overlay failed to load:', mapImageUrl);
         if (loadingProgressInterval) clearInterval(loadingProgressInterval);
         loadingProgressInterval = null;
         setLoadingMessage(
@@ -2682,7 +2981,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     }, 8000);
 
     currentMapUnderlay.addTo(map);
-    preloadImg.src = selectedMap.imageUrl;
+    preloadImg.src = mapImageUrl;
     currentImageLayer.addTo(map);
 
     visiblePointsCache = getVisiblePoints(selectedMap);
@@ -2787,7 +3086,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     safeSetStorage(UX_STORAGE_KEYS.lastMapId, mapId);
     loadingMapId = null;
 
-    if (!isEmbeddedView && window.innerWidth <= 768 && !container.classList.contains('sidebar-collapsed')) {
+    if (!isEmbeddedView && window.innerWidth <= MOBILE_LAYOUT_BREAKPOINT && !container.classList.contains('sidebar-collapsed')) {
         setSidebarState('c', false);
     }
 
@@ -3098,6 +3397,22 @@ if (sidebarBackdrop) {
 
 window.addEventListener('resize', debounce(syncSidebarBackdropState, 120));
 window.addEventListener('resize', debounce(positionFilterPanel, 120));
+window.addEventListener('resize', debounce(clampFloatingPanels, 120));
+window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+        syncSidebarBackdropState();
+        positionFilterPanel();
+        clampFloatingPanels();
+    }, 120);
+});
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', debounce(() => {
+        updateMobileLayoutState();
+        clampFloatingPanels();
+    }, 80));
+}
+document.addEventListener('touchstart', markControlTouch, { passive: true, capture: true });
+document.addEventListener('pointerdown', markControlTouch, { capture: true });
 
 if (loadingRetryBtn) {
     loadingRetryBtn.addEventListener('click', () => {
@@ -3447,6 +3762,7 @@ function updateCoordinates(e) {
 
 // --- Map Click Handler ---
 map.on('click', function (e) {
+    if (shouldIgnoreMapPointerEvent(e)) return;
     if (!isMeasuring && currentBounds) {
         unlockAdvancedControls('map_click');
     }
@@ -3484,6 +3800,15 @@ if (toggleCoordsBtn) {
     });
 }
 
+if (shareViewBtn) {
+    shareViewBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        unlockAdvancedControls('share_view');
+        if (shareViewBtn.style.display === 'none') return;
+        await shareCurrentView(shareViewBtn);
+    });
+}
+
 // --- Handle Hash Changes / Back/Forward Navigation ---
 window.addEventListener('popstate', (event) => {
     const { mapId: hashMpId, sidebarState: hashSidebarState } = parseHash(); // Re-parse hash
@@ -3503,7 +3828,7 @@ window.addEventListener('beforeunload', () => {
     if (loadingProgressInterval) clearInterval(loadingProgressInterval);
     trackAnalytics('session_end', {
         durationMs: Date.now() - sessionStartedAt,
-        mobile: window.innerWidth <= 768
+        mobile: window.innerWidth <= MOBILE_LAYOUT_BREAKPOINT
     });
 });
 
@@ -3566,6 +3891,7 @@ function toggleFilterPanel() {
     if (filtersPanelVisible) {
         positionFilterPanel();
     }
+    clampFloatingPanels();
     updateActiveFilterChips();
     trackAnalytics('filter_panel_toggled', { visible: filtersPanelVisible });
 }
@@ -3679,7 +4005,7 @@ poiFilterContainer.addEventListener('click', (e) => {
 // --- Measurement Tool Logic ---
 function handleMeasurementClick(e) {
     if (!isMeasuring || !currentlyLoadedMapId) return;
-    if (e.originalEvent.target.closest('.leaflet-control')) return; // Ignore clicks on controls
+    if (shouldIgnoreMapPointerEvent(e)) return; // Ignore clicks on controls
 
     const clickPoint = e.latlng;
     const currentMapInfo = findMapRecursive(mapData, currentlyLoadedMapId);
@@ -3785,7 +4111,7 @@ function toggleMeasurementTool() {
 
 function handleMultiPointMeasureClick(e) {
     if (!isMeasuringMultiPoint || !currentlyLoadedMapId) return;
-    if (e.originalEvent.target.closest('.leaflet-control')) return;
+    if (shouldIgnoreMapPointerEvent(e)) return;
 
     const clickPoint = e.latlng;
     multiPointPath.push(clickPoint);

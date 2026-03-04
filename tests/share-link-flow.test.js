@@ -25,6 +25,15 @@ global.window = {
         href: 'https://maps.hiraeth.wiki/?view=12.01,30.4,2&route=north-road&poi=Old%20Dock#line-map-s=o'
     }
 };
+global.map = {
+    getCenter() {
+        return { lat: 18.123456, lng: -27.654321 };
+    },
+    getZoom() {
+        return 3;
+    }
+};
+global.currentlyLoadedMapId = 'icebeach';
 
 // eslint-disable-next-line no-eval
 eval(buildUrlSource);
@@ -43,6 +52,16 @@ assert.equal(parsedShareUrl.hash, '#line-map-s=o');
 
 assert.equal(buildFeatureShareUrl('invalid-type', 'Name'), null);
 assert.equal(buildFeatureShareUrl('poi', ''), null);
+
+const sharedViewUrl = buildCurrentViewShareUrl();
+const parsedViewShareUrl = new URL(sharedViewUrl);
+assert.equal(parsedViewShareUrl.searchParams.get('view'), '18.1235,-27.6543,3');
+assert.equal(parsedViewShareUrl.searchParams.get('poi'), null);
+assert.equal(parsedViewShareUrl.searchParams.get('region'), null);
+assert.equal(parsedViewShareUrl.searchParams.get('line'), null);
+assert.equal(parsedViewShareUrl.searchParams.get('src'), 'share');
+assert.equal(parsedViewShareUrl.searchParams.get('stype'), 'view');
+assert.equal(parsedViewShareUrl.hash, '#line-map-s=o');
 
 const trackedEvents = [];
 function trackAnalytics(eventName, details) {
@@ -79,5 +98,20 @@ trackShareLinkOpenFromParams(mismatchParams, 'line', 'North Road');
 assert.equal(trackedEvents.length, 2);
 assert.equal(trackedEvents[1].details.sharedType, 'line');
 assert.equal(trackedEvents[1].details.featureName, 'North Road');
+
+const sharedViewParams = new URLSearchParams('view=18.1235,-27.6543,3&src=share&stype=view');
+trackShareViewOpenFromParams(sharedViewParams, '18.1235,-27.6543,3');
+assert.equal(trackedEvents.length, 3);
+assert.equal(trackedEvents[2].details.sharedType, 'view');
+assert.equal(trackedEvents[2].details.featureName, 'current_view');
+
+// Should be tracked once per session per shared view.
+trackShareViewOpenFromParams(sharedViewParams, '18.1235,-27.6543,3');
+assert.equal(trackedEvents.length, 3);
+
+// Ignore non-share sources for view links.
+const nonShareViewParams = new URLSearchParams('view=18.1235,-27.6543,3&src=external&stype=view');
+trackShareViewOpenFromParams(nonShareViewParams, '18.1235,-27.6543,3');
+assert.equal(trackedEvents.length, 3);
 
 console.log('share link flow regression checks passed');
