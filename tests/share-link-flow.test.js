@@ -7,18 +7,23 @@ const buildUrlStart = appSource.indexOf('function buildFeatureShareUrl(type, nam
 const buildUrlEnd = appSource.indexOf('function canUseNativeShare(shareUrl) {');
 const shareTrackingStart = appSource.indexOf('const sharedLinkOpenSessionKeys = new Set();');
 const shareTrackingEnd = appSource.indexOf('function buildFeatureShareUrl(type, name) {');
+const relaySourceStart = appSource.indexOf('async function relaySharedContext(btn) {');
+const relaySourceEnd = appSource.indexOf('window.openLinkedMapFromPopup = function(event, mapId) {');
 
 if (
     buildUrlStart === -1 ||
     buildUrlEnd === -1 ||
     shareTrackingStart === -1 ||
-    shareTrackingEnd === -1
+    shareTrackingEnd === -1 ||
+    relaySourceStart === -1 ||
+    relaySourceEnd === -1
 ) {
     throw new Error('Could not locate Smart Share helpers in js/app.js');
 }
 
 const buildUrlSource = appSource.slice(buildUrlStart, buildUrlEnd);
 const shareTrackingSource = appSource.slice(shareTrackingStart, shareTrackingEnd);
+const relaySource = appSource.slice(relaySourceStart, relaySourceEnd);
 
 global.window = {
     location: {
@@ -68,6 +73,24 @@ function trackAnalytics(eventName, details) {
     trackedEvents.push({ eventName, details });
 }
 
+let sessionStorageMock = {};
+function safeGetSessionStorage(key) {
+    return Object.hasOwn(sessionStorageMock, key) ? sessionStorageMock[key] : null;
+}
+function safeSetSessionStorage(key, value) {
+    sessionStorageMock[key] = value;
+}
+const UX_STORAGE_KEYS = {
+    shareRelayDismissedSession: 'shareRelayDismissedSession'
+};
+let isEmbeddedView = false;
+const shareRelayCoachmark = { hidden: true };
+const shareRelayCopy = { textContent: '' };
+const shareRelayActionBtn = { dataset: {}, innerHTML: 'Share This' };
+const shareRelayDismissBtn = { dataset: {} };
+let activeShareRelayContext = null;
+const shownShareRelaySessionKeys = new Set();
+
 // eslint-disable-next-line no-eval
 eval(shareTrackingSource);
 
@@ -114,4 +137,98 @@ const nonShareViewParams = new URLSearchParams('view=18.1235,-27.6543,3&src=exte
 trackShareViewOpenFromParams(nonShareViewParams, '18.1235,-27.6543,3');
 assert.equal(trackedEvents.length, 3);
 
-console.log('share link flow regression checks passed');
+// Relay context extraction only returns valid shared-link contexts.
+assert.deepEqual(
+    getShareContextFromParams(new URLSearchParams('poi=Old Dock&src=share&stype=poi')),
+    {
+        source: 'share',
+        sharedType: 'poi',
+        featureType: 'poi',
+        featureName: 'Old Dock'
+    }
+);
+assert.deepEqual(
+    getShareContextFromParams(new URLSearchParams('view=18.1235,-27.6543,3&src=share&stype=view')),
+    {
+        source: 'share',
+        sharedType: 'view',
+        featureType: 'view',
+        featureName: 'current_view',
+        view: '18.1235,-27.6543,3'
+    }
+);
+assert.equal(getShareContextFromParams(new URLSearchParams('poi=Old Dock&src=external&stype=poi')), null);
+
+// Relay prompt should track once per session key and respect session dismissal.
+showShareRelayPrompt({
+    source: 'share',
+    sharedType: 'poi',
+    featureType: 'poi',
+    featureName: 'Old Dock'
+});
+assert.equal(trackedEvents.length, 4);
+assert.equal(trackedEvents[3].eventName, 'share_relay_prompt_shown');
+
+showShareRelayPrompt({
+    source: 'share',
+    sharedType: 'poi',
+    featureType: 'poi',
+    featureName: 'Old Dock'
+});
+assert.equal(trackedEvents.length, 4);
+
+safeSetSessionStorage(UX_STORAGE_KEYS.shareRelayDismissedSession, 'true');
+showShareRelayPrompt({
+    source: 'share',
+    sharedType: 'view',
+    featureType: 'view',
+    featureName: 'current_view',
+    view: '18.1235,-27.6543,3'
+});
+assert.equal(trackedEvents.length, 4);
+safeSetSessionStorage(UX_STORAGE_KEYS.shareRelayDismissedSession, 'false');
+
+let copiedShareUrl = null;
+const navigator = {
+    share: undefined,
+    clipboard: {
+        async writeText(value) {
+            copiedShareUrl = value;
+        }
+    }
+};
+function alert() {}
+function canUseNativeShare() {
+    return false;
+}
+function showShareButtonSuccessState() {}
+function hideShareRelayPrompt() {}
+
+// eslint-disable-next-line no-eval
+eval(relaySource);
+
+(async () => {
+    activeShareRelayContext = {
+        source: 'share',
+        sharedType: 'poi',
+        featureType: 'poi',
+        featureName: 'Old Dock'
+    };
+    await relaySharedContext({ dataset: {}, innerHTML: 'Share' });
+    assert.match(copiedShareUrl, /stype=poi/);
+
+    activeShareRelayContext = {
+        source: 'share',
+        sharedType: 'view',
+        featureType: 'view',
+        featureName: 'current_view',
+        view: '18.1235,-27.6543,3'
+    };
+    await relaySharedContext({ dataset: {}, innerHTML: 'Share' });
+    assert.match(copiedShareUrl, /stype=view/);
+
+    console.log('share link flow regression checks passed');
+})().catch((error) => {
+    console.error(error);
+    process.exit(1);
+});

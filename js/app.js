@@ -25,7 +25,8 @@ const UX_STORAGE_KEYS = {
     toolkitPanelCollapsed: 'toolkitPanelCollapsed',
     gmPanelVisible: 'gmPanelVisible',
     toolkitPanelVisible: 'toolkitPanelVisible',
-    mobileLayoutMode: 'mobileLayoutMode'
+    mobileLayoutMode: 'mobileLayoutMode',
+    shareRelayDismissedSession: 'shareRelayDismissedSession'
 };
 let isEmbeddedView = window.__INITIAL_EMBEDDED_VIEW__ === true;
 let isInitializing = true;
@@ -539,6 +540,10 @@ const sidebarBackdrop = document.getElementById('sidebar-backdrop');
 const onboardingCoachmark = document.getElementById('onboarding-coachmark');
 const onboardingOpenHelpBtn = document.getElementById('onboarding-open-help-btn');
 const onboardingDismissBtn = document.getElementById('onboarding-dismiss-btn');
+const shareRelayCoachmark = document.getElementById('share-relay-coachmark');
+const shareRelayCopy = document.getElementById('share-relay-copy');
+const shareRelayActionBtn = document.getElementById('share-relay-action-btn');
+const shareRelayDismissBtn = document.getElementById('share-relay-dismiss-btn');
 const toggleCoordsBtn = document.getElementById('toggle-coords-btn');
 const shareViewBtn = document.getElementById('share-view-btn');
 // Sound elements
@@ -581,6 +586,8 @@ let currentAtmosphereConfig = null;
 let mobileLayoutV2Enabled = false;
 let isMobileLayoutActive = false;
 let lastControlTouchAt = 0;
+let activeShareRelayContext = null;
+const shownShareRelaySessionKeys = new Set();
 const storedAdvancedControlsFlag = safeGetStorage(UX_STORAGE_KEYS.advancedControlsUnlocked);
 const storedOnboardingFlag = safeGetStorage(UX_STORAGE_KEYS.onboardingSeen);
 const hasPriorPreferenceState =
@@ -633,6 +640,22 @@ function safeSetStorage(key, value) {
 function safeRemoveStorage(key) {
     try {
         localStorage.removeItem(key);
+    } catch (error) {
+        // Ignore storage quota and private-mode failures.
+    }
+}
+
+function safeGetSessionStorage(key) {
+    try {
+        return sessionStorage.getItem(key);
+    } catch (error) {
+        return null;
+    }
+}
+
+function safeSetSessionStorage(key, value) {
+    try {
+        sessionStorage.setItem(key, value);
     } catch (error) {
         // Ignore storage quota and private-mode failures.
     }
@@ -2284,6 +2307,104 @@ function populateFilters(pointsOfInterest, mapId) {
     updateActiveFilterChips();
 }
 const sharedLinkOpenSessionKeys = new Set();
+const SHARE_RELAY_DEFAULT_COPY = 'Shared with you. Pass it on to your party.';
+
+function getShareContextFromParams(params) {
+    if (!(params instanceof URLSearchParams)) return null;
+
+    const source = String(params.get('src') || '').trim().toLowerCase();
+    const sharedType = String(params.get('stype') || '').trim().toLowerCase();
+
+    if (source !== 'share') return null;
+    if (!['poi', 'region', 'line', 'view'].includes(sharedType)) return null;
+
+    if (sharedType === 'view') {
+        const normalizedView = String(params.get('view') || '').trim();
+        if (!normalizedView) return null;
+        return {
+            source,
+            sharedType,
+            featureType: 'view',
+            featureName: 'current_view',
+            view: normalizedView
+        };
+    }
+
+    const featureName = String(params.get(sharedType) || '').trim();
+    if (!featureName) return null;
+    return {
+        source,
+        sharedType,
+        featureType: sharedType,
+        featureName
+    };
+}
+
+function buildShareRelaySessionKey(context) {
+    if (!context || typeof context !== 'object') return null;
+    const sharedType = String(context.sharedType || '').trim().toLowerCase();
+    if (!sharedType) return null;
+
+    if (sharedType === 'view') {
+        const normalizedView = String(context.view || '').trim();
+        return normalizedView ? `view:${normalizedView}` : null;
+    }
+
+    const featureName = String(context.featureName || '').trim().toLowerCase();
+    return featureName ? `${sharedType}:${featureName}` : null;
+}
+
+function isShareRelayDismissedForSession() {
+    return safeGetSessionStorage(UX_STORAGE_KEYS.shareRelayDismissedSession) === 'true';
+}
+
+function markShareRelayDismissedForSession() {
+    safeSetSessionStorage(UX_STORAGE_KEYS.shareRelayDismissedSession, 'true');
+}
+
+function hideShareRelayPrompt(reason = 'hidden') {
+    activeShareRelayContext = null;
+    if (!shareRelayCoachmark) return;
+
+    shareRelayCoachmark.hidden = true;
+    if (shareRelayCopy) {
+        shareRelayCopy.textContent = SHARE_RELAY_DEFAULT_COPY;
+    }
+    if (shareRelayActionBtn && shareRelayActionBtn.dataset.originalInnerHtml) {
+        shareRelayActionBtn.innerHTML = shareRelayActionBtn.dataset.originalInnerHtml;
+    }
+
+    if (reason === 'dismissed' || reason === 'completed') {
+        markShareRelayDismissedForSession();
+    }
+}
+
+function showShareRelayPrompt(context) {
+    if (!context || isEmbeddedView || !shareRelayCoachmark || !shareRelayActionBtn || !shareRelayDismissBtn) {
+        return;
+    }
+    if (isShareRelayDismissedForSession()) return;
+
+    const sessionKey = buildShareRelaySessionKey(context);
+    if (!sessionKey) return;
+
+    activeShareRelayContext = context;
+    if (shareRelayCopy) {
+        const featureName = String(context.featureName || '').trim();
+        shareRelayCopy.textContent = context.sharedType === 'view'
+            ? 'Shared with you. Pass this map view to your party.'
+            : `Shared with you: ${featureName}. Pass it on to your party.`;
+    }
+    shareRelayCoachmark.hidden = false;
+
+    if (shownShareRelaySessionKeys.has(sessionKey)) return;
+    shownShareRelaySessionKeys.add(sessionKey);
+    trackAnalytics('share_relay_prompt_shown', {
+        source: 'share',
+        entryPoint: 'relay_prompt',
+        sharedType: context.sharedType
+    });
+}
 
 function trackShareLinkOpenFromParams(params, focusedType, focusedName) {
     if (!(params instanceof URLSearchParams)) return;
@@ -2505,6 +2626,80 @@ async function shareCurrentView(btn) {
     }
 }
 
+async function relaySharedContext(btn) {
+    const context = activeShareRelayContext;
+    if (!context) return;
+
+    const sharedType = String(context.sharedType || '').trim().toLowerCase();
+    const featureType = String(context.featureType || '').trim().toLowerCase();
+    const featureName = String(context.featureName || '').trim();
+    const shareUrl = sharedType === 'view'
+        ? buildCurrentViewShareUrl()
+        : buildFeatureShareUrl(featureType, featureName);
+
+    if (!shareUrl) return;
+
+    const nativeShareSupported = canUseNativeShare(shareUrl);
+    trackAnalytics('share_clicked', {
+        featureType,
+        featureName,
+        nativeShareSupported,
+        entryPoint: 'relay_prompt'
+    });
+
+    if (nativeShareSupported) {
+        const shareData = {
+            title: sharedType === 'view' ? 'Hiraeth Maps: Shared View' : `Hiraeth Maps: ${featureName}`,
+            text: sharedType === 'view'
+                ? 'Explore this shared map view on Hiraeth Maps.'
+                : `Explore ${featureName} on the Hiraeth map.`,
+            url: shareUrl
+        };
+
+        try {
+            await navigator.share(shareData);
+            showShareButtonSuccessState(btn);
+            trackAnalytics('share_relay_completed', {
+                sharedType,
+                featureType,
+                featureName,
+                method: 'native'
+            });
+            hideShareRelayPrompt('completed');
+            return;
+        } catch (error) {
+            const errorName = error && error.name ? String(error.name) : 'unknown';
+            if (errorName === 'AbortError') {
+                trackAnalytics('share_native_cancelled', { featureType, featureName, entryPoint: 'relay_prompt' });
+                return;
+            }
+            console.warn('Native share failed; falling back to clipboard.', error);
+            trackAnalytics('share_native_failed', { featureType, featureName, errorName, entryPoint: 'relay_prompt' });
+        }
+    }
+
+    if (typeof navigator === 'undefined' || !navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
+        alert('Sharing is not supported in this browser.');
+        trackAnalytics('share_copy_unavailable', { featureType, featureName, entryPoint: 'relay_prompt' });
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(shareUrl);
+        showShareButtonSuccessState(btn);
+        trackAnalytics('share_relay_completed', {
+            sharedType,
+            featureType,
+            featureName,
+            method: 'clipboard'
+        });
+        hideShareRelayPrompt('completed');
+    } catch (err) {
+        console.error('Failed to copy link: ', err);
+        alert('Failed to copy link to clipboard.');
+    }
+}
+
 window.openLinkedMapFromPopup = function(event, mapId) {
     if (event) {
         event.preventDefault();
@@ -2602,6 +2797,12 @@ function checkAndFocusFeature() {
     }
     if (focused) {
         trackShareLinkOpenFromParams(params, focusedType, focusedName);
+        const shareContext = getShareContextFromParams(params);
+        if (shareContext) {
+            showShareRelayPrompt(shareContext);
+        }
+    } else {
+        hideShareRelayPrompt('not_focused');
     }
     return focused;
 }
@@ -2645,6 +2846,7 @@ function updateURLWithMapView() {
 
 // --- Function to Load/Switch Map ---
 function loadMap(mapId, updateHash = true, preResolvedMap = null) {
+    hideShareRelayPrompt('map_loading');
     const selectedMap = preResolvedMap || findMapRecursive(mapData, mapId);
     const loadStartedAt = performance.now();
     loadingMapId = mapId;
@@ -2888,6 +3090,10 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
                     map.setView([lat, lng], zoom, { animate: false });
                     if (explicitViewParam) {
                         trackShareViewOpenFromParams(params, explicitViewParam);
+                        const shareContext = getShareContextFromParams(params);
+                        if (shareContext) {
+                            showShareRelayPrompt(shareContext);
+                        }
                     }
                 } else {
                     map.fitBounds(currentBounds);
@@ -4511,6 +4717,20 @@ async function loadMapData() {
                 safeSetStorage(UX_STORAGE_KEYS.onboardingSeen, 'true');
                 setOnboardingVisibility(false);
                 trackAnalytics('onboarding_dismissed');
+            });
+        }
+
+        if (shareRelayActionBtn) {
+            shareRelayActionBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                await relaySharedContext(shareRelayActionBtn);
+            });
+        }
+
+        if (shareRelayDismissBtn) {
+            shareRelayDismissBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                hideShareRelayPrompt('dismissed');
             });
         }
 
