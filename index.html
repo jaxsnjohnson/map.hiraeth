@@ -23,7 +23,7 @@
 
     <script>
         // Bump this value on each deploy that changes local JS/CSS/images behavior.
-        window.APP_ASSET_VERSION = "2026.03.04.06";
+        window.APP_ASSET_VERSION = "2026.03.08.01";
         window.THEME_STORAGE_KEYS = {
             legacyTheme: "theme",
             themePreference: "themePreference"
@@ -239,6 +239,10 @@
             <div id="active-filters-container" class="leaflet-control" aria-live="polite"></div>
             <div id="search-control-container" class="leaflet-control">
                 <label for="poi-search-input" class="sr-only">Search locations</label>
+                <div class="search-scope-toggle" role="group" aria-label="Search scope">
+                    <button id="search-scope-map-btn" type="button" class="active" aria-pressed="true">This Map</button>
+                    <button id="search-scope-atlas-btn" type="button" aria-pressed="false">Atlas</button>
+                </div>
                 <div class="search-input-shell">
                     <input type="search" id="poi-search-input" placeholder="Search locations...">
                     <div class="search-inline-actions">
@@ -311,10 +315,10 @@
         </div>
     </div>
 
-    <audio id="light-ambient" loop preload="auto"> <source src="sounds/gentle-winds.mp3" type="audio/mpeg">
+    <audio id="light-ambient" loop preload="none"> <source data-src="sounds/gentle-winds.mp3" type="audio/mpeg">
       Your browser does not support the audio element.
     </audio>
-    <audio id="dark-ambient" loop preload="auto"> <source src="sounds/night-ambient.mp3" type="audio/mpeg">
+    <audio id="dark-ambient" loop preload="none"> <source data-src="sounds/night-ambient.mp3" type="audio/mpeg">
       Your browser does not support the audio element.
     </audio>
 

@@ -37,6 +37,30 @@ let closeAboutModal = null;
 let isAboutModalVisible = () => false;
 let loadingMapId = null;
 let lastTrackedSearchSignature = '';
+let atlasSearchIndex = [];
+const mapDefinitionCache = new Map();
+const mapDefinitionPromiseCache = new Map();
+let currentMapData = null;
+let loadRequestToken = 0;
+const prefetchedJsonUrls = new Set();
+const prefetchedImageUrls = new Set();
+let prefetchImageQueue = [];
+let prefetchImageInFlight = false;
+let scheduledPrefetchIdleId = null;
+const SEARCH_SCOPE_MAP = 'map';
+const SEARCH_SCOPE_ATLAS = 'atlas';
+const SEARCH_RESULT_GROUP_ORDER = ['poi', 'region', 'line', 'route', 'step', 'map'];
+const SEARCH_RESULT_GROUP_LABELS = {
+    poi: 'Points of Interest',
+    region: 'Regions',
+    line: 'Roads & Lines',
+    route: 'Routes',
+    step: 'Route Steps',
+    map: 'Atlas Maps'
+};
+let currentSearchScope = SEARCH_SCOPE_MAP;
+let renderedSearchResults = [];
+let activeSearchResultIndex = -1;
 const isFirefox = typeof navigator !== 'undefined' && /firefox|fxios/i.test(navigator.userAgent);
 const MOBILE_LAYOUT_BREAKPOINT = 768;
 const MOBILE_LAYOUT_QUERY_PARAM = 'mobileLayout';
@@ -399,6 +423,39 @@ function resolveInitialMapViewport(params) {
     return { mode: 'fit-bounds' };
 }
 
+function applySearchParamsToCurrentMap(params = new URLSearchParams(window.location.search)) {
+    let featureFocused = false;
+    if (params.has('poi') || params.has('region') || params.has('line')) {
+        featureFocused = checkAndFocusFeature();
+    }
+    if (!featureFocused && params.has('route')) {
+        const routeIdParam = params.get('route');
+        const stepIdParam = params.get('step');
+        startRoute(routeIdParam, stepIdParam);
+        featureFocused = true;
+    }
+
+    if (!featureFocused) {
+        const initialViewport = resolveInitialMapViewport(params);
+        if (initialViewport.mode === 'explicit-view' && initialViewport.view) {
+            map.setView(
+                [initialViewport.view.lat, initialViewport.view.lng],
+                initialViewport.view.zoom,
+                { animate: false }
+            );
+            trackShareViewOpenFromParams(params, initialViewport.rawView);
+            const shareContext = getShareContextFromParams(params);
+            if (shareContext) {
+                showShareRelayPrompt(shareContext);
+            }
+        } else if (currentBounds) {
+            map.fitBounds(currentBounds);
+        }
+    }
+
+    return featureFocused;
+}
+
 // --- NEW: Unified Popup Content Generator ---
 function createPopupContent(data, type) {
     const safePronunciation = data.pronunciation ? sanitizeTextForHtml(data.pronunciation) : '';
@@ -630,6 +687,8 @@ const mapBlurbElement = document.getElementById('map-blurb');
 const toggleMarkersBtn = document.getElementById('toggle-markers-btn');
 const searchControlContainer = document.getElementById('search-control-container');
 const poiSearchInput = document.getElementById('poi-search-input');
+const searchScopeMapBtn = document.getElementById('search-scope-map-btn');
+const searchScopeAtlasBtn = document.getElementById('search-scope-atlas-btn');
 const searchResultsContainer = document.getElementById('search-results-container');
 const poiFilterContainer = document.getElementById('poi-filter-container');
 const filterToggleAllCheckbox = document.getElementById('filter-toggle-all');
@@ -704,6 +763,7 @@ advancedControlsUnlocked = storedAdvancedControlsFlag === 'true' ||
 coordsDisplayEnabled = safeGetStorage(UX_STORAGE_KEYS.coordsVisible) === 'true';
 mobileLayoutV2Enabled = resolveMobileLayoutV2Enabled();
 updateMobileLayoutState();
+setSearchScope(SEARCH_SCOPE_MAP);
 
 if (isEmbeddedView) {
     if (bodyElement) bodyElement.classList.add('embedded-view');
@@ -915,14 +975,26 @@ function shouldIgnoreMapPointerEvent(event) {
 
 function getPreferredMapImageUrl(mapInfo) {
     if (!mapInfo) return '';
-    const defaultUrl = String(mapInfo.imageUrl || '').trim();
+    const variants = mapInfo && typeof mapInfo.imageVariants === 'object' ? mapInfo.imageVariants : null;
+    const defaultUrl = String(
+        (variants && (variants.default || variants.desktop)) ||
+        mapInfo.imageUrl ||
+        ''
+    ).trim();
     if (!defaultUrl) return '';
 
     if (!mobileLayoutV2Enabled || !isMobileLayoutActive) return defaultUrl;
 
-    const candidateKeys = ['mobileImageUrl', 'imageUrlMobile', 'smallImageUrl', 'imageUrlSmall'];
-    for (const key of candidateKeys) {
-        const candidate = String(mapInfo[key] || '').trim();
+    const candidateValues = [
+        variants && variants.mobile,
+        variants && variants.compact,
+        mapInfo.mobileImageUrl,
+        mapInfo.imageUrlMobile,
+        mapInfo.smallImageUrl,
+        mapInfo.imageUrlSmall
+    ];
+    for (const candidateValue of candidateValues) {
+        const candidate = String(candidateValue || '').trim();
         if (candidate) {
             return candidate;
         }
@@ -1329,6 +1401,292 @@ function buildAppUrlWithHash(hash, search = window.location.search) {
     return `${window.location.pathname}${search}${hash}`;
 }
 
+function stripHtml(value) {
+    return String(value || '')
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function getMapRuntimeData(mapId = currentlyLoadedMapId) {
+    if (!mapId) return null;
+    if (currentMapData && currentMapData.id === mapId) {
+        return currentMapData;
+    }
+    return findMapRecursive(mapData, mapId);
+}
+
+function getMapDataUrl(mapEntry) {
+    const explicitUrl = String(mapEntry?.dataUrl || '').trim();
+    if (explicitUrl) return explicitUrl;
+    const mapId = String(mapEntry?.id || '').trim();
+    return mapId ? `maps/${mapId}.json` : '';
+}
+
+async function fetchJsonAsset(url) {
+    const response = await fetch(withAssetVersion(url));
+    if (!response.ok) {
+        throw new Error(`Failed to load ${url}: ${response.status} ${response.statusText}`);
+    }
+    return response.json();
+}
+
+async function getMapDefinition(mapId, preResolvedMap = null) {
+    const manifestEntry = preResolvedMap || findMapRecursive(mapData, mapId);
+    if (!manifestEntry) {
+        throw new Error(`Map "${mapId}" not found in atlas index.`);
+    }
+
+    if (mapDefinitionCache.has(mapId)) {
+        return mapDefinitionCache.get(mapId);
+    }
+
+    if (mapDefinitionPromiseCache.has(mapId)) {
+        return mapDefinitionPromiseCache.get(mapId);
+    }
+
+    const dataUrl = getMapDataUrl(manifestEntry);
+    const definitionPromise = fetchJsonAsset(dataUrl)
+        .then((mapDefinition) => {
+            const mergedDefinition = {
+                ...manifestEntry,
+                ...mapDefinition
+            };
+            prefetchedJsonUrls.add(withAssetVersion(dataUrl));
+            mapDefinitionCache.set(mapId, mergedDefinition);
+            mapDefinitionPromiseCache.delete(mapId);
+            return mergedDefinition;
+        })
+        .catch((error) => {
+            mapDefinitionPromiseCache.delete(mapId);
+            throw error;
+        });
+
+    mapDefinitionPromiseCache.set(mapId, definitionPromise);
+    return definitionPromise;
+}
+
+function getSearchScopeLabel(scope = currentSearchScope) {
+    return scope === SEARCH_SCOPE_ATLAS ? 'Atlas' : 'This Map';
+}
+
+function setSearchScope(scope) {
+    currentSearchScope = scope === SEARCH_SCOPE_ATLAS ? SEARCH_SCOPE_ATLAS : SEARCH_SCOPE_MAP;
+    if (searchScopeMapBtn) {
+        const active = currentSearchScope === SEARCH_SCOPE_MAP;
+        searchScopeMapBtn.classList.toggle('active', active);
+        searchScopeMapBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    }
+    if (searchScopeAtlasBtn) {
+        const active = currentSearchScope === SEARCH_SCOPE_ATLAS;
+        searchScopeAtlasBtn.classList.toggle('active', active);
+        searchScopeAtlasBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    }
+}
+
+function closeSearchResults({ clearMeta = true } = {}) {
+    renderedSearchResults = [];
+    activeSearchResultIndex = -1;
+    searchResultsContainer.style.display = 'none';
+    searchResultsContainer.classList.remove('with-search-meta');
+    searchResultsContainer.innerHTML = '';
+    if (clearMeta) {
+        setSearchMeta('');
+        lastTrackedSearchSignature = '';
+    }
+}
+
+function normalizeSearchValue(value) {
+    return String(value || '').trim().toLowerCase();
+}
+
+function getFuzzyMatchScore(term, target) {
+    if (!term || !target) return -1;
+    let searchIndex = 0;
+    let lastMatchIndex = -1;
+    let spreadPenalty = 0;
+
+    for (const char of term) {
+        const foundIndex = target.indexOf(char, searchIndex);
+        if (foundIndex === -1) return -1;
+        if (lastMatchIndex >= 0) {
+            spreadPenalty += Math.max(0, foundIndex - lastMatchIndex - 1);
+        }
+        lastMatchIndex = foundIndex;
+        searchIndex = foundIndex + 1;
+    }
+
+    return Math.max(40, 160 - spreadPenalty);
+}
+
+function computeSearchMatch(term, primaryText, secondaryText = '') {
+    const normalizedPrimary = normalizeSearchValue(primaryText);
+    const normalizedSecondary = normalizeSearchValue(secondaryText);
+    if (!term || !normalizedPrimary) return { matched: false, score: -1, matchedByContent: false };
+
+    if (normalizedPrimary === term) {
+        return { matched: true, score: 520, matchedByContent: false };
+    }
+    if (normalizedPrimary.startsWith(term)) {
+        return { matched: true, score: 430, matchedByContent: false };
+    }
+    const primaryIndex = normalizedPrimary.indexOf(term);
+    if (primaryIndex >= 0) {
+        return { matched: true, score: 320 - Math.min(primaryIndex, 120), matchedByContent: false };
+    }
+
+    const fuzzyScore = getFuzzyMatchScore(term, normalizedPrimary);
+    if (fuzzyScore >= 0) {
+        return { matched: true, score: fuzzyScore, matchedByContent: false };
+    }
+
+    if (normalizedSecondary) {
+        if (normalizedSecondary.includes(term)) {
+            return { matched: true, score: 180, matchedByContent: true };
+        }
+        const fuzzySecondaryScore = getFuzzyMatchScore(term, normalizedSecondary);
+        if (fuzzySecondaryScore >= 0) {
+            return { matched: true, score: Math.max(80, fuzzySecondaryScore - 40), matchedByContent: true };
+        }
+    }
+
+    return { matched: false, score: -1, matchedByContent: false };
+}
+
+function escapeHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function highlightSearchText(text, term) {
+    const safeText = escapeHtml(text);
+    if (!term) return safeText;
+    const escapedTerm = escapeRegExp(term);
+    return safeText.replace(new RegExp(escapedTerm, 'gi'), '<strong>$&</strong>');
+}
+
+function scheduleIdleTask(callback, timeout = 900) {
+    if (typeof window !== 'undefined' && typeof window.requestIdleCallback === 'function') {
+        return window.requestIdleCallback(callback, { timeout });
+    }
+    return window.setTimeout(() => callback({ didTimeout: false, timeRemaining: () => 0 }), Math.min(timeout, 400));
+}
+
+function cancelIdleTask(id) {
+    if (id == null) return;
+    if (typeof window !== 'undefined' && typeof window.cancelIdleCallback === 'function') {
+        window.cancelIdleCallback(id);
+        return;
+    }
+    clearTimeout(id);
+}
+
+function registerServiceWorker() {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+    if (!/^https?:$/i.test(window.location.protocol)) return;
+
+    const swUrl = `sw.js?v=${encodeURIComponent(window.APP_ASSET_VERSION || '0')}`;
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register(swUrl).catch((error) => {
+            console.warn('Service worker registration failed:', error);
+        });
+    }, { once: true });
+}
+
+async function prefetchJsonAsset(url) {
+    const normalizedUrl = withAssetVersion(url);
+    if (!url || prefetchedJsonUrls.has(normalizedUrl)) return;
+    prefetchedJsonUrls.add(normalizedUrl);
+    try {
+        await fetch(normalizedUrl, { credentials: 'same-origin' });
+    } catch (error) {
+        prefetchedJsonUrls.delete(normalizedUrl);
+    }
+}
+
+function prefetchImageAsset(url) {
+    const normalizedUrl = withAssetVersion(url);
+    if (!url || prefetchedImageUrls.has(normalizedUrl)) return;
+    prefetchedImageUrls.add(normalizedUrl);
+    prefetchImageQueue.push(normalizedUrl);
+    drainPrefetchImageQueue();
+}
+
+function drainPrefetchImageQueue() {
+    if (prefetchImageInFlight || prefetchImageQueue.length === 0) return;
+    const nextUrl = prefetchImageQueue.shift();
+    if (!nextUrl) return;
+    prefetchImageInFlight = true;
+    const img = new Image();
+    const finalize = () => {
+        prefetchImageInFlight = false;
+        drainPrefetchImageQueue();
+    };
+    img.onload = finalize;
+    img.onerror = () => {
+        prefetchedImageUrls.delete(nextUrl);
+        finalize();
+    };
+    img.src = nextUrl;
+}
+
+function collectLinkedMapPrefetchCandidates(mapDefinition) {
+    const candidateIds = new Set();
+    const maybeAdd = (mapId) => {
+        const normalizedId = String(mapId || '').trim();
+        if (!normalizedId || normalizedId === currentlyLoadedMapId) return;
+        const target = findMapRecursive(mapData, normalizedId);
+        if (isRenderableMapEntry(target)) {
+            candidateIds.add(normalizedId);
+        }
+    };
+
+    getVisiblePoints(mapDefinition).forEach((point) => maybeAdd(point.linkedMapId));
+    getVisibleRegions(mapDefinition).forEach((region) => maybeAdd(region.linkedMapId));
+    getVisibleLines(mapDefinition).forEach((line) => maybeAdd(line.linkedMapId));
+    getVisibleRoutes(mapDefinition).forEach((route) => {
+        route.steps.forEach((step) => {
+            if (step.targetType === 'map') {
+                maybeAdd(step.targetId);
+            }
+        });
+    });
+
+    return Array.from(candidateIds);
+}
+
+function schedulePostLoadPrefetch(mapDefinition) {
+    if (isEmbeddedView || !mapDefinition) return;
+    if (scheduledPrefetchIdleId) {
+        cancelIdleTask(scheduledPrefetchIdleId);
+        scheduledPrefetchIdleId = null;
+    }
+
+    scheduledPrefetchIdleId = scheduleIdleTask(() => {
+        scheduledPrefetchIdleId = null;
+        const currentManifest = findMapRecursive(mapData, mapDefinition.id);
+        if (currentManifest) {
+            prefetchJsonAsset(getMapDataUrl(currentManifest));
+            prefetchImageAsset(getPreferredMapImageUrl(currentManifest));
+        }
+
+        collectLinkedMapPrefetchCandidates(mapDefinition)
+            .slice(0, 3)
+            .forEach((candidateId, index) => {
+                const candidateEntry = findMapRecursive(mapData, candidateId);
+                if (!candidateEntry) return;
+                prefetchJsonAsset(getMapDataUrl(candidateEntry));
+                if (index === 0) {
+                    prefetchImageAsset(getPreferredMapImageUrl(candidateEntry));
+                }
+            });
+    });
+}
+
 // --- Function to Set Sidebar State ---
 function setSidebarState(state, updateHash = true) {
     const shouldBeCollapsed = (state === 'c');
@@ -1441,7 +1799,7 @@ function setCoordsDisplayVisible(visible) {
 }
 
 function updateCurrentControlVisibility(selectedMap = null) {
-    const mapInfo = selectedMap || (currentlyLoadedMapId ? findMapRecursive(mapData, currentlyLoadedMapId) : null);
+    const mapInfo = selectedMap || getMapRuntimeData(currentlyLoadedMapId);
     if (!mapInfo) return;
 
     if (isEmbeddedView) {
@@ -1462,7 +1820,7 @@ function updateCurrentControlVisibility(selectedMap = null) {
     const allowGMToolkit = canAccessGMToolkit() && !isEmbeddedView;
 
     toggleMarkersBtn.style.display = (hasPOIs || hasRegions) ? 'block' : 'none';
-    searchControlContainer.style.display = (hasPOIs || hasRegions) ? 'block' : 'none';
+    searchControlContainer.style.display = (hasPOIs || hasRegions || (atlasSearchIndex && atlasSearchIndex.length > 0)) ? 'block' : 'none';
     toggleFiltersBtn.style.display = (hasPOIs || hasRegions || hasRoads) ? 'block' : 'none';
     measureToolBtn.style.display = showAdvancedControls && hasValidScale ? 'block' : 'none';
     if (toggleSoundBtn) toggleSoundBtn.style.display = showAdvancedControls ? 'block' : 'none';
@@ -1535,9 +1893,19 @@ function updateActiveFilterChips() {
     activeFiltersContainer.innerHTML = '';
     const chips = [];
     const searchTerm = poiSearchInput.value.trim();
+    if (currentSearchScope === SEARCH_SCOPE_ATLAS) {
+        chips.push({
+            label: 'Scope: Atlas',
+            clear: () => {
+                setSearchScope(SEARCH_SCOPE_MAP);
+                updateVisibleMarkersAndSearch();
+                poiSearchInput.focus();
+            }
+        });
+    }
     if (searchTerm) {
         chips.push({
-            label: `Search: ${searchTerm}`,
+            label: `${getSearchScopeLabel()}: ${searchTerm}`,
             clear: () => {
                 poiSearchInput.value = '';
                 updateVisibleMarkersAndSearch();
@@ -1713,97 +2081,226 @@ if (travelModeSelect) {
     travelModeSelect.addEventListener('change', updateTravelTime);
 }
 
-// --- Function to Update Visible Markers AND Search Results ---
+function setActiveSearchResult(index) {
+    activeSearchResultIndex = index;
+    const items = Array.from(searchResultsContainer.querySelectorAll('.search-result-item'));
+    items.forEach((item, itemIndex) => {
+        const isActive = itemIndex === activeSearchResultIndex;
+        item.classList.toggle('active', isActive);
+        item.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+}
+
+function moveSearchResultSelection(direction) {
+    if (!renderedSearchResults.length) return;
+    const itemCount = renderedSearchResults.length;
+    const nextIndex = activeSearchResultIndex < 0
+        ? (direction > 0 ? 0 : itemCount - 1)
+        : (activeSearchResultIndex + direction + itemCount) % itemCount;
+    setActiveSearchResult(nextIndex);
+    const activeItem = searchResultsContainer.querySelector(`.search-result-item[data-result-index="${nextIndex}"]`);
+    if (activeItem && typeof activeItem.scrollIntoView === 'function') {
+        activeItem.scrollIntoView({ block: 'nearest' });
+    }
+}
+
+function selectSearchResult(index = activeSearchResultIndex) {
+    const result = renderedSearchResults[index];
+    if (!result || typeof result.onSelect !== 'function') return;
+    result.onSelect();
+    poiSearchInput.value = '';
+    closeSearchResults();
+    updateActiveFilterChips();
+}
+
+function buildScopedSearchParams(entry) {
+    const params = new URLSearchParams(window.location.search);
+    ['view', 'poi', 'region', 'line', 'route', 'step', 'src', 'stype'].forEach((key) => params.delete(key));
+
+    switch (entry.kind) {
+        case 'poi':
+            params.set('poi', entry.name);
+            break;
+        case 'region':
+            params.set('region', entry.name);
+            break;
+        case 'line':
+            params.set('line', entry.name);
+            break;
+        case 'route':
+            params.set('route', entry.routeId || entry.itemId || entry.id);
+            break;
+        case 'step':
+            params.set('route', entry.routeId);
+            params.set('step', entry.itemId || entry.stepId);
+            break;
+        default:
+            break;
+    }
+
+    return params;
+}
+
+function openAtlasSearchResult(entry) {
+    const targetMap = findMapRecursive(mapData, entry.mapId);
+    if (!isRenderableMapEntry(targetMap)) return;
+
+    const params = buildScopedSearchParams(entry);
+    const nextSearch = params.toString() ? `?${params.toString()}` : '';
+    const nextHash = generateHash(entry.mapId, currentSidebarState);
+    const nextUrl = buildAppUrlWithHash(nextHash, nextSearch);
+    history.pushState(
+        {
+            mapId: entry.mapId,
+            sidebarState: currentSidebarState,
+            search: nextSearch,
+            hash: nextHash
+        },
+        '',
+        nextUrl
+    );
+    loadMap(entry.mapId, false, targetMap);
+    trackAnalytics('search_result_opened', {
+        scope: SEARCH_SCOPE_ATLAS,
+        kind: entry.kind,
+        targetMapId: entry.mapId
+    });
+}
+
+function renderSearchResults(term, results) {
+    renderedSearchResults = results;
+    activeSearchResultIndex = results.length > 0 ? 0 : -1;
+    searchResultsContainer.innerHTML = '';
+
+    if (!term) {
+        closeSearchResults();
+        return;
+    }
+
+    if (results.length === 0) {
+        const emptyState = document.createElement('div');
+        emptyState.className = 'search-results-empty';
+        emptyState.textContent = `No ${getSearchScopeLabel().toLowerCase()} results match this search.`;
+        searchResultsContainer.appendChild(emptyState);
+    } else {
+        let currentGroup = '';
+        results.forEach((result, index) => {
+            if (result.group !== currentGroup) {
+                currentGroup = result.group;
+                const groupHeader = document.createElement('div');
+                groupHeader.className = 'search-results-group';
+                groupHeader.textContent = SEARCH_RESULT_GROUP_LABELS[currentGroup] || currentGroup;
+                searchResultsContainer.appendChild(groupHeader);
+            }
+
+            const resultItem = document.createElement('div');
+            resultItem.className = 'search-result-item';
+            resultItem.dataset.resultIndex = String(index);
+            resultItem.tabIndex = -1;
+            resultItem.setAttribute('role', 'option');
+            resultItem.setAttribute('aria-selected', index === activeSearchResultIndex ? 'true' : 'false');
+
+            const titleRow = document.createElement('div');
+            titleRow.className = 'search-result-title';
+            titleRow.innerHTML = `${highlightSearchText(result.title, term)} <span class="badge-kind">${escapeHtml(result.badge)}</span>`;
+
+            const metaRow = document.createElement('div');
+            metaRow.className = 'search-result-meta';
+            metaRow.textContent = result.subtitle;
+
+            resultItem.appendChild(titleRow);
+            if (result.subtitle) {
+                resultItem.appendChild(metaRow);
+            }
+
+            resultItem.addEventListener('mouseenter', () => setActiveSearchResult(index));
+            resultItem.addEventListener('click', () => selectSearchResult(index));
+            resultItem.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    selectSearchResult(index);
+                }
+            });
+
+            searchResultsContainer.appendChild(resultItem);
+        });
+    }
+
+    searchResultsContainer.style.display = 'block';
+    searchResultsContainer.classList.add('with-search-meta');
+    const scopeLabel = getSearchScopeLabel();
+    setSearchMeta(`${results.length} result${results.length === 1 ? '' : 's'} in ${scopeLabel} for "${poiSearchInput.value.trim()}"`);
+    setActiveSearchResult(activeSearchResultIndex);
+
+    const searchSignature = `${currentSearchScope}:${term}:${results.length}`;
+    if (results.length > 0 && searchSignature !== lastTrackedSearchSignature) {
+        lastTrackedSearchSignature = searchSignature;
+        trackAnalytics('search_success', {
+            term: poiSearchInput.value.trim(),
+            scope: currentSearchScope,
+            resultCount: results.length
+        });
+    }
+}
+
+function sortSearchResults(results) {
+    return results
+        .sort((a, b) => {
+            const groupDelta = SEARCH_RESULT_GROUP_ORDER.indexOf(a.group) - SEARCH_RESULT_GROUP_ORDER.indexOf(b.group);
+            if (groupDelta !== 0) return groupDelta;
+            if (b.score !== a.score) return b.score - a.score;
+            return a.title.localeCompare(b.title);
+        })
+        .slice(0, 40);
+}
+
 function updateVisibleMarkersAndSearch() {
     const hasMarkers = !!currentMarkerGroup && allMapMarkers.length > 0;
     const hasRegions = !!currentRegionGroup && currentRegionGroup.getLayers().length > 0;
+    const hasLines = !!currentRoadGroup && currentRoadGroup.getLayers().length > 0;
+    const hasRoutes = Array.isArray(currentRoutes) && currentRoutes.length > 0;
+    const hasAtlasIndex = Array.isArray(atlasSearchIndex) && atlasSearchIndex.length > 0;
 
-    if (!hasMarkers && !hasRegions) {
-        // Hide map-based controls only when there is nothing searchable
+    if (!hasMarkers && !hasRegions && !hasLines && !hasRoutes && !hasAtlasIndex) {
         searchControlContainer.style.display = 'none';
-        searchResultsContainer.style.display = 'none';
-        searchResultsContainer.classList.remove('with-search-meta');
-        searchResultsContainer.innerHTML = '';
-        setSearchMeta('');
+        closeSearchResults();
         updateActiveFilterChips();
         return;
     }
 
-    // Keep search available when either markers or regions exist.
     searchControlContainer.style.display = 'block';
+    const searchTerm = normalizeSearchValue(poiSearchInput.value);
+    const results = [];
 
-    const searchTerm = poiSearchInput.value.toLowerCase().trim();
-    searchResultsContainer.innerHTML = ''; // Clear previous results
-    let searchResultCount = 0;
-
-    // Get the set of *specifically* checked POI group filters
     const activeSpecificGroupFilters = new Set();
-    poiFilterContainer.querySelectorAll('.poi-filter-checkbox:not(#filter-toggle-all):checked').forEach(checkbox => {
-            activeSpecificGroupFilters.add(checkbox.value);
+    poiFilterContainer.querySelectorAll('.poi-filter-checkbox:not(#filter-toggle-all):checked').forEach((checkbox) => {
+        activeSpecificGroupFilters.add(checkbox.value);
     });
-    const allPoiGroupsChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate; // True if master toggle is fully checked
+    const allPoiGroupsChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
+    const searchFiltersCurrentMap = currentSearchScope === SEARCH_SCOPE_MAP && !!searchTerm;
 
-    const appendSearchResult = ({ name, matchedByContent = false, title, onSelect }) => {
-        if (!searchTerm) return;
-        searchResultCount += 1;
-        const resultItem = document.createElement('div');
-        resultItem.className = 'search-result-item';
-        resultItem.tabIndex = 0;
-        const escapedSearchTerm = escapeRegExp(searchTerm);
-        let highlightedName = name.replace(new RegExp(escapedSearchTerm, 'gi'), '<strong>$&</strong>');
-        if (matchedByContent) {
-            highlightedName += ' <small style="opacity:0.7; font-size:0.8em;">(Matched content)</small>';
-        }
-        resultItem.innerHTML = highlightedName;
-        resultItem.title = title;
-        resultItem.addEventListener('click', () => {
-            onSelect();
-            poiSearchInput.value = '';
-            searchResultsContainer.style.display = 'none';
-            searchResultsContainer.classList.remove('with-search-meta');
-            searchResultsContainer.innerHTML = '';
-            setSearchMeta('');
-            updateActiveFilterChips();
-        });
-        resultItem.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                resultItem.click();
-            }
-        });
-        searchResultsContainer.appendChild(resultItem);
-    };
-
-    allMapMarkers.forEach(marker => {
+    allMapMarkers.forEach((marker) => {
         const poi = marker.poiData;
         if (!poi) return;
 
-        const nameMatch = !searchTerm || poi.name.toLowerCase().includes(searchTerm);
-        const descriptionMatch = poi.description && poi.description.toLowerCase().includes(searchTerm);
-        const summaryMatch = poi.summary && poi.summary.toLowerCase().includes(searchTerm);
-        const isMatch = nameMatch || descriptionMatch || summaryMatch;
-
         const poiGroup = getPoiGroup(poi.type);
-        // A POI group matches if the master toggle is checked OR its specific group is checked
         const groupMatch = allPoiGroupsChecked || activeSpecificGroupFilters.has(poiGroup);
+        const match = computeSearchMatch(searchTerm, poi.name, `${poi.summary || ''} ${poi.description || ''}`);
+        const isSearchMatch = !searchTerm || match.matched;
 
-        // Update marker visibility on map
-        if (markersVisible && isMatch && groupMatch) { // Governed by markersVisible
-            if (!currentMarkerGroup.hasLayer(marker)) {
-                currentMarkerGroup.addLayer(marker);
-            }
-        } else {
-            if (currentMarkerGroup.hasLayer(marker)) {
-                currentMarkerGroup.removeLayer(marker);
-            }
+        if (markersVisible && groupMatch && (!searchFiltersCurrentMap || isSearchMatch)) {
+            if (!currentMarkerGroup.hasLayer(marker)) currentMarkerGroup.addLayer(marker);
+        } else if (currentMarkerGroup.hasLayer(marker)) {
+            currentMarkerGroup.removeLayer(marker);
         }
 
-        // Populate POI search results
-        if (searchTerm && isMatch) {
-            appendSearchResult({
-                name: poi.name,
-                matchedByContent: !nameMatch && (descriptionMatch || summaryMatch),
-                title: `Go to ${poi.name}`,
+        if (searchFiltersCurrentMap && groupMatch && match.matched) {
+            results.push({
+                group: 'poi',
+                badge: 'POI',
+                title: poi.name,
+                subtitle: match.matchedByContent ? `Matched in ${poiGroup.toLowerCase()} details` : poiGroup,
+                score: match.score,
                 onSelect: () => {
                     map.flyTo(marker.getLatLng(), Math.max(map.getZoom(), 1));
                     marker.openPopup();
@@ -1813,29 +2310,27 @@ function updateVisibleMarkersAndSearch() {
     });
 
     const activeRegionTypeFilters = new Set();
-    poiFilterContainer.querySelectorAll('.region-type-filter:checked').forEach(checkbox => {
+    poiFilterContainer.querySelectorAll('.region-type-filter:checked').forEach((checkbox) => {
         activeRegionTypeFilters.add(checkbox.value);
     });
     const allRegionTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
 
     if (currentRegionGroup) {
-        currentRegionGroup.eachLayer(layer => {
+        currentRegionGroup.eachLayer((layer) => {
             const region = layer.regionData;
             if (!region || !region.name) return;
 
-            const nameMatch = region.name.toLowerCase().includes(searchTerm);
-            const descriptionMatch = region.description && region.description.toLowerCase().includes(searchTerm);
-            const summaryMatch = region.summary && region.summary.toLowerCase().includes(searchTerm);
-            const isMatch = nameMatch || descriptionMatch || summaryMatch;
-
             const regionFilterValue = region.value || region.name;
             const typeMatch = allRegionTypesChecked || activeRegionTypeFilters.has(regionFilterValue);
+            const match = computeSearchMatch(searchTerm, region.name, `${region.summary || ''} ${region.description || ''}`);
 
-            if (searchTerm && isMatch && typeMatch) {
-                appendSearchResult({
-                    name: region.name,
-                    matchedByContent: !nameMatch && (descriptionMatch || summaryMatch),
-                    title: `Go to ${region.name}`,
+            if (searchFiltersCurrentMap && typeMatch && match.matched) {
+                results.push({
+                    group: 'region',
+                    badge: 'Region',
+                    title: region.name,
+                    subtitle: match.matchedByContent ? `Matched in ${region.type || 'region'} description` : (region.value || region.type || 'Region'),
+                    score: match.score,
                     onSelect: () => {
                         map.fitBounds(layer.getBounds(), { maxZoom: Math.max(map.getZoom(), 1) });
                         layer.openPopup();
@@ -1846,103 +2341,93 @@ function updateVisibleMarkersAndSearch() {
     }
 
     const activeLineTypeFilters = new Set();
-    poiFilterContainer.querySelectorAll('.line-type-filter:checked').forEach(checkbox => {
+    poiFilterContainer.querySelectorAll('.line-type-filter:checked').forEach((checkbox) => {
         activeLineTypeFilters.add(checkbox.value);
     });
     const allLineTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
 
     if (currentRoadGroup) {
-        currentRoadGroup.eachLayer(layer => {
+        currentRoadGroup.eachLayer((layer) => {
             const line = layer.roadData;
             if (!line) return;
-
             const lineName = line.name || line.type || 'Unnamed Line';
-            const lowerLineName = lineName.toLowerCase();
             const lineType = line.type || 'Unnamed Road Type';
-            const lowerLineType = lineType.toLowerCase();
-
-            const nameMatch = lowerLineName.includes(searchTerm);
-            const typeTermMatch = lowerLineType.includes(searchTerm);
-            const descriptionMatch = line.description && line.description.toLowerCase().includes(searchTerm);
-            const summaryMatch = line.summary && line.summary.toLowerCase().includes(searchTerm);
-            const isMatch = nameMatch || typeTermMatch || descriptionMatch || summaryMatch;
-
             const typeMatch = allLineTypesChecked || activeLineTypeFilters.has(lineType);
+            const match = computeSearchMatch(searchTerm, lineName, `${lineType} ${line.summary || ''} ${line.description || ''}`);
 
-            if (searchTerm && isMatch && typeMatch) {
-                appendSearchResult({
-                    name: lineName,
-                    matchedByContent: !nameMatch && (typeTermMatch || descriptionMatch || summaryMatch),
-                    title: `Go to ${lineName}`,
+            if (searchFiltersCurrentMap && typeMatch && match.matched) {
+                results.push({
+                    group: 'line',
+                    badge: 'Line',
+                    title: lineName,
+                    subtitle: match.matchedByContent ? `Matched in ${lineType.toLowerCase()} details` : lineType,
+                    score: match.score,
                     onSelect: () => {
                         map.fitBounds(layer.getBounds(), { maxZoom: Math.max(map.getZoom(), 1) });
-                        if (layer.getPopup()) {
-                            layer.openPopup();
-                        }
+                        if (layer.getPopup()) layer.openPopup();
                     }
                 });
             }
         });
     }
 
-    // Route search (names + steps)
-    if (searchTerm && currentRoutes && currentRoutes.length > 0) {
-        currentRoutes.forEach(route => {
-            const routeNameMatch = route.name && route.name.toLowerCase().includes(searchTerm);
-            const routeSummaryMatch = route.summary && route.summary.toLowerCase().includes(searchTerm);
-            const stepsMatch = route.steps.filter(step =>
-                (step.title && step.title.toLowerCase().includes(searchTerm)) ||
-                (step.body && step.body.toLowerCase().includes(searchTerm))
+    if (searchFiltersCurrentMap && currentRoutes && currentRoutes.length > 0) {
+        currentRoutes.forEach((route) => {
+            const routeName = route.name || route.id;
+            const routeMatch = computeSearchMatch(searchTerm, routeName, route.summary || '');
+            if (routeMatch.matched) {
+                results.push({
+                    group: 'route',
+                    badge: 'Route',
+                    title: routeName,
+                    subtitle: routeMatch.matchedByContent ? 'Matched in route summary' : 'Start route',
+                    score: routeMatch.score,
+                    onSelect: () => startRoute(route.id)
+                });
+            }
+
+            route.steps.forEach((step) => {
+                const stepTitle = step.title || step.id;
+                const stepMatch = computeSearchMatch(searchTerm, stepTitle, step.body || '');
+                if (!stepMatch.matched) return;
+                results.push({
+                    group: 'step',
+                    badge: 'Step',
+                    title: stepTitle,
+                    subtitle: routeName,
+                    score: stepMatch.score,
+                    onSelect: () => startRoute(route.id, step.id)
+                });
+            });
+        });
+    }
+
+    if (currentSearchScope === SEARCH_SCOPE_ATLAS && searchTerm) {
+        atlasSearchIndex.forEach((entry) => {
+            if (!visibilityAllowed(entry)) return;
+            const match = computeSearchMatch(
+                searchTerm,
+                entry.name,
+                `${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''}`
             );
-
-            if (routeNameMatch || routeSummaryMatch) {
-                appendSearchResult({
-                    name: `${route.name || route.id} <span class="badge-kind">Route</span>`,
-                    matchedByContent: routeSummaryMatch && !routeNameMatch,
-                    title: `Start route ${route.name}`,
-                    onSelect: () => {
-                        startRoute(route.id);
-                    }
-                });
-            }
-
-            stepsMatch.forEach(step => {
-                appendSearchResult({
-                    name: `${step.title || step.id} <span class="badge-kind">Step</span>`,
-                    matchedByContent: !routeNameMatch,
-                    title: `Go to step ${step.title || step.id}`,
-                    onSelect: () => {
-                        startRoute(route.id, step.id);
-                    }
-                });
+            if (!match.matched) return;
+            results.push({
+                group: entry.kind,
+                badge: entry.kind === 'map' ? 'Map' : (entry.typeLabel || entry.kind),
+                title: entry.name,
+                subtitle: entry.mapId === currentlyLoadedMapId
+                    ? `${entry.mapName || 'Current map'}${match.matchedByContent ? ' • matched in details' : ''}`
+                    : `${entry.mapName || entry.mapId}${match.matchedByContent ? ' • matched in details' : ''}`,
+                score: match.score + (entry.kind === 'map' ? 10 : 0),
+                onSelect: () => openAtlasSearchResult(entry)
             });
         });
     }
 
-    if (searchTerm) {
-        if (searchResultCount === 0) {
-            const emptyState = document.createElement('div');
-            emptyState.className = 'search-results-empty';
-            emptyState.textContent = 'No locations match this search.';
-            searchResultsContainer.appendChild(emptyState);
-        }
-        searchResultsContainer.style.display = 'block';
-        searchResultsContainer.classList.add('with-search-meta');
-        setSearchMeta(`${searchResultCount} result${searchResultCount === 1 ? '' : 's'} for "${poiSearchInput.value.trim()}"`);
-
-        const searchSignature = `${searchTerm}:${searchResultCount}`;
-        if (searchResultCount > 0 && searchSignature !== lastTrackedSearchSignature) {
-            lastTrackedSearchSignature = searchSignature;
-            trackAnalytics('search_success', {
-                term: poiSearchInput.value.trim(),
-                resultCount: searchResultCount
-            });
-        }
+    if (!searchTerm) {
+        closeSearchResults();
     } else {
-        searchResultsContainer.style.display = 'none';
-        searchResultsContainer.classList.remove('with-search-meta');
-        setSearchMeta('');
-        lastTrackedSearchSignature = '';
+        renderSearchResults(searchTerm, sortSearchResults(results));
     }
 
     updateActiveFilterChips();
@@ -2195,7 +2680,7 @@ function populateFilters(pointsOfInterest, mapId) {
     dynamicElements.forEach(el => el.remove());
 
     const hasPOIs = pointsOfInterest && pointsOfInterest.length > 0;
-    const selectedMap = findMapRecursive(mapData, mapId);
+    const selectedMap = getMapRuntimeData(mapId);
     const regions = visibleRegionsCache && visibleRegionsCache.length ? visibleRegionsCache : (selectedMap?.regions || []);
     const hasRegions = regions.length > 0;
     const lines = visibleLinesCache && visibleLinesCache.length ? visibleLinesCache : [...(selectedMap?.roads || []), ...(selectedMap?.lines || [])];
@@ -2950,18 +3435,20 @@ function updateURLWithMapView() {
 }
 
 // --- Function to Load/Switch Map ---
-function loadMap(mapId, updateHash = true, preResolvedMap = null) {
+async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     hideShareRelayPrompt('map_loading');
-    const selectedMap = preResolvedMap || findMapRecursive(mapData, mapId);
+    const requestedMapId = String(mapId || '').trim();
+    const requestToken = ++loadRequestToken;
+    const manifestEntry = preResolvedMap || findMapRecursive(mapData, requestedMapId);
     const loadStartedAt = performance.now();
-    loadingMapId = mapId;
-    trackAnalytics('map_load_started', { mapId });
-    setMapAtmosphere(selectedMap?.atmosphere || null);
+    loadingMapId = requestedMapId;
+    trackAnalytics('map_load_started', { mapId: requestedMapId });
+    setMapAtmosphere(manifestEntry?.atmosphere || null);
 
-    if (currentlyLoadedMapId && currentlyLoadedMapId !== mapId) {
+    if (currentlyLoadedMapId && currentlyLoadedMapId !== requestedMapId) {
         trackAnalytics('map_switched', {
             fromMapId: currentlyLoadedMapId,
-            toMapId: mapId
+            toMapId: requestedMapId
         });
     }
 
@@ -2971,7 +3458,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         loadingProgress = 0;
         if (progressBar) progressBar.style.width = '0%';
         setLoadingMessage(
-            selectedMap ? `Loading "${selectedMap.name}"...` : 'Loading map...',
+            manifestEntry ? `Loading "${manifestEntry.name}"...` : 'Loading map...',
             { showSpinner: true, showProgress: true, showRetry: false }
         );
 
@@ -2993,7 +3480,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     measurementLayerGroup.clearLayers();
 
     searchControlContainer.style.display = 'none';
-    searchResultsContainer.style.display = 'none';
+    closeSearchResults();
     poiFilterContainer.classList.remove('visible');
     toggleFiltersBtn.style.display = 'none';
     filtersPanelVisible = false;
@@ -3023,12 +3510,13 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     currentRoadGroup = null;
     allMapMarkers = [];
 
-    if (!selectedMap || selectedMap.status === 'coming-soon') {
+    if (!manifestEntry || manifestEntry.status === 'coming-soon') {
         console.warn('Attempted to load unavailable map:', mapId);
-        if (selectedMap) alert(`The map "${selectedMap.name}" is coming soon.`);
+        if (manifestEntry) alert(`The map "${manifestEntry.name}" is coming soon.`);
         if (loadingProgressInterval) clearInterval(loadingProgressInterval);
         loadingProgressInterval = null;
         loadingMapId = null;
+        currentMapData = null;
         currentlyLoadedMapId = null;
         setMapAtmosphere(null);
         mapBlurbElement.classList.remove('visible');
@@ -3062,20 +3550,20 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
                 newUrl
             );
         }
-        trackAnalytics('map_load_failed', { mapId, reason: 'unavailable' });
+        trackAnalytics('map_load_failed', { mapId: requestedMapId, reason: 'unavailable' });
         return;
     }
 
-    if (mapId === currentlyLoadedMapId && currentImageLayer) {
+    if (requestedMapId === currentlyLoadedMapId && currentImageLayer) {
         loadingMapId = null;
         if (updateHash) {
-            const newHash = generateHash(mapId, currentSidebarState);
+            const newHash = generateHash(requestedMapId, currentSidebarState);
             const currentSearch = window.location.search;
             const newUrl = buildAppUrlWithHash(newHash, currentSearch);
             if (window.location.href !== new URL(newUrl, window.location.href).href) {
                 history.replaceState(
                     {
-                        mapId,
+                        mapId: requestedMapId,
                         sidebarState: currentSidebarState,
                         search: currentSearch,
                         hash: newHash
@@ -3089,8 +3577,39 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
             if (loadingProgressInterval) clearInterval(loadingProgressInterval);
             loadingIndicator.style.display = 'none';
         }
+        applySearchParamsToCurrentMap(new URLSearchParams(window.location.search));
         return;
     }
+
+    let selectedMap = manifestEntry;
+    try {
+        selectedMap = await getMapDefinition(requestedMapId, manifestEntry);
+    } catch (error) {
+        if (requestToken !== loadRequestToken) return;
+        console.error(`Failed to load map definition for ${requestedMapId}:`, error);
+        if (loadingProgressInterval) clearInterval(loadingProgressInterval);
+        loadingProgressInterval = null;
+        currentlyLoadedMapId = null;
+        currentMapData = null;
+        setMapAtmosphere(null);
+        toggleMarkersBtn.style.display = 'none';
+        measureToolBtn.style.display = 'none';
+        toggleFiltersBtn.style.display = 'none';
+        searchControlContainer.style.display = 'none';
+        setLoadingMessage(
+            `Could not load "${manifestEntry.name || requestedMapId}" data. Check the map definition and press Retry.`,
+            { showSpinner: false, showProgress: false, showRetry: true }
+        );
+        trackAnalytics('map_load_failed', { mapId: requestedMapId, reason: 'definition_error' });
+        return;
+    }
+
+    if (requestToken !== loadRequestToken) {
+        return;
+    }
+
+    currentMapData = selectedMap;
+    setMapAtmosphere(selectedMap?.atmosphere || manifestEntry?.atmosphere || null);
 
     currentMarkerGroup = L.layerGroup();
     currentRegionGroup = L.layerGroup().addTo(map);
@@ -3099,13 +3618,15 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     const mapHeight = selectedMap.height;
     const mapWidth = selectedMap.width;
     const mapImageUrl = getPreferredMapImageUrl(selectedMap);
+    prefetchedImageUrls.add(withAssetVersion(mapImageUrl));
     const defaultImageUrl = String(selectedMap.imageUrl || '').trim();
     const usingAlternateMobileImage = !!defaultImageUrl && mapImageUrl !== defaultImageUrl;
     if (isNaN(mapHeight) || isNaN(mapWidth) || !mapImageUrl) {
-        console.error(`Invalid dimensions or missing imageUrl for map ID ${mapId}`);
+        console.error(`Invalid dimensions or missing imageUrl for map ID ${requestedMapId}`);
         if (loadingProgressInterval) clearInterval(loadingProgressInterval);
         loadingProgressInterval = null;
         currentlyLoadedMapId = null;
+        currentMapData = null;
         setMapAtmosphere(null);
         toggleMarkersBtn.style.display = 'none';
         measureToolBtn.style.display = 'none';
@@ -3130,7 +3651,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
                 newUrl
             );
         }
-        trackAnalytics('map_load_failed', { mapId, reason: 'invalid_data' });
+        trackAnalytics('map_load_failed', { mapId: requestedMapId, reason: 'invalid_data' });
         return;
     }
 
@@ -3174,35 +3695,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
             }, 300);
         }
 
-        const params = new URLSearchParams(window.location.search);
-        let featureFocused = false;
-        if (params.has('poi') || params.has('region') || params.has('line')) {
-            featureFocused = checkAndFocusFeature();
-        }
-        if (!featureFocused && params.has('route')) {
-            const routeIdParam = params.get('route');
-            const stepIdParam = params.get('step');
-            startRoute(routeIdParam, stepIdParam);
-            featureFocused = true;
-        }
-
-        if (!featureFocused) {
-            const initialViewport = resolveInitialMapViewport(params);
-            if (initialViewport.mode === 'explicit-view' && initialViewport.view) {
-                map.setView(
-                    [initialViewport.view.lat, initialViewport.view.lng],
-                    initialViewport.view.zoom,
-                    { animate: false }
-                );
-                trackShareViewOpenFromParams(params, initialViewport.rawView);
-                const shareContext = getShareContextFromParams(params);
-                if (shareContext) {
-                    showShareRelayPrompt(shareContext);
-                }
-            } else {
-                map.fitBounds(currentBounds);
-            }
-        }
+        applySearchParamsToCurrentMap(new URLSearchParams(window.location.search));
 
         const miniMapLayer = L.imageOverlay(mapImageUrl, currentBounds);
         const maxMiniMapSize = 200;
@@ -3233,7 +3726,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         }).addTo(map);
 
         trackAnalytics('map_load_success', {
-            mapId,
+            mapId: requestedMapId,
             mapName: selectedMap.name,
             imageVariant: usingAlternateMobileImage ? 'mobile' : 'default',
             durationMs: Math.round(performance.now() - loadStartedAt)
@@ -3259,6 +3752,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         currentImageLayer = null;
         currentMapUnderlay = null;
         currentlyLoadedMapId = null;
+        currentMapData = null;
         setMapAtmosphere(null);
         toggleMarkersBtn.style.display = 'none';
         measureToolBtn.style.display = 'none';
@@ -3279,7 +3773,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
                 newUrl
             );
         }
-        trackAnalytics('map_load_failed', { mapId, reason: 'image_error' });
+        trackAnalytics('map_load_failed', { mapId: requestedMapId, reason: 'image_error' });
     });
 
     loadingTimeout = setTimeout(() => {
@@ -3300,7 +3794,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     renderRoutesPanel();
     updateEncounterSelect();
     updateTravelTime();
-    populateFilters(visiblePointsCache, mapId);
+    populateFilters(visiblePointsCache, requestedMapId);
 
     visiblePointsCache.forEach(point => {
         try {
@@ -3332,8 +3826,8 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     currentMarkerGroup.addTo(map);
     updateVisibleMarkersAndSearch();
 
-    addRegionsToMap(mapId);
-    addRoadsToMap(mapId);
+    addRegionsToMap(requestedMapId);
+    addRoadsToMap(requestedMapId);
     updateVisibleRegions();
     if (typeof updateVisibleLines === 'function') {
         updateVisibleLines();
@@ -3369,8 +3863,8 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     updateActiveFilterChips();
 
     document.querySelectorAll('#map-list .map-item, #map-list .folder-header').forEach(item => item.classList.remove('active'));
-    const activeMapItem = document.querySelector(`#map-list .map-item[data-map-id="${mapId}"]`);
-    const activeFolderHeader = document.querySelector(`#map-list .folder-header[data-map-id="${mapId}"]`);
+    const activeMapItem = document.querySelector(`#map-list .map-item[data-map-id="${requestedMapId}"]`);
+    const activeFolderHeader = document.querySelector(`#map-list .folder-header[data-map-id="${requestedMapId}"]`);
     if (activeMapItem) {
         activeMapItem.classList.add('active');
         let parent = activeMapItem.closest('.nested-list');
@@ -3391,21 +3885,22 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         }
     }
 
-    currentlyLoadedMapId = mapId;
-    safeSetStorage(UX_STORAGE_KEYS.lastMapId, mapId);
+    currentlyLoadedMapId = requestedMapId;
+    safeSetStorage(UX_STORAGE_KEYS.lastMapId, requestedMapId);
     loadingMapId = null;
+    schedulePostLoadPrefetch(selectedMap);
 
     if (!isEmbeddedView && window.innerWidth <= MOBILE_LAYOUT_BREAKPOINT && !container.classList.contains('sidebar-collapsed')) {
         setSidebarState('c', false);
     }
 
     if (updateHash) {
-        const newHash = generateHash(mapId, currentSidebarState);
+        const newHash = generateHash(requestedMapId, currentSidebarState);
         const currentSearch = window.location.search;
         const newUrl = buildAppUrlWithHash(newHash, currentSearch);
         history.pushState(
             {
-                mapId,
+                mapId: requestedMapId,
                 sidebarState: currentSidebarState,
                 search: currentSearch,
                 hash: newHash
@@ -3424,7 +3919,7 @@ function addRegionsToMap(mapId) {
         currentRegionGroup.clearLayers();
     }
 
-    const selectedMap = findMapRecursive(mapData, mapId);
+    const selectedMap = getMapRuntimeData(mapId);
     if (!selectedMap) return;
     const regionsToUse = visibleRegionsCache && visibleRegionsCache.length ? visibleRegionsCache : (selectedMap.regions || []);
     if (!regionsToUse || !Array.isArray(regionsToUse)) {
@@ -3769,7 +4264,7 @@ function applyTheme(theme, options = {}) {
     }
     syncThemeToggleA11y(normalizedTheme);
     applyAtmosphereLayer();
-    updateMapUnderlayColor(findMapRecursive(mapData, currentlyLoadedMapId));
+    updateMapUnderlayColor(getMapRuntimeData(currentlyLoadedMapId));
 
     if (themeAnimationTimeoutId) {
         clearTimeout(themeAnimationTimeoutId);
@@ -3822,6 +4317,7 @@ themeToggle.addEventListener('change', () => {
 
     // Update audio track if sound is enabled
     if (soundEnabled) {
+        ensureAmbientTracksLoaded();
         if (effectiveTheme === 'dark') {
             fadeAudio(lightAmbient, 0);
             fadeAudio(darkAmbient, 0.3);
@@ -3833,6 +4329,25 @@ themeToggle.addEventListener('change', () => {
 });
 
 // --- Sound Control Logic ---
+function ensureAmbientAudioLoaded(audioElement) {
+    if (!audioElement) return;
+    const source = audioElement.querySelector('source[data-src]');
+    if (!source) return;
+    if (source.dataset.loaded === 'true') return;
+
+    const src = String(source.dataset.src || '').trim();
+    if (!src) return;
+
+    source.src = withAssetVersion(src);
+    source.dataset.loaded = 'true';
+    audioElement.load();
+}
+
+function ensureAmbientTracksLoaded() {
+    ensureAmbientAudioLoaded(lightAmbient);
+    ensureAmbientAudioLoaded(darkAmbient);
+}
+
 function fadeAudio(audioElement, targetVolume, duration = 1800) {
     if (!audioElement) return;
     const existingFrame = activeAudioFadeFrameIds.get(audioElement);
@@ -3891,7 +4406,7 @@ function addRoadsToMap(mapId) {
         currentRoadGroup.clearLayers();
     }
 
-    const selectedMap = findMapRecursive(mapData, mapId);
+    const selectedMap = getMapRuntimeData(mapId);
     if (!selectedMap) return;
 
     const allLines = (visibleLinesCache && visibleLinesCache.length) ? visibleLinesCache : [...(selectedMap.roads || []), ...(selectedMap.lines || [])];
@@ -3972,6 +4487,7 @@ function initializeSoundState() {
     darkAmbient.volume = 0;
 
     if (soundEnabled && canUseSoundNow) {
+        ensureAmbientTracksLoaded();
         setSoundIcon(true);
             if (toggleSoundBtn) {
                 toggleSoundBtn.title = "Mute Sound";
@@ -4007,6 +4523,7 @@ if (toggleSoundBtn) {
         safeSetStorage(UX_STORAGE_KEYS.soundEnabled, String(soundEnabled));
 
         if (soundEnabled) {
+            ensureAmbientTracksLoaded();
             soundIcon.innerHTML = `<i class="ui-icon" data-lucide="volume-2" aria-hidden="true"></i>`;
             refreshLucideIcons();
             toggleSoundBtn.title = "Mute Sound";
@@ -4087,7 +4604,7 @@ map.on('dblclick', function (e) {
     }
     // Hide search results if clicking outside
     if (searchResultsContainer.style.display === 'block' && !searchResultsContainer.contains(e.originalEvent.target) && e.originalEvent.target !== poiSearchInput) {
-        searchResultsContainer.style.display = 'none';
+        closeSearchResults();
     }
     // Measurement logic handled separately
     // --- Hide Blurb on Map Click ---
@@ -4127,6 +4644,8 @@ window.addEventListener('popstate', (event) => {
 
     if (targetMapId !== currentlyLoadedMapId) {
         loadMap(targetMapId || '', false); // Load map without pushing new state
+    } else {
+        applySearchParamsToCurrentMap(new URLSearchParams(window.location.search));
     }
     if (targetSidebarState && targetSidebarState !== currentSidebarState) {
         setSidebarState(targetSidebarState, false); // Set sidebar without updating hash
@@ -4215,8 +4734,46 @@ poiSearchInput.addEventListener('input', debouncedUpdateVisibleMarkersAndSearch)
 poiSearchInput.addEventListener('focus', () => {
     unlockAdvancedControls('search_focus');
 });
+poiSearchInput.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        moveSearchResultSelection(1);
+        return;
+    }
+    if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        moveSearchResultSelection(-1);
+        return;
+    }
+    if (event.key === 'Enter' && activeSearchResultIndex >= 0) {
+        event.preventDefault();
+        selectSearchResult(activeSearchResultIndex);
+        return;
+    }
+    if (event.key === 'Escape') {
+        event.preventDefault();
+        closeSearchResults();
+        poiSearchInput.blur();
+    }
+});
 poiSearchInput.addEventListener('click', (e) => e.stopPropagation());
 searchResultsContainer.addEventListener('click', (e) => e.stopPropagation());
+if (searchScopeMapBtn) {
+    searchScopeMapBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        setSearchScope(SEARCH_SCOPE_MAP);
+        updateVisibleMarkersAndSearch();
+        poiSearchInput.focus();
+    });
+}
+if (searchScopeAtlasBtn) {
+    searchScopeAtlasBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        setSearchScope(SEARCH_SCOPE_ATLAS);
+        updateVisibleMarkersAndSearch();
+        poiSearchInput.focus();
+    });
+}
 if (activeFiltersContainer) {
     activeFiltersContainer.addEventListener('click', (e) => e.stopPropagation());
 }
@@ -4317,7 +4874,7 @@ function handleMeasurementClick(e) {
     if (shouldIgnoreMapPointerEvent(e)) return; // Ignore clicks on controls
 
     const clickPoint = e.latlng;
-    const currentMapInfo = findMapRecursive(mapData, currentlyLoadedMapId);
+    const currentMapInfo = getMapRuntimeData(currentlyLoadedMapId);
     const scalePx = currentMapInfo?.scalePixels;
     const scaleKm = currentMapInfo?.scaleKilometers;
     const hasValidScale = typeof scalePx === 'number' && scalePx > 0 &&
@@ -4453,7 +5010,7 @@ function handleMultiPointMeasureClick(e) {
 function handleMultiPointMouseMove(e) {
     if (!isMeasuringMultiPoint || multiPointPath.length === 0 || !currentlyLoadedMapId) return;
 
-    const currentMapInfo = findMapRecursive(mapData, currentlyLoadedMapId);
+    const currentMapInfo = getMapRuntimeData(currentlyLoadedMapId);
     const scalePx = currentMapInfo?.scalePixels;
     const scaleKm = currentMapInfo?.scaleKilometers;
 
@@ -4504,7 +5061,7 @@ function updateMeasurementTooltips() {
     }
 
     // Get map scale information
-    const currentMapInfo = findMapRecursive(mapData, currentlyLoadedMapId);
+    const currentMapInfo = getMapRuntimeData(currentlyLoadedMapId);
     const scalePx = currentMapInfo?.scalePixels;
     // Assuming scaleKilometers in JSON truly represents kilometers for this calculation
     const scaleKmValue = currentMapInfo?.scaleKilometers;
@@ -4681,9 +5238,11 @@ async function loadMapData() {
             });
         }
 
-        const response = await fetch(withAssetVersion('maps/maps.json'));
-        if (!response.ok) throw new Error(`Failed to load maps.json: ${response.statusText}`);
-        const maps = await response.json();
+        const atlas = await fetchJsonAsset('maps/atlas-index.json');
+        if (!atlas || !Array.isArray(atlas.tree)) {
+            throw new Error('Atlas index is missing a valid tree.');
+        }
+        prefetchedJsonUrls.add(withAssetVersion('maps/atlas-index.json'));
 
         if (loadingIndicator && loadingIndicator.querySelector('.progress-bar')) {
             loadingIndicator.querySelector('.progress-bar').style.width = '30%';
@@ -4694,8 +5253,8 @@ async function loadMapData() {
             });
         }
 
-        // Process map data (fetch children, etc.)
-        mapData = await processMapData(maps);
+        mapData = atlas.tree;
+        atlasSearchIndex = Array.isArray(atlas.searchIndex) ? atlas.searchIndex : [];
 
         if (loadingIndicator && loadingIndicator.querySelector('.progress-bar')) {
             loadingIndicator.querySelector('.progress-bar').style.width = '100%';
@@ -4874,7 +5433,7 @@ async function loadMapData() {
                     toggleFilterPanel(); // Your existing function
                     e.preventDefault();
                 } else if (searchResultsContainer.style.display === 'block') {
-                    searchResultsContainer.style.display = 'none';
+                    closeSearchResults();
                     if (poiSearchInput) poiSearchInput.blur();
                     e.preventDefault();
                 } else if (isMeasuringMultiPoint) { // For the new measurement tool
@@ -5130,7 +5689,7 @@ function initializeApp() {
     measureToolBtn.style.display = 'none';
     // toggleSoundBtn is handled above for embed mode, otherwise shown by initializeSoundState
     searchControlContainer.style.display = 'none';
-    searchResultsContainer.style.display = 'none';
+    closeSearchResults();
     poiFilterContainer.classList.remove('visible');
 
     // Load the determined map
@@ -5185,4 +5744,5 @@ function initializeApp() {
 }
 
 // --- Start the application by loading data ---
+registerServiceWorker();
 loadMapData();

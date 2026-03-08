@@ -1,0 +1,899 @@
+{
+  "type": "folder",
+  "id": "Arfordir",
+  "name": "Arfordir",
+  "children": [
+    {
+      "id": "Gelwood",
+      "name": "Gelwood",
+      "width": 8192,
+      "height": 6144,
+      "imageUrl": "maps/Gelwood.webp",
+      "scalePixels": 50,
+      "scaleKilometers": 3600,
+      "blurb": "Located on the southern side of the Ardoise Mountains and just off the old Chemin de Ronceval (Ronceval Road), Gelwood is a town defined by resilience. This revived frontier settlement is built upon the moss-covered stone foundations of a much older, forgotten settlement. In the last handful of years, hardy settlers from Rockdrift and Ironstream have begun to reclaim the ruins, building their homes and livelihoods amidst the ghosts of the past. It is now a burgeoning community of farmers, woodcutters, fur traders, and ambitious prospectors, all drawn by persistent tales of gold, platinum, and even diamonds hidden in the nearby mountains.",
+      "pointsOfInterest": [],
+      "regions": [
+        {
+          "id": "region-barthan's-traders",
+          "name": "Barthan's Traders",
+          "description": "Run by Barthan Ironhand, a retired dwarven prospector with a kindly smile and hands like worn stone, this shop is the heart of Gelwood's commerce. The air within smells of sawdust, cured leather, and pickling spices. Barthan's stocks everything a settler could need, from sturdy axes and mining equipment to bolts of wool cloth, dried rations, and medicinal herbs. He is a font of local knowledge and is always willing to share a bit of news or a useful rumor with his customers.",
+          "type": "General Store",
+          "color": "#583400",
+          "fillColor": "#ffd9a8",
+          "fillOpacity": 0.1,
+          "wikiLink": "",
+          "coordinates": [
+            [
+              4121,
+              4040
+            ],
+            [
+              4200,
+              4054
+            ],
+            [
+              4350,
+              4165
+            ],
+            [
+              4390,
+              4220
+            ],
+            [
+              4389,
+              4267
+            ],
+            [
+              4232,
+              4470
+            ],
+            [
+              3958,
+              4289
+            ]
+          ]
+        },
+        {
+          "id": "region-edermath-orchard",
+          "name": "Edermath Orchard",
+          "description": "This beautiful orchard is tended by the Edermath family, a quiet half-elven clan who claim their ancestors planted the original trees centuries ago. The orchard miraculously survived the downfall of the previous settlement and was reclaimed from the wild by the family. They cultivate exceptionally crisp, tart apples and produce a famously potent cider that is a favorite at the Sleeping Giant tavern. The grove is known for its serene, almost unnaturally peaceful atmosphere.",
+          "type": "Orchard",
+          "color": "#ff2600",
+          "fillColor": "#ffb5af",
+          "fillOpacity": 0.1,
+          "wikiLink": "",
+          "coordinates": [
+            [
+              4528,
+              2232
+            ],
+            [
+              4808,
+              2192
+            ],
+            [
+              4828,
+              1916
+            ],
+            [
+              4716,
+              1756
+            ],
+            [
+              4744,
+              1528
+            ],
+            [
+              4344,
+              1360
+            ],
+            [
+              4236,
+              1428
+            ],
+            [
+              4140,
+              1272
+            ],
+            [
+              3860,
+              1484
+            ],
+            [
+              3688,
+              1732
+            ],
+            [
+              3840,
+              2044
+            ],
+            [
+              4008,
+              2336
+            ],
+            [
+              4428,
+              2180
+            ]
+          ]
+        },
+        {
+          "id": "region-shrine-to-all",
+          "name": "Shrine To All",
+          "description": "Rather than a single temple, this sacred space is an open-air collection of small, hand-built shrines nestled within the crumbling stone walls of an ancient ruin. Each alcove is dedicated to a different deity, reflecting the diverse faiths of the settlers who came seeking a new life. Offerings of wildflowers, carved wooden figures, and coins are left by the hopeful. The shrine is quietly maintained by an elderly woman named Lena, who ensures that all gods, great and small, are shown their due respect.",
+          "type": "Temple",
+          "color": "#fffb00",
+          "fillColor": "#fefcdd",
+          "fillOpacity": 0.1,
+          "wikiLink": "",
+          "coordinates": [
+            [
+              3526,
+              3016
+            ],
+            [
+              3746,
+              3084
+            ],
+            [
+              3780,
+              3134
+            ],
+            [
+              3768,
+              3208
+            ],
+            [
+              3688,
+              3252
+            ],
+            [
+              3480,
+              3212
+            ],
+            [
+              3488,
+              3106
+            ]
+          ]
+        },
+        {
+          "id": "region-sleeping-giant",
+          "name": "Sleeping Giant",
+          "description": "Named for the massive, dormant mountain peak visible from its front door, this ale house is Gelwood's rowdiest establishment. Run by a boisterous and sharp-witted retired sellsword named Grelka, it is the favored haunt of prospectors, trappers, and traders. The air is thick with pipe smoke, the smell of spilled ale, and the sound of tall tales being spun. The 'Giant's Brew,' a dark and deceptively strong ale, is the tavern's signature drink and the cause of many morning regrets.",
+          "type": "Ale House",
+          "color": "#553d00",
+          "fillColor": "#fff2d5",
+          "fillOpacity": 0.1,
+          "wikiLink": "",
+          "coordinates": [
+            [
+              3352,
+              4806
+            ],
+            [
+              3570,
+              4784
+            ],
+            [
+              3714,
+              4802
+            ],
+            [
+              3754,
+              4822
+            ],
+            [
+              3832,
+              4926
+            ],
+            [
+              3872,
+              5040
+            ],
+            [
+              3846,
+              5206
+            ],
+            [
+              3800,
+              5268
+            ],
+            [
+              3682,
+              5304
+            ],
+            [
+              3610,
+              5284
+            ],
+            [
+              3328,
+              5156
+            ],
+            [
+              3364,
+              4974
+            ]
+          ]
+        },
+        {
+          "id": "region-smithy",
+          "name": "Smithy",
+          "description": "The constant, rhythmic clang of a hammer on steel is the heartbeat of Gelwood, emanating from this open-air smithy built into the sturdy foundation of an old watchtower. The smith is a powerfully built and taciturn woman named Brynn. She specializes in crafting and repairing the tools of the trade: sharp axes, durable pickaxes, and reliable shovel heads. While she can mend a sword or forge a helmet, her true passion lies in creating practical, long-lasting tools for the hardworking folk of the town.",
+          "type": "Smithy",
+          "color": "#371a94",
+          "fillColor": "#d9cafe",
+          "fillOpacity": 0.1,
+          "wikiLink": "",
+          "coordinates": [
+            [
+              3998,
+              3410
+            ],
+            [
+              4250,
+              3402
+            ],
+            [
+              4318,
+              3410
+            ],
+            [
+              4358,
+              3440
+            ],
+            [
+              4368,
+              3506
+            ],
+            [
+              4380,
+              3636
+            ],
+            [
+              4276,
+              3782
+            ],
+            [
+              4168,
+              3806
+            ],
+            [
+              3890,
+              3628
+            ],
+            [
+              3924,
+              3452
+            ]
+          ]
+        },
+        {
+          "id": "region-stonehill-inn",
+          "name": "Stonehill Inn",
+          "description": "As the only inn in Gelwood, Stonehill provides a much-needed respite for weary travelers and a quieter social hub for the locals. It is run by a warm and welcoming halfling couple, Erion and Miri Stonehill. The rooms are modest but always impeccably clean, and Miri's hearty rabbit stew is renowned along the Ronceval Road. The common room, with its crackling hearth, is a more family-friendly alternative to the Sleeping Giant, offering warm meals and softer conversation.",
+          "type": "Inn",
+          "color": "#5c0700",
+          "fillColor": "#ff8c82",
+          "fillOpacity": 0.1,
+          "wikiLink": "",
+          "coordinates": [
+            [
+              3550,
+              3448
+            ],
+            [
+              3784,
+              3580
+            ],
+            [
+              3816,
+              3694
+            ],
+            [
+              3816,
+              3744
+            ],
+            [
+              3720,
+              3920
+            ],
+            [
+              3680,
+              3950
+            ],
+            [
+              3614,
+              3976
+            ],
+            [
+              3550,
+              3974
+            ],
+            [
+              3494,
+              3948
+            ],
+            [
+              3452,
+              3890
+            ],
+            [
+              3412,
+              3774
+            ],
+            [
+              3424,
+              3672
+            ],
+            [
+              3502,
+              3514
+            ]
+          ]
+        }
+      ],
+      "roads": []
+    }
+  ],
+  "width": 7456,
+  "height": 8192,
+  "imageUrl": "maps/Arfordir.webp",
+  "scalePixels": 3,
+  "scaleKilometers": 0.1225,
+  "blurb": "This map is still a work in progress.",
+  "pointsOfInterest": [],
+  "regions": [
+    {
+      "id": "region-barony-of-fôret",
+      "name": "Barony of Fôret",
+      "description": "A barony known for its exceptional hunters, fishers, and miners, who are fierce independence.",
+      "type": "barony",
+      "color": "#228b22",
+      "fillColor": "#d6d6d6",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          1468,
+          2536
+        ],
+        [
+          1728,
+          2784
+        ],
+        [
+          1736,
+          3052
+        ],
+        [
+          1924,
+          2880
+        ],
+        [
+          1980,
+          2952
+        ],
+        [
+          1992,
+          3184
+        ],
+        [
+          2164,
+          3072
+        ],
+        [
+          2244,
+          3632
+        ],
+        [
+          2324,
+          4208
+        ],
+        [
+          2112,
+          4020
+        ],
+        [
+          2084,
+          4256
+        ],
+        [
+          1996,
+          4288
+        ],
+        [
+          1856,
+          4108
+        ],
+        [
+          1824,
+          4312
+        ],
+        [
+          1716,
+          4548
+        ],
+        [
+          1620,
+          4468
+        ],
+        [
+          1660,
+          4228
+        ],
+        [
+          1484,
+          3980
+        ],
+        [
+          1256,
+          3904
+        ],
+        [
+          1248,
+          3560
+        ],
+        [
+          1324,
+          3392
+        ],
+        [
+          1548,
+          3228
+        ],
+        [
+          1596,
+          3152
+        ],
+        [
+          1392,
+          2908
+        ],
+        [
+          1412,
+          2620
+        ]
+      ]
+    },
+    {
+      "id": "region-barony-of-pierrefond",
+      "name": "Barony of Pierrefond",
+      "description": "A pragmatic industrial barony, the House du Rocher's quiet power comes from its control over the kingdom's vital manufacturing, production, and mining.",
+      "type": "barony",
+      "color": "#b7410e",
+      "fillColor": "#a17a4a",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          1616,
+          4480
+        ],
+        [
+          1708,
+          4584
+        ],
+        [
+          2360,
+          4496
+        ],
+        [
+          2364,
+          5368
+        ],
+        [
+          1948,
+          6208
+        ],
+        [
+          1288,
+          6504
+        ],
+        [
+          1252,
+          6792
+        ],
+        [
+          808,
+          6596
+        ],
+        [
+          688,
+          6652
+        ],
+        [
+          476,
+          6580
+        ],
+        [
+          676,
+          5908
+        ],
+        [
+          1084,
+          4628
+        ],
+        [
+          1524,
+          4412
+        ]
+      ]
+    },
+    {
+      "id": "region-the-barony-of-aquitaine",
+      "name": "The Barony of Aquitaine",
+      "description": "The Barony of Aquitaine is a wealthy and opportunistic barony that gains its power from commerce, trade guilds, its powerful merchant fleet, the capital being within its lands, and its loyalty to Queen Eloise I.",
+      "type": "barony",
+      "color": "#00008b",
+      "fillColor": "#cd7f32",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          7152,
+          3484
+        ],
+        [
+          7080,
+          2684
+        ],
+        [
+          6796,
+          2160
+        ],
+        [
+          6540,
+          2048
+        ],
+        [
+          6476,
+          3592
+        ],
+        [
+          6292,
+          4620
+        ],
+        [
+          6000,
+          5656
+        ],
+        [
+          6052,
+          6040
+        ],
+        [
+          7092,
+          6248
+        ],
+        [
+          7192,
+          3700
+        ]
+      ]
+    },
+    {
+      "id": "region-the-barony-of-lac",
+      "name": "The Barony of Lac",
+      "description": "The Barony of Lac is an enigmatic and reclusive region ruled by the mystical House du Lac, who are deeply connected to the land's ancient secrets.",
+      "type": "barony",
+      "color": "#8a9a5b",
+      "fillColor": "#c0c0c0",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          6220,
+          4828
+        ],
+        [
+          6320,
+          4436
+        ],
+        [
+          5352,
+          4008
+        ],
+        [
+          5176,
+          4112
+        ],
+        [
+          5036,
+          3832
+        ],
+        [
+          4860,
+          3748
+        ],
+        [
+          4608,
+          3744
+        ],
+        [
+          4464,
+          3624
+        ],
+        [
+          4518,
+          4006
+        ],
+        [
+          4700,
+          4584
+        ],
+        [
+          4656,
+          4856
+        ],
+        [
+          4664,
+          5200
+        ],
+        [
+          4576,
+          5536
+        ],
+        [
+          4890,
+          5772
+        ],
+        [
+          5036,
+          6176
+        ],
+        [
+          5444,
+          6044
+        ],
+        [
+          5478,
+          5680
+        ],
+        [
+          5660,
+          5818
+        ],
+        [
+          5510,
+          6060
+        ],
+        [
+          5694,
+          6348
+        ],
+        [
+          5908,
+          6096
+        ],
+        [
+          5900,
+          5704
+        ],
+        [
+          6012,
+          5700
+        ]
+      ]
+    },
+    {
+      "id": "region-the-barony-of-lorraine",
+      "name": "The Barony of Lorraine",
+      "description": "A proud region, the House de Lorraine is called the homeland of Kings as acient kings were born here and the current Queen hid here during he hiding.",
+      "type": "barony",
+      "color": "#dc143c",
+      "fillColor": "#b4b4b4",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          6456,
+          2032
+        ],
+        [
+          6332,
+          3692
+        ],
+        [
+          6244,
+          4224
+        ],
+        [
+          4512,
+          3432
+        ],
+        [
+          4420,
+          2440
+        ]
+      ]
+    },
+    {
+      "id": "region-the-barony-of-montaigne",
+      "name": "The Barony of Montaigne",
+      "description": "A fiercely militaristic mountain people, the House de Montfort values strength and discipline above all else.  They see themselves as the line between Arfordir and other.",
+      "type": "barony",
+      "color": "#808080",
+      "fillColor": "#4f7942",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          5896,
+          5728
+        ],
+        [
+          6320,
+          5672
+        ],
+        [
+          6296,
+          5920
+        ],
+        [
+          7088,
+          6216
+        ],
+        [
+          6600,
+          6864
+        ],
+        [
+          6472,
+          6344
+        ],
+        [
+          6024,
+          6576
+        ],
+        [
+          5984,
+          6912
+        ],
+        [
+          5640,
+          7152
+        ],
+        [
+          5560,
+          6800
+        ],
+        [
+          5344,
+          6408
+        ],
+        [
+          5192,
+          6712
+        ],
+        [
+          5104,
+          6520
+        ],
+        [
+          4976,
+          6640
+        ],
+        [
+          4872,
+          6464
+        ],
+        [
+          4744,
+          6864
+        ],
+        [
+          4640,
+          6528
+        ],
+        [
+          3800,
+          6784
+        ],
+        [
+          3888,
+          6920
+        ],
+        [
+          3488,
+          7248
+        ],
+        [
+          3384,
+          7016
+        ],
+        [
+          2616,
+          7304
+        ],
+        [
+          2024,
+          7344
+        ],
+        [
+          1008,
+          7000
+        ],
+        [
+          760,
+          6736
+        ],
+        [
+          1376,
+          6536
+        ],
+        [
+          1968,
+          6168
+        ],
+        [
+          2248,
+          6376
+        ],
+        [
+          1696,
+          6752
+        ],
+        [
+          2408,
+          6888
+        ],
+        [
+          3216,
+          6744
+        ],
+        [
+          3720,
+          6328
+        ],
+        [
+          3872,
+          6016
+        ],
+        [
+          4168,
+          6264
+        ],
+        [
+          4768,
+          6088
+        ],
+        [
+          4888,
+          5784
+        ],
+        [
+          5040,
+          6168
+        ],
+        [
+          5440,
+          6040
+        ],
+        [
+          5472,
+          5672
+        ],
+        [
+          5656,
+          5816
+        ],
+        [
+          5512,
+          6064
+        ],
+        [
+          5696,
+          6352
+        ],
+        [
+          5904,
+          6104
+        ]
+      ]
+    }
+  ],
+  "roads": []
+}
