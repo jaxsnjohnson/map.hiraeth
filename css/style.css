@@ -862,6 +862,25 @@ body.embedded-view #search-control-container {
 .leaflet-popup-content .popup-map-jump svg {
     opacity: 0.9;
 }
+.leaflet-tooltip.poi-hover-tooltip {
+    background: color-mix(in srgb, var(--bg-secondary) 92%, transparent);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+    border-radius: 999px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+    font-family: "EB Garamond", serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    padding: 6px 10px;
+}
+.leaflet-tooltip.poi-hover-tooltip::before {
+    border-top-color: color-mix(in srgb, var(--bg-secondary) 92%, transparent);
+}
+.poi-hover-tooltip-separator {
+    opacity: 0.72;
+    padding: 0 0.15rem;
+}
 :root[data-theme="dark"] .leaflet-popup-content .popup-map-jump a,
 :root[data-theme="dark"] .leaflet-popup-content .popup-map-jump a:link,
 :root[data-theme="dark"] .leaflet-popup-content .popup-map-jump a:visited {
@@ -871,6 +890,9 @@ body.embedded-view #search-control-container {
 :root[data-theme="dark"] .leaflet-popup-content .popup-map-jump a:hover,
 :root[data-theme="dark"] .leaflet-popup-content .popup-map-jump a:active {
     background: rgba(255, 255, 255, 0.08);
+}
+:root[data-theme="dark"] .leaflet-tooltip.poi-hover-tooltip {
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
 }
 /* Buttons */
 #toggle-sidebar-btn {

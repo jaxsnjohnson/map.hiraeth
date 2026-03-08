@@ -294,6 +294,86 @@ function resolveLinkedMapData(featureData) {
     };
 }
 
+function createPoiTooltipContent(data) {
+    const safeName = sanitizeTextForHtml(data?.name || 'Unnamed Location');
+    const rawType = String(data?.type || '').trim();
+    if (!rawType) return safeName;
+
+    return `${safeName} <span class="poi-hover-tooltip-separator">•</span> ${sanitizeTextForHtml(rawType)}`;
+}
+
+function getPoiTooltipOptions() {
+    return {
+        direction: 'top',
+        offset: L.point(0, -32),
+        opacity: 0.96,
+        className: 'poi-hover-tooltip'
+    };
+}
+
+function clearTransientMapSearchParams(search = window.location.search) {
+    const params = new URLSearchParams(search);
+    [
+        'view',
+        'poi',
+        'region',
+        'line',
+        'route',
+        'step',
+        'src',
+        'stype'
+    ].forEach((key) => params.delete(key));
+
+    const nextSearch = params.toString();
+    return nextSearch ? `?${nextSearch}` : '';
+}
+
+function navigateToMap(mapId, { preResolvedMap = null, preserveSearch = false } = {}) {
+    const nextSearch = preserveSearch ? window.location.search : clearTransientMapSearchParams(window.location.search);
+    const nextHash = generateHash(mapId, currentSidebarState);
+    const nextUrl = buildAppUrlWithHash(nextHash, nextSearch);
+
+    if (`${window.location.pathname}${window.location.search}${window.location.hash}` !== nextUrl) {
+        history.pushState(
+            {
+                mapId,
+                sidebarState: currentSidebarState,
+                search: nextSearch,
+                hash: nextHash
+            },
+            '',
+            nextUrl
+        );
+    }
+
+    loadMap(mapId, false, preResolvedMap);
+}
+
+function resolveInitialMapViewport(params) {
+    const hasFeatureTarget = params.has('poi') || params.has('region') || params.has('line');
+    if (hasFeatureTarget) {
+        return { mode: 'feature' };
+    }
+
+    if (params.has('route')) {
+        return { mode: 'route' };
+    }
+
+    const explicitViewParam = params.get('view');
+    if (explicitViewParam) {
+        const [lat, lng, zoom] = explicitViewParam.split(',').map(Number);
+        if (!isNaN(lat) && !isNaN(lng) && !isNaN(zoom)) {
+            return {
+                mode: 'explicit-view',
+                view: { lat, lng, zoom },
+                rawView: explicitViewParam
+            };
+        }
+    }
+
+    return { mode: 'fit-bounds' };
+}
+
 // --- NEW: Unified Popup Content Generator ---
 function createPopupContent(data, type) {
     const safePronunciation = data.pronunciation ? sanitizeTextForHtml(data.pronunciation) : '';
@@ -1925,7 +2005,7 @@ function focusRouteStep(route, step) {
             if (step.targetId && step.targetId !== currentlyLoadedMapId) {
                 const targetMap = findMapRecursive(mapData, step.targetId);
                 if (isRenderableMapEntry(targetMap)) {
-                    loadMap(step.targetId, true, targetMap);
+                    navigateToMap(step.targetId, { preResolvedMap: targetMap, preserveSearch: true });
                 } else {
                     trackAnalytics('route_step_map_unavailable', { routeId: route.id, targetMapId: step.targetId });
                 }
@@ -2720,7 +2800,7 @@ window.openLinkedMapFromPopup = function(event, mapId) {
 
     if (trimmedMapId !== currentlyLoadedMapId) {
         trackAnalytics('linked_map_opened', { linkedMapId: trimmedMapId, fromMapId: currentlyLoadedMapId });
-        loadMap(trimmedMapId, true, targetMap);
+        navigateToMap(trimmedMapId, { preResolvedMap: targetMap });
     } else {
         map.closePopup();
     }
@@ -3082,21 +3162,17 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         }
 
         if (!featureFocused) {
-            const explicitViewParam = params.get('view');
-            const viewParam = explicitViewParam || getSavedMapView(mapId);
-            if (viewParam) {
-                const [lat, lng, zoom] = viewParam.split(',').map(Number);
-                if (!isNaN(lat) && !isNaN(lng) && !isNaN(zoom)) {
-                    map.setView([lat, lng], zoom, { animate: false });
-                    if (explicitViewParam) {
-                        trackShareViewOpenFromParams(params, explicitViewParam);
-                        const shareContext = getShareContextFromParams(params);
-                        if (shareContext) {
-                            showShareRelayPrompt(shareContext);
-                        }
-                    }
-                } else {
-                    map.fitBounds(currentBounds);
+            const initialViewport = resolveInitialMapViewport(params);
+            if (initialViewport.mode === 'explicit-view' && initialViewport.view) {
+                map.setView(
+                    [initialViewport.view.lat, initialViewport.view.lng],
+                    initialViewport.view.zoom,
+                    { animate: false }
+                );
+                trackShareViewOpenFromParams(params, initialViewport.rawView);
+                const shareContext = getShareContextFromParams(params);
+                if (shareContext) {
+                    showShareRelayPrompt(shareContext);
                 }
             } else {
                 map.fitBounds(currentBounds);
@@ -3211,6 +3287,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
                     if (marker) {
                         marker.poiData = point;
                         marker.bindPopup(createPopupContent(point, 'poi'), { minWidth: 250 });
+                        marker.bindTooltip(createPoiTooltipContent(point), getPoiTooltipOptions());
                         allMapMarkers.push(marker);
                     } else {
                         console.warn(`L.marker returned undefined for POI: ${point.name || 'Unnamed POI'}`);
@@ -3493,7 +3570,7 @@ function populateSidebar(parentElement, items) {
                 mainAction.addEventListener('click', (e) => {
                     e.stopPropagation();
                     unlockAdvancedControls('map_selected');
-                    loadMap(item.id, true);
+                    navigateToMap(item.id);
                 });
                 mainAction.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -3572,7 +3649,7 @@ function populateSidebar(parentElement, items) {
                 listItem.addEventListener('click', (e) => {
                     e.stopPropagation();
                     unlockAdvancedControls('map_selected');
-                    loadMap(item.id, true);
+                    navigateToMap(item.id);
                 });
                 listItem.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
