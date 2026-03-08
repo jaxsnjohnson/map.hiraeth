@@ -50,14 +50,6 @@ let scheduledPrefetchIdleId = null;
 const SEARCH_SCOPE_MAP = 'map';
 const SEARCH_SCOPE_ATLAS = 'atlas';
 const SEARCH_RESULT_GROUP_ORDER = ['poi', 'region', 'line', 'route', 'step', 'map'];
-const SEARCH_RESULT_GROUP_LABELS = {
-    poi: 'Points of Interest',
-    region: 'Regions',
-    line: 'Roads & Lines',
-    route: 'Routes',
-    step: 'Route Steps',
-    map: 'Atlas Maps'
-};
 let currentSearchScope = SEARCH_SCOPE_MAP;
 let renderedSearchResults = [];
 let activeSearchResultIndex = -1;
@@ -687,7 +679,6 @@ const mapBlurbElement = document.getElementById('map-blurb');
 const toggleMarkersBtn = document.getElementById('toggle-markers-btn');
 const searchControlContainer = document.getElementById('search-control-container');
 const poiSearchInput = document.getElementById('poi-search-input');
-const searchScopeMapBtn = document.getElementById('search-scope-map-btn');
 const searchScopeAtlasBtn = document.getElementById('search-scope-atlas-btn');
 const searchResultsContainer = document.getElementById('search-results-container');
 const poiFilterContainer = document.getElementById('poi-filter-container');
@@ -696,7 +687,6 @@ const toggleFiltersBtn = document.getElementById('toggle-filters-btn');
 const measureToolBtn = document.getElementById('measure-tool-btn');
 const loadingIndicator = document.getElementById('loading-indicator');
 const loadingRetryBtn = document.getElementById('loading-retry-btn');
-const searchMetaElement = document.getElementById('search-meta');
 const searchRefineFiltersBtn = document.getElementById('search-refine-filters-btn');
 const searchRefineClearBtn = document.getElementById('search-refine-clear-btn');
 const activeFiltersContainer = document.getElementById('active-filters-container');
@@ -1255,10 +1245,7 @@ function trackAnalytics(eventName, details = {}) {
 }
 
 function setSearchMeta(text = '') {
-    if (!searchMetaElement) return;
-    const normalizedText = text.trim();
-    searchMetaElement.textContent = normalizedText;
-    searchControlContainer.classList.toggle('is-searching', normalizedText.length > 0);
+    void text;
 }
 
 function setLoadingMessage(message, options = {}) {
@@ -1472,14 +1459,8 @@ function getSearchScopeLabel(scope = currentSearchScope) {
 
 function setSearchScope(scope) {
     currentSearchScope = scope === SEARCH_SCOPE_ATLAS ? SEARCH_SCOPE_ATLAS : SEARCH_SCOPE_MAP;
-    if (searchScopeMapBtn) {
-        const active = currentSearchScope === SEARCH_SCOPE_MAP;
-        searchScopeMapBtn.classList.toggle('active', active);
-        searchScopeMapBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
-    }
     if (searchScopeAtlasBtn) {
         const active = currentSearchScope === SEARCH_SCOPE_ATLAS;
-        searchScopeAtlasBtn.classList.toggle('active', active);
         searchScopeAtlasBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
     }
 }
@@ -1488,11 +1469,11 @@ function closeSearchResults({ clearMeta = true } = {}) {
     renderedSearchResults = [];
     activeSearchResultIndex = -1;
     searchResultsContainer.style.display = 'none';
-    searchResultsContainer.classList.remove('with-search-meta');
     searchResultsContainer.innerHTML = '';
     if (clearMeta) {
         setSearchMeta('');
         lastTrackedSearchSignature = '';
+        setSearchScope(SEARCH_SCOPE_MAP);
     }
 }
 
@@ -1893,19 +1874,9 @@ function updateActiveFilterChips() {
     activeFiltersContainer.innerHTML = '';
     const chips = [];
     const searchTerm = poiSearchInput.value.trim();
-    if (currentSearchScope === SEARCH_SCOPE_ATLAS) {
-        chips.push({
-            label: 'Scope: Atlas',
-            clear: () => {
-                setSearchScope(SEARCH_SCOPE_MAP);
-                updateVisibleMarkersAndSearch();
-                poiSearchInput.focus();
-            }
-        });
-    }
     if (searchTerm) {
         chips.push({
-            label: `${getSearchScopeLabel()}: ${searchTerm}`,
+            label: `Search: ${searchTerm}`,
             clear: () => {
                 poiSearchInput.value = '';
                 updateVisibleMarkersAndSearch();
@@ -1980,6 +1951,7 @@ if (searchRefineClearBtn) {
     searchRefineClearBtn.addEventListener('click', (event) => {
         event.stopPropagation();
         poiSearchInput.value = '';
+        setSearchScope(SEARCH_SCOPE_MAP);
 
         filterToggleAllCheckbox.checked = true;
         filterToggleAllCheckbox.indeterminate = false;
@@ -2109,6 +2081,7 @@ function selectSearchResult(index = activeSearchResultIndex) {
     if (!result || typeof result.onSelect !== 'function') return;
     result.onSelect();
     poiSearchInput.value = '';
+    setSearchScope(SEARCH_SCOPE_MAP);
     closeSearchResults();
     updateActiveFilterChips();
 }
@@ -2159,6 +2132,7 @@ function openAtlasSearchResult(entry) {
         '',
         nextUrl
     );
+    setSearchScope(SEARCH_SCOPE_MAP);
     loadMap(entry.mapId, false, targetMap);
     trackAnalytics('search_result_opened', {
         scope: SEARCH_SCOPE_ATLAS,
@@ -2178,21 +2152,22 @@ function renderSearchResults(term, results) {
     }
 
     if (results.length === 0) {
+        const summary = document.createElement('div');
+        summary.className = 'search-results-summary';
+        summary.textContent = `0 results in ${getSearchScopeLabel()}`;
+        searchResultsContainer.appendChild(summary);
+
         const emptyState = document.createElement('div');
         emptyState.className = 'search-results-empty';
         emptyState.textContent = `No ${getSearchScopeLabel().toLowerCase()} results match this search.`;
         searchResultsContainer.appendChild(emptyState);
     } else {
-        let currentGroup = '';
-        results.forEach((result, index) => {
-            if (result.group !== currentGroup) {
-                currentGroup = result.group;
-                const groupHeader = document.createElement('div');
-                groupHeader.className = 'search-results-group';
-                groupHeader.textContent = SEARCH_RESULT_GROUP_LABELS[currentGroup] || currentGroup;
-                searchResultsContainer.appendChild(groupHeader);
-            }
+        const summary = document.createElement('div');
+        summary.className = 'search-results-summary';
+        summary.textContent = `${results.length} result${results.length === 1 ? '' : 's'} in ${getSearchScopeLabel()}`;
+        searchResultsContainer.appendChild(summary);
 
+        results.forEach((result, index) => {
             const resultItem = document.createElement('div');
             resultItem.className = 'search-result-item';
             resultItem.dataset.resultIndex = String(index);
@@ -2227,9 +2202,6 @@ function renderSearchResults(term, results) {
     }
 
     searchResultsContainer.style.display = 'block';
-    searchResultsContainer.classList.add('with-search-meta');
-    const scopeLabel = getSearchScopeLabel();
-    setSearchMeta(`${results.length} result${results.length === 1 ? '' : 's'} in ${scopeLabel} for "${poiSearchInput.value.trim()}"`);
     setActiveSearchResult(activeSearchResultIndex);
 
     const searchSignature = `${currentSearchScope}:${term}:${results.length}`;
@@ -2246,9 +2218,9 @@ function renderSearchResults(term, results) {
 function sortSearchResults(results) {
     return results
         .sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
             const groupDelta = SEARCH_RESULT_GROUP_ORDER.indexOf(a.group) - SEARCH_RESULT_GROUP_ORDER.indexOf(b.group);
             if (groupDelta !== 0) return groupDelta;
-            if (b.score !== a.score) return b.score - a.score;
             return a.title.localeCompare(b.title);
         })
         .slice(0, 40);
@@ -2425,6 +2397,7 @@ function updateVisibleMarkersAndSearch() {
     }
 
     if (!searchTerm) {
+        setSearchScope(SEARCH_SCOPE_MAP);
         closeSearchResults();
     } else {
         renderSearchResults(searchTerm, sortSearchResults(results));
@@ -4758,18 +4731,11 @@ poiSearchInput.addEventListener('keydown', (event) => {
 });
 poiSearchInput.addEventListener('click', (e) => e.stopPropagation());
 searchResultsContainer.addEventListener('click', (e) => e.stopPropagation());
-if (searchScopeMapBtn) {
-    searchScopeMapBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        setSearchScope(SEARCH_SCOPE_MAP);
-        updateVisibleMarkersAndSearch();
-        poiSearchInput.focus();
-    });
-}
 if (searchScopeAtlasBtn) {
     searchScopeAtlasBtn.addEventListener('click', (event) => {
         event.stopPropagation();
-        setSearchScope(SEARCH_SCOPE_ATLAS);
+        const nextScope = currentSearchScope === SEARCH_SCOPE_ATLAS ? SEARCH_SCOPE_MAP : SEARCH_SCOPE_ATLAS;
+        setSearchScope(nextScope);
         updateVisibleMarkersAndSearch();
         poiSearchInput.focus();
     });

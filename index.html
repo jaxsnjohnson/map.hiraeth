@@ -239,21 +239,16 @@
             <div id="active-filters-container" class="leaflet-control" aria-live="polite"></div>
             <div id="search-control-container" class="leaflet-control">
                 <label for="poi-search-input" class="sr-only">Search locations</label>
-                <div class="search-scope-toggle" role="group" aria-label="Search scope">
-                    <button id="search-scope-map-btn" type="button" class="active" aria-pressed="true">This Map</button>
-                    <button id="search-scope-atlas-btn" type="button" aria-pressed="false">Atlas</button>
-                </div>
                 <div class="search-input-shell">
                     <input type="search" id="poi-search-input" placeholder="Search locations...">
                     <div class="search-inline-actions">
+                        <button id="search-scope-atlas-btn" type="button" aria-pressed="false">Atlas</button>
                         <button id="search-refine-filters-btn" type="button">Filters</button>
                         <button id="search-refine-clear-btn" type="button">Clear</button>
                     </div>
                 </div>
-                <div id="search-meta" class="search-meta" aria-live="polite"></div>
             </div>
-            <div id="search-results-container" class="leaflet-control">
-                </div>
+            <div id="search-results-container" class="leaflet-control"></div>
             <div id="route-panel" class="leaflet-control">
                 <div class="panel-header">
                     <div>
