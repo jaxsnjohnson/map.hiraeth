@@ -422,6 +422,20 @@
                 <div id="tab-changelog" class="tab-content">
                     <div class="changelog-entry">
                         <div class="changelog-header">
+                            <h3>Atlas Performance + Search Refinement</h3>
+                            <span class="version-pill">v1.2.0</span>
+                        </div>
+                        <ul class="changelog-list">
+                            <li>Reworked startup loading around a generated atlas index so the map list and atlas metadata load faster without recursively fetching every map definition at boot.</li>
+                            <li>Added on-demand full map loading, bounded idle prefetching for likely next maps, and normalized image variant support for cleaner mobile/desktop asset selection.</li>
+                            <li>Added same-origin offline caching for the app shell, atlas data, and previously opened map assets to improve repeat visits and resilience.</li>
+                            <li>Changed ambient sound loading to lazy-load on first use instead of eagerly downloading both tracks at startup.</li>
+                            <li>Refined search with weighted result ranking, atlas-wide lookup, keyboard navigation, and more compact result rows with lighter visual hierarchy.</li>
+                            <li>Polished search highlighting and result spacing so matched text no longer widens awkwardly in the search results list.</li>
+                        </ul>
+                    </div>
+                    <div class="changelog-entry">
+                        <div class="changelog-header">
                             <h3>Stability + UX Polish</h3>
                             <span class="version-pill">v1.1.2</span>
                         </div>
