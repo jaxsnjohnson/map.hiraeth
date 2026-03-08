@@ -1547,7 +1547,7 @@ function highlightSearchText(text, term) {
     const safeText = escapeHtml(text);
     if (!term) return safeText;
     const escapedTerm = escapeRegExp(term);
-    return safeText.replace(new RegExp(escapedTerm, 'gi'), '<strong>$&</strong>');
+    return safeText.replace(new RegExp(escapedTerm, 'gi'), '<span class="search-result-highlight">$&</span>');
 }
 
 function scheduleIdleTask(callback, timeout = 900) {
@@ -2177,7 +2177,16 @@ function renderSearchResults(term, results) {
 
             const titleRow = document.createElement('div');
             titleRow.className = 'search-result-title';
-            titleRow.innerHTML = `${highlightSearchText(result.title, term)} <span class="badge-kind">${escapeHtml(result.badge)}</span>`;
+            const titleLabel = document.createElement('span');
+            titleLabel.className = 'search-result-label';
+            titleLabel.innerHTML = highlightSearchText(result.title, term);
+
+            const badge = document.createElement('span');
+            badge.className = 'badge-kind';
+            badge.textContent = result.badge;
+
+            titleRow.appendChild(titleLabel);
+            titleRow.appendChild(badge);
 
             const metaRow = document.createElement('div');
             metaRow.className = 'search-result-meta';
