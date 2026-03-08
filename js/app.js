@@ -311,6 +311,31 @@ function getPoiTooltipOptions() {
     };
 }
 
+function attachPoiTooltipBehavior(marker) {
+    if (!marker || typeof marker.on !== 'function') return marker;
+
+    marker.poiPopupActive = false;
+
+    marker.on('popupopen', () => {
+        marker.poiPopupActive = true;
+        if (typeof marker.closeTooltip === 'function') {
+            marker.closeTooltip();
+        }
+    });
+
+    marker.on('popupclose', () => {
+        marker.poiPopupActive = false;
+    });
+
+    marker.on('tooltipopen', () => {
+        if (marker.poiPopupActive && typeof marker.closeTooltip === 'function') {
+            marker.closeTooltip();
+        }
+    });
+
+    return marker;
+}
+
 function clearTransientMapSearchParams(search = window.location.search) {
     const params = new URLSearchParams(search);
     [
@@ -3288,6 +3313,7 @@ function loadMap(mapId, updateHash = true, preResolvedMap = null) {
                         marker.poiData = point;
                         marker.bindPopup(createPopupContent(point, 'poi'), { minWidth: 250 });
                         marker.bindTooltip(createPoiTooltipContent(point), getPoiTooltipOptions());
+                        attachPoiTooltipBehavior(marker);
                         allMapMarkers.push(marker);
                     } else {
                         console.warn(`L.marker returned undefined for POI: ${point.name || 'Unnamed POI'}`);
