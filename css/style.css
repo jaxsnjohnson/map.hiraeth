@@ -2261,6 +2261,7 @@ kbd {
     font-size: 0.85rem;
     font-weight: 600;
     border: 1px solid var(--glass-border-light);
+    cursor: help;
 }
 
 :root[data-theme="dark"] .version-pill {
