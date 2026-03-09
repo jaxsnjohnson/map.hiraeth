@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-09T05:29:40.464Z",
+  "generatedAt": "2026-03-09T06:29:00.029Z",
   "tree": [
     {
       "type": "folder",
@@ -2889,6 +2889,18 @@
     {
       "kind": "poi",
       "id": "poi:main_continent:0",
+      "itemId": "Apsley",
+      "mapId": "main_continent",
+      "mapName": "Content Map",
+      "name": "Apsley",
+      "summary": "",
+      "description": "",
+      "typeLabel": "Capital",
+      "visibility": "public"
+    },
+    {
+      "kind": "poi",
+      "id": "poi:main_continent:1",
       "itemId": "Argyra",
       "mapId": "main_continent",
       "mapName": "Content Map",
@@ -2900,7 +2912,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:main_continent:1",
+      "id": "poi:main_continent:2",
       "itemId": "Castgate",
       "mapId": "main_continent",
       "mapName": "Content Map",
@@ -2912,7 +2924,19 @@
     },
     {
       "kind": "poi",
-      "id": "poi:main_continent:2",
+      "id": "poi:main_continent:3",
+      "itemId": "Ceremead",
+      "mapId": "main_continent",
+      "mapName": "Content Map",
+      "name": "Ceremead",
+      "summary": "",
+      "description": "",
+      "typeLabel": "Capital",
+      "visibility": "public"
+    },
+    {
+      "kind": "poi",
+      "id": "poi:main_continent:4",
       "itemId": "Delphi",
       "mapId": "main_continent",
       "mapName": "Content Map",
@@ -2924,7 +2948,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:main_continent:3",
+      "id": "poi:main_continent:5",
       "itemId": "Fook & Took",
       "mapId": "main_continent",
       "mapName": "Content Map",
@@ -2936,7 +2960,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:main_continent:4",
+      "id": "poi:main_continent:6",
       "itemId": "Gorá-Sirotá",
       "mapId": "main_continent",
       "mapName": "Content Map",
@@ -2948,7 +2972,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:main_continent:5",
+      "id": "poi:main_continent:7",
       "itemId": "Harold-Ford",
       "mapId": "main_continent",
       "mapName": "Content Map",
@@ -2960,7 +2984,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:main_continent:6",
+      "id": "poi:main_continent:8",
       "itemId": "Katia",
       "mapId": "main_continent",
       "mapName": "Content Map",
@@ -2972,7 +2996,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:main_continent:7",
+      "id": "poi:main_continent:9",
       "itemId": "Kausis",
       "mapId": "main_continent",
       "mapName": "Content Map",
@@ -2984,7 +3008,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:main_continent:8",
+      "id": "poi:main_continent:10",
       "itemId": "Mnemosyne",
       "mapId": "main_continent",
       "mapName": "Content Map",
@@ -2996,7 +3020,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:main_continent:9",
+      "id": "poi:main_continent:11",
       "itemId": "Morana's Fang",
       "mapId": "main_continent",
       "mapName": "Content Map",
@@ -3008,7 +3032,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:main_continent:10",
+      "id": "poi:main_continent:12",
       "itemId": "Mt. Primo",
       "mapId": "main_continent",
       "mapName": "Content Map",
@@ -3020,7 +3044,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:main_continent:11",
+      "id": "poi:main_continent:13",
       "itemId": "Obol",
       "mapId": "main_continent",
       "mapName": "Content Map",
@@ -3032,7 +3056,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:main_continent:12",
+      "id": "poi:main_continent:14",
       "itemId": "Rockdrift",
       "mapId": "main_continent",
       "mapName": "Content Map",
@@ -3044,7 +3068,19 @@
     },
     {
       "kind": "poi",
-      "id": "poi:main_continent:13",
+      "id": "poi:main_continent:15",
+      "itemId": "Sindel",
+      "mapId": "main_continent",
+      "mapName": "Content Map",
+      "name": "Sindel",
+      "summary": "",
+      "description": "",
+      "typeLabel": "City",
+      "visibility": "public"
+    },
+    {
+      "kind": "poi",
+      "id": "poi:main_continent:16",
       "itemId": "Skjoldvik",
       "mapId": "main_continent",
       "mapName": "Content Map",
@@ -3056,7 +3092,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:main_continent:14",
+      "id": "poi:main_continent:17",
       "itemId": "Stomion",
       "mapId": "main_continent",
       "mapName": "Content Map",
@@ -3068,7 +3104,19 @@
     },
     {
       "kind": "poi",
-      "id": "poi:main_continent:15",
+      "id": "poi:main_continent:18",
+      "itemId": "Sucardia",
+      "mapId": "main_continent",
+      "mapName": "Content Map",
+      "name": "Sucardia",
+      "summary": "",
+      "description": "",
+      "typeLabel": "Capital",
+      "visibility": "public"
+    },
+    {
+      "kind": "poi",
+      "id": "poi:main_continent:19",
       "itemId": "The Fractured Point",
       "mapId": "main_continent",
       "mapName": "Content Map",
@@ -3080,7 +3128,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:main_continent:16",
+      "id": "poi:main_continent:20",
       "itemId": "The Iron Throne of the Bash",
       "mapId": "main_continent",
       "mapName": "Content Map",
@@ -3092,7 +3140,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:main_continent:17",
+      "id": "poi:main_continent:21",
       "itemId": "Vincuta",
       "mapId": "main_continent",
       "mapName": "Content Map",

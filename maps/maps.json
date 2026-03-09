@@ -24395,6 +24395,19 @@
     "pointsOfInterest": [
       {
         "coords": [
+          1592,
+          1817
+        ],
+        "name": "Apsley",
+        "pronunciation": "",
+        "type": "Capital",
+        "description": "",
+        "summary": "",
+        "wikiLink": "",
+        "properties": {}
+      },
+      {
+        "coords": [
           1636,
           5351
         ],
@@ -24420,6 +24433,19 @@
         "properties": {
           "Population": "15,000"
         }
+      },
+      {
+        "coords": [
+          2176,
+          3901
+        ],
+        "name": "Ceremead",
+        "pronunciation": "",
+        "type": "Capital",
+        "description": "",
+        "summary": "",
+        "wikiLink": "",
+        "properties": {}
       },
       {
         "coords": [
@@ -24566,6 +24592,19 @@
       },
       {
         "coords": [
+          1888,
+          2906
+        ],
+        "name": "Sindel",
+        "pronunciation": "",
+        "type": "City",
+        "description": "",
+        "summary": "",
+        "wikiLink": "",
+        "properties": {}
+      },
+      {
+        "coords": [
           4108,
           2020
         ],
@@ -24586,6 +24625,19 @@
         "pronunciation": "",
         "type": "City",
         "description": "A massive, grim port city built into a river delta. Beccin 'Customs Officers' act as state-sponsored gangsters, demanding bribes to let fishing boats leave. The air smells of brine and unwashed bodies.",
+        "summary": "",
+        "wikiLink": "",
+        "properties": {}
+      },
+      {
+        "coords": [
+          1667,
+          1795
+        ],
+        "name": "Sucardia",
+        "pronunciation": "",
+        "type": "Capital",
+        "description": "",
         "summary": "",
         "wikiLink": "",
         "properties": {}
