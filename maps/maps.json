@@ -19029,6 +19029,7 @@
       {
         "id": "The-Port-City-of-Stomion",
         "name": "The Port City of Stomion",
+        "dataUrl": "maps/The-Port-City-of-Stomion.json",
         "width": 4096,
         "height": 3072,
         "imageUrl": "maps/The-Port-City-of-Stomion.webp",

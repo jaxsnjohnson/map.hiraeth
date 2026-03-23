@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-09T06:29:00.029Z",
+  "generatedAt": "2026-03-23T02:56:42.769Z",
   "tree": [
     {
       "type": "folder",
@@ -98,7 +98,7 @@
           "imageUrl": "maps/The-Port-City-of-Stomion.webp",
           "scalePixels": 4080,
           "scaleKilometers": 13,
-          "dataUrl": "maps/generated/The-Port-City-of-Stomion.json"
+          "dataUrl": "maps/The-Port-City-of-Stomion.json"
         }
       ]
     },
@@ -2050,6 +2050,18 @@
     {
       "kind": "poi",
       "id": "poi:The-Port-City-of-Stomion:5",
+      "itemId": "Entrence to Diobolic Sewer",
+      "mapId": "The-Port-City-of-Stomion",
+      "mapName": "The Port City of Stomion",
+      "name": "Entrence to Diobolic Sewer",
+      "summary": "",
+      "description": "",
+      "typeLabel": "Point of Interest",
+      "visibility": "public"
+    },
+    {
+      "kind": "poi",
+      "id": "poi:The-Port-City-of-Stomion:6",
       "itemId": "Govenors Gate",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2061,7 +2073,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:6",
+      "id": "poi:The-Port-City-of-Stomion:7",
       "itemId": "Governor's Castle",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2073,7 +2085,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:7",
+      "id": "poi:The-Port-City-of-Stomion:8",
       "itemId": "Hags Hovel",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2085,7 +2097,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:8",
+      "id": "poi:The-Port-City-of-Stomion:9",
       "itemId": "HARBOUR AUTHORITY",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2097,7 +2109,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:9",
+      "id": "poi:The-Port-City-of-Stomion:10",
       "itemId": "Hera Vlachouli's Institute of the Arcane",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2109,7 +2121,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:10",
+      "id": "poi:The-Port-City-of-Stomion:11",
       "itemId": "House of Coin God",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2121,7 +2133,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:11",
+      "id": "poi:The-Port-City-of-Stomion:12",
       "itemId": "House of the Lost and Wayward",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2133,7 +2145,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:12",
+      "id": "poi:The-Port-City-of-Stomion:13",
       "itemId": "Imperial Admirality",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2145,7 +2157,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:13",
+      "id": "poi:The-Port-City-of-Stomion:14",
       "itemId": "Imperial Offices",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2157,7 +2169,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:14",
+      "id": "poi:The-Port-City-of-Stomion:15",
       "itemId": "Imperial State Library",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2169,7 +2181,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:15",
+      "id": "poi:The-Port-City-of-Stomion:16",
       "itemId": "Iron Coffers' Hall",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2181,7 +2193,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:16",
+      "id": "poi:The-Port-City-of-Stomion:17",
       "itemId": "Mayor's Manor",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2193,7 +2205,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:17",
+      "id": "poi:The-Port-City-of-Stomion:18",
       "itemId": "Mélissa Bees",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2205,7 +2217,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:18",
+      "id": "poi:The-Port-City-of-Stomion:19",
       "itemId": "MERCHANT GATE",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2217,7 +2229,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:19",
+      "id": "poi:The-Port-City-of-Stomion:20",
       "itemId": "Merchant Senate",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2229,7 +2241,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:20",
+      "id": "poi:The-Port-City-of-Stomion:21",
       "itemId": "Oikos Atrium",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2241,7 +2253,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:21",
+      "id": "poi:The-Port-City-of-Stomion:22",
       "itemId": "Ol' Fort",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2253,7 +2265,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:22",
+      "id": "poi:The-Port-City-of-Stomion:23",
       "itemId": "Old Gate",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2265,7 +2277,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:23",
+      "id": "poi:The-Port-City-of-Stomion:24",
       "itemId": "Ossurian Forges Embassy",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2277,7 +2289,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:24",
+      "id": "poi:The-Port-City-of-Stomion:25",
       "itemId": "Outdoor Theater",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2289,7 +2301,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:25",
+      "id": "poi:The-Port-City-of-Stomion:26",
       "itemId": "State Goverment Building",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2301,7 +2313,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:26",
+      "id": "poi:The-Port-City-of-Stomion:27",
       "itemId": "Station",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2313,7 +2325,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:27",
+      "id": "poi:The-Port-City-of-Stomion:28",
       "itemId": "THE ARTISAN'S GUILD",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2325,7 +2337,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:28",
+      "id": "poi:The-Port-City-of-Stomion:29",
       "itemId": "THE ARTISAN'S MARKET",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2337,7 +2349,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:29",
+      "id": "poi:The-Port-City-of-Stomion:30",
       "itemId": "The Bath of Some god",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2349,7 +2361,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:30",
+      "id": "poi:The-Port-City-of-Stomion:31",
       "itemId": "THE GREAT WAREHOUSE",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2361,7 +2373,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:31",
+      "id": "poi:The-Port-City-of-Stomion:32",
       "itemId": "THE HIGH BEACON",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2373,7 +2385,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:32",
+      "id": "poi:The-Port-City-of-Stomion:33",
       "itemId": "The High Hammer of Matrix",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2385,7 +2397,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:33",
+      "id": "poi:The-Port-City-of-Stomion:34",
       "itemId": "The House of some other god?",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2397,7 +2409,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:34",
+      "id": "poi:The-Port-City-of-Stomion:35",
       "itemId": "THE JEWELER'S GUILD",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2409,7 +2421,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:35",
+      "id": "poi:The-Port-City-of-Stomion:36",
       "itemId": "The North Gate",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2421,7 +2433,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:36",
+      "id": "poi:The-Port-City-of-Stomion:37",
       "itemId": "The Observatory",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2433,7 +2445,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:37",
+      "id": "poi:The-Port-City-of-Stomion:38",
       "itemId": "THE RAILDOCK",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2445,7 +2457,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:38",
+      "id": "poi:The-Port-City-of-Stomion:39",
       "itemId": "The Rested Raven",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2457,7 +2469,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:39",
+      "id": "poi:The-Port-City-of-Stomion:40",
       "itemId": "The Shop",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2469,7 +2481,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:40",
+      "id": "poi:The-Port-City-of-Stomion:41",
       "itemId": "THE WATERLILY",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2481,7 +2493,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:41",
+      "id": "poi:The-Port-City-of-Stomion:42",
       "itemId": "THE WATERLOCK",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2493,7 +2505,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:42",
+      "id": "poi:The-Port-City-of-Stomion:43",
       "itemId": "The Watertowers",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2505,7 +2517,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:43",
+      "id": "poi:The-Port-City-of-Stomion:44",
       "itemId": "Tourney Grounds",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2517,7 +2529,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:44",
+      "id": "poi:The-Port-City-of-Stomion:45",
       "itemId": "Wizard's Tower",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2529,7 +2541,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:45",
+      "id": "poi:The-Port-City-of-Stomion:46",
       "itemId": "Wolgari Trading Company Dock and House of Trade",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",
@@ -2541,7 +2553,7 @@
     },
     {
       "kind": "poi",
-      "id": "poi:The-Port-City-of-Stomion:46",
+      "id": "poi:The-Port-City-of-Stomion:47",
       "itemId": "Woodhollow Farm",
       "mapId": "The-Port-City-of-Stomion",
       "mapName": "The Port City of Stomion",

@@ -55,7 +55,7 @@
       "name": "Cat and Hound",
       "pronunciation": "",
       "type": "Point of Interest",
-      "description": "The Cat and Hound is a warm, cozy sanctuary situated on a raised mezzanine level overlooking the street, its timbers vibrating gently with the rhythmic passing of nearby trains. Owned by the sisters Kallista and Eleni, the tavern is a beloved staple for the city's mid-level workers looking for a quiet evening. Kallista, a stoic veteran of the national army, is known as 'The Hound,' while the tavern's name serves as a quiet, melancholic memorial to her lost lover, a Felis—'The Cat'—who vanished during the war. While Kallista handles security and the heavy lifting, Eleni, who worked the floor under the previous owner, manages the patrons with practiced grace. They are famous for serving high-quality meals at unbeatable prices, a feat accomplished by the sisters personally scouring the markets at dawn to source fresh ingredients themselves. Open only from 4 PM to midnight, the tavern enforces strict rules against politics and magic, allowing patrons to enjoy the piano music and hearty stew while the owners secretly harbor sympathies for the rebellion.",     
+      "description": "The Cat and Hound is a warm, cozy sanctuary situated on a raised mezzanine level overlooking the street, its timbers vibrating gently with the rhythmic passing of nearby trains. Owned by the sisters Kallista and Eleni, the tavern is a beloved staple for the city's mid-level workers looking for a quiet evening. Kallista, a stoic veteran of the national army, is known as 'The Hound,' while the tavern's name serves as a quiet, melancholic memorial to her lost lover, a Felis—'The Cat'—who vanished during the war. While Kallista handles security and the heavy lifting, Eleni, who worked the floor under the previous owner, manages the patrons with practiced grace. They are famous for serving high-quality meals at unbeatable prices, a feat accomplished by the sisters personally scouring the markets at dawn to source fresh ingredients themselves. Open only from 4 PM to midnight, the tavern enforces strict rules against politics and magic, allowing patrons to enjoy the piano music and hearty stew while the owners secretly harbor sympathies for the rebellion.",
       "summary": "A cozy, evening-only tavern run by two sisters, offering cheap, hearty food and a welcoming atmosphere on a lowered building near the train tracks.",
       "wikiLink": "",
       "properties": {}
@@ -66,6 +66,19 @@
         2329
       ],
       "name": "Chimgate",
+      "pronunciation": "",
+      "type": "Point of Interest",
+      "description": "",
+      "summary": "",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        1326,
+        1966
+      ],
+      "name": "Entrence to Diobolic Sewer",
       "pronunciation": "",
       "type": "Point of Interest",
       "description": "",
