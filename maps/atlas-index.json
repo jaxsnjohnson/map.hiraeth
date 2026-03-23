@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-23T02:56:42.769Z",
+  "generatedAt": "2026-03-23T03:03:00.988Z",
   "tree": [
     {
       "type": "folder",
@@ -2905,8 +2905,8 @@
       "mapId": "main_continent",
       "mapName": "Content Map",
       "name": "Apsley",
-      "summary": "",
-      "description": "",
+      "summary": "Apsley is the cliffside capital of the Commonwealth of Half Height, famed for its trade, wealth, and white-stone terraces.",
+      "description": "Apsley is the principal city and political heart of the Commonwealth of Half Height, rising in bright tiers of stone, stucco, and retaining walls from its busy docks to its sunlit upper terraces. Long admired as a free-port miracle, the city is known for its ministries, merchant houses, embassies, legal arcades, and the great gondola-funicular spine that binds its heights together. Yet Apsley’s prosperity rests upon a deep social divide: the upper wards enjoy ceremony, comfort, and influence, while the lower districts bear the burdens of freight, customs, industry, and unrest. Its culture is shaped by halfling household politics, public hospitality, and reputation-driven commerce, giving the city a reputation for both generosity and quiet coercion. To admirers, Apsley is proof that disciplined law and trade can secure independence in a dangerous world; to critics, it is a city of polished facades sustained by patronage, inequality, and carefully managed disorder.",
       "typeLabel": "Capital",
       "visibility": "public"
     },
