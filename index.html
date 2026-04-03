@@ -121,32 +121,10 @@
     </script>
 </head>
 <body>
-    <div class="container">
+        <div class="container">
         <div id="sidebar">
             <div class="sidebar-header">
                 <h2>Select Map</h2>
-                <button id="mobile-sidebar-close-btn" type="button" aria-label="Close map drawer">
-                    <i class="ui-icon" data-lucide="x" aria-hidden="true"></i>
-                </button>
-            </div>
-            <div id="mobile-sidebar-meta" hidden>
-                <div class="mobile-sidebar-meta-copy">
-                    <span class="mobile-sidebar-label">Current Map</span>
-                    <strong id="mobile-current-map-name">Atlas</strong>
-                </div>
-                <button id="mobile-map-blurb-toggle-btn" type="button" aria-expanded="false">Map Details</button>
-                <div id="mobile-map-blurb-panel" hidden></div>
-            </div>
-            <div id="mobile-sidebar-actions" hidden>
-                <div class="mobile-sidebar-section-title">Utilities</div>
-                <div class="mobile-sidebar-actions-grid">
-                    <button id="mobile-markers-btn" type="button" aria-pressed="false">Markers</button>
-                    <button id="mobile-measure-btn" type="button" aria-pressed="false">Measure</button>
-                    <button id="mobile-share-view-btn" type="button">Share View</button>
-                    <button id="mobile-sound-btn" type="button" aria-pressed="false">Sound</button>
-                    <button id="mobile-coords-btn" type="button" aria-pressed="false">Coords</button>
-                    <button id="mobile-help-btn" type="button">Guide</button>
-                </div>
             </div>
             <ul id="map-list">
                 </ul>
@@ -157,20 +135,10 @@
                 </label>
                 <span>Theme</span>
             </div>
-            <div id="mobile-sidebar-links" hidden>
-                <a href="https://jsnj.link/maps-to-wiki" target="_blank" rel="noopener noreferrer">Wiki</a>
-                <a href="https://jsnj.link/maps-blog-post" target="_blank" rel="noopener noreferrer">Blog</a>
-                <button id="mobile-about-link" type="button">About</button>
-                <a href="https://jsnj.link/map-hiraeth-source" target="_blank" rel="noopener noreferrer">Source</a>
-            </div>
         </div>
         <div id="map-container">
             <button id="toggle-sidebar-btn" title="Collapse Sidebar" aria-label="Collapse Sidebar" aria-expanded="true">
                 <i class="ui-icon" data-lucide="chevron-left" aria-hidden="true"></i>
-            </button>
-            <button id="mobile-search-trigger" type="button" aria-label="Open search" aria-expanded="false">
-                <i class="ui-icon" data-lucide="search" aria-hidden="true"></i>
-                <span>Search atlas</span>
             </button>
             <div id="map">
                 <div id="star-field">
@@ -264,35 +232,81 @@
             </div>
 
             <div id="active-filters-container" class="leaflet-control" aria-live="polite"></div>
-            <div id="mobile-search-shell" aria-hidden="true">
-                <div id="mobile-search-header">
-                    <div class="mobile-search-header-copy">
-                        <strong>Search the Atlas</strong>
-                        <span>Find maps, places, regions, and routes.</span>
+
+            <div id="mobile-sheet" aria-hidden="true">
+                <div class="mobile-sheet-handle" aria-hidden="true"></div>
+                <div id="mobile-sheet-header">
+                    <div class="mobile-sheet-header-copy">
+                        <span class="mobile-sheet-eyebrow">Atlas</span>
+                        <strong id="mobile-sheet-title">Explore</strong>
                     </div>
-                    <button id="mobile-search-close-btn" type="button" aria-label="Close search">
+                    <button id="mobile-sheet-close-btn" type="button" aria-label="Close panel">
                         <i class="ui-icon" data-lucide="x" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div id="search-control-container" class="leaflet-control">
-                    <label for="poi-search-input" class="sr-only">Search locations</label>
-                    <div class="search-input-shell">
-                        <input type="search" id="poi-search-input" placeholder="Search locations...">
-                        <div class="search-inline-actions">
-                            <button id="search-scope-atlas-btn" type="button" aria-pressed="false">Atlas</button>
-                            <button id="search-refine-filters-btn" type="button">Filters</button>
-                            <button id="search-refine-clear-btn" type="button">Clear</button>
+                <div id="mobile-sheet-mode-tabs" role="tablist" aria-label="Mobile panel mode">
+                    <button id="mobile-sheet-mode-explore-btn" type="button" role="tab" aria-selected="true" aria-controls="mobile-sheet-explore-panel">Explore</button>
+                    <button id="mobile-sheet-mode-map-btn" type="button" role="tab" aria-selected="false" aria-controls="mobile-sheet-map-panel">Map</button>
+                </div>
+                <div id="mobile-sheet-body">
+                    <section id="mobile-sheet-explore-panel" aria-labelledby="mobile-sheet-mode-explore-btn">
+                        <div id="mobile-sheet-search-slot"></div>
+                        <div id="mobile-map-list-section">
+                            <div class="mobile-sheet-section-title">Maps</div>
+                            <div id="mobile-map-list-slot"></div>
                         </div>
+                    </section>
+                    <section id="mobile-sheet-map-panel" aria-labelledby="mobile-sheet-mode-map-btn" hidden>
+                        <div id="mobile-map-meta">
+                            <div class="mobile-map-meta-copy">
+                                <span class="mobile-sheet-section-label">Current Map</span>
+                                <strong id="mobile-current-map-name">Atlas</strong>
+                            </div>
+                            <button id="mobile-map-blurb-toggle-btn" type="button" aria-expanded="false">Map Details</button>
+                            <div id="mobile-map-blurb-panel" hidden></div>
+                        </div>
+                        <div id="mobile-sheet-actions">
+                            <div class="mobile-sheet-section-title">Utilities</div>
+                            <div class="mobile-sheet-actions-grid">
+                                <button id="mobile-markers-btn" type="button" aria-pressed="false">Markers</button>
+                                <button id="mobile-measure-btn" type="button" aria-pressed="false">Measure</button>
+                                <button id="mobile-share-view-btn" type="button">Share View</button>
+                                <button id="mobile-sound-btn" type="button" aria-pressed="false">Sound</button>
+                                <button id="mobile-coords-btn" type="button" aria-pressed="false">Coords</button>
+                                <button id="mobile-help-btn" type="button">Guide</button>
+                            </div>
+                        </div>
+                        <div id="mobile-sheet-more">
+                            <div class="mobile-sheet-section-title">More</div>
+                            <div id="mobile-theme-slot"></div>
+                            <div id="mobile-sheet-links">
+                                <a href="https://jsnj.link/maps-to-wiki" target="_blank" rel="noopener noreferrer">Wiki</a>
+                                <a href="https://jsnj.link/maps-blog-post" target="_blank" rel="noopener noreferrer">Blog</a>
+                                <button id="mobile-about-link" type="button">About</button>
+                                <a href="https://jsnj.link/map-hiraeth-source" target="_blank" rel="noopener noreferrer">Source</a>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <div id="search-control-container" class="leaflet-control">
+                <label for="poi-search-input" class="sr-only">Search locations</label>
+                <div class="search-input-shell">
+                    <input type="search" id="poi-search-input" placeholder="Search locations...">
+                    <div class="search-inline-actions">
+                        <button id="search-scope-atlas-btn" type="button" aria-pressed="false">Atlas</button>
+                        <button id="search-refine-filters-btn" type="button">Filters</button>
+                        <button id="search-refine-clear-btn" type="button">Clear</button>
                     </div>
                 </div>
-                <div id="search-results-container" class="leaflet-control"></div>
-                <div id="poi-filter-container" class="leaflet-control">
-                     <h3>Filter by Type:</h3>
-                     <div class="filter-item">
-                         <input type="checkbox" id="filter-toggle-all" checked>
-                         <label for="filter-toggle-all">Show All / Hide All</label>
-                     </div>
-                </div>
+            </div>
+            <div id="search-results-container" class="leaflet-control"></div>
+            <div id="poi-filter-container" class="leaflet-control">
+                 <h3>Filter by Type:</h3>
+                 <div class="filter-item">
+                     <input type="checkbox" id="filter-toggle-all" checked>
+                     <label for="filter-toggle-all">Show All / Hide All</label>
+                 </div>
             </div>
             <div id="route-panel" class="leaflet-control">
                 <div class="panel-header">

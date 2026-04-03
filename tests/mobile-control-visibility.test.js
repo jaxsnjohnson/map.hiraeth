@@ -38,8 +38,13 @@ const mobileVisibility = resolveControlVisibilityState({
     gmVisible: true
 });
 
-assert.equal(mobileVisibility.showSearchTrigger, true);
+assert.equal(mobileVisibility.showSearchControl, true);
 assert.equal(mobileVisibility.showMarkersButton, false);
+assert.equal(mobileVisibility.showMobileSheetToggle, true);
+assert.equal(mobileVisibility.showMobileExploreMode, true);
+assert.equal(mobileVisibility.showMobileMapMode, true);
+assert.equal(mobileVisibility.showMobileMapList, true);
+assert.equal(mobileVisibility.showMobileMoreSection, true);
 assert.equal(mobileVisibility.showMobileMarkersAction, true);
 assert.equal(mobileVisibility.showFiltersButton, false);
 assert.equal(mobileVisibility.showSearchFilterAction, true);
@@ -78,7 +83,7 @@ assert.equal(mobileLimitedVisibility.showMobileCoordsAction, true);
 assert.equal(mobileLimitedVisibility.mobileMarkersDisabled, true);
 assert.equal(mobileLimitedVisibility.mobileMeasureDisabled, true);
 assert.equal(mobileLimitedVisibility.mobileCoordsDisabled, true);
-assert.equal(mobileLimitedVisibility.showSearchTrigger, true);
+assert.equal(mobileLimitedVisibility.showMobileExploreMode, true);
 
 const desktopVisibility = resolveControlVisibilityState({
     isMobileLayout: false,
@@ -97,7 +102,7 @@ const desktopVisibility = resolveControlVisibilityState({
     gmVisible: true
 });
 
-assert.equal(desktopVisibility.showSearchTrigger, false);
+assert.equal(desktopVisibility.showMobileSheetToggle, false);
 assert.equal(desktopVisibility.showMarkersButton, true);
 assert.equal(desktopVisibility.showFiltersButton, true);
 assert.equal(desktopVisibility.showRoutePanel, true);
@@ -143,9 +148,9 @@ const embeddedVisibility = resolveControlVisibilityState({
     gmVisible: true
 });
 
-assert.equal(embeddedVisibility.showMobileSidebarMeta, false);
-assert.equal(embeddedVisibility.showMobileSidebarActions, false);
-assert.equal(embeddedVisibility.showMobileSidebarLinks, false);
+assert.equal(embeddedVisibility.showMobileSheetToggle, false);
+assert.equal(embeddedVisibility.showMobileExploreMode, false);
+assert.equal(embeddedVisibility.showMobileMapMode, false);
 assert.equal(embeddedVisibility.showMobileShareAction, false);
 assert.equal(embeddedVisibility.showMobileMapBlurb, false);
 

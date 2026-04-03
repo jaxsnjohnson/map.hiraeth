@@ -387,6 +387,9 @@ function navigateToMap(mapId, { preResolvedMap = null, preserveSearch = false } 
         );
     }
 
+    if (isMobileLayoutActive) {
+        closeMobileSheet({ restoreFocus: false });
+    }
     loadMap(mapId, false, preResolvedMap);
 }
 
@@ -662,10 +665,8 @@ const container = document.querySelector('.container');
 const sidebar = document.getElementById('sidebar');
 const mapListElement = document.getElementById('map-list');
 const toggleBtn = document.getElementById('toggle-sidebar-btn');
-const mobileSearchTrigger = document.getElementById('mobile-search-trigger');
-const mobileSearchShell = document.getElementById('mobile-search-shell');
-const mobileSearchCloseBtn = document.getElementById('mobile-search-close-btn');
 const themeToggle = document.getElementById('theme-checkbox');
+const themeSwitchWrapper = themeToggle ? themeToggle.closest('.theme-switch-wrapper') : null;
 const bodyElement = document.body;
 const mapElement = document.getElementById('map'); // Get map div
 const mapContainerElement = document.getElementById('map-container');
@@ -694,13 +695,20 @@ const searchRefineFiltersBtn = document.getElementById('search-refine-filters-bt
 const searchRefineClearBtn = document.getElementById('search-refine-clear-btn');
 const activeFiltersContainer = document.getElementById('active-filters-container');
 const sidebarBackdrop = document.getElementById('sidebar-backdrop');
-const mobileSidebarCloseBtn = document.getElementById('mobile-sidebar-close-btn');
-const mobileSidebarMeta = document.getElementById('mobile-sidebar-meta');
+const mobileSheet = document.getElementById('mobile-sheet');
+const mobileSheetCloseBtn = document.getElementById('mobile-sheet-close-btn');
+const mobileSheetTitle = document.getElementById('mobile-sheet-title');
+const mobileSheetModeExploreBtn = document.getElementById('mobile-sheet-mode-explore-btn');
+const mobileSheetModeMapBtn = document.getElementById('mobile-sheet-mode-map-btn');
+const mobileSheetExplorePanel = document.getElementById('mobile-sheet-explore-panel');
+const mobileSheetMapPanel = document.getElementById('mobile-sheet-map-panel');
+const mobileSheetSearchSlot = document.getElementById('mobile-sheet-search-slot');
+const mobileMapListSection = document.getElementById('mobile-map-list-section');
+const mobileMapListSlot = document.getElementById('mobile-map-list-slot');
+const mobileThemeSlot = document.getElementById('mobile-theme-slot');
 const mobileCurrentMapName = document.getElementById('mobile-current-map-name');
 const mobileMapBlurbToggleBtn = document.getElementById('mobile-map-blurb-toggle-btn');
 const mobileMapBlurbPanel = document.getElementById('mobile-map-blurb-panel');
-const mobileSidebarActions = document.getElementById('mobile-sidebar-actions');
-const mobileSidebarLinks = document.getElementById('mobile-sidebar-links');
 const mobileMarkersBtn = document.getElementById('mobile-markers-btn');
 const mobileMeasureBtn = document.getElementById('mobile-measure-btn');
 const mobileShareViewBtn = document.getElementById('mobile-share-view-btn');
@@ -756,7 +764,9 @@ const activeAudioFadeFrameIds = new WeakMap();
 let currentAtmosphereConfig = null;
 let mobileLayoutV2Enabled = false;
 let isMobileLayoutActive = false;
-let mobileSearchSheetOpen = false;
+let mobileSheetOpen = false;
+let mobileSheetMode = 'explore';
+let mobileFilterExpanded = false;
 let lastControlTouchAt = 0;
 let activeShareRelayContext = null;
 const shownShareRelaySessionKeys = new Set();
@@ -903,12 +913,12 @@ function resolveControlVisibilityState({
     const showSearch = hasPOIs || hasRegions || hasRoads || hasRoutes || atlasSearchCount > 0;
     const showFilters = hasPOIs || hasRegions || hasRoads;
     const showAdvanced = advancedControls && !isEmbedded;
-    const showMobileUtilities = isMobileLayout && !isEmbedded;
+    const showMobileSheet = isMobileLayout && !isEmbedded;
 
     return {
         showMarkersButton: showMarkers && !isMobileLayout,
         showSearchControl: showSearch,
-        showSearchTrigger: showSearch && isMobileLayout,
+        showMobileSheetToggle: showMobileSheet,
         showFiltersButton: showFilters && !isMobileLayout,
         showSearchFilterAction: showFilters,
         showMeasureButton: showAdvanced && hasValidScale && !isMobileLayout,
@@ -921,16 +931,17 @@ function resolveControlVisibilityState({
         showRoutePanel: routeCount > 0 && !isEmbedded && !isMobileLayout,
         showToolkitPanel: allowGMToolkit && toolkitVisible && !isMobileLayout,
         showGMPill: allowGMToolkit && gmVisible && !isMobileLayout,
-        showMobileSidebarMeta: isMobileLayout && !isEmbedded,
-        showMobileSidebarActions: showMobileUtilities,
-        showMobileSidebarLinks: isMobileLayout && !isEmbedded,
-        showMobileMarkersAction: showMobileUtilities,
-        showMobileMeasureAction: showMobileUtilities,
-        showMobileShareAction: showMobileUtilities,
-        showMobileSoundAction: showMobileUtilities,
-        showMobileCoordsAction: showMobileUtilities,
-        showMobileHelpAction: showMobileUtilities,
-        showMobileMapBlurb: hasBlurb && isMobileLayout && !isEmbedded,
+        showMobileExploreMode: showMobileSheet && showSearch,
+        showMobileMapMode: showMobileSheet,
+        showMobileMapList: showMobileSheet,
+        showMobileMoreSection: showMobileSheet,
+        showMobileMarkersAction: showMobileSheet,
+        showMobileMeasureAction: showMobileSheet,
+        showMobileShareAction: showMobileSheet,
+        showMobileSoundAction: showMobileSheet,
+        showMobileCoordsAction: showMobileSheet,
+        showMobileHelpAction: showMobileSheet,
+        showMobileMapBlurb: hasBlurb && showMobileSheet,
         mobileMarkersDisabled: !showMarkers,
         mobileMeasureDisabled: !hasValidScale,
         mobileShareDisabled: false,
@@ -953,6 +964,55 @@ function setElementHiddenState(element, hidden) {
     element.hidden = !!hidden;
 }
 
+function createMobilePlacementAnchor(element) {
+    if (!element || !element.parentNode) return null;
+    const anchor = document.createElement('span');
+    anchor.hidden = true;
+    anchor.setAttribute('aria-hidden', 'true');
+    anchor.className = 'mobile-placement-anchor';
+    element.parentNode.insertBefore(anchor, element);
+    return anchor;
+}
+
+const mobileSearchControlAnchor = createMobilePlacementAnchor(searchControlContainer);
+const mobileSearchResultsAnchor = createMobilePlacementAnchor(searchResultsContainer);
+const mobileFilterAnchor = createMobilePlacementAnchor(poiFilterContainer);
+const mobileMapListAnchor = createMobilePlacementAnchor(mapListElement);
+const mobileThemeAnchor = createMobilePlacementAnchor(themeSwitchWrapper);
+
+function restorePlacedNode(anchor, element) {
+    if (!anchor || !anchor.parentNode || !element) return;
+    if (element.parentNode === anchor.parentNode && anchor.nextSibling === element) return;
+    anchor.parentNode.insertBefore(element, anchor.nextSibling);
+}
+
+function syncMobileSheetPlacement() {
+    if (isMobileLayoutActive) {
+        if (mobileSheetSearchSlot && searchControlContainer && searchControlContainer.parentNode !== mobileSheetSearchSlot) {
+            mobileSheetSearchSlot.appendChild(searchControlContainer);
+        }
+        if (mobileSheetSearchSlot && poiFilterContainer && poiFilterContainer.parentNode !== mobileSheetSearchSlot) {
+            mobileSheetSearchSlot.appendChild(poiFilterContainer);
+        }
+        if (mobileSheetSearchSlot && searchResultsContainer && searchResultsContainer.parentNode !== mobileSheetSearchSlot) {
+            mobileSheetSearchSlot.appendChild(searchResultsContainer);
+        }
+        if (mobileMapListSlot && mapListElement && mapListElement.parentNode !== mobileMapListSlot) {
+            mobileMapListSlot.appendChild(mapListElement);
+        }
+        if (mobileThemeSlot && themeSwitchWrapper && themeSwitchWrapper.parentNode !== mobileThemeSlot) {
+            mobileThemeSlot.appendChild(themeSwitchWrapper);
+        }
+        return;
+    }
+
+    restorePlacedNode(mobileSearchControlAnchor, searchControlContainer);
+    restorePlacedNode(mobileSearchResultsAnchor, searchResultsContainer);
+    restorePlacedNode(mobileFilterAnchor, poiFilterContainer);
+    restorePlacedNode(mobileMapListAnchor, mapListElement);
+    restorePlacedNode(mobileThemeAnchor, themeSwitchWrapper);
+}
+
 function syncDynamicViewportHeight() {
     const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
     rootElement.style.setProperty('--app-height', `${Math.round(viewportHeight)}px`);
@@ -970,53 +1030,15 @@ function getViewportHeight() {
     return window.visualViewport ? window.visualViewport.height : window.innerHeight;
 }
 
-function clampPanelToViewport(panelElement, {
-    alignRight = true,
-    minTop = MOBILE_PANEL_MARGIN
-} = {}) {
-    if (!panelElement || panelElement.style.display === 'none') return;
-    if (!isMobileLayoutActive) return;
-
-    const viewportHeight = getViewportHeight();
-    const maxHeight = Math.max(120, Math.floor(viewportHeight * 0.62));
-    panelElement.style.maxHeight = `${maxHeight}px`;
-
-    const rect = panelElement.getBoundingClientRect();
-    if (!rect.width || !rect.height) return;
-
-    const bottomLimit = viewportHeight - MOBILE_PANEL_MARGIN;
-    let top = rect.top;
-    if (rect.bottom > bottomLimit) {
-        top -= (rect.bottom - bottomLimit);
-    }
-    if (top < minTop) {
-        top = minTop;
-    }
-    panelElement.style.top = `${Math.round(top)}px`;
-
-    if (alignRight) {
-        panelElement.style.right = `${MOBILE_PANEL_MARGIN}px`;
-        panelElement.style.left = 'auto';
-    }
-}
-
 function clampFloatingPanels() {
-    if (!mobileLayoutV2Enabled) return;
-    if (!isMobileLayoutActive) {
-        [routePanel, sessionToolkitPanel, gmPill].forEach((panel) => {
-            if (panel) panel.style.maxHeight = '';
-        });
-        if (poiFilterContainer) {
-            poiFilterContainer.style.maxHeight = '';
-        }
-        return;
-    }
-
-    if (!mobileSearchSheetOpen) {
-        clampPanelToViewport(routePanel);
-        clampPanelToViewport(sessionToolkitPanel);
-        clampPanelToViewport(gmPill);
-    }
+    if (!mobileLayoutV2Enabled || isMobileLayoutActive) return;
+    [routePanel, sessionToolkitPanel, gmPill, poiFilterContainer].forEach((panel) => {
+        if (!panel) return;
+        panel.style.maxHeight = '';
+        panel.style.top = '';
+        panel.style.right = '';
+        panel.style.left = '';
+    });
 }
 
 function updateMobileLayoutState() {
@@ -1031,42 +1053,88 @@ function updateMobileLayoutState() {
     bodyElement.classList.toggle('mobile-layout-v2', mobileLayoutV2Enabled);
     bodyElement.classList.toggle('is-mobile-layout', active);
     container.classList.toggle('is-mobile-layout', active);
+    container.dataset.mobileSheetMode = mobileSheetMode;
 
     rootElement.style.setProperty('--mobile-bottom-offset', active ? '14px' : '10px');
-    if (!active && mobileSearchSheetOpen) {
-        mobileSearchSheetOpen = false;
+    if (!active && mobileSheetOpen) {
+        mobileSheetOpen = false;
     }
+    if (!active && toggleBtn) {
+        const collapsed = container.classList.contains('sidebar-collapsed');
+        toggleBtn.title = collapsed ? 'Expand Sidebar' : 'Collapse Sidebar';
+        toggleBtn.setAttribute('aria-label', collapsed ? 'Expand Sidebar' : 'Collapse Sidebar');
+        toggleBtn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    }
+    syncMobileSheetPlacement();
+    syncMobileSheetState();
+    syncMobileFilterState();
     clampFloatingPanels();
 }
 
-function syncMobileSearchSheetState() {
-    if (!mobileSearchShell || !mobileSearchTrigger) return;
-    const shouldShowSheet = isMobileLayoutActive && mobileSearchSheetOpen;
-    mobileSearchShell.setAttribute('aria-hidden', shouldShowSheet ? 'false' : 'true');
-    mobileSearchTrigger.setAttribute('aria-expanded', shouldShowSheet ? 'true' : 'false');
-    container.classList.toggle('mobile-search-open', shouldShowSheet);
-}
+function setMobileSheetMode(mode) {
+    mobileSheetMode = mode === 'map' ? 'map' : 'explore';
+    container.dataset.mobileSheetMode = mobileSheetMode;
 
-function closeMobileSearchSheet({ restoreFocus = false } = {}) {
-    if (!mobileSearchSheetOpen) return;
-    mobileSearchSheetOpen = false;
-    syncMobileSearchSheetState();
-    syncSidebarBackdropState();
-    if (restoreFocus && mobileSearchTrigger) {
-        mobileSearchTrigger.focus();
+    const exploreActive = mobileSheetMode === 'explore';
+    if (mobileSheetModeExploreBtn) {
+        mobileSheetModeExploreBtn.setAttribute('aria-selected', exploreActive ? 'true' : 'false');
+        mobileSheetModeExploreBtn.classList.toggle('active', exploreActive);
+    }
+    if (mobileSheetModeMapBtn) {
+        mobileSheetModeMapBtn.setAttribute('aria-selected', exploreActive ? 'false' : 'true');
+        mobileSheetModeMapBtn.classList.toggle('active', !exploreActive);
+    }
+    if (mobileSheetExplorePanel) {
+        mobileSheetExplorePanel.hidden = !exploreActive;
+    }
+    if (mobileSheetMapPanel) {
+        mobileSheetMapPanel.hidden = exploreActive;
+    }
+    if (mobileSheetTitle) {
+        mobileSheetTitle.textContent = exploreActive
+            ? 'Explore'
+            : (mobileCurrentMapName?.textContent?.trim() || 'Current Map');
     }
 }
 
-function openMobileSearchSheet({ focusInput = true } = {}) {
+function syncMobileSheetState() {
+    if (!mobileSheet || !toggleBtn) return;
+    if (!isMobileLayoutActive) {
+        mobileSheet.setAttribute('aria-hidden', 'true');
+        container.classList.remove('mobile-sheet-open');
+        return;
+    }
+    const shouldShowSheet = isMobileLayoutActive && mobileSheetOpen;
+    mobileSheet.setAttribute('aria-hidden', shouldShowSheet ? 'false' : 'true');
+    toggleBtn.setAttribute('aria-expanded', shouldShowSheet ? 'true' : 'false');
+    toggleBtn.title = shouldShowSheet ? 'Close Panel' : 'Open Panel';
+    toggleBtn.setAttribute('aria-label', shouldShowSheet ? 'Close Panel' : 'Open Panel');
+    container.classList.toggle('mobile-sheet-open', shouldShowSheet);
+}
+
+function closeMobileSheet({ restoreFocus = false } = {}) {
+    if (!mobileSheetOpen) return;
+    mobileSheetOpen = false;
+    syncMobileSheetState();
+    syncSidebarBackdropState();
+    if (restoreFocus && toggleBtn) {
+        toggleBtn.focus();
+    }
+}
+
+function openMobileSheet({
+    mode = mobileSheetMode,
+    focusSearch = false
+} = {}) {
     if (!isMobileLayoutActive) return;
-    if (!searchControlContainer || searchControlContainer.style.display === 'none') return;
-    mobileSearchSheetOpen = true;
-    if (!container.classList.contains('sidebar-collapsed')) {
-        setSidebarState('c', false);
+    if (mode === 'explore' && (!searchControlContainer || searchControlContainer.style.display === 'none')) {
+        mode = 'map';
     }
-    syncMobileSearchSheetState();
+    mobileSheetOpen = true;
+    setMobileSheetMode(mode);
+    syncMobileSheetState();
     syncSidebarBackdropState();
-    if (focusInput && poiSearchInput) {
+    if (focusSearch && poiSearchInput && mobileSheetMode === 'explore') {
         requestAnimationFrame(() => poiSearchInput.focus());
     }
 }
@@ -1083,8 +1151,6 @@ function syncMobileMapMeta(mapInfo, visibilityState) {
     if (mobileCurrentMapName) {
         mobileCurrentMapName.textContent = mapInfo?.name || 'Atlas';
     }
-    setElementHiddenState(mobileSidebarMeta, !visibilityState.showMobileSidebarMeta);
-
     if (!mobileMapBlurbPanel || !mobileMapBlurbToggleBtn) return;
 
     const blurb = String(mapInfo?.blurb || '').trim();
@@ -1092,6 +1158,10 @@ function syncMobileMapMeta(mapInfo, visibilityState) {
     setElementHiddenState(mobileMapBlurbToggleBtn, !visibilityState.showMobileMapBlurb);
     if (!visibilityState.showMobileMapBlurb) {
         setMobileMapBlurbExpanded(false);
+    }
+
+    if (mobileSheetTitle && mobileSheetMode === 'map') {
+        mobileSheetTitle.textContent = mapInfo?.name || 'Current Map';
     }
 }
 
@@ -1108,9 +1178,7 @@ function syncMobileUtilityButton(button, {
     button.setAttribute('aria-disabled', visible && disabled ? 'true' : 'false');
 }
 
-function syncMobileDrawerActionState(visibilityState) {
-    setElementHiddenState(mobileSidebarActions, !visibilityState.showMobileSidebarActions);
-    setElementHiddenState(mobileSidebarLinks, !visibilityState.showMobileSidebarLinks);
+function syncMobileSheetActionState(visibilityState) {
     syncMobileUtilityButton(mobileMarkersBtn, {
         visible: visibilityState.showMobileMarkersAction,
         pressed: markersVisible,
@@ -1143,16 +1211,32 @@ function syncMobileDrawerActionState(visibilityState) {
     }
 }
 
+function syncMobileExploreVisibility() {
+    if (!mobileMapListSection) return;
+    const hasSearchTerm = normalizeSearchValue(poiSearchInput?.value).length > 0;
+    const showMapList = isMobileLayoutActive && !hasSearchTerm;
+    mobileMapListSection.hidden = !showMapList;
+}
+
+function syncMobileFilterState() {
+    container.classList.toggle('mobile-filters-open', isMobileLayoutActive && mobileFilterExpanded);
+    if (searchRefineFiltersBtn) {
+        searchRefineFiltersBtn.classList.toggle('active', mobileFilterExpanded);
+        searchRefineFiltersBtn.setAttribute('aria-pressed', mobileFilterExpanded ? 'true' : 'false');
+        searchRefineFiltersBtn.textContent = mobileFilterExpanded ? 'Hide Filters' : 'Filters';
+    }
+}
+
 function markControlTouch(event) {
     const target = event?.target;
     if (!(target instanceof Element)) return;
-    if (!target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-search-trigger, #mobile-search-shell, #sidebar, #sidebar-backdrop, #mobile-sidebar-links, #mobile-sidebar-actions, #mobile-sidebar-meta, #mobile-sidebar-close-btn, .modal-overlay, .modal-content')) return;
+    if (!target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-sheet, #sidebar-backdrop, .modal-overlay, .modal-content')) return;
     lastControlTouchAt = Date.now();
 }
 
 function shouldIgnoreMapPointerEvent(event) {
     const target = event?.originalEvent?.target;
-    if (target instanceof Element && target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-search-trigger, #mobile-search-shell, #sidebar, #mobile-sidebar-links, #mobile-sidebar-actions, #mobile-sidebar-meta, #mobile-sidebar-close-btn, .modal-overlay, .modal-content')) {
+    if (target instanceof Element && target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-sheet, .modal-overlay, .modal-content')) {
         return true;
     }
     if (isMobileLayoutActive && (Date.now() - lastControlTouchAt) < 150) {
@@ -1514,13 +1598,14 @@ function syncSidebarBackdropState() {
     updateMobileLayoutState();
     const isMobile = window.innerWidth <= MOBILE_LAYOUT_BREAKPOINT;
     const sidebarIsOpen = !container.classList.contains('sidebar-collapsed');
-    const searchIsOpen = isMobile && mobileSearchSheetOpen;
-    container.classList.toggle('mobile-sidebar-open', isMobile && sidebarIsOpen);
-    container.classList.toggle('mobile-search-open', searchIsOpen);
+    const legacyDrawerOpen = isMobile && !isMobileLayoutActive && sidebarIsOpen;
+    const sheetIsOpen = isMobileLayoutActive && mobileSheetOpen;
+    container.classList.toggle('mobile-sidebar-open', legacyDrawerOpen);
+    container.classList.toggle('mobile-sheet-open', sheetIsOpen);
     if (sidebarBackdrop) {
-        sidebarBackdrop.setAttribute('aria-hidden', isMobile && (sidebarIsOpen || searchIsOpen) ? 'false' : 'true');
+        sidebarBackdrop.setAttribute('aria-hidden', (legacyDrawerOpen || sheetIsOpen) ? 'false' : 'true');
     }
-    syncMobileSearchSheetState();
+    syncMobileSheetState();
     clampFloatingPanels();
 }
 
@@ -1680,6 +1765,7 @@ function closeSearchResults({ clearMeta = true } = {}) {
         lastTrackedSearchSignature = '';
         setSearchScope(SEARCH_SCOPE_MAP);
     }
+    syncMobileExploreVisibility();
 }
 
 function normalizeSearchValue(value) {
@@ -1877,8 +1963,8 @@ function schedulePostLoadPrefetch(mapDefinition) {
 function setSidebarState(state, updateHash = true) {
     const shouldBeCollapsed = (state === 'c');
     const isCurrentlyCollapsed = container.classList.contains('sidebar-collapsed');
-    if (!shouldBeCollapsed && isMobileLayoutActive && mobileSearchSheetOpen) {
-        closeMobileSearchSheet({ restoreFocus: false });
+    if (!shouldBeCollapsed && isMobileLayoutActive && mobileSheetOpen) {
+        closeMobileSheet({ restoreFocus: false });
     }
     if (shouldBeCollapsed !== isCurrentlyCollapsed) {
         container.classList.toggle('sidebar-collapsed', shouldBeCollapsed);
@@ -2041,7 +2127,7 @@ function updateCurrentControlVisibility(selectedMap = null) {
     if (shareViewBtn) shareViewBtn.style.display = visibilityState.showShareButton ? 'block' : 'none';
     if (toggleGMPanelBtn) toggleGMPanelBtn.style.display = visibilityState.showGMButton ? 'block' : 'none';
     if (toggleToolkitPanelBtn) toggleToolkitPanelBtn.style.display = visibilityState.showToolkitButton ? 'block' : 'none';
-    if (mobileSearchTrigger) mobileSearchTrigger.hidden = !visibilityState.showSearchTrigger;
+    if (toggleBtn) toggleBtn.hidden = isEmbeddedView ? true : false;
     if (searchRefineFiltersBtn) searchRefineFiltersBtn.hidden = !visibilityState.showSearchFilterAction;
     toggleCoordsBtn.setAttribute('aria-pressed', coordsDisplayEnabled ? 'true' : 'false');
     if (routePanel) routePanel.style.display = visibilityState.showRoutePanel ? 'block' : 'none';
@@ -2049,29 +2135,42 @@ function updateCurrentControlVisibility(selectedMap = null) {
     if (gmPill) gmPill.style.display = visibilityState.showGMPill ? 'flex' : 'none';
 
     syncMobileMapMeta(mapInfo, visibilityState);
-    syncMobileDrawerActionState(visibilityState);
+    syncMobileSheetActionState(visibilityState);
+    setElementHiddenState(mobileSheetModeExploreBtn, !visibilityState.showMobileExploreMode);
+    setElementHiddenState(mobileSheetModeMapBtn, !visibilityState.showMobileMapMode);
+    setElementHiddenState(mobileThemeSlot?.parentElement, !visibilityState.showMobileMoreSection);
+    if (!visibilityState.showMobileExploreMode && mobileSheetMode === 'explore') {
+        setMobileSheetMode('map');
+    }
+    syncMobileExploreVisibility();
 
     if (!visibilityState.showSearchControl) {
         closeSearchResults();
-        closeMobileSearchSheet({ restoreFocus: false });
+        if (isMobileLayoutActive && mobileSheetMode === 'explore') {
+            setMobileSheetMode('map');
+        }
     }
 
     if (!visibilityState.showSearchFilterAction) {
         if (filtersPanelVisible) {
             filtersPanelVisible = false;
+            mobileFilterExpanded = false;
             poiFilterContainer.classList.remove('visible');
             toggleFiltersBtn.classList.remove('active');
             toggleFiltersBtn.setAttribute('aria-expanded', 'false');
         }
+        syncMobileFilterState();
     }
 
     if (!advancedControlsUnlocked || isMobileLayoutActive) {
         if (filtersPanelVisible) {
             filtersPanelVisible = false;
+            mobileFilterExpanded = false;
             poiFilterContainer.classList.remove('visible');
             toggleFiltersBtn.classList.remove('active');
             toggleFiltersBtn.setAttribute('aria-expanded', 'false');
         }
+        syncMobileFilterState();
         mapBlurbElement.classList.remove('visible');
         toggleBlurbBtn.classList.remove('active');
         coordinateDisplay.style.display = 'none';
@@ -2116,7 +2215,7 @@ function unlockAdvancedControls(reason = 'interaction') {
 }
 
 function updateActiveFilterChips() {
-    if (!activeFiltersContainer || isEmbeddedView) {
+    if (!activeFiltersContainer || isEmbeddedView || isMobileLayoutActive) {
         if (activeFiltersContainer) {
             activeFiltersContainer.style.display = 'none';
             activeFiltersContainer.innerHTML = '';
@@ -2337,8 +2436,9 @@ function selectSearchResult(index = activeSearchResultIndex) {
     poiSearchInput.value = '';
     setSearchScope(SEARCH_SCOPE_MAP);
     closeSearchResults();
-    closeMobileSearchSheet({ restoreFocus: false });
+    closeMobileSheet({ restoreFocus: false });
     updateActiveFilterChips();
+    syncMobileExploreVisibility();
 }
 
 function buildScopedSearchParams(entry) {
@@ -2403,6 +2503,7 @@ function renderSearchResults(term, results) {
 
     if (!term) {
         closeSearchResults();
+        syncMobileExploreVisibility();
         return;
     }
 
@@ -2467,6 +2568,7 @@ function renderSearchResults(term, results) {
 
     searchResultsContainer.style.display = 'block';
     setActiveSearchResult(activeSearchResultIndex);
+    syncMobileExploreVisibility();
 
     const searchSignature = `${currentSearchScope}:${term}:${results.length}`;
     if (results.length > 0 && searchSignature !== lastTrackedSearchSignature) {
@@ -2500,15 +2602,14 @@ function updateVisibleMarkersAndSearch() {
 
     if (!searchable) {
         searchControlContainer.style.display = 'none';
-        if (mobileSearchTrigger) mobileSearchTrigger.hidden = true;
-        closeMobileSearchSheet({ restoreFocus: false });
+        closeMobileSheet({ restoreFocus: false });
         closeSearchResults();
         updateActiveFilterChips();
+        syncMobileExploreVisibility();
         return;
     }
 
     searchControlContainer.style.display = 'block';
-    if (mobileSearchTrigger) mobileSearchTrigger.hidden = !isMobileLayoutActive;
     const searchTerm = normalizeSearchValue(poiSearchInput.value);
     const results = [];
 
@@ -2672,6 +2773,7 @@ function updateVisibleMarkersAndSearch() {
     }
 
     updateActiveFilterChips();
+    syncMobileExploreVisibility();
 }
 
 // --- Route Mode Helpers ---
@@ -4436,37 +4538,52 @@ function populateSidebar(parentElement, items) {
 
 // --- Sidebar Toggle Button Logic ---
 toggleBtn.addEventListener('click', () => {
+    if (isMobileLayoutActive) {
+        if (mobileSheetOpen) {
+            closeMobileSheet({ restoreFocus: true });
+        } else {
+            openMobileSheet({ mode: mobileSheetMode, focusSearch: mobileSheetMode === 'explore' });
+        }
+        return;
+    }
     unlockAdvancedControls('sidebar_toggle');
     const newState = container.classList.contains('sidebar-collapsed') ? 'o' : 'c';
     setSidebarState(newState, true);
 });
 
-if (mobileSidebarCloseBtn) {
-    mobileSidebarCloseBtn.addEventListener('click', () => {
-        setSidebarState('c', true);
+if (mobileSheetCloseBtn) {
+    mobileSheetCloseBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        closeMobileSheet({ restoreFocus: true });
     });
 }
 
-if (mobileSearchTrigger) {
-    mobileSearchTrigger.addEventListener('click', (event) => {
+if (mobileSheetModeExploreBtn) {
+    mobileSheetModeExploreBtn.addEventListener('click', (event) => {
         event.stopPropagation();
-        openMobileSearchSheet({ focusInput: true });
+        setMobileSheetMode('explore');
+        if (!mobileSheetOpen) {
+            openMobileSheet({ mode: 'explore', focusSearch: false });
+        }
     });
 }
 
-if (mobileSearchCloseBtn) {
-    mobileSearchCloseBtn.addEventListener('click', (event) => {
+if (mobileSheetModeMapBtn) {
+    mobileSheetModeMapBtn.addEventListener('click', (event) => {
         event.stopPropagation();
-        closeMobileSearchSheet({ restoreFocus: true });
+        setMobileSheetMode('map');
+        if (!mobileSheetOpen) {
+            openMobileSheet({ mode: 'map' });
+        }
     });
 }
 
 if (sidebarBackdrop) {
     sidebarBackdrop.addEventListener('click', () => {
-        if (mobileSearchSheetOpen) {
-            closeMobileSearchSheet({ restoreFocus: true });
+        if (mobileSheetOpen) {
+            closeMobileSheet({ restoreFocus: true });
         }
-        if (!container.classList.contains('sidebar-collapsed')) {
+        if (!isMobileLayoutActive && !container.classList.contains('sidebar-collapsed')) {
             setSidebarState('c', true);
         }
     });
@@ -4883,8 +5000,8 @@ function updateCoordinates(e) {
 // --- Map Click Handler ---
 map.on('click', function (e) {
     if (shouldIgnoreMapPointerEvent(e)) return;
-    if (mobileSearchSheetOpen) {
-        closeMobileSearchSheet({ restoreFocus: false });
+    if (mobileSheetOpen) {
+        closeMobileSheet({ restoreFocus: false });
     }
     if (mapBlurbElement.classList.contains('visible')) {
         mapBlurbElement.classList.remove('visible');
@@ -4979,7 +5096,7 @@ if (mobileCoordsBtn) {
 if (mobileHelpBtn) {
     mobileHelpBtn.addEventListener('click', (event) => {
         event.stopPropagation();
-        if (openAboutModal) openAboutModal('guide', 'mobile_sidebar');
+        if (openAboutModal) openAboutModal('guide', 'mobile_sheet');
     });
 }
 
@@ -4987,7 +5104,7 @@ if (mobileAboutLink) {
     mobileAboutLink.addEventListener('click', (event) => {
         event.preventDefault();
         event.stopPropagation();
-        if (openAboutModal) openAboutModal('lore', 'mobile_sidebar');
+        if (openAboutModal) openAboutModal('lore', 'mobile_sheet');
     });
 }
 
@@ -5081,15 +5198,17 @@ toggleBlurbBtn.addEventListener('click', (e) => {
 // --- Filter Panel Toggle Logic ---
 function toggleFilterPanel() {
     unlockAdvancedControls('filter_toggle');
-    if (isMobileLayoutActive && !mobileSearchSheetOpen) {
-        openMobileSearchSheet({ focusInput: false });
+    if (isMobileLayoutActive && !mobileSheetOpen) {
+        openMobileSheet({ mode: 'explore', focusSearch: false });
     }
     filtersPanelVisible = !filtersPanelVisible;
+    mobileFilterExpanded = isMobileLayoutActive ? filtersPanelVisible : false;
     poiFilterContainer.classList.toggle('visible', filtersPanelVisible);
     toggleFiltersBtn.classList.toggle('active', filtersPanelVisible);
     toggleFiltersBtn.title = filtersPanelVisible ? "Hide Filters" : "Show Filters";
     toggleFiltersBtn.setAttribute('aria-label', filtersPanelVisible ? "Hide Filters" : "Show Filters");
     toggleFiltersBtn.setAttribute('aria-expanded', filtersPanelVisible);
+    syncMobileFilterState();
     safeSetStorage(UX_STORAGE_KEYS.filterPanelOpen, String(filtersPanelVisible));
     if (filtersPanelVisible) {
         positionFilterPanel();
@@ -5108,8 +5227,8 @@ const debouncedUpdateVisibleMarkersAndSearch = debounce(updateVisibleMarkersAndS
 poiSearchInput.addEventListener('input', debouncedUpdateVisibleMarkersAndSearch);
 poiSearchInput.addEventListener('focus', () => {
     unlockAdvancedControls('search_focus');
-    if (isMobileLayoutActive && !mobileSearchSheetOpen) {
-        openMobileSearchSheet({ focusInput: false });
+    if (isMobileLayoutActive && !mobileSheetOpen) {
+        openMobileSheet({ mode: 'explore', focusSearch: false });
     }
 });
 poiSearchInput.addEventListener('keydown', (event) => {
@@ -5864,9 +5983,10 @@ async function loadMapData() {
                 case '/':
                     if (searchControlContainer && searchControlContainer.style.display !== 'none' && poiSearchInput) {
                         if (isMobileLayoutActive) {
-                            openMobileSearchSheet({ focusInput: true });
+                            openMobileSheet({ mode: 'explore', focusSearch: true });
+                        } else {
+                            poiSearchInput.focus();
                         }
-                        poiSearchInput.focus();
                         e.preventDefault();
                     }
                     break;
@@ -5876,9 +5996,10 @@ async function loadMapData() {
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
                 if (searchControlContainer && searchControlContainer.style.display !== 'none' && poiSearchInput) {
                     if (isMobileLayoutActive) {
-                        openMobileSearchSheet({ focusInput: true });
+                        openMobileSheet({ mode: 'explore', focusSearch: true });
+                    } else {
+                        poiSearchInput.focus();
                     }
-                    poiSearchInput.focus();
                     e.preventDefault(); // Prevent browser's default find
                 }
             }
