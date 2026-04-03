@@ -23,7 +23,7 @@ eval([
 
 const mobileVisibility = resolveControlVisibilityState({
     isMobileLayout: true,
-    advancedControls: true,
+    advancedControls: false,
     hasPOIs: true,
     hasRegions: true,
     hasRoads: true,
@@ -47,7 +47,38 @@ assert.equal(mobileVisibility.showRoutePanel, false);
 assert.equal(mobileVisibility.showToolkitPanel, false);
 assert.equal(mobileVisibility.showGMPill, false);
 assert.equal(mobileVisibility.showMobileShareAction, true);
+assert.equal(mobileVisibility.showMobileSoundAction, true);
+assert.equal(mobileVisibility.showMobileMeasureAction, true);
+assert.equal(mobileVisibility.showMobileCoordsAction, true);
+assert.equal(mobileVisibility.mobileMarkersDisabled, false);
+assert.equal(mobileVisibility.mobileMeasureDisabled, false);
+assert.equal(mobileVisibility.mobileCoordsDisabled, false);
 assert.equal(mobileVisibility.showMobileMapBlurb, true);
+
+const mobileLimitedVisibility = resolveControlVisibilityState({
+    isMobileLayout: true,
+    advancedControls: false,
+    hasPOIs: false,
+    hasRegions: false,
+    hasRoads: false,
+    hasRoutes: false,
+    hasValidScale: false,
+    hasBlurb: false,
+    hasLatLonBounds: false,
+    allowGMToolkit: true,
+    atlasSearchCount: 12,
+    routeCount: 0,
+    toolkitVisible: true,
+    gmVisible: true
+});
+
+assert.equal(mobileLimitedVisibility.showMobileMarkersAction, true);
+assert.equal(mobileLimitedVisibility.showMobileMeasureAction, true);
+assert.equal(mobileLimitedVisibility.showMobileCoordsAction, true);
+assert.equal(mobileLimitedVisibility.mobileMarkersDisabled, true);
+assert.equal(mobileLimitedVisibility.mobileMeasureDisabled, true);
+assert.equal(mobileLimitedVisibility.mobileCoordsDisabled, true);
+assert.equal(mobileLimitedVisibility.showSearchTrigger, true);
 
 const desktopVisibility = resolveControlVisibilityState({
     isMobileLayout: false,
@@ -73,6 +104,28 @@ assert.equal(desktopVisibility.showRoutePanel, true);
 assert.equal(desktopVisibility.showToolkitPanel, true);
 assert.equal(desktopVisibility.showGMPill, true);
 assert.equal(desktopVisibility.showMobileMapBlurb, false);
+
+const desktopLockedVisibility = resolveControlVisibilityState({
+    isMobileLayout: false,
+    advancedControls: false,
+    hasPOIs: true,
+    hasRegions: true,
+    hasRoads: true,
+    hasRoutes: true,
+    hasValidScale: true,
+    hasBlurb: true,
+    hasLatLonBounds: true,
+    allowGMToolkit: true,
+    atlasSearchCount: 10,
+    routeCount: 2,
+    toolkitVisible: true,
+    gmVisible: true
+});
+
+assert.equal(desktopLockedVisibility.showMeasureButton, false);
+assert.equal(desktopLockedVisibility.showSoundButton, false);
+assert.equal(desktopLockedVisibility.showShareButton, false);
+assert.equal(desktopLockedVisibility.showMobileMeasureAction, false);
 
 const embeddedVisibility = resolveControlVisibilityState({
     isEmbedded: true,

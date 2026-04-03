@@ -903,6 +903,7 @@ function resolveControlVisibilityState({
     const showSearch = hasPOIs || hasRegions || hasRoads || hasRoutes || atlasSearchCount > 0;
     const showFilters = hasPOIs || hasRegions || hasRoads;
     const showAdvanced = advancedControls && !isEmbedded;
+    const showMobileUtilities = isMobileLayout && !isEmbedded;
 
     return {
         showMarkersButton: showMarkers && !isMobileLayout,
@@ -921,14 +922,21 @@ function resolveControlVisibilityState({
         showToolkitPanel: allowGMToolkit && toolkitVisible && !isMobileLayout,
         showGMPill: allowGMToolkit && gmVisible && !isMobileLayout,
         showMobileSidebarMeta: isMobileLayout && !isEmbedded,
-        showMobileSidebarActions: isMobileLayout && !isEmbedded,
+        showMobileSidebarActions: showMobileUtilities,
         showMobileSidebarLinks: isMobileLayout && !isEmbedded,
-        showMobileMarkersAction: showMarkers && isMobileLayout,
-        showMobileMeasureAction: showAdvanced && hasValidScale && isMobileLayout,
-        showMobileShareAction: showAdvanced && isMobileLayout,
-        showMobileSoundAction: showAdvanced && isMobileLayout,
-        showMobileCoordsAction: showAdvanced && hasLatLonBounds && isMobileLayout,
-        showMobileMapBlurb: hasBlurb && isMobileLayout && !isEmbedded
+        showMobileMarkersAction: showMobileUtilities,
+        showMobileMeasureAction: showMobileUtilities,
+        showMobileShareAction: showMobileUtilities,
+        showMobileSoundAction: showMobileUtilities,
+        showMobileCoordsAction: showMobileUtilities,
+        showMobileHelpAction: showMobileUtilities,
+        showMobileMapBlurb: hasBlurb && isMobileLayout && !isEmbedded,
+        mobileMarkersDisabled: !showMarkers,
+        mobileMeasureDisabled: !hasValidScale,
+        mobileShareDisabled: false,
+        mobileSoundDisabled: false,
+        mobileCoordsDisabled: !hasLatLonBounds,
+        mobileHelpDisabled: false
     };
 }
 
@@ -1089,12 +1097,15 @@ function syncMobileMapMeta(mapInfo, visibilityState) {
 
 function syncMobileUtilityButton(button, {
     visible = false,
-    pressed = false
+    pressed = false,
+    disabled = false
 } = {}) {
     if (!button) return;
     button.hidden = !visible;
-    button.classList.toggle('active', visible && pressed);
-    button.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+    button.disabled = visible ? !!disabled : false;
+    button.classList.toggle('active', visible && !disabled && pressed);
+    button.setAttribute('aria-pressed', visible && !disabled && pressed ? 'true' : 'false');
+    button.setAttribute('aria-disabled', visible && disabled ? 'true' : 'false');
 }
 
 function syncMobileDrawerActionState(visibilityState) {
@@ -1102,22 +1113,34 @@ function syncMobileDrawerActionState(visibilityState) {
     setElementHiddenState(mobileSidebarLinks, !visibilityState.showMobileSidebarLinks);
     syncMobileUtilityButton(mobileMarkersBtn, {
         visible: visibilityState.showMobileMarkersAction,
-        pressed: markersVisible
+        pressed: markersVisible,
+        disabled: visibilityState.mobileMarkersDisabled
     });
     syncMobileUtilityButton(mobileMeasureBtn, {
         visible: visibilityState.showMobileMeasureAction,
-        pressed: isMeasuringMultiPoint
+        pressed: isMeasuringMultiPoint,
+        disabled: visibilityState.mobileMeasureDisabled
     });
-    if (mobileShareViewBtn) mobileShareViewBtn.hidden = !visibilityState.showMobileShareAction;
+    if (mobileShareViewBtn) {
+        mobileShareViewBtn.hidden = !visibilityState.showMobileShareAction;
+        mobileShareViewBtn.disabled = visibilityState.showMobileShareAction ? !!visibilityState.mobileShareDisabled : false;
+        mobileShareViewBtn.setAttribute('aria-disabled', visibilityState.showMobileShareAction && visibilityState.mobileShareDisabled ? 'true' : 'false');
+    }
     syncMobileUtilityButton(mobileSoundBtn, {
         visible: visibilityState.showMobileSoundAction,
-        pressed: soundEnabled
+        pressed: soundEnabled,
+        disabled: visibilityState.mobileSoundDisabled
     });
     syncMobileUtilityButton(mobileCoordsBtn, {
         visible: visibilityState.showMobileCoordsAction,
-        pressed: coordsDisplayEnabled
+        pressed: coordsDisplayEnabled,
+        disabled: visibilityState.mobileCoordsDisabled
     });
-    if (mobileHelpBtn) mobileHelpBtn.hidden = false;
+    if (mobileHelpBtn) {
+        mobileHelpBtn.hidden = !visibilityState.showMobileHelpAction;
+        mobileHelpBtn.disabled = visibilityState.showMobileHelpAction ? !!visibilityState.mobileHelpDisabled : false;
+        mobileHelpBtn.setAttribute('aria-disabled', visibilityState.showMobileHelpAction && visibilityState.mobileHelpDisabled ? 'true' : 'false');
+    }
 }
 
 function markControlTouch(event) {
@@ -4713,6 +4736,51 @@ function addRoadsToMap(mapId) {
     });
 }
 
+function canUseSoundControlsNow() {
+    return !isEmbeddedView && (advancedControlsUnlocked || isMobileLayoutActive);
+}
+
+function applySoundEnabledState(nextEnabled, {
+    trackEvent = true
+} = {}) {
+    soundEnabled = !!nextEnabled;
+    safeSetStorage(UX_STORAGE_KEYS.soundEnabled, String(soundEnabled));
+
+    if (soundEnabled) {
+        ensureAmbientTracksLoaded();
+        soundIcon.innerHTML = `<i class="ui-icon" data-lucide="volume-2" aria-hidden="true"></i>`;
+        refreshLucideIcons();
+        toggleSoundBtn.title = "Mute Sound";
+        toggleSoundBtn.setAttribute('aria-label', "Mute Sound");
+        toggleSoundBtn.setAttribute('aria-pressed', "true");
+
+        const currentTheme = currentEffectiveTheme;
+        if (currentTheme === 'dark') {
+            fadeAudio(darkAmbient, 0.3);
+        } else {
+            fadeAudio(lightAmbient, 0.3);
+        }
+    } else {
+        soundIcon.innerHTML = `<i class="ui-icon" data-lucide="volume-x" aria-hidden="true"></i>`;
+        refreshLucideIcons();
+        toggleSoundBtn.title = "Unmute Sound";
+        toggleSoundBtn.setAttribute('aria-label', "Unmute Sound");
+        toggleSoundBtn.setAttribute('aria-pressed', "false");
+
+        fadeAudio(lightAmbient, 0);
+        fadeAudio(darkAmbient, 0);
+    }
+
+    if (mobileSoundBtn) {
+        mobileSoundBtn.classList.toggle('active', soundEnabled);
+        mobileSoundBtn.setAttribute('aria-pressed', soundEnabled ? 'true' : 'false');
+    }
+
+    if (trackEvent) {
+        trackAnalytics('sound_toggled', { enabled: soundEnabled });
+    }
+}
+
 function initializeSoundState() {
     const setSoundIcon = (enabled) => {
         if (!soundIcon) return;
@@ -4734,7 +4802,7 @@ function initializeSoundState() {
 
     const savedSoundState = safeGetStorage(UX_STORAGE_KEYS.soundEnabled);
     soundEnabled = savedSoundState === 'true'; // Convert string to boolean
-    const canUseSoundNow = advancedControlsUnlocked && !isEmbeddedView;
+    const canUseSoundNow = canUseSoundControlsNow();
 
     // Set initial volume to 0 to prevent autoplay issues on load
     lightAmbient.volume = 0;
@@ -4773,39 +4841,7 @@ if (toggleSoundBtn) {
     toggleSoundBtn.addEventListener('click', (e) => {
         unlockAdvancedControls('sound_toggle');
         e.stopPropagation();
-        soundEnabled = !soundEnabled;
-        safeSetStorage(UX_STORAGE_KEYS.soundEnabled, String(soundEnabled));
-
-        if (soundEnabled) {
-            ensureAmbientTracksLoaded();
-            soundIcon.innerHTML = `<i class="ui-icon" data-lucide="volume-2" aria-hidden="true"></i>`;
-            refreshLucideIcons();
-            toggleSoundBtn.title = "Mute Sound";
-            toggleSoundBtn.setAttribute('aria-label', "Mute Sound");
-            toggleSoundBtn.setAttribute('aria-pressed', "true");
-
-            const currentTheme = currentEffectiveTheme;
-            if (currentTheme === 'dark') {
-                fadeAudio(darkAmbient, 0.3);
-            } else {
-                fadeAudio(lightAmbient, 0.3);
-            }
-        } else {
-            soundIcon.innerHTML = `<i class="ui-icon" data-lucide="volume-x" aria-hidden="true"></i>`;
-            refreshLucideIcons();
-            toggleSoundBtn.title = "Unmute Sound";
-            toggleSoundBtn.setAttribute('aria-label', "Unmute Sound");
-            toggleSoundBtn.setAttribute('aria-pressed', "false");
-
-            fadeAudio(lightAmbient, 0);
-            fadeAudio(darkAmbient, 0);
-        }
-
-        trackAnalytics('sound_toggled', { enabled: soundEnabled });
-        if (mobileSoundBtn) {
-            mobileSoundBtn.classList.toggle('active', soundEnabled);
-            mobileSoundBtn.setAttribute('aria-pressed', soundEnabled ? 'true' : 'false');
-        }
+        applySoundEnabledState(!soundEnabled);
     });
 }
 
@@ -4903,24 +4939,23 @@ if (shareViewBtn) {
 if (mobileMarkersBtn) {
     mobileMarkersBtn.addEventListener('click', (event) => {
         event.stopPropagation();
-        if (mobileMarkersBtn.hidden) return;
-        toggleMarkersBtn.click();
+        if (mobileMarkersBtn.hidden || mobileMarkersBtn.disabled) return;
+        toggleMarkersVisibility();
     });
 }
 
 if (mobileMeasureBtn) {
     mobileMeasureBtn.addEventListener('click', (event) => {
         event.stopPropagation();
-        if (mobileMeasureBtn.hidden) return;
-        measureToolBtn.click();
+        if (mobileMeasureBtn.hidden || mobileMeasureBtn.disabled) return;
+        toggleMeasurementTool();
     });
 }
 
 if (mobileShareViewBtn) {
     mobileShareViewBtn.addEventListener('click', async (event) => {
         event.stopPropagation();
-        if (mobileShareViewBtn.hidden) return;
-        unlockAdvancedControls('share_view_mobile');
+        if (mobileShareViewBtn.hidden || mobileShareViewBtn.disabled) return;
         await shareCurrentView(mobileShareViewBtn);
     });
 }
@@ -4928,16 +4963,15 @@ if (mobileShareViewBtn) {
 if (mobileSoundBtn) {
     mobileSoundBtn.addEventListener('click', (event) => {
         event.stopPropagation();
-        if (mobileSoundBtn.hidden) return;
-        toggleSoundBtn.click();
+        if (mobileSoundBtn.hidden || mobileSoundBtn.disabled) return;
+        applySoundEnabledState(!soundEnabled);
     });
 }
 
 if (mobileCoordsBtn) {
     mobileCoordsBtn.addEventListener('click', (event) => {
         event.stopPropagation();
-        if (mobileCoordsBtn.hidden) return;
-        unlockAdvancedControls('coords_toggle_mobile');
+        if (mobileCoordsBtn.hidden || mobileCoordsBtn.disabled) return;
         setCoordsDisplayVisible(!coordsDisplayEnabled);
     });
 }
@@ -5012,8 +5046,7 @@ if (customZoomOutBtn) {
 }
 
 // --- Marker Toggle Button Logic ---
-toggleMarkersBtn.addEventListener('click', () => {
-    unlockAdvancedControls('markers_toggle');
+function toggleMarkersVisibility() {
     markersVisible = !markersVisible;
     regionsVisible = markersVisible; // Sync regions with markers
 
@@ -5029,6 +5062,11 @@ toggleMarkersBtn.addEventListener('click', () => {
         mobileMarkersBtn.setAttribute('aria-pressed', markersVisible ? 'true' : 'false');
     }
     trackAnalytics('markers_toggled', { visible: markersVisible });
+}
+
+toggleMarkersBtn.addEventListener('click', () => {
+    unlockAdvancedControls('markers_toggle');
+    toggleMarkersVisibility();
 });
 // --- Blurb Toggle Button Logic ---
 toggleBlurbBtn.addEventListener('click', (e) => {
