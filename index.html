@@ -232,6 +232,16 @@
             </div>
 
             <div id="active-filters-container" class="leaflet-control" aria-live="polite"></div>
+            <div id="mobile-dock" aria-label="Mobile navigation">
+                <button id="mobile-dock-explore-btn" type="button" aria-pressed="false">
+                    <i class="ui-icon" data-lucide="compass" aria-hidden="true"></i>
+                    <span>Explore</span>
+                </button>
+                <button id="mobile-dock-map-btn" type="button" aria-pressed="false">
+                    <i class="ui-icon" data-lucide="map" aria-hidden="true"></i>
+                    <span>Map</span>
+                </button>
+            </div>
 
             <div id="mobile-sheet" aria-hidden="true">
                 <div class="mobile-sheet-handle" aria-hidden="true"></div>
@@ -245,8 +255,14 @@
                     </button>
                 </div>
                 <div id="mobile-sheet-mode-tabs" role="tablist" aria-label="Mobile panel mode">
-                    <button id="mobile-sheet-mode-explore-btn" type="button" role="tab" aria-selected="true" aria-controls="mobile-sheet-explore-panel">Explore</button>
-                    <button id="mobile-sheet-mode-map-btn" type="button" role="tab" aria-selected="false" aria-controls="mobile-sheet-map-panel">Map</button>
+                    <button id="mobile-sheet-mode-explore-btn" type="button" role="tab" aria-selected="true" aria-controls="mobile-sheet-explore-panel">
+                        <i class="ui-icon" data-lucide="compass" aria-hidden="true"></i>
+                        <span>Explore</span>
+                    </button>
+                    <button id="mobile-sheet-mode-map-btn" type="button" role="tab" aria-selected="false" aria-controls="mobile-sheet-map-panel">
+                        <i class="ui-icon" data-lucide="map" aria-hidden="true"></i>
+                        <span>Map</span>
+                    </button>
                 </div>
                 <div id="mobile-sheet-body">
                     <section id="mobile-sheet-explore-panel" aria-labelledby="mobile-sheet-mode-explore-btn">
@@ -268,12 +284,12 @@
                         <div id="mobile-sheet-actions">
                             <div class="mobile-sheet-section-title">Utilities</div>
                             <div class="mobile-sheet-actions-grid">
-                                <button id="mobile-markers-btn" type="button" aria-pressed="false">Markers</button>
-                                <button id="mobile-measure-btn" type="button" aria-pressed="false">Measure</button>
-                                <button id="mobile-share-view-btn" type="button">Share View</button>
-                                <button id="mobile-sound-btn" type="button" aria-pressed="false">Sound</button>
-                                <button id="mobile-coords-btn" type="button" aria-pressed="false">Coords</button>
-                                <button id="mobile-help-btn" type="button">Guide</button>
+                                <button id="mobile-markers-btn" type="button" aria-pressed="false"><i class="ui-icon" data-lucide="map-pin" aria-hidden="true"></i><span>Markers</span></button>
+                                <button id="mobile-measure-btn" type="button" aria-pressed="false"><i class="ui-icon" data-lucide="ruler" aria-hidden="true"></i><span>Measure</span></button>
+                                <button id="mobile-share-view-btn" type="button"><i class="ui-icon" data-lucide="share-2" aria-hidden="true"></i><span>Share View</span></button>
+                                <button id="mobile-sound-btn" type="button" aria-pressed="false"><i class="ui-icon" data-lucide="volume-2" aria-hidden="true"></i><span>Sound</span></button>
+                                <button id="mobile-coords-btn" type="button" aria-pressed="false"><i class="ui-icon" data-lucide="globe" aria-hidden="true"></i><span>Coords</span></button>
+                                <button id="mobile-help-btn" type="button"><i class="ui-icon" data-lucide="circle-help" aria-hidden="true"></i><span>Guide</span></button>
                             </div>
                         </div>
                         <div id="mobile-sheet-more">

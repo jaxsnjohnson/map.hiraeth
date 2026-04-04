@@ -695,6 +695,9 @@ const searchRefineFiltersBtn = document.getElementById('search-refine-filters-bt
 const searchRefineClearBtn = document.getElementById('search-refine-clear-btn');
 const activeFiltersContainer = document.getElementById('active-filters-container');
 const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+const mobileDock = document.getElementById('mobile-dock');
+const mobileDockExploreBtn = document.getElementById('mobile-dock-explore-btn');
+const mobileDockMapBtn = document.getElementById('mobile-dock-map-btn');
 const mobileSheet = document.getElementById('mobile-sheet');
 const mobileSheetCloseBtn = document.getElementById('mobile-sheet-close-btn');
 const mobileSheetTitle = document.getElementById('mobile-sheet-title');
@@ -1095,21 +1098,21 @@ function setMobileSheetMode(mode) {
             ? 'Explore'
             : (mobileCurrentMapName?.textContent?.trim() || 'Current Map');
     }
+    syncMobileDockState();
 }
 
 function syncMobileSheetState() {
-    if (!mobileSheet || !toggleBtn) return;
+    if (!mobileSheet) return;
     if (!isMobileLayoutActive) {
         mobileSheet.setAttribute('aria-hidden', 'true');
         container.classList.remove('mobile-sheet-open');
+        syncMobileDockState();
         return;
     }
     const shouldShowSheet = isMobileLayoutActive && mobileSheetOpen;
     mobileSheet.setAttribute('aria-hidden', shouldShowSheet ? 'false' : 'true');
-    toggleBtn.setAttribute('aria-expanded', shouldShowSheet ? 'true' : 'false');
-    toggleBtn.title = shouldShowSheet ? 'Close Panel' : 'Open Panel';
-    toggleBtn.setAttribute('aria-label', shouldShowSheet ? 'Close Panel' : 'Open Panel');
     container.classList.toggle('mobile-sheet-open', shouldShowSheet);
+    syncMobileDockState();
 }
 
 function closeMobileSheet({ restoreFocus = false } = {}) {
@@ -1224,6 +1227,22 @@ function syncMobileFilterState() {
         searchRefineFiltersBtn.classList.toggle('active', mobileFilterExpanded);
         searchRefineFiltersBtn.setAttribute('aria-pressed', mobileFilterExpanded ? 'true' : 'false');
         searchRefineFiltersBtn.textContent = mobileFilterExpanded ? 'Hide Filters' : 'Filters';
+    }
+}
+
+function syncMobileDockState() {
+    if (!mobileDock) return;
+    const dockVisible = isMobileLayoutActive && !isEmbeddedView;
+    mobileDock.hidden = !dockVisible;
+
+    const isExploreMode = mobileSheetMode === 'explore';
+    if (mobileDockExploreBtn) {
+        mobileDockExploreBtn.classList.toggle('active', isExploreMode);
+        mobileDockExploreBtn.setAttribute('aria-pressed', isExploreMode ? 'true' : 'false');
+    }
+    if (mobileDockMapBtn) {
+        mobileDockMapBtn.classList.toggle('active', !isExploreMode);
+        mobileDockMapBtn.setAttribute('aria-pressed', !isExploreMode ? 'true' : 'false');
     }
 }
 
@@ -2127,7 +2146,7 @@ function updateCurrentControlVisibility(selectedMap = null) {
     if (shareViewBtn) shareViewBtn.style.display = visibilityState.showShareButton ? 'block' : 'none';
     if (toggleGMPanelBtn) toggleGMPanelBtn.style.display = visibilityState.showGMButton ? 'block' : 'none';
     if (toggleToolkitPanelBtn) toggleToolkitPanelBtn.style.display = visibilityState.showToolkitButton ? 'block' : 'none';
-    if (toggleBtn) toggleBtn.hidden = isEmbeddedView ? true : false;
+    if (toggleBtn) toggleBtn.hidden = isEmbeddedView || isMobileLayoutActive;
     if (searchRefineFiltersBtn) searchRefineFiltersBtn.hidden = !visibilityState.showSearchFilterAction;
     toggleCoordsBtn.setAttribute('aria-pressed', coordsDisplayEnabled ? 'true' : 'false');
     if (routePanel) routePanel.style.display = visibilityState.showRoutePanel ? 'block' : 'none';
@@ -4551,6 +4570,30 @@ toggleBtn.addEventListener('click', () => {
     setSidebarState(newState, true);
 });
 
+if (mobileDockExploreBtn) {
+    mobileDockExploreBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const nextMode = 'explore';
+        if (mobileSheetOpen && mobileSheetMode === nextMode) {
+            closeMobileSheet({ restoreFocus: false });
+            return;
+        }
+        openMobileSheet({ mode: nextMode, focusSearch: true });
+    });
+}
+
+if (mobileDockMapBtn) {
+    mobileDockMapBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const nextMode = 'map';
+        if (mobileSheetOpen && mobileSheetMode === nextMode) {
+            closeMobileSheet({ restoreFocus: false });
+            return;
+        }
+        openMobileSheet({ mode: nextMode });
+    });
+}
+
 if (mobileSheetCloseBtn) {
     mobileSheetCloseBtn.addEventListener('click', (event) => {
         event.stopPropagation();
@@ -4857,6 +4900,13 @@ function canUseSoundControlsNow() {
     return !isEmbeddedView && (advancedControlsUnlocked || isMobileLayoutActive);
 }
 
+function syncMobileSoundButtonIcon(enabled) {
+    const icon = mobileSoundBtn?.querySelector('.ui-icon');
+    if (!icon) return;
+    icon.setAttribute('data-lucide', enabled ? 'volume-2' : 'volume-x');
+    refreshLucideIcons();
+}
+
 function applySoundEnabledState(nextEnabled, {
     trackEvent = true
 } = {}) {
@@ -4892,6 +4942,7 @@ function applySoundEnabledState(nextEnabled, {
         mobileSoundBtn.classList.toggle('active', soundEnabled);
         mobileSoundBtn.setAttribute('aria-pressed', soundEnabled ? 'true' : 'false');
     }
+    syncMobileSoundButtonIcon(soundEnabled);
 
     if (trackEvent) {
         trackAnalytics('sound_toggled', { enabled: soundEnabled });
@@ -4907,6 +4958,7 @@ function initializeSoundState() {
             mobileSoundBtn.classList.toggle('active', enabled);
             mobileSoundBtn.setAttribute('aria-pressed', enabled ? 'true' : 'false');
         }
+        syncMobileSoundButtonIcon(enabled);
     };
 
     if (isEmbeddedView) {

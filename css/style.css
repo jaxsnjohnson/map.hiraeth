@@ -2410,10 +2410,12 @@ html.mobile-layout-v2.map-interacting #map-blurb {
 }
 
 #mobile-sheet,
+#mobile-dock,
 .mobile-placement-anchor {
     display: none;
 }
 
+#mobile-dock button,
 #mobile-sheet-close-btn,
 #mobile-sheet-mode-tabs button,
 #mobile-map-blurb-toggle-btn,
@@ -2429,6 +2431,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     text-decoration: none;
 }
 
+:root[data-theme="dark"] #mobile-dock button,
 :root[data-theme="dark"] #mobile-sheet-close-btn,
 :root[data-theme="dark"] #mobile-sheet-mode-tabs button,
 :root[data-theme="dark"] #mobile-map-blurb-toggle-btn,
@@ -2440,13 +2443,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
 
 @media (max-width: 768px) {
     html.mobile-layout-v2.is-mobile-layout #toggle-sidebar-btn {
-        top: calc(var(--safe-top) + 12px);
-        left: calc(var(--safe-left) + 12px);
-        bottom: auto;
-        width: 48px;
-        height: 48px;
-        border-radius: 16px;
-        z-index: 1412;
+        display: none !important;
     }
 
     html.mobile-layout-v2.is-mobile-layout #map-controls-container {
@@ -2484,6 +2481,58 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     html.mobile-layout-v2.is-mobile-layout #map-container {
         width: 100%;
         margin-left: 0;
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-dock {
+        position: absolute;
+        left: 50%;
+        bottom: calc(var(--safe-bottom) + 14px);
+        z-index: 1412;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px;
+        border: 1px solid var(--glass-border-light);
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.16);
+        transform: translateX(-50%);
+        transition:
+            opacity 0.18s ease,
+            transform 0.18s ease,
+            background-color var(--theme-transition-base) var(--theme-transition-ease),
+            border-color var(--theme-transition-base) var(--theme-transition-ease);
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-dock[hidden] {
+        display: none;
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-dock button,
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-mode-tabs button,
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-actions button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-dock button {
+        min-width: 120px;
+        min-height: 44px;
+        padding: 0 16px;
+        border-radius: 999px;
+        font-size: 0.94rem;
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-dock button.active {
+        background: var(--active-bg);
+    }
+
+    html.mobile-layout-v2.is-mobile-layout .container.mobile-sheet-open #mobile-dock {
+        opacity: 0;
+        pointer-events: none;
+        transform: translate(-50%, 10px);
     }
 
     html.mobile-layout-v2.is-mobile-layout #mobile-sheet {
@@ -2577,6 +2626,13 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         min-height: 42px;
         padding: 0 14px;
         text-align: center;
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-dock .ui-icon,
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-mode-tabs .ui-icon,
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-actions .ui-icon {
+        width: 18px;
+        height: 18px;
     }
 
     html.mobile-layout-v2.is-mobile-layout #mobile-sheet-mode-tabs button.active {
@@ -2686,6 +2742,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     html.mobile-layout-v2.is-mobile-layout #mobile-sheet-actions button {
         min-height: 44px;
         padding: 10px 12px;
+        justify-content: flex-start;
         text-align: left;
     }
 
@@ -2862,6 +2919,11 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     }
 
     html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-sheet {
+        border-color: var(--glass-border-dark);
+        background: color-mix(in srgb, var(--bg-primary) 96%, transparent);
+    }
+
+    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-dock {
         border-color: var(--glass-border-dark);
         background: color-mix(in srgb, var(--bg-primary) 96%, transparent);
     }
