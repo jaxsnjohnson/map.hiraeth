@@ -5,6 +5,7 @@ const indexSource = fs.readFileSync('index.html', 'utf8');
 const styleSource = fs.readFileSync('css/style.css', 'utf8');
 
 assert.match(indexSource, /id="mobile-sheet"/);
+assert.match(indexSource, /id="mobile-maps-launcher-btn"/);
 assert.match(indexSource, /id="mobile-sheet-close-btn"/);
 assert.match(indexSource, /id="mobile-sheet-mode-explore-btn"/);
 assert.match(indexSource, /id="mobile-sheet-mode-map-btn"/);
@@ -23,6 +24,7 @@ assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-shee
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.mobile-sheet-card \{/);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-results-card \{/);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-sheet #search-control-container \{/);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-maps-launcher-btn \{/);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-sheet #search-scope-atlas-btn \{/);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #toggle-sidebar-btn \{/);
 assert.doesNotMatch(indexSource, /id="mobile-search-trigger"/);

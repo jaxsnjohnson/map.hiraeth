@@ -2414,6 +2414,10 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     display: none;
 }
 
+#mobile-maps-launcher-btn {
+    display: none;
+}
+
 #mobile-sheet-close-btn,
 #mobile-sheet-mode-tabs button,
 #mobile-sheet #search-refine-clear-btn,
@@ -2434,11 +2438,28 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     border-color: var(--glass-border-dark);
 }
 
+#mobile-maps-launcher-btn {
+    border: 1px solid var(--glass-border-light);
+    background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
+    color: var(--text-primary);
+    border-radius: 999px;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+}
+
+:root[data-theme="dark"] #mobile-maps-launcher-btn {
+    border-color: var(--glass-border-dark);
+    background: color-mix(in srgb, var(--bg-primary) 96%, transparent);
+}
+
 @media (max-width: 768px) {
     html.mobile-layout-v2.is-mobile-layout #toggle-sidebar-btn {
         display: inline-flex !important;
         top: calc(var(--safe-top) + 12px);
-        left: calc(var(--safe-left) + 12px);
+        right: calc(var(--safe-right) + 68px);
+        left: auto;
         bottom: auto;
         z-index: 1413;
         width: 48px;
@@ -2481,6 +2502,35 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     html.mobile-layout-v2.is-mobile-layout #map-container {
         width: 100%;
         margin-left: 0;
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-maps-launcher-btn {
+        position: absolute;
+        left: calc(var(--safe-left) + 12px);
+        bottom: calc(var(--safe-bottom) + 14px);
+        z-index: 1413;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 96px;
+        min-height: 48px;
+        padding: 0 16px;
+        font-size: 0.94rem;
+        font-weight: 600;
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-maps-launcher-btn[hidden] {
+        display: none;
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-maps-launcher-btn .ui-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-maps-launcher-btn.active {
+        background: var(--active-bg);
     }
 
     html.mobile-layout-v2.is-mobile-layout #mobile-sheet-mode-tabs button,

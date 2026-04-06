@@ -665,6 +665,7 @@ const container = document.querySelector('.container');
 const sidebar = document.getElementById('sidebar');
 const mapListElement = document.getElementById('map-list');
 const toggleBtn = document.getElementById('toggle-sidebar-btn');
+const mobileMapsLauncherBtn = document.getElementById('mobile-maps-launcher-btn');
 const themeToggle = document.getElementById('theme-checkbox');
 const themeSwitchWrapper = themeToggle ? themeToggle.closest('.theme-switch-wrapper') : null;
 const bodyElement = document.body;
@@ -1275,12 +1276,20 @@ function syncMobileDockState() {
     if (toggleBtn && isMobileLayoutActive) {
         toggleBtn.classList.toggle('active', mobileSheetOpen);
         toggleBtn.setAttribute('aria-expanded', mobileSheetOpen ? 'true' : 'false');
-        toggleBtn.title = mobileSheetOpen ? 'Close atlas browser' : 'Open atlas browser';
-        toggleBtn.setAttribute('aria-label', mobileSheetOpen ? 'Close atlas browser' : 'Open atlas browser');
+        const searchActive = mobileSheetOpen && isExploreMode;
+        toggleBtn.title = searchActive ? 'Close search' : 'Open search';
+        toggleBtn.setAttribute('aria-label', searchActive ? 'Close search' : 'Open search');
         toggleBtn.innerHTML = mobileSheetOpen
             ? `<i class="ui-icon" data-lucide="x" aria-hidden="true"></i>`
-            : `<i class="ui-icon" data-lucide="${isExploreMode ? 'search' : 'map'}" aria-hidden="true"></i>`;
+            : `<i class="ui-icon" data-lucide="search" aria-hidden="true"></i>`;
         refreshLucideIcons();
+    }
+    if (mobileMapsLauncherBtn) {
+        const mapsActive = isMobileLayoutActive && mobileSheetOpen && !isExploreMode;
+        mobileMapsLauncherBtn.hidden = !isMobileLayoutActive || isEmbeddedView;
+        mobileMapsLauncherBtn.classList.toggle('active', mapsActive);
+        mobileMapsLauncherBtn.setAttribute('aria-pressed', mapsActive ? 'true' : 'false');
+        mobileMapsLauncherBtn.setAttribute('aria-label', mapsActive ? 'Close maps' : 'Open maps');
     }
 }
 
@@ -4610,10 +4619,10 @@ function populateSidebar(parentElement, items) {
 // --- Sidebar Toggle Button Logic ---
 toggleBtn.addEventListener('click', () => {
     if (isMobileLayoutActive) {
-        if (mobileSheetOpen) {
+        if (mobileSheetOpen && mobileSheetMode === 'explore') {
             closeMobileSheet({ restoreFocus: true });
         } else {
-            openMobileSheet({ mode: mobileSheetMode, focusSearch: mobileSheetMode === 'explore' });
+            openMobileSheet({ mode: 'explore', focusSearch: true });
         }
         return;
     }
@@ -4621,6 +4630,18 @@ toggleBtn.addEventListener('click', () => {
     const newState = container.classList.contains('sidebar-collapsed') ? 'o' : 'c';
     setSidebarState(newState, true);
 });
+
+if (mobileMapsLauncherBtn) {
+    mobileMapsLauncherBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (!isMobileLayoutActive) return;
+        if (mobileSheetOpen && mobileSheetMode === 'map') {
+            closeMobileSheet({ restoreFocus: false });
+            return;
+        }
+        openMobileSheet({ mode: 'map', focusSearch: false });
+    });
+}
 
 if (mobileSheetCloseBtn) {
     mobileSheetCloseBtn.addEventListener('click', (event) => {
