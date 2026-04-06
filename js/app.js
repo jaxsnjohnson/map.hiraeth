@@ -926,7 +926,7 @@ function resolveControlVisibilityState({
         showRoutePanel: routeCount > 0 && !isEmbedded && !isMobileLayout,
         showToolkitPanel: allowGMToolkit && toolkitVisible && !isMobileLayout,
         showGMPill: allowGMToolkit && gmVisible && !isMobileLayout,
-        showMobileExploreMode: showMobileSheet && showSearch,
+        showMobileExploreMode: showMobileSheet,
         showMobileMapMode: showMobileSheet,
         showMobileMapList: showMobileSheet,
         showMobileMoreSection: false,
