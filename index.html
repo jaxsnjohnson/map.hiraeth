@@ -237,7 +237,7 @@
                 <div id="mobile-sheet-header">
                     <div class="mobile-sheet-header-copy">
                         <span class="mobile-sheet-eyebrow">Browse Atlas</span>
-                        <strong id="mobile-sheet-title">Search</strong>
+                        <strong id="mobile-sheet-title">Explore</strong>
                     </div>
                     <button id="mobile-sheet-close-btn" type="button" aria-label="Close panel">
                         <i class="ui-icon" data-lucide="x" aria-hidden="true"></i>
@@ -246,7 +246,7 @@
                 <div id="mobile-sheet-mode-tabs" role="tablist" aria-label="Mobile panel mode">
                     <button id="mobile-sheet-mode-explore-btn" type="button" role="tab" aria-selected="true" aria-controls="mobile-sheet-explore-panel">
                         <i class="ui-icon" data-lucide="search" aria-hidden="true"></i>
-                        <span>Search</span>
+                        <span>Explore</span>
                     </button>
                     <button id="mobile-sheet-mode-map-btn" type="button" role="tab" aria-selected="false" aria-controls="mobile-sheet-map-panel">
                         <i class="ui-icon" data-lucide="map" aria-hidden="true"></i>
@@ -255,11 +255,36 @@
                 </div>
                 <div id="mobile-sheet-body">
                     <section id="mobile-sheet-explore-panel" aria-labelledby="mobile-sheet-mode-explore-btn">
-                        <div id="mobile-sheet-search-slot"></div>
+                        <div id="mobile-current-map-summary-card" class="mobile-sheet-card">
+                            <div class="mobile-sheet-card-title-row">
+                                <span class="mobile-sheet-section-title">Current Map</span>
+                                <span class="mobile-sheet-section-hint">Explore what is already open</span>
+                            </div>
+                            <div class="mobile-current-map-summary-copy">
+                                <strong id="mobile-current-map-summary-name">Atlas</strong>
+                                <p id="mobile-current-map-summary-blurb">Search locations, routes, and regions on this map.</p>
+                            </div>
+                        </div>
+                        <div id="mobile-search-card" class="mobile-sheet-card">
+                            <div class="mobile-sheet-card-title-row">
+                                <span class="mobile-sheet-section-title">Explore Map</span>
+                                <span class="mobile-sheet-section-hint">Search this map and jump to places fast</span>
+                            </div>
+                            <div id="mobile-sheet-search-slot"></div>
+                        </div>
+                        <div id="mobile-search-results-card" class="mobile-sheet-card" hidden>
+                            <div class="mobile-sheet-card-title-row">
+                                <span class="mobile-sheet-section-title">Results</span>
+                            </div>
+                            <div id="mobile-search-results-slot"></div>
+                        </div>
                     </section>
                     <section id="mobile-sheet-map-panel" aria-labelledby="mobile-sheet-mode-map-btn" hidden>
-                        <div id="mobile-map-list-section">
-                            <div class="mobile-sheet-section-title">Maps</div>
+                        <div id="mobile-map-list-section" class="mobile-sheet-card">
+                            <div class="mobile-sheet-card-title-row">
+                                <span class="mobile-sheet-section-title">Maps</span>
+                                <span class="mobile-sheet-section-hint">Switch to another region or city</span>
+                            </div>
                             <div id="mobile-map-list-slot"></div>
                         </div>
                     </section>

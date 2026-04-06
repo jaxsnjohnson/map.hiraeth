@@ -78,7 +78,7 @@ let measurementLayerGroup; // Declare it here
 // --- Initialize Leaflet Map ---
 const mapOptions = {
     crs: L.CRS.Simple,
-    minZoom: -3,
+    minZoom: -4,
     maxZoom: 4,
     attributionControl: false,
     zoomControl: false // Disable default zoom, using custom styled one
@@ -702,7 +702,13 @@ const mobileSheetModeExploreBtn = document.getElementById('mobile-sheet-mode-exp
 const mobileSheetModeMapBtn = document.getElementById('mobile-sheet-mode-map-btn');
 const mobileSheetExplorePanel = document.getElementById('mobile-sheet-explore-panel');
 const mobileSheetMapPanel = document.getElementById('mobile-sheet-map-panel');
+const mobileCurrentMapSummaryCard = document.getElementById('mobile-current-map-summary-card');
+const mobileCurrentMapSummaryName = document.getElementById('mobile-current-map-summary-name');
+const mobileCurrentMapSummaryBlurb = document.getElementById('mobile-current-map-summary-blurb');
+const mobileSearchCard = document.getElementById('mobile-search-card');
 const mobileSheetSearchSlot = document.getElementById('mobile-sheet-search-slot');
+const mobileSearchResultsCard = document.getElementById('mobile-search-results-card');
+const mobileSearchResultsSlot = document.getElementById('mobile-search-results-slot');
 const mobileMapListSection = document.getElementById('mobile-map-list-section');
 const mobileMapListSlot = document.getElementById('mobile-map-list-slot');
 const mobileCurrentMapName = document.getElementById('mobile-current-map-name');
@@ -991,12 +997,13 @@ function syncMobileSheetPlacement() {
         if (mobileSheetSearchSlot && poiFilterContainer && poiFilterContainer.parentNode !== mobileSheetSearchSlot) {
             mobileSheetSearchSlot.appendChild(poiFilterContainer);
         }
-        if (mobileSheetSearchSlot && searchResultsContainer && searchResultsContainer.parentNode !== mobileSheetSearchSlot) {
-            mobileSheetSearchSlot.appendChild(searchResultsContainer);
+        if (mobileSearchResultsSlot && searchResultsContainer && searchResultsContainer.parentNode !== mobileSearchResultsSlot) {
+            mobileSearchResultsSlot.appendChild(searchResultsContainer);
         }
         if (mobileMapListSlot && mapListElement && mapListElement.parentNode !== mobileMapListSlot) {
             mobileMapListSlot.appendChild(mapListElement);
         }
+        syncMobileSearchResultsCardState();
         return;
     }
 
@@ -1004,6 +1011,28 @@ function syncMobileSheetPlacement() {
     restorePlacedNode(mobileSearchResultsAnchor, searchResultsContainer);
     restorePlacedNode(mobileFilterAnchor, poiFilterContainer);
     restorePlacedNode(mobileMapListAnchor, mapListElement);
+    syncMobileSearchResultsCardState();
+}
+
+function syncMobileSearchResultsCardState() {
+    if (!mobileSearchResultsCard) return;
+    const hasVisibleResults =
+        isMobileLayoutActive &&
+        searchResultsContainer &&
+        searchResultsContainer.style.display !== 'none' &&
+        searchResultsContainer.innerHTML.trim() !== '';
+    mobileSearchResultsCard.hidden = !hasVisibleResults;
+}
+
+function resolveSearchScope(scope, {
+    isMobileLayout = isMobileLayoutActive,
+    mobileMode = mobileSheetMode
+} = {}) {
+    const normalizedScope = scope === SEARCH_SCOPE_ATLAS ? SEARCH_SCOPE_ATLAS : SEARCH_SCOPE_MAP;
+    if (isMobileLayout && mobileMode === 'explore') {
+        return SEARCH_SCOPE_MAP;
+    }
+    return normalizedScope;
 }
 
 function syncDynamicViewportHeight() {
@@ -1070,6 +1099,7 @@ function updateMobileLayoutState() {
         }
     }
     syncMobileSheetPlacement();
+    syncMobileSearchResultsCardState();
     syncMobileSheetState();
     syncMobileFilterState();
     clampFloatingPanels();
@@ -1078,6 +1108,7 @@ function updateMobileLayoutState() {
 function setMobileSheetMode(mode) {
     mobileSheetMode = mode === 'map' ? 'map' : 'explore';
     container.dataset.mobileSheetMode = mobileSheetMode;
+    setSearchScope(currentSearchScope);
 
     const exploreActive = mobileSheetMode === 'explore';
     if (mobileSheetModeExploreBtn) {
@@ -1096,7 +1127,7 @@ function setMobileSheetMode(mode) {
     }
     if (mobileSheetTitle) {
         mobileSheetTitle.textContent = exploreActive
-            ? 'Search'
+            ? 'Explore'
             : 'Maps';
     }
     syncMobileDockState();
@@ -1152,6 +1183,15 @@ function setMobileMapBlurbExpanded(expanded) {
 }
 
 function syncMobileMapMeta(mapInfo, visibilityState) {
+    if (mobileCurrentMapSummaryCard) {
+        mobileCurrentMapSummaryCard.hidden = !(isMobileLayoutActive && !!mapInfo);
+    }
+    if (mobileCurrentMapSummaryName) {
+        mobileCurrentMapSummaryName.textContent = mapInfo?.name || 'Atlas';
+    }
+    if (mobileCurrentMapSummaryBlurb) {
+        mobileCurrentMapSummaryBlurb.textContent = getMobileMapSummaryExcerpt(mapInfo);
+    }
     if (mobileCurrentMapName) {
         mobileCurrentMapName.textContent = mapInfo?.name || 'Atlas';
     }
@@ -1764,11 +1804,24 @@ function getSearchScopeLabel(scope = currentSearchScope) {
 }
 
 function setSearchScope(scope) {
-    currentSearchScope = scope === SEARCH_SCOPE_ATLAS ? SEARCH_SCOPE_ATLAS : SEARCH_SCOPE_MAP;
+    currentSearchScope = resolveSearchScope(scope);
     if (searchScopeAtlasBtn) {
         const active = currentSearchScope === SEARCH_SCOPE_ATLAS;
         searchScopeAtlasBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
     }
+}
+
+function getMobileMapSummaryExcerpt(mapInfo, maxLength = 148) {
+    const rawBlurb = stripHtml(mapInfo?.blurb || '');
+    if (!rawBlurb) {
+        return 'Search locations, routes, and regions on this map.';
+    }
+    if (rawBlurb.length <= maxLength) {
+        return rawBlurb;
+    }
+    const shortened = rawBlurb.slice(0, Math.max(0, maxLength - 1));
+    const trimmed = shortened.replace(/\s+\S*$/, '').trim();
+    return `${trimmed || shortened.trim()}…`;
 }
 
 function closeSearchResults({ clearMeta = true } = {}) {
@@ -1781,6 +1834,7 @@ function closeSearchResults({ clearMeta = true } = {}) {
         lastTrackedSearchSignature = '';
         setSearchScope(SEARCH_SCOPE_MAP);
     }
+    syncMobileSearchResultsCardState();
     syncMobileExploreVisibility();
 }
 
@@ -2583,6 +2637,7 @@ function renderSearchResults(term, results) {
 
     searchResultsContainer.style.display = 'block';
     setActiveSearchResult(activeSearchResultIndex);
+    syncMobileSearchResultsCardState();
     syncMobileExploreVisibility();
 
     const searchSignature = `${currentSearchScope}:${term}:${results.length}`;
