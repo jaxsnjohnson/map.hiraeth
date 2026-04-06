@@ -783,15 +783,6 @@ const hasPriorPreferenceState =
 advancedControlsUnlocked = storedAdvancedControlsFlag === 'true' ||
     (storedAdvancedControlsFlag === null && storedOnboardingFlag === null && hasPriorPreferenceState);
 coordsDisplayEnabled = safeGetStorage(UX_STORAGE_KEYS.coordsVisible) === 'true';
-mobileLayoutV2Enabled = resolveMobileLayoutV2Enabled();
-updateMobileLayoutState();
-setSearchScope(SEARCH_SCOPE_MAP);
-
-if (isEmbeddedView) {
-    if (bodyElement) bodyElement.classList.add('embedded-view');
-    if (container) container.classList.add('sidebar-collapsed');
-    currentSidebarState = 'c';
-}
 
 
 // --- Helper Functions ---
@@ -1033,6 +1024,16 @@ function resolveSearchScope(scope, {
         return SEARCH_SCOPE_MAP;
     }
     return normalizedScope;
+}
+
+mobileLayoutV2Enabled = resolveMobileLayoutV2Enabled();
+updateMobileLayoutState();
+setSearchScope(SEARCH_SCOPE_MAP);
+
+if (isEmbeddedView) {
+    if (bodyElement) bodyElement.classList.add('embedded-view');
+    if (container) container.classList.add('sidebar-collapsed');
+    currentSidebarState = 'c';
 }
 
 function syncDynamicViewportHeight() {

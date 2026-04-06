@@ -17,7 +17,7 @@ function extractFunctionRange(startMarker, endMarker) {
 
 const snippets = [
     extractFunctionRange('function stripHtml(', 'function getMapRuntimeData('),
-    extractFunctionRange('function resolveSearchScope(', 'function syncDynamicViewportHeight('),
+    extractFunctionRange('function resolveSearchScope(', 'mobileLayoutV2Enabled = resolveMobileLayoutV2Enabled();'),
     extractFunctionRange('function setSearchScope(', 'function closeSearchResults('),
     extractFunctionRange('function getMobileMapSummaryExcerpt(', 'function closeSearchResults(')
 ].join('\n');
