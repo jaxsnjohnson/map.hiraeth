@@ -44,21 +44,21 @@ assert.equal(mobileVisibility.showMobileSheetToggle, true);
 assert.equal(mobileVisibility.showMobileExploreMode, true);
 assert.equal(mobileVisibility.showMobileMapMode, true);
 assert.equal(mobileVisibility.showMobileMapList, true);
-assert.equal(mobileVisibility.showMobileMoreSection, true);
-assert.equal(mobileVisibility.showMobileMarkersAction, true);
+assert.equal(mobileVisibility.showMobileMoreSection, false);
+assert.equal(mobileVisibility.showMobileMarkersAction, false);
 assert.equal(mobileVisibility.showFiltersButton, false);
 assert.equal(mobileVisibility.showSearchFilterAction, true);
 assert.equal(mobileVisibility.showRoutePanel, false);
 assert.equal(mobileVisibility.showToolkitPanel, false);
 assert.equal(mobileVisibility.showGMPill, false);
-assert.equal(mobileVisibility.showMobileShareAction, true);
-assert.equal(mobileVisibility.showMobileSoundAction, true);
-assert.equal(mobileVisibility.showMobileMeasureAction, true);
-assert.equal(mobileVisibility.showMobileCoordsAction, true);
+assert.equal(mobileVisibility.showMobileShareAction, false);
+assert.equal(mobileVisibility.showMobileSoundAction, false);
+assert.equal(mobileVisibility.showMobileMeasureAction, false);
+assert.equal(mobileVisibility.showMobileCoordsAction, false);
 assert.equal(mobileVisibility.mobileMarkersDisabled, false);
 assert.equal(mobileVisibility.mobileMeasureDisabled, false);
 assert.equal(mobileVisibility.mobileCoordsDisabled, false);
-assert.equal(mobileVisibility.showMobileMapBlurb, true);
+assert.equal(mobileVisibility.showMobileMapBlurb, false);
 
 const mobileLimitedVisibility = resolveControlVisibilityState({
     isMobileLayout: true,
@@ -77,9 +77,9 @@ const mobileLimitedVisibility = resolveControlVisibilityState({
     gmVisible: true
 });
 
-assert.equal(mobileLimitedVisibility.showMobileMarkersAction, true);
-assert.equal(mobileLimitedVisibility.showMobileMeasureAction, true);
-assert.equal(mobileLimitedVisibility.showMobileCoordsAction, true);
+assert.equal(mobileLimitedVisibility.showMobileMarkersAction, false);
+assert.equal(mobileLimitedVisibility.showMobileMeasureAction, false);
+assert.equal(mobileLimitedVisibility.showMobileCoordsAction, false);
 assert.equal(mobileLimitedVisibility.mobileMarkersDisabled, true);
 assert.equal(mobileLimitedVisibility.mobileMeasureDisabled, true);
 assert.equal(mobileLimitedVisibility.mobileCoordsDisabled, true);

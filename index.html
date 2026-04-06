@@ -232,23 +232,12 @@
             </div>
 
             <div id="active-filters-container" class="leaflet-control" aria-live="polite"></div>
-            <div id="mobile-dock" aria-label="Mobile navigation">
-                <button id="mobile-dock-explore-btn" type="button" aria-pressed="false">
-                    <i class="ui-icon" data-lucide="compass" aria-hidden="true"></i>
-                    <span>Explore</span>
-                </button>
-                <button id="mobile-dock-map-btn" type="button" aria-pressed="false">
-                    <i class="ui-icon" data-lucide="map" aria-hidden="true"></i>
-                    <span>Map</span>
-                </button>
-            </div>
-
             <div id="mobile-sheet" aria-hidden="true">
                 <div class="mobile-sheet-handle" aria-hidden="true"></div>
                 <div id="mobile-sheet-header">
                     <div class="mobile-sheet-header-copy">
-                        <span class="mobile-sheet-eyebrow">Atlas</span>
-                        <strong id="mobile-sheet-title">Explore</strong>
+                        <span class="mobile-sheet-eyebrow">Browse Atlas</span>
+                        <strong id="mobile-sheet-title">Search</strong>
                     </div>
                     <button id="mobile-sheet-close-btn" type="button" aria-label="Close panel">
                         <i class="ui-icon" data-lucide="x" aria-hidden="true"></i>
@@ -256,51 +245,22 @@
                 </div>
                 <div id="mobile-sheet-mode-tabs" role="tablist" aria-label="Mobile panel mode">
                     <button id="mobile-sheet-mode-explore-btn" type="button" role="tab" aria-selected="true" aria-controls="mobile-sheet-explore-panel">
-                        <i class="ui-icon" data-lucide="compass" aria-hidden="true"></i>
-                        <span>Explore</span>
+                        <i class="ui-icon" data-lucide="search" aria-hidden="true"></i>
+                        <span>Search</span>
                     </button>
                     <button id="mobile-sheet-mode-map-btn" type="button" role="tab" aria-selected="false" aria-controls="mobile-sheet-map-panel">
                         <i class="ui-icon" data-lucide="map" aria-hidden="true"></i>
-                        <span>Map</span>
+                        <span>Maps</span>
                     </button>
                 </div>
                 <div id="mobile-sheet-body">
                     <section id="mobile-sheet-explore-panel" aria-labelledby="mobile-sheet-mode-explore-btn">
                         <div id="mobile-sheet-search-slot"></div>
+                    </section>
+                    <section id="mobile-sheet-map-panel" aria-labelledby="mobile-sheet-mode-map-btn" hidden>
                         <div id="mobile-map-list-section">
                             <div class="mobile-sheet-section-title">Maps</div>
                             <div id="mobile-map-list-slot"></div>
-                        </div>
-                    </section>
-                    <section id="mobile-sheet-map-panel" aria-labelledby="mobile-sheet-mode-map-btn" hidden>
-                        <div id="mobile-map-meta">
-                            <div class="mobile-map-meta-copy">
-                                <span class="mobile-sheet-section-label">Current Map</span>
-                                <strong id="mobile-current-map-name">Atlas</strong>
-                            </div>
-                            <button id="mobile-map-blurb-toggle-btn" type="button" aria-expanded="false">Map Details</button>
-                            <div id="mobile-map-blurb-panel" hidden></div>
-                        </div>
-                        <div id="mobile-sheet-actions">
-                            <div class="mobile-sheet-section-title">Utilities</div>
-                            <div class="mobile-sheet-actions-grid">
-                                <button id="mobile-markers-btn" type="button" aria-pressed="false"><i class="ui-icon" data-lucide="map-pin" aria-hidden="true"></i><span>Markers</span></button>
-                                <button id="mobile-measure-btn" type="button" aria-pressed="false"><i class="ui-icon" data-lucide="ruler" aria-hidden="true"></i><span>Measure</span></button>
-                                <button id="mobile-share-view-btn" type="button"><i class="ui-icon" data-lucide="share-2" aria-hidden="true"></i><span>Share View</span></button>
-                                <button id="mobile-sound-btn" type="button" aria-pressed="false"><i class="ui-icon" data-lucide="volume-2" aria-hidden="true"></i><span>Sound</span></button>
-                                <button id="mobile-coords-btn" type="button" aria-pressed="false"><i class="ui-icon" data-lucide="globe" aria-hidden="true"></i><span>Coords</span></button>
-                                <button id="mobile-help-btn" type="button"><i class="ui-icon" data-lucide="circle-help" aria-hidden="true"></i><span>Guide</span></button>
-                            </div>
-                        </div>
-                        <div id="mobile-sheet-more">
-                            <div class="mobile-sheet-section-title">More</div>
-                            <div id="mobile-theme-slot"></div>
-                            <div id="mobile-sheet-links">
-                                <a href="https://jsnj.link/maps-to-wiki" target="_blank" rel="noopener noreferrer">Wiki</a>
-                                <a href="https://jsnj.link/maps-blog-post" target="_blank" rel="noopener noreferrer">Blog</a>
-                                <button id="mobile-about-link" type="button">About</button>
-                                <a href="https://jsnj.link/map-hiraeth-source" target="_blank" rel="noopener noreferrer">Source</a>
-                            </div>
                         </div>
                     </section>
                 </div>

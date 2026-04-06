@@ -2410,18 +2410,14 @@ html.mobile-layout-v2.map-interacting #map-blurb {
 }
 
 #mobile-sheet,
-#mobile-dock,
 .mobile-placement-anchor {
     display: none;
 }
 
-#mobile-dock button,
 #mobile-sheet-close-btn,
 #mobile-sheet-mode-tabs button,
-#mobile-map-blurb-toggle-btn,
-#mobile-sheet-actions button,
-#mobile-sheet-links a,
-#mobile-sheet-links button {
+#mobile-sheet #search-refine-clear-btn,
+#mobile-sheet #search-scope-atlas-btn {
     border: 1px solid var(--glass-border-light);
     background: var(--bg-secondary);
     color: var(--text-primary);
@@ -2431,19 +2427,23 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     text-decoration: none;
 }
 
-:root[data-theme="dark"] #mobile-dock button,
 :root[data-theme="dark"] #mobile-sheet-close-btn,
 :root[data-theme="dark"] #mobile-sheet-mode-tabs button,
-:root[data-theme="dark"] #mobile-map-blurb-toggle-btn,
-:root[data-theme="dark"] #mobile-sheet-actions button,
-:root[data-theme="dark"] #mobile-sheet-links a,
-:root[data-theme="dark"] #mobile-sheet-links button {
+:root[data-theme="dark"] #mobile-sheet #search-refine-clear-btn,
+:root[data-theme="dark"] #mobile-sheet #search-scope-atlas-btn {
     border-color: var(--glass-border-dark);
 }
 
 @media (max-width: 768px) {
     html.mobile-layout-v2.is-mobile-layout #toggle-sidebar-btn {
-        display: none !important;
+        display: inline-flex !important;
+        top: calc(var(--safe-top) + 12px);
+        left: calc(var(--safe-left) + 12px);
+        bottom: auto;
+        z-index: 1413;
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
     }
 
     html.mobile-layout-v2.is-mobile-layout #map-controls-container {
@@ -2483,76 +2483,34 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         margin-left: 0;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-dock {
-        position: absolute;
-        left: 50%;
-        bottom: calc(var(--safe-bottom) + 14px);
-        z-index: 1412;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px;
-        border: 1px solid var(--glass-border-light);
-        border-radius: 999px;
-        background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
-        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.16);
-        transform: translateX(-50%);
-        transition:
-            opacity 0.18s ease,
-            transform 0.18s ease,
-            background-color var(--theme-transition-base) var(--theme-transition-ease),
-            border-color var(--theme-transition-base) var(--theme-transition-ease);
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-dock[hidden] {
-        display: none;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-dock button,
     html.mobile-layout-v2.is-mobile-layout #mobile-sheet-mode-tabs button,
-    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-actions button {
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet #search-refine-clear-btn,
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet #search-scope-atlas-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-dock button {
-        min-width: 120px;
-        min-height: 44px;
-        padding: 0 16px;
-        border-radius: 999px;
-        font-size: 0.94rem;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-dock button.active {
-        background: var(--active-bg);
-    }
-
-    html.mobile-layout-v2.is-mobile-layout .container.mobile-sheet-open #mobile-dock {
-        opacity: 0;
-        pointer-events: none;
-        transform: translate(-50%, 10px);
-    }
-
     html.mobile-layout-v2.is-mobile-layout #mobile-sheet {
         position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        left: 12px;
+        right: 12px;
+        top: calc(var(--safe-top) + 72px);
+        bottom: auto;
         z-index: 1411;
         display: flex;
         flex-direction: column;
         gap: 12px;
-        max-height: min(calc(var(--app-height) - var(--safe-top) - 16px), 78vh);
-        padding: 10px 12px calc(var(--safe-bottom) + 14px);
-        border-top: 1px solid var(--glass-border-light);
-        border-radius: 22px 22px 0 0;
+        max-height: min(calc(var(--app-height) - var(--safe-top) - 84px), 66vh);
+        padding: 10px 12px 12px;
+        border: 1px solid var(--glass-border-light);
+        border-radius: 24px;
         background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
-        box-shadow: 0 -10px 24px rgba(0, 0, 0, 0.18);
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
         opacity: 0;
         pointer-events: none;
-        transform: translateY(12px);
+        transform: translateY(-8px);
         transition:
             opacity 0.18s ease,
             transform 0.18s ease,
@@ -2628,9 +2586,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         text-align: center;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-dock .ui-icon,
-    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-mode-tabs .ui-icon,
-    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-actions .ui-icon {
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-mode-tabs .ui-icon {
         width: 18px;
         height: 18px;
     }
@@ -2650,12 +2606,12 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     html.mobile-layout-v2.is-mobile-layout #mobile-sheet-map-panel {
         min-height: 0;
         width: 100%;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-explore-panel {
         display: flex;
         flex-direction: column;
         gap: 12px;
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-explore-panel {
         overflow: hidden;
     }
 
@@ -2674,7 +2630,8 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         flex-direction: column;
         gap: 8px;
         flex: 1 1 auto;
-        overflow: hidden;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     html.mobile-layout-v2.is-mobile-layout #mobile-map-list-slot {
@@ -2685,104 +2642,6 @@ html.mobile-layout-v2.map-interacting #map-blurb {
 
     html.mobile-layout-v2.is-mobile-layout #mobile-map-list-slot #map-list {
         padding-right: 4px;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-map-panel {
-        display: grid;
-        gap: 12px;
-        align-content: start;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        padding-right: 2px;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-map-meta,
-    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-actions,
-    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-more {
-        display: grid;
-        gap: 10px;
-        padding: 12px;
-        border-radius: 16px;
-        border: 1px solid var(--glass-border-light);
-        background: var(--bg-secondary);
-    }
-
-    html.mobile-layout-v2.is-mobile-layout .mobile-map-meta-copy {
-        display: grid;
-        gap: 3px;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-current-map-name {
-        font-size: 1.12rem;
-        line-height: 1.2;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-map-blurb-toggle-btn {
-        min-height: 42px;
-        padding: 10px 12px;
-        text-align: left;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-map-blurb-toggle-btn.active {
-        background: var(--active-bg);
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-map-blurb-panel {
-        padding: 2px 2px 0;
-        font-size: 0.95rem;
-        line-height: 1.45;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout .mobile-sheet-actions-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-actions button {
-        min-height: 44px;
-        padding: 10px 12px;
-        justify-content: flex-start;
-        text-align: left;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-actions button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        box-shadow: none;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-actions button.active {
-        background: var(--active-bg);
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-actions button:disabled.active {
-        background: var(--bg-secondary);
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-theme-slot .theme-switch-wrapper {
-        margin: 0;
-        padding: 0;
-        border: 0;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-links {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-links a,
-    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-links button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 42px;
-        padding: 0 10px;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-links button {
-        width: 100%;
     }
 
     html.mobile-layout-v2.is-mobile-layout #mobile-sheet #search-control-container,
@@ -2813,7 +2672,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     html.mobile-layout-v2.is-mobile-layout .search-input-shell {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
     }
 
     html.mobile-layout-v2.is-mobile-layout .search-inline-actions {
@@ -2821,14 +2680,19 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         transform: none;
         justify-content: flex-start;
         flex-wrap: wrap;
+        gap: 8px;
     }
 
     html.mobile-layout-v2.is-mobile-layout .search-inline-actions button {
         min-width: 0;
-        min-height: 40px;
+        min-height: 38px;
         padding: 0 12px;
         border-radius: 999px;
         font-size: 0.82rem;
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet #search-refine-filters-btn {
+        display: none !important;
     }
 
     html.mobile-layout-v2.is-mobile-layout #poi-search-input {
@@ -2842,7 +2706,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         min-height: 0;
         max-height: none;
         padding: 6px;
-        border-radius: 16px;
+        border-radius: 18px;
         border: 1px solid var(--glass-border-light);
         background: var(--bg-secondary);
         box-shadow: none;
@@ -2851,28 +2715,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     }
 
     html.mobile-layout-v2.is-mobile-layout #mobile-sheet #poi-filter-container {
-        opacity: 0;
-        max-height: 0;
-        padding: 0 12px;
-        border: 1px solid transparent;
-        border-radius: 16px;
-        background: var(--bg-secondary);
-        box-shadow: none;
-        overflow: hidden;
-        pointer-events: none;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-sheet #poi-filter-container.visible {
-        opacity: 1;
-        max-height: min(32vh, 260px);
-        padding: 12px;
-        border-color: var(--glass-border-light);
-        overflow-y: auto;
-        pointer-events: auto;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-sheet #poi-filter-container h3 {
-        padding-bottom: 6px;
+        display: none !important;
     }
 
     html.mobile-layout-v2.is-mobile-layout #active-filters-container {
@@ -2923,21 +2766,11 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         background: color-mix(in srgb, var(--bg-primary) 96%, transparent);
     }
 
-    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-dock {
-        border-color: var(--glass-border-dark);
-        background: color-mix(in srgb, var(--bg-primary) 96%, transparent);
-    }
-
-    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-map-meta,
-    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-sheet-actions,
-    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-sheet-more,
-    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-sheet #search-results-container,
-    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-sheet #poi-filter-container.visible {
+    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-sheet #search-results-container {
         border-color: var(--glass-border-dark);
     }
 
-    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-sheet #search-results-container,
-    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-sheet #poi-filter-container {
+    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-sheet #search-results-container {
         background: color-mix(in srgb, var(--bg-secondary) 92%, transparent);
     }
 }

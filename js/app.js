@@ -695,9 +695,6 @@ const searchRefineFiltersBtn = document.getElementById('search-refine-filters-bt
 const searchRefineClearBtn = document.getElementById('search-refine-clear-btn');
 const activeFiltersContainer = document.getElementById('active-filters-container');
 const sidebarBackdrop = document.getElementById('sidebar-backdrop');
-const mobileDock = document.getElementById('mobile-dock');
-const mobileDockExploreBtn = document.getElementById('mobile-dock-explore-btn');
-const mobileDockMapBtn = document.getElementById('mobile-dock-map-btn');
 const mobileSheet = document.getElementById('mobile-sheet');
 const mobileSheetCloseBtn = document.getElementById('mobile-sheet-close-btn');
 const mobileSheetTitle = document.getElementById('mobile-sheet-title');
@@ -708,7 +705,6 @@ const mobileSheetMapPanel = document.getElementById('mobile-sheet-map-panel');
 const mobileSheetSearchSlot = document.getElementById('mobile-sheet-search-slot');
 const mobileMapListSection = document.getElementById('mobile-map-list-section');
 const mobileMapListSlot = document.getElementById('mobile-map-list-slot');
-const mobileThemeSlot = document.getElementById('mobile-theme-slot');
 const mobileCurrentMapName = document.getElementById('mobile-current-map-name');
 const mobileMapBlurbToggleBtn = document.getElementById('mobile-map-blurb-toggle-btn');
 const mobileMapBlurbPanel = document.getElementById('mobile-map-blurb-panel');
@@ -718,7 +714,6 @@ const mobileShareViewBtn = document.getElementById('mobile-share-view-btn');
 const mobileSoundBtn = document.getElementById('mobile-sound-btn');
 const mobileCoordsBtn = document.getElementById('mobile-coords-btn');
 const mobileHelpBtn = document.getElementById('mobile-help-btn');
-const mobileAboutLink = document.getElementById('mobile-about-link');
 const onboardingCoachmark = document.getElementById('onboarding-coachmark');
 const onboardingOpenHelpBtn = document.getElementById('onboarding-open-help-btn');
 const onboardingDismissBtn = document.getElementById('onboarding-dismiss-btn');
@@ -937,14 +932,14 @@ function resolveControlVisibilityState({
         showMobileExploreMode: showMobileSheet && showSearch,
         showMobileMapMode: showMobileSheet,
         showMobileMapList: showMobileSheet,
-        showMobileMoreSection: showMobileSheet,
-        showMobileMarkersAction: showMobileSheet,
-        showMobileMeasureAction: showMobileSheet,
-        showMobileShareAction: showMobileSheet,
-        showMobileSoundAction: showMobileSheet,
-        showMobileCoordsAction: showMobileSheet,
-        showMobileHelpAction: showMobileSheet,
-        showMobileMapBlurb: hasBlurb && showMobileSheet,
+        showMobileMoreSection: false,
+        showMobileMarkersAction: false,
+        showMobileMeasureAction: false,
+        showMobileShareAction: false,
+        showMobileSoundAction: false,
+        showMobileCoordsAction: false,
+        showMobileHelpAction: false,
+        showMobileMapBlurb: false,
         mobileMarkersDisabled: !showMarkers,
         mobileMeasureDisabled: !hasValidScale,
         mobileShareDisabled: false,
@@ -981,7 +976,6 @@ const mobileSearchControlAnchor = createMobilePlacementAnchor(searchControlConta
 const mobileSearchResultsAnchor = createMobilePlacementAnchor(searchResultsContainer);
 const mobileFilterAnchor = createMobilePlacementAnchor(poiFilterContainer);
 const mobileMapListAnchor = createMobilePlacementAnchor(mapListElement);
-const mobileThemeAnchor = createMobilePlacementAnchor(themeSwitchWrapper);
 
 function restorePlacedNode(anchor, element) {
     if (!anchor || !anchor.parentNode || !element) return;
@@ -1003,9 +997,6 @@ function syncMobileSheetPlacement() {
         if (mobileMapListSlot && mapListElement && mapListElement.parentNode !== mobileMapListSlot) {
             mobileMapListSlot.appendChild(mapListElement);
         }
-        if (mobileThemeSlot && themeSwitchWrapper && themeSwitchWrapper.parentNode !== mobileThemeSlot) {
-            mobileThemeSlot.appendChild(themeSwitchWrapper);
-        }
         return;
     }
 
@@ -1013,7 +1004,6 @@ function syncMobileSheetPlacement() {
     restorePlacedNode(mobileSearchResultsAnchor, searchResultsContainer);
     restorePlacedNode(mobileFilterAnchor, poiFilterContainer);
     restorePlacedNode(mobileMapListAnchor, mapListElement);
-    restorePlacedNode(mobileThemeAnchor, themeSwitchWrapper);
 }
 
 function syncDynamicViewportHeight() {
@@ -1062,11 +1052,22 @@ function updateMobileLayoutState() {
     if (!active && mobileSheetOpen) {
         mobileSheetOpen = false;
     }
-    if (!active && toggleBtn) {
+    if (toggleBtn) {
         const collapsed = container.classList.contains('sidebar-collapsed');
-        toggleBtn.title = collapsed ? 'Expand Sidebar' : 'Collapse Sidebar';
-        toggleBtn.setAttribute('aria-label', collapsed ? 'Expand Sidebar' : 'Collapse Sidebar');
-        toggleBtn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        if (active) {
+            toggleBtn.title = mobileSheetOpen ? 'Close atlas browser' : 'Open atlas browser';
+            toggleBtn.setAttribute('aria-label', mobileSheetOpen ? 'Close atlas browser' : 'Open atlas browser');
+            toggleBtn.setAttribute('aria-expanded', mobileSheetOpen ? 'true' : 'false');
+        } else {
+            toggleBtn.classList.remove('active');
+            toggleBtn.innerHTML = collapsed
+                ? `<i class="ui-icon" data-lucide="chevron-right" aria-hidden="true"></i>`
+                : `<i class="ui-icon" data-lucide="chevron-left" aria-hidden="true"></i>`;
+            toggleBtn.title = collapsed ? 'Expand Sidebar' : 'Collapse Sidebar';
+            toggleBtn.setAttribute('aria-label', collapsed ? 'Expand Sidebar' : 'Collapse Sidebar');
+            toggleBtn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+            refreshLucideIcons();
+        }
     }
     syncMobileSheetPlacement();
     syncMobileSheetState();
@@ -1095,8 +1096,8 @@ function setMobileSheetMode(mode) {
     }
     if (mobileSheetTitle) {
         mobileSheetTitle.textContent = exploreActive
-            ? 'Explore'
-            : (mobileCurrentMapName?.textContent?.trim() || 'Current Map');
+            ? 'Search'
+            : 'Maps';
     }
     syncMobileDockState();
 }
@@ -1164,7 +1165,7 @@ function syncMobileMapMeta(mapInfo, visibilityState) {
     }
 
     if (mobileSheetTitle && mobileSheetMode === 'map') {
-        mobileSheetTitle.textContent = mapInfo?.name || 'Current Map';
+        mobileSheetTitle.textContent = 'Maps';
     }
 }
 
@@ -1216,9 +1217,7 @@ function syncMobileSheetActionState(visibilityState) {
 
 function syncMobileExploreVisibility() {
     if (!mobileMapListSection) return;
-    const hasSearchTerm = normalizeSearchValue(poiSearchInput?.value).length > 0;
-    const showMapList = isMobileLayoutActive && !hasSearchTerm;
-    mobileMapListSection.hidden = !showMapList;
+    mobileMapListSection.hidden = false;
 }
 
 function syncMobileFilterState() {
@@ -1231,18 +1230,16 @@ function syncMobileFilterState() {
 }
 
 function syncMobileDockState() {
-    if (!mobileDock) return;
-    const dockVisible = isMobileLayoutActive && !isEmbeddedView;
-    mobileDock.hidden = !dockVisible;
-
     const isExploreMode = mobileSheetMode === 'explore';
-    if (mobileDockExploreBtn) {
-        mobileDockExploreBtn.classList.toggle('active', isExploreMode);
-        mobileDockExploreBtn.setAttribute('aria-pressed', isExploreMode ? 'true' : 'false');
-    }
-    if (mobileDockMapBtn) {
-        mobileDockMapBtn.classList.toggle('active', !isExploreMode);
-        mobileDockMapBtn.setAttribute('aria-pressed', !isExploreMode ? 'true' : 'false');
+    if (toggleBtn && isMobileLayoutActive) {
+        toggleBtn.classList.toggle('active', mobileSheetOpen);
+        toggleBtn.setAttribute('aria-expanded', mobileSheetOpen ? 'true' : 'false');
+        toggleBtn.title = mobileSheetOpen ? 'Close atlas browser' : 'Open atlas browser';
+        toggleBtn.setAttribute('aria-label', mobileSheetOpen ? 'Close atlas browser' : 'Open atlas browser');
+        toggleBtn.innerHTML = mobileSheetOpen
+            ? `<i class="ui-icon" data-lucide="x" aria-hidden="true"></i>`
+            : `<i class="ui-icon" data-lucide="${isExploreMode ? 'search' : 'map'}" aria-hidden="true"></i>`;
+        refreshLucideIcons();
     }
 }
 
@@ -2146,7 +2143,7 @@ function updateCurrentControlVisibility(selectedMap = null) {
     if (shareViewBtn) shareViewBtn.style.display = visibilityState.showShareButton ? 'block' : 'none';
     if (toggleGMPanelBtn) toggleGMPanelBtn.style.display = visibilityState.showGMButton ? 'block' : 'none';
     if (toggleToolkitPanelBtn) toggleToolkitPanelBtn.style.display = visibilityState.showToolkitButton ? 'block' : 'none';
-    if (toggleBtn) toggleBtn.hidden = isEmbeddedView || isMobileLayoutActive;
+    if (toggleBtn) toggleBtn.hidden = isEmbeddedView;
     if (searchRefineFiltersBtn) searchRefineFiltersBtn.hidden = !visibilityState.showSearchFilterAction;
     toggleCoordsBtn.setAttribute('aria-pressed', coordsDisplayEnabled ? 'true' : 'false');
     if (routePanel) routePanel.style.display = visibilityState.showRoutePanel ? 'block' : 'none';
@@ -2157,7 +2154,6 @@ function updateCurrentControlVisibility(selectedMap = null) {
     syncMobileSheetActionState(visibilityState);
     setElementHiddenState(mobileSheetModeExploreBtn, !visibilityState.showMobileExploreMode);
     setElementHiddenState(mobileSheetModeMapBtn, !visibilityState.showMobileMapMode);
-    setElementHiddenState(mobileThemeSlot?.parentElement, !visibilityState.showMobileMoreSection);
     if (!visibilityState.showMobileExploreMode && mobileSheetMode === 'explore') {
         setMobileSheetMode('map');
     }
@@ -4570,30 +4566,6 @@ toggleBtn.addEventListener('click', () => {
     setSidebarState(newState, true);
 });
 
-if (mobileDockExploreBtn) {
-    mobileDockExploreBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        const nextMode = 'explore';
-        if (mobileSheetOpen && mobileSheetMode === nextMode) {
-            closeMobileSheet({ restoreFocus: false });
-            return;
-        }
-        openMobileSheet({ mode: nextMode, focusSearch: true });
-    });
-}
-
-if (mobileDockMapBtn) {
-    mobileDockMapBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        const nextMode = 'map';
-        if (mobileSheetOpen && mobileSheetMode === nextMode) {
-            closeMobileSheet({ restoreFocus: false });
-            return;
-        }
-        openMobileSheet({ mode: nextMode });
-    });
-}
-
 if (mobileSheetCloseBtn) {
     mobileSheetCloseBtn.addEventListener('click', (event) => {
         event.stopPropagation();
@@ -5149,14 +5121,6 @@ if (mobileHelpBtn) {
     mobileHelpBtn.addEventListener('click', (event) => {
         event.stopPropagation();
         if (openAboutModal) openAboutModal('guide', 'mobile_sheet');
-    });
-}
-
-if (mobileAboutLink) {
-    mobileAboutLink.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        if (openAboutModal) openAboutModal('lore', 'mobile_sheet');
     });
 }
 
