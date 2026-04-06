@@ -26,7 +26,6 @@ global.SEARCH_SCOPE_MAP = 'map';
 global.SEARCH_SCOPE_ATLAS = 'atlas';
 global.currentSearchScope = global.SEARCH_SCOPE_MAP;
 global.isMobileLayoutActive = false;
-global.mobileSheetMode = 'explore';
 global.searchScopeAtlasBtn = {
     pressed: null,
     setAttribute(name, value) {
@@ -37,12 +36,11 @@ global.searchScopeAtlasBtn = {
 // eslint-disable-next-line no-eval
 eval(snippets);
 
-assert.equal(resolveSearchScope('atlas', { isMobileLayout: true, mobileMode: 'explore' }), 'map');
-assert.equal(resolveSearchScope('atlas', { isMobileLayout: true, mobileMode: 'map' }), 'atlas');
-assert.equal(resolveSearchScope('atlas', { isMobileLayout: false, mobileMode: 'explore' }), 'atlas');
+assert.equal(resolveSearchScope('atlas', { isMobileLayout: true }), 'map');
+assert.equal(resolveSearchScope('map', { isMobileLayout: true }), 'map');
+assert.equal(resolveSearchScope('atlas', { isMobileLayout: false }), 'atlas');
 
 global.isMobileLayoutActive = true;
-global.mobileSheetMode = 'explore';
 setSearchScope('atlas');
 assert.equal(global.currentSearchScope, 'map');
 assert.equal(global.searchScopeAtlasBtn.pressed, 'false');

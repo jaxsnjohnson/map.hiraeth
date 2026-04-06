@@ -18,8 +18,8 @@ function extractFunctionRange(startMarker, endMarker) {
 // eslint-disable-next-line no-eval
 eval(extractFunctionRange('function syncMobileDockState(', 'function markControlTouch('));
 
-global.mobileSheetMode = 'explore';
-global.mobileSheetOpen = false;
+global.mobileSearchPanelOpen = false;
+global.mobileMapsSheetOpen = false;
 global.isMobileLayoutActive = true;
 global.isEmbeddedView = false;
 global.refreshLucideIcons = () => {};
@@ -59,12 +59,14 @@ assert.equal(global.mobileMapsLauncherBtn.hidden, false);
 assert.equal(global.mobileMapsLauncherBtn.attrs['aria-label'], 'Open maps');
 assert.equal(global.mobileMapsLauncherBtn.attrs['aria-pressed'], 'false');
 
-global.mobileSheetOpen = true;
+global.mobileSearchPanelOpen = true;
 syncMobileDockState();
 assert.equal(global.toggleBtn.attrs['aria-label'], 'Close search');
 assert.equal(global.mobileMapsLauncherBtn.attrs['aria-label'], 'Open maps');
+assert.equal(global.mobileMapsLauncherBtn.attrs['aria-pressed'], 'false');
 
-global.mobileSheetMode = 'map';
+global.mobileSearchPanelOpen = false;
+global.mobileMapsSheetOpen = true;
 syncMobileDockState();
 assert.equal(global.toggleBtn.attrs['aria-label'], 'Open search');
 assert.equal(global.mobileMapsLauncherBtn.attrs['aria-label'], 'Close maps');
