@@ -225,12 +225,71 @@
     }
 
     html.mobile-layout-v2.is-mobile-layout #mobile-search-panel .search-input-shell {
+        position: relative;
+        display: grid;
         gap: 10px;
+        padding: 12px;
+        border: 1px solid color-mix(in srgb, var(--glass-border-light) 84%, transparent);
+        border-radius: 22px;
+        background:
+            linear-gradient(180deg, color-mix(in srgb, #fff8ed 92%, transparent), color-mix(in srgb, var(--bg-secondary) 96%, transparent));
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.72),
+            0 14px 28px rgba(73, 43, 22, 0.08);
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel .search-input-shell::after {
+        content: 'Search the current map';
+        position: absolute;
+        top: -10px;
+        left: 14px;
+        padding: 0 8px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--bg-primary) 96%, transparent);
+        color: var(--text-secondary);
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
     }
 
     html.mobile-layout-v2.is-mobile-layout #mobile-search-panel .search-inline-actions {
-        justify-content: flex-start;
-        align-items: center;
+        position: static;
+        transform: none;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        justify-content: stretch;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel #poi-search-input {
+        width: 100%;
+        min-height: 54px;
+        padding: 0 18px;
+        border: 1px solid color-mix(in srgb, var(--text-secondary) 14%, var(--glass-border-light));
+        border-radius: 18px;
+        background: color-mix(in srgb, var(--bg-primary) 98%, transparent);
+        color: var(--text-primary);
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.74),
+            inset 0 -1px 0 rgba(107, 44, 37, 0.04);
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel #poi-search-input::placeholder {
+        color: color-mix(in srgb, var(--text-secondary) 76%, white 24%);
+        font-weight: 500;
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel #poi-search-input:focus {
+        border-color: color-mix(in srgb, var(--text-secondary) 28%, var(--focus-ring));
+        box-shadow:
+            0 0 0 3px color-mix(in srgb, var(--focus-ring) 18%, transparent),
+            inset 0 1px 0 rgba(255, 255, 255, 0.84);
     }
 
     html.mobile-layout-v2.is-mobile-layout #mobile-search-panel #search-refine-filters-btn,
@@ -241,16 +300,28 @@
         min-height: 40px;
         padding: 0 14px;
         border-radius: 999px;
-        font-size: 0.82rem;
-        font-weight: 600;
+        border: 1px solid color-mix(in srgb, var(--glass-border-light) 86%, transparent);
+        background: color-mix(in srgb, var(--bg-primary) 94%, transparent);
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
     }
 
     html.mobile-layout-v2.is-mobile-layout #mobile-search-panel #search-refine-filters-btn.active {
-        background: var(--active-bg);
+        background:
+            linear-gradient(135deg, color-mix(in srgb, var(--active-bg) 94%, transparent), color-mix(in srgb, var(--highlight-bg) 72%, transparent));
+        border-color: color-mix(in srgb, var(--text-secondary) 22%, transparent);
+        color: var(--text-primary);
     }
 
     html.mobile-layout-v2.is-mobile-layout #mobile-search-panel #search-scope-atlas-btn {
         display: none !important;
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel #search-refine-clear-btn {
+        color: var(--text-secondary);
     }
 
     html.mobile-layout-v2.is-mobile-layout #mobile-search-panel #poi-filter-container {
@@ -343,6 +414,34 @@
     html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-utility-actions button {
         border-color: color-mix(in srgb, var(--glass-border-dark) 88%, transparent);
         background: color-mix(in srgb, var(--bg-secondary) 92%, transparent);
+    }
+
+    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-search-panel .search-input-shell {
+        border-color: color-mix(in srgb, var(--glass-border-dark) 90%, transparent);
+        background:
+            linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 95%, transparent), color-mix(in srgb, var(--bg-primary) 92%, transparent));
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.08),
+            0 14px 28px rgba(0, 0, 0, 0.18);
+    }
+
+    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-search-panel .search-input-shell::after {
+        background: color-mix(in srgb, var(--bg-primary) 98%, transparent);
+    }
+
+    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-search-panel #poi-search-input {
+        border-color: color-mix(in srgb, var(--text-secondary) 18%, var(--glass-border-dark));
+        background: color-mix(in srgb, var(--bg-primary) 94%, transparent);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.08),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+    }
+
+    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-search-panel #search-refine-filters-btn,
+    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-search-panel #search-refine-clear-btn {
+        border-color: color-mix(in srgb, var(--glass-border-dark) 88%, transparent);
+        background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
     }
 
     html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-search-panel #poi-filter-container.visible {
