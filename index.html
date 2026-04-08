@@ -243,34 +243,24 @@
                 <div id="mobile-search-panel-header">
                     <div class="mobile-sheet-header-copy">
                         <span class="mobile-sheet-eyebrow">Atlas Stack</span>
-                        <strong id="mobile-search-panel-title">Explore</strong>
+                        <strong id="mobile-search-panel-title">Atlas</strong>
                     </div>
                     <button id="mobile-search-panel-close-btn" type="button" aria-label="Close atlas">
                         <i class="ui-icon" data-lucide="x" aria-hidden="true"></i>
                     </button>
                 </div>
                 <div id="mobile-search-panel-body">
-                    <div id="mobile-current-map-summary-card" class="mobile-sheet-card">
-                        <div class="mobile-sheet-card-title-row">
+                    <div id="mobile-search-card" class="mobile-sheet-card mobile-sheet-hero">
+                        <div class="mobile-sheet-hero-copy">
                             <span class="mobile-sheet-section-title">Current Map</span>
-                            <span class="mobile-sheet-section-hint">Explore what is already open</span>
-                        </div>
-                        <div class="mobile-current-map-summary-copy">
                             <strong id="mobile-current-map-summary-name">Atlas</strong>
                             <p id="mobile-current-map-summary-blurb">Search locations, routes, and regions on this map.</p>
-                        </div>
-                    </div>
-                    <div id="mobile-search-card" class="mobile-sheet-card">
-                        <div class="mobile-sheet-card-title-row">
-                            <span class="mobile-sheet-section-title">Explore Map</span>
-                            <span class="mobile-sheet-section-hint">Search, filter, and jump to places fast</span>
                         </div>
                         <div id="mobile-search-panel-search-slot"></div>
                     </div>
                     <div id="mobile-search-actions-card" class="mobile-sheet-card">
                         <div class="mobile-sheet-card-title-row">
                             <span class="mobile-sheet-section-title">Quick Actions</span>
-                            <span class="mobile-sheet-section-hint">Map tools for the current view</span>
                         </div>
                         <div id="mobile-utility-actions">
                             <button id="mobile-markers-btn" type="button" aria-label="Toggle markers and regions" aria-pressed="false">
@@ -301,22 +291,23 @@
                         </div>
                         <div id="mobile-search-panel-results-slot"></div>
                     </div>
-                    <div id="mobile-maps-current-map-card" class="mobile-sheet-card">
-                        <div class="mobile-sheet-card-title-row">
-                            <span class="mobile-sheet-section-title">Current Map</span>
-                            <span class="mobile-sheet-section-hint">You are exploring here now</span>
-                        </div>
-                        <div class="mobile-current-map-summary-copy">
-                            <strong id="mobile-current-map-name">Atlas</strong>
-                            <p id="mobile-current-map-blurb">Switch to another region or city without losing your bearings.</p>
-                        </div>
-                    </div>
                     <div id="mobile-map-list-section" class="mobile-sheet-card">
                         <div class="mobile-sheet-card-title-row">
-                            <span class="mobile-sheet-section-title">Maps</span>
-                            <span class="mobile-sheet-section-hint">Switch to another region or city below</span>
+                            <div class="mobile-sheet-card-title-copy">
+                                <span class="mobile-sheet-section-title">Maps</span>
+                                <span class="mobile-sheet-section-hint">Switch regions and cities without leaving the sheet</span>
+                            </div>
+                            <button id="mobile-map-list-toggle-btn" type="button" aria-expanded="false" aria-controls="mobile-search-panel-map-list-shell">
+                                Show Maps
+                            </button>
                         </div>
-                        <div id="mobile-search-panel-map-list-slot"></div>
+                        <div id="mobile-map-list-preview">
+                            <strong id="mobile-map-list-preview-name">Atlas</strong>
+                            <p id="mobile-map-list-preview-meta">Browse the atlas map list.</p>
+                        </div>
+                        <div id="mobile-search-panel-map-list-shell" hidden>
+                            <div id="mobile-search-panel-map-list-slot"></div>
+                        </div>
                     </div>
                 </div>
             </div>

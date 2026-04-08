@@ -700,7 +700,6 @@ const sidebarBackdrop = document.getElementById('sidebar-backdrop');
 const mobileSearchPanel = document.getElementById('mobile-search-panel');
 const mobileSearchPanelCloseBtn = document.getElementById('mobile-search-panel-close-btn');
 const mobileSearchPanelTitle = document.getElementById('mobile-search-panel-title');
-const mobileCurrentMapSummaryCard = document.getElementById('mobile-current-map-summary-card');
 const mobileCurrentMapSummaryName = document.getElementById('mobile-current-map-summary-name');
 const mobileCurrentMapSummaryBlurb = document.getElementById('mobile-current-map-summary-blurb');
 const mobileSearchCard = document.getElementById('mobile-search-card');
@@ -708,11 +707,12 @@ const mobileSearchActionsCard = document.getElementById('mobile-search-actions-c
 const mobileSearchPanelSearchSlot = document.getElementById('mobile-search-panel-search-slot');
 const mobileSearchResultsCard = document.getElementById('mobile-search-results-card');
 const mobileSearchPanelResultsSlot = document.getElementById('mobile-search-panel-results-slot');
-const mobileMapsCurrentMapCard = document.getElementById('mobile-maps-current-map-card');
 const mobileMapListSection = document.getElementById('mobile-map-list-section');
+const mobileMapListToggleBtn = document.getElementById('mobile-map-list-toggle-btn');
+const mobileMapListPreviewName = document.getElementById('mobile-map-list-preview-name');
+const mobileMapListPreviewMeta = document.getElementById('mobile-map-list-preview-meta');
+const mobileSearchPanelMapListShell = document.getElementById('mobile-search-panel-map-list-shell');
 const mobileSearchPanelMapListSlot = document.getElementById('mobile-search-panel-map-list-slot');
-const mobileCurrentMapName = document.getElementById('mobile-current-map-name');
-const mobileCurrentMapBlurb = document.getElementById('mobile-current-map-blurb');
 const mobileMarkersBtn = document.getElementById('mobile-markers-btn');
 const mobileMeasureBtn = document.getElementById('mobile-measure-btn');
 const mobileShareViewBtn = document.getElementById('mobile-share-view-btn');
@@ -767,6 +767,7 @@ let currentAtmosphereConfig = null;
 let mobileLayoutV2Enabled = false;
 let isMobileLayoutActive = false;
 let mobileSearchPanelOpen = false;
+let mobileMapsExpanded = false;
 let mobileFilterExpanded = false;
 let lastControlTouchAt = 0;
 let activeShareRelayContext = null;
@@ -1142,6 +1143,9 @@ function updateMobileLayoutState() {
     if (!active && hasOpenMobileSurface()) {
         mobileSearchPanelOpen = false;
     }
+    if (!active) {
+        mobileMapsExpanded = false;
+    }
     if (toggleBtn) {
         const collapsed = container.classList.contains('sidebar-collapsed');
         if (active) {
@@ -1189,6 +1193,7 @@ function openMobileSearchPanel({ focusSearch = false } = {}) {
     if (!isMobileLayoutActive) return;
     if (!searchControlContainer || searchControlContainer.style.display === 'none') return;
     mobileSearchPanelOpen = true;
+    mobileMapsExpanded = false;
     setSearchScope(currentSearchScope);
     syncMobileSearchPanelState();
     syncSidebarBackdropState();
@@ -1197,24 +1202,26 @@ function openMobileSearchPanel({ focusSearch = false } = {}) {
     }
 }
 
+function getMobileMapListEntryCount() {
+    if (!mapListElement) return 0;
+    return mapListElement.querySelectorAll('.map-item[data-map-id], .folder-header[data-map-id]').length;
+}
+
 function syncMobileMapMeta(mapInfo, visibilityState) {
-    if (mobileCurrentMapSummaryCard) {
-        mobileCurrentMapSummaryCard.hidden = !(isMobileLayoutActive && !!mapInfo);
-    }
     if (mobileCurrentMapSummaryName) {
         mobileCurrentMapSummaryName.textContent = mapInfo?.name || 'Atlas';
     }
     if (mobileCurrentMapSummaryBlurb) {
         mobileCurrentMapSummaryBlurb.textContent = getMobileMapSummaryExcerpt(mapInfo);
     }
-    if (mobileCurrentMapName) {
-        mobileCurrentMapName.textContent = mapInfo?.name || 'Atlas';
+    if (mobileMapListPreviewName) {
+        mobileMapListPreviewName.textContent = mapInfo?.name || 'Atlas';
     }
-    if (mobileCurrentMapBlurb) {
-        mobileCurrentMapBlurb.textContent = getMobileMapSummaryExcerpt(mapInfo, 112);
-    }
-    if (mobileMapsCurrentMapCard) {
-        mobileMapsCurrentMapCard.hidden = !(isMobileLayoutActive && !!mapInfo);
+    if (mobileMapListPreviewMeta) {
+        const entryCount = getMobileMapListEntryCount();
+        mobileMapListPreviewMeta.textContent = entryCount > 0
+            ? `${entryCount} maps available in the atlas.`
+            : 'Browse the atlas map list.';
     }
 
     if (mobileSearchPanelTitle) {
@@ -1270,7 +1277,23 @@ function syncMobileSheetActionState(visibilityState) {
 
 function syncMobileExploreVisibility() {
     if (!mobileMapListSection) return;
-    mobileMapListSection.hidden = false;
+    const shouldShowSection = isMobileLayoutActive;
+    mobileMapListSection.hidden = !shouldShowSection;
+    mobileMapListSection.classList.toggle('expanded', shouldShowSection && mobileMapsExpanded);
+    if (mobileSearchPanelMapListShell) {
+        mobileSearchPanelMapListShell.hidden = !(shouldShowSection && mobileMapsExpanded);
+    }
+    if (mobileMapListToggleBtn) {
+        mobileMapListToggleBtn.hidden = !shouldShowSection;
+        mobileMapListToggleBtn.setAttribute('aria-expanded', shouldShowSection && mobileMapsExpanded ? 'true' : 'false');
+        mobileMapListToggleBtn.textContent = mobileMapsExpanded ? 'Hide Maps' : 'Show Maps';
+    }
+}
+
+function toggleMobileMapListExpanded() {
+    if (!isMobileLayoutActive || !mobileMapListSection) return;
+    mobileMapsExpanded = !mobileMapsExpanded;
+    syncMobileExploreVisibility();
 }
 
 function syncMobileFilterState() {
@@ -4621,6 +4644,13 @@ if (mobileSearchPanelCloseBtn) {
     mobileSearchPanelCloseBtn.addEventListener('click', (event) => {
         event.stopPropagation();
         closeMobileSearchPanel({ restoreFocus: true });
+    });
+}
+
+if (mobileMapListToggleBtn) {
+    mobileMapListToggleBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        toggleMobileMapListExpanded();
     });
 }
 
