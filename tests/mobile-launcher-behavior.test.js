@@ -23,15 +23,18 @@ global.mobileMapsSheetOpen = false;
 global.isMobileLayoutActive = true;
 global.isEmbeddedView = false;
 global.refreshLucideIcons = () => {};
-global.toggleBtn = {
+global.mobileDock = {
+    hidden: false
+};
+global.mobileExploreLauncherBtn = {
+    hidden: false,
     innerHTML: '',
-    title: '',
     attrs: {},
     classes: new Set(),
     classList: {
         toggle: (name, active) => {
-            if (active) global.toggleBtn.classes.add(name);
-            else global.toggleBtn.classes.delete(name);
+            if (active) global.mobileExploreLauncherBtn.classes.add(name);
+            else global.mobileExploreLauncherBtn.classes.delete(name);
         }
     },
     setAttribute(name, value) {
@@ -54,26 +57,31 @@ global.mobileMapsLauncherBtn = {
 };
 
 syncMobileDockState();
-assert.equal(global.toggleBtn.attrs['aria-label'], 'Open search');
+assert.equal(global.mobileDock.hidden, false);
+assert.equal(global.mobileExploreLauncherBtn.attrs['aria-label'], 'Open explore');
+assert.equal(global.mobileExploreLauncherBtn.attrs['aria-pressed'], 'false');
 assert.equal(global.mobileMapsLauncherBtn.hidden, false);
 assert.equal(global.mobileMapsLauncherBtn.attrs['aria-label'], 'Open maps');
 assert.equal(global.mobileMapsLauncherBtn.attrs['aria-pressed'], 'false');
 
 global.mobileSearchPanelOpen = true;
 syncMobileDockState();
-assert.equal(global.toggleBtn.attrs['aria-label'], 'Close search');
+assert.equal(global.mobileExploreLauncherBtn.attrs['aria-label'], 'Close explore');
+assert.equal(global.mobileExploreLauncherBtn.attrs['aria-pressed'], 'true');
 assert.equal(global.mobileMapsLauncherBtn.attrs['aria-label'], 'Open maps');
 assert.equal(global.mobileMapsLauncherBtn.attrs['aria-pressed'], 'false');
 
 global.mobileSearchPanelOpen = false;
 global.mobileMapsSheetOpen = true;
 syncMobileDockState();
-assert.equal(global.toggleBtn.attrs['aria-label'], 'Open search');
+assert.equal(global.mobileExploreLauncherBtn.attrs['aria-label'], 'Open explore');
 assert.equal(global.mobileMapsLauncherBtn.attrs['aria-label'], 'Close maps');
 assert.equal(global.mobileMapsLauncherBtn.attrs['aria-pressed'], 'true');
 
 global.isEmbeddedView = true;
 syncMobileDockState();
+assert.equal(global.mobileDock.hidden, true);
+assert.equal(global.mobileExploreLauncherBtn.hidden, true);
 assert.equal(global.mobileMapsLauncherBtn.hidden, true);
 
 console.log('mobile launcher behavior regression checks passed');

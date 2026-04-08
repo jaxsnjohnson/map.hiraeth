@@ -140,10 +140,6 @@
             <button id="toggle-sidebar-btn" title="Collapse Sidebar" aria-label="Collapse Sidebar" aria-expanded="true">
                 <i class="ui-icon" data-lucide="chevron-left" aria-hidden="true"></i>
             </button>
-            <button id="mobile-maps-launcher-btn" type="button" aria-label="Open maps" aria-pressed="false">
-                <i class="ui-icon" data-lucide="map" aria-hidden="true"></i>
-                <span>Maps</span>
-            </button>
             <div id="map">
                 <div id="star-field">
                     <canvas id="star-canvas" aria-hidden="true"></canvas>
@@ -236,10 +232,21 @@
             </div>
 
             <div id="active-filters-container" class="leaflet-control" aria-live="polite"></div>
+            <div id="mobile-dock" aria-label="Mobile navigation">
+                <button id="mobile-explore-launcher-btn" type="button" aria-label="Open explore" aria-pressed="false" aria-expanded="false">
+                    <i class="ui-icon" data-lucide="search" aria-hidden="true"></i>
+                    <span>Explore</span>
+                </button>
+                <button id="mobile-maps-launcher-btn" type="button" aria-label="Open maps" aria-pressed="false" aria-expanded="false">
+                    <i class="ui-icon" data-lucide="map" aria-hidden="true"></i>
+                    <span>Maps</span>
+                </button>
+            </div>
             <div id="mobile-search-panel" aria-hidden="true">
+                <div class="mobile-sheet-handle" aria-hidden="true"></div>
                 <div id="mobile-search-panel-header">
                     <div class="mobile-sheet-header-copy">
-                        <span class="mobile-sheet-eyebrow">Current Map</span>
+                        <span class="mobile-sheet-eyebrow">Explore the Atlas</span>
                         <strong id="mobile-search-panel-title">Explore</strong>
                     </div>
                     <button id="mobile-search-panel-close-btn" type="button" aria-label="Close search">
@@ -260,9 +267,37 @@
                     <div id="mobile-search-card" class="mobile-sheet-card">
                         <div class="mobile-sheet-card-title-row">
                             <span class="mobile-sheet-section-title">Explore Map</span>
-                            <span class="mobile-sheet-section-hint">Search this map and jump to places fast</span>
+                            <span class="mobile-sheet-section-hint">Search, filter, and jump to places fast</span>
                         </div>
                         <div id="mobile-search-panel-search-slot"></div>
+                    </div>
+                    <div id="mobile-search-actions-card" class="mobile-sheet-card">
+                        <div class="mobile-sheet-card-title-row">
+                            <span class="mobile-sheet-section-title">Quick Actions</span>
+                            <span class="mobile-sheet-section-hint">Map tools for the current view</span>
+                        </div>
+                        <div id="mobile-utility-actions">
+                            <button id="mobile-markers-btn" type="button" aria-label="Toggle markers and regions" aria-pressed="false">
+                                <i class="ui-icon" data-lucide="map-pin" aria-hidden="true"></i>
+                                <span>Markers</span>
+                            </button>
+                            <button id="mobile-measure-btn" type="button" aria-label="Measure distance" aria-pressed="false">
+                                <i class="ui-icon" data-lucide="ruler" aria-hidden="true"></i>
+                                <span>Measure</span>
+                            </button>
+                            <button id="mobile-share-view-btn" type="button" aria-label="Share current view">
+                                <i class="ui-icon" data-lucide="share-2" aria-hidden="true"></i>
+                                <span>Share</span>
+                            </button>
+                            <button id="mobile-coords-btn" type="button" aria-label="Toggle coordinate display" aria-pressed="false">
+                                <i class="ui-icon" data-lucide="globe" aria-hidden="true"></i>
+                                <span>Coords</span>
+                            </button>
+                            <button id="mobile-help-btn" type="button" aria-label="Open help and about">
+                                <i class="ui-icon" data-lucide="circle-help" aria-hidden="true"></i>
+                                <span>Help</span>
+                            </button>
+                        </div>
                     </div>
                     <div id="mobile-search-results-card" class="mobile-sheet-card" hidden>
                         <div class="mobile-sheet-card-title-row">
@@ -284,6 +319,16 @@
                     </button>
                 </div>
                 <div id="mobile-maps-sheet-body">
+                    <div id="mobile-maps-current-map-card" class="mobile-sheet-card">
+                        <div class="mobile-sheet-card-title-row">
+                            <span class="mobile-sheet-section-title">Current Map</span>
+                            <span class="mobile-sheet-section-hint">You are exploring here now</span>
+                        </div>
+                        <div class="mobile-current-map-summary-copy">
+                            <strong id="mobile-current-map-name">Atlas</strong>
+                            <p id="mobile-current-map-blurb">Switch to another region or city without losing your bearings.</p>
+                        </div>
+                    </div>
                     <div id="mobile-map-list-section" class="mobile-sheet-card">
                         <div class="mobile-sheet-card-title-row">
                             <span class="mobile-sheet-section-title">Maps</span>
