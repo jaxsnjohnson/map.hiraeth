@@ -23,14 +23,11 @@ const snippets = [
 
 global.isMobileLayoutActive = true;
 global.mobileSearchPanelOpen = false;
-global.mobileMapsSheetOpen = false;
 global.currentSearchScope = 'map';
 global.searchControlContainer = { style: { display: 'block' } };
 global.poiSearchInput = { focusCalled: 0, focus() { this.focusCalled += 1; } };
-global.mobileExploreLauncherBtn = { focusCalled: 0, focus() { this.focusCalled += 1; } };
-global.mobileMapsLauncherBtn = { focusCalled: 0, focus() { this.focusCalled += 1; } };
+global.mobileSheetLauncherBtn = { focusCalled: 0, focus() { this.focusCalled += 1; } };
 global.mobileSearchPanel = { attrs: {}, setAttribute(name, value) { this.attrs[name] = value; } };
-global.mobileMapsSheet = { attrs: {}, setAttribute(name, value) { this.attrs[name] = value; } };
 global.container = {
     classes: new Set(),
     classList: {
@@ -48,33 +45,29 @@ global.requestAnimationFrame = (callback) => callback();
 // eslint-disable-next-line no-eval
 eval(snippets);
 
-openMobileMapsSheet();
-assert.equal(global.mobileMapsSheetOpen, true);
-assert.equal(global.mobileSearchPanelOpen, false);
+assert.equal(hasOpenMobileSurface(), false);
 
 openMobileSearchPanel({ focusSearch: true });
 assert.equal(global.mobileSearchPanelOpen, true);
-assert.equal(global.mobileMapsSheetOpen, false);
 assert.equal(global.poiSearchInput.focusCalled, 1);
+assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'false');
+assert.equal(global.container.classes.has('mobile-search-panel-open'), true);
 
 closeMobileSearchPanel({ restoreFocus: true });
 assert.equal(global.mobileSearchPanelOpen, false);
-assert.equal(global.mobileExploreLauncherBtn.focusCalled, 1);
+assert.equal(global.mobileSheetLauncherBtn.focusCalled, 1);
+assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'true');
 
 openMobileSheet({ mode: 'maps' });
-assert.equal(global.mobileMapsSheetOpen, true);
-assert.equal(global.mobileSearchPanelOpen, false);
-
-closeMobileSheet({ restoreFocus: true, target: 'maps' });
-assert.equal(global.mobileMapsSheetOpen, false);
-assert.equal(global.mobileMapsLauncherBtn.focusCalled, 1);
-
-openMobileMapsSheet();
-openMobileSearchPanel();
 assert.equal(global.mobileSearchPanelOpen, true);
-assert.equal(global.mobileMapsSheetOpen, false);
-closeMobileSheet({ target: 'all' });
+assert.equal(hasOpenMobileSurface(), true);
+
+closeMobileSheet({ restoreFocus: true, target: 'all' });
 assert.equal(global.mobileSearchPanelOpen, false);
-assert.equal(global.mobileMapsSheetOpen, false);
+assert.equal(global.mobileSheetLauncherBtn.focusCalled, 2);
+
+global.isMobileLayoutActive = false;
+openMobileSearchPanel({ focusSearch: true });
+assert.equal(global.mobileSearchPanelOpen, false);
 
 console.log('mobile surface state checks passed');

@@ -666,8 +666,7 @@ const sidebar = document.getElementById('sidebar');
 const mapListElement = document.getElementById('map-list');
 const toggleBtn = document.getElementById('toggle-sidebar-btn');
 const mobileDock = document.getElementById('mobile-dock');
-const mobileExploreLauncherBtn = document.getElementById('mobile-explore-launcher-btn');
-const mobileMapsLauncherBtn = document.getElementById('mobile-maps-launcher-btn');
+const mobileSheetLauncherBtn = document.getElementById('mobile-sheet-launcher-btn');
 const themeToggle = document.getElementById('theme-checkbox');
 const themeSwitchWrapper = themeToggle ? themeToggle.closest('.theme-switch-wrapper') : null;
 const bodyElement = document.body;
@@ -701,8 +700,6 @@ const sidebarBackdrop = document.getElementById('sidebar-backdrop');
 const mobileSearchPanel = document.getElementById('mobile-search-panel');
 const mobileSearchPanelCloseBtn = document.getElementById('mobile-search-panel-close-btn');
 const mobileSearchPanelTitle = document.getElementById('mobile-search-panel-title');
-const mobileMapsSheet = document.getElementById('mobile-maps-sheet');
-const mobileMapsSheetCloseBtn = document.getElementById('mobile-maps-sheet-close-btn');
 const mobileCurrentMapSummaryCard = document.getElementById('mobile-current-map-summary-card');
 const mobileCurrentMapSummaryName = document.getElementById('mobile-current-map-summary-name');
 const mobileCurrentMapSummaryBlurb = document.getElementById('mobile-current-map-summary-blurb');
@@ -713,7 +710,7 @@ const mobileSearchResultsCard = document.getElementById('mobile-search-results-c
 const mobileSearchPanelResultsSlot = document.getElementById('mobile-search-panel-results-slot');
 const mobileMapsCurrentMapCard = document.getElementById('mobile-maps-current-map-card');
 const mobileMapListSection = document.getElementById('mobile-map-list-section');
-const mobileMapsSheetMapListSlot = document.getElementById('mobile-maps-sheet-map-list-slot');
+const mobileSearchPanelMapListSlot = document.getElementById('mobile-search-panel-map-list-slot');
 const mobileCurrentMapName = document.getElementById('mobile-current-map-name');
 const mobileCurrentMapBlurb = document.getElementById('mobile-current-map-blurb');
 const mobileMarkersBtn = document.getElementById('mobile-markers-btn');
@@ -770,7 +767,6 @@ let currentAtmosphereConfig = null;
 let mobileLayoutV2Enabled = false;
 let isMobileLayoutActive = false;
 let mobileSearchPanelOpen = false;
-let mobileMapsSheetOpen = false;
 let mobileFilterExpanded = false;
 let lastControlTouchAt = 0;
 let activeShareRelayContext = null;
@@ -993,8 +989,8 @@ function syncMobileSheetPlacement() {
         if (mobileSearchPanelResultsSlot && searchResultsContainer && searchResultsContainer.parentNode !== mobileSearchPanelResultsSlot) {
             mobileSearchPanelResultsSlot.appendChild(searchResultsContainer);
         }
-        if (mobileMapsSheetMapListSlot && mapListElement && mapListElement.parentNode !== mobileMapsSheetMapListSlot) {
-            mobileMapsSheetMapListSlot.appendChild(mapListElement);
+        if (mobileSearchPanelMapListSlot && mapListElement && mapListElement.parentNode !== mobileSearchPanelMapListSlot) {
+            mobileSearchPanelMapListSlot.appendChild(mapListElement);
         }
         syncMobileSearchResultsCardState();
         return;
@@ -1028,27 +1024,14 @@ function resolveSearchScope(scope, {
 }
 
 function hasOpenMobileSurface() {
-    return mobileSearchPanelOpen || mobileMapsSheetOpen;
+    return mobileSearchPanelOpen;
 }
 
-function openMobileSheet({ mode = 'explore', focusSearch = false } = {}) {
-    if (mode === 'maps') {
-        openMobileMapsSheet();
-        return;
-    }
+function openMobileSheet({ focusSearch = false } = {}) {
     openMobileSearchPanel({ focusSearch });
 }
 
-function closeMobileSheet({ restoreFocus = false, target = 'all' } = {}) {
-    if (target === 'maps') {
-        closeMobileMapsSheet({ restoreFocus });
-        return;
-    }
-    if (target === 'all') {
-        closeMobileSearchPanel({ restoreFocus: false });
-        closeMobileMapsSheet({ restoreFocus });
-        return;
-    }
+function closeMobileSheet({ restoreFocus = false } = {}) {
     closeMobileSearchPanel({ restoreFocus });
 }
 
@@ -1090,6 +1073,58 @@ function clampFloatingPanels() {
     });
 }
 
+function shouldShowMiniMap() {
+    return !isEmbeddedView && !isMobileLayoutActive;
+}
+
+function removeMiniMapControl() {
+    if (!miniMapControl) return;
+    miniMapControl.remove();
+    miniMapControl = null;
+}
+
+function syncMiniMapControl() {
+    if (!shouldShowMiniMap()) {
+        removeMiniMapControl();
+        return;
+    }
+    if (miniMapControl) return;
+    if (!currentMapData || !currentBounds) return;
+
+    const mapHeight = Number(currentMapData.height);
+    const mapWidth = Number(currentMapData.width);
+    const mapImageUrl = getPreferredMapImageUrl(currentMapData);
+    if (!mapHeight || !mapWidth || !mapImageUrl) return;
+
+    const miniMapLayer = L.imageOverlay(mapImageUrl, currentBounds);
+    const maxMiniMapSize = 200;
+    let miniMapWidth;
+    let miniMapHeight;
+
+    if (mapWidth >= mapHeight) {
+        miniMapWidth = maxMiniMapSize;
+        miniMapHeight = maxMiniMapSize * (mapHeight / mapWidth);
+    } else {
+        miniMapHeight = maxMiniMapSize;
+        miniMapWidth = maxMiniMapSize * (mapWidth / mapHeight);
+    }
+
+    const maxDim = Math.max(mapHeight, mapWidth);
+    const miniMapZoom = Math.log2(maxMiniMapSize / maxDim);
+
+    miniMapControl = new L.Control.MiniMap(miniMapLayer, {
+        toggleDisplay: true,
+        minimized: false,
+        width: miniMapWidth,
+        height: miniMapHeight,
+        zoomLevelFixed: miniMapZoom,
+        centerFixed: L.latLngBounds(currentBounds).getCenter(),
+        aimingRectOptions: { color: '#ff7800', weight: 3, clickable: false },
+        shadowRectOptions: { color: '#000000', weight: 1, clickable: false, opacity: 0, fillOpacity: 0 },
+        mapOptions: { minZoom: -100, crs: L.CRS.Simple, zoomSnap: 0, zoomDelta: 0 }
+    }).addTo(map);
+}
+
 function updateMobileLayoutState() {
     syncDynamicViewportHeight();
     syncBottomBarHeightVariable();
@@ -1106,7 +1141,6 @@ function updateMobileLayoutState() {
     rootElement.style.setProperty('--mobile-bottom-offset', active ? '14px' : '10px');
     if (!active && hasOpenMobileSurface()) {
         mobileSearchPanelOpen = false;
-        mobileMapsSheetOpen = false;
     }
     if (toggleBtn) {
         const collapsed = container.classList.contains('sidebar-collapsed');
@@ -1128,8 +1162,8 @@ function updateMobileLayoutState() {
     syncMobileSheetPlacement();
     syncMobileSearchResultsCardState();
     syncMobileSearchPanelState();
-    syncMobileMapsSheetState();
     syncMobileFilterState();
+    syncMiniMapControl();
     clampFloatingPanels();
 }
 
@@ -1141,31 +1175,19 @@ function syncMobileSearchPanelState() {
     syncMobileDockState();
 }
 
-function syncMobileMapsSheetState() {
-    if (!mobileMapsSheet) return;
-    const shouldShowSheet = isMobileLayoutActive && mobileMapsSheetOpen;
-    mobileMapsSheet.setAttribute('aria-hidden', shouldShowSheet ? 'false' : 'true');
-    container.classList.toggle('mobile-maps-sheet-open', shouldShowSheet);
-    syncMobileDockState();
-}
-
 function closeMobileSearchPanel({ restoreFocus = false } = {}) {
     if (!mobileSearchPanelOpen) return;
     mobileSearchPanelOpen = false;
     syncMobileSearchPanelState();
     syncSidebarBackdropState();
-    if (restoreFocus && mobileExploreLauncherBtn) {
-        mobileExploreLauncherBtn.focus();
+    if (restoreFocus && mobileSheetLauncherBtn) {
+        mobileSheetLauncherBtn.focus();
     }
 }
 
 function openMobileSearchPanel({ focusSearch = false } = {}) {
     if (!isMobileLayoutActive) return;
     if (!searchControlContainer || searchControlContainer.style.display === 'none') return;
-    if (mobileMapsSheetOpen) {
-        mobileMapsSheetOpen = false;
-        syncMobileMapsSheetState();
-    }
     mobileSearchPanelOpen = true;
     setSearchScope(currentSearchScope);
     syncMobileSearchPanelState();
@@ -1173,27 +1195,6 @@ function openMobileSearchPanel({ focusSearch = false } = {}) {
     if (focusSearch && poiSearchInput) {
         requestAnimationFrame(() => poiSearchInput.focus());
     }
-}
-
-function closeMobileMapsSheet({ restoreFocus = false } = {}) {
-    if (!mobileMapsSheetOpen) return;
-    mobileMapsSheetOpen = false;
-    syncMobileMapsSheetState();
-    syncSidebarBackdropState();
-    if (restoreFocus && mobileMapsLauncherBtn) {
-        mobileMapsLauncherBtn.focus();
-    }
-}
-
-function openMobileMapsSheet() {
-    if (!isMobileLayoutActive) return;
-    if (mobileSearchPanelOpen) {
-        mobileSearchPanelOpen = false;
-        syncMobileSearchPanelState();
-    }
-    mobileMapsSheetOpen = true;
-    syncMobileMapsSheetState();
-    syncSidebarBackdropState();
 }
 
 function syncMobileMapMeta(mapInfo, visibilityState) {
@@ -1217,7 +1218,7 @@ function syncMobileMapMeta(mapInfo, visibilityState) {
     }
 
     if (mobileSearchPanelTitle) {
-        mobileSearchPanelTitle.textContent = 'Explore';
+        mobileSearchPanelTitle.textContent = 'Atlas';
     }
 }
 
@@ -1286,39 +1287,30 @@ function syncMobileDockState() {
     if (mobileDock) {
         mobileDock.hidden = !isMobileLayoutActive || isEmbeddedView;
     }
-    if (mobileExploreLauncherBtn) {
-        const exploreActive = isMobileLayoutActive && mobileSearchPanelOpen;
-        mobileExploreLauncherBtn.hidden = !isMobileLayoutActive || isEmbeddedView;
-        mobileExploreLauncherBtn.classList.toggle('active', exploreActive);
-        mobileExploreLauncherBtn.setAttribute('aria-pressed', exploreActive ? 'true' : 'false');
-        mobileExploreLauncherBtn.setAttribute('aria-expanded', exploreActive ? 'true' : 'false');
-        mobileExploreLauncherBtn.setAttribute('aria-label', exploreActive ? 'Close explore' : 'Open explore');
-        mobileExploreLauncherBtn.innerHTML = mobileSearchPanelOpen
-            ? `<i class="ui-icon" data-lucide="x" aria-hidden="true"></i>`
-            : `<i class="ui-icon" data-lucide="search" aria-hidden="true"></i>`;
-        mobileExploreLauncherBtn.innerHTML += '<span>Explore</span>';
+    if (mobileSheetLauncherBtn) {
+        const active = isMobileLayoutActive && mobileSearchPanelOpen;
+        mobileSheetLauncherBtn.hidden = !isMobileLayoutActive || isEmbeddedView;
+        mobileSheetLauncherBtn.classList.toggle('active', active);
+        mobileSheetLauncherBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        mobileSheetLauncherBtn.setAttribute('aria-expanded', active ? 'true' : 'false');
+        mobileSheetLauncherBtn.setAttribute('aria-label', active ? 'Close atlas' : 'Open atlas');
+        mobileSheetLauncherBtn.innerHTML = active
+            ? `<i class="ui-icon" data-lucide="x" aria-hidden="true"></i><span>Close</span>`
+            : `<i class="ui-icon" data-lucide="panel-bottom-open" aria-hidden="true"></i><span>Atlas</span>`;
         refreshLucideIcons();
-    }
-    if (mobileMapsLauncherBtn) {
-        const mapsActive = isMobileLayoutActive && mobileMapsSheetOpen;
-        mobileMapsLauncherBtn.hidden = !isMobileLayoutActive || isEmbeddedView;
-        mobileMapsLauncherBtn.classList.toggle('active', mapsActive);
-        mobileMapsLauncherBtn.setAttribute('aria-pressed', mapsActive ? 'true' : 'false');
-        mobileMapsLauncherBtn.setAttribute('aria-expanded', mapsActive ? 'true' : 'false');
-        mobileMapsLauncherBtn.setAttribute('aria-label', mapsActive ? 'Close maps' : 'Open maps');
     }
 }
 
 function markControlTouch(event) {
     const target = event?.target;
     if (!(target instanceof Element)) return;
-    if (!target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-dock, #mobile-search-panel, #mobile-maps-sheet, #sidebar-backdrop, .modal-overlay, .modal-content')) return;
+    if (!target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-dock, #mobile-search-panel, #sidebar-backdrop, .modal-overlay, .modal-content')) return;
     lastControlTouchAt = Date.now();
 }
 
 function shouldIgnoreMapPointerEvent(event) {
     const target = event?.originalEvent?.target;
-    if (target instanceof Element && target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-dock, #mobile-search-panel, #mobile-maps-sheet, .modal-overlay, .modal-content')) {
+    if (target instanceof Element && target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-dock, #mobile-search-panel, .modal-overlay, .modal-content')) {
         return true;
     }
     if (isMobileLayoutActive && (Date.now() - lastControlTouchAt) < 150) {
@@ -1688,7 +1680,6 @@ function syncSidebarBackdropState() {
         sidebarBackdrop.setAttribute('aria-hidden', (legacyDrawerOpen || mobileSurfaceOpen) ? 'false' : 'true');
     }
     syncMobileSearchPanelState();
-    syncMobileMapsSheetState();
     clampFloatingPanels();
 }
 
@@ -2062,7 +2053,6 @@ function setSidebarState(state, updateHash = true) {
     const isCurrentlyCollapsed = container.classList.contains('sidebar-collapsed');
     if (!shouldBeCollapsed && isMobileLayoutActive && hasOpenMobileSurface()) {
         closeMobileSearchPanel({ restoreFocus: false });
-        closeMobileMapsSheet({ restoreFocus: false });
     }
     if (shouldBeCollapsed !== isCurrentlyCollapsed) {
         container.classList.toggle('sidebar-collapsed', shouldBeCollapsed);
@@ -3942,8 +3932,7 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
 
     if (currentImageLayer) map.removeLayer(currentImageLayer);
     if (currentMapUnderlay) map.removeLayer(currentMapUnderlay);
-    if (miniMapControl) miniMapControl.remove();
-    miniMapControl = null;
+    removeMiniMapControl();
     if (currentMarkerGroup) map.removeLayer(currentMarkerGroup);
     if (currentRegionGroup) map.removeLayer(currentRegionGroup);
     if (currentRoadGroup) map.removeLayer(currentRoadGroup);
@@ -4142,33 +4131,7 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
 
         applySearchParamsToCurrentMap(new URLSearchParams(window.location.search));
 
-        const miniMapLayer = L.imageOverlay(mapImageUrl, currentBounds);
-        const maxMiniMapSize = 200;
-        let miniMapWidth;
-        let miniMapHeight;
-
-        if (mapWidth >= mapHeight) {
-            miniMapWidth = maxMiniMapSize;
-            miniMapHeight = maxMiniMapSize * (mapHeight / mapWidth);
-        } else {
-            miniMapHeight = maxMiniMapSize;
-            miniMapWidth = maxMiniMapSize * (mapWidth / mapHeight);
-        }
-
-        const maxDim = Math.max(mapHeight, mapWidth);
-        const miniMapZoom = Math.log2(maxMiniMapSize / maxDim);
-
-        miniMapControl = new L.Control.MiniMap(miniMapLayer, {
-            toggleDisplay: true,
-            minimized: false,
-            width: miniMapWidth,
-            height: miniMapHeight,
-            zoomLevelFixed: miniMapZoom,
-            centerFixed: L.latLngBounds(currentBounds).getCenter(),
-            aimingRectOptions: { color: '#ff7800', weight: 3, clickable: false },
-            shadowRectOptions: { color: '#000000', weight: 1, clickable: false, opacity: 0, fillOpacity: 0 },
-            mapOptions: { minZoom: -100, crs: L.CRS.Simple, zoomSnap: 0, zoomDelta: 0 }
-        }).addTo(map);
+        syncMiniMapControl();
 
         trackAnalytics('map_load_success', {
             mapId: requestedMapId,
@@ -4642,8 +4605,8 @@ toggleBtn.addEventListener('click', () => {
     setSidebarState(newState, true);
 });
 
-if (mobileExploreLauncherBtn) {
-    mobileExploreLauncherBtn.addEventListener('click', (event) => {
+if (mobileSheetLauncherBtn) {
+    mobileSheetLauncherBtn.addEventListener('click', (event) => {
         event.stopPropagation();
         if (!isMobileLayoutActive) return;
         if (mobileSearchPanelOpen) {
@@ -4654,18 +4617,6 @@ if (mobileExploreLauncherBtn) {
     });
 }
 
-if (mobileMapsLauncherBtn) {
-    mobileMapsLauncherBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        if (!isMobileLayoutActive) return;
-        if (mobileMapsSheetOpen) {
-            closeMobileMapsSheet({ restoreFocus: false });
-            return;
-        }
-        openMobileMapsSheet();
-    });
-}
-
 if (mobileSearchPanelCloseBtn) {
     mobileSearchPanelCloseBtn.addEventListener('click', (event) => {
         event.stopPropagation();
@@ -4673,17 +4624,9 @@ if (mobileSearchPanelCloseBtn) {
     });
 }
 
-if (mobileMapsSheetCloseBtn) {
-    mobileMapsSheetCloseBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        closeMobileMapsSheet({ restoreFocus: true });
-    });
-}
-
 if (sidebarBackdrop) {
     sidebarBackdrop.addEventListener('click', () => {
         closeMobileSearchPanel({ restoreFocus: true });
-        closeMobileMapsSheet({ restoreFocus: false });
         if (!isMobileLayoutActive && !container.classList.contains('sidebar-collapsed')) {
             setSidebarState('c', true);
         }
@@ -5093,7 +5036,6 @@ function updateCoordinates(e) {
 map.on('click', function (e) {
     if (shouldIgnoreMapPointerEvent(e)) return;
     closeMobileSearchPanel({ restoreFocus: false });
-    closeMobileMapsSheet({ restoreFocus: false });
     if (mapBlurbElement.classList.contains('visible')) {
         mapBlurbElement.classList.remove('visible');
         toggleBlurbBtn.classList.remove('active');

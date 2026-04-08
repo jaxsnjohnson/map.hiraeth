@@ -233,23 +233,19 @@
 
             <div id="active-filters-container" class="leaflet-control" aria-live="polite"></div>
             <div id="mobile-dock" aria-label="Mobile navigation">
-                <button id="mobile-explore-launcher-btn" type="button" aria-label="Open explore" aria-pressed="false" aria-expanded="false">
-                    <i class="ui-icon" data-lucide="search" aria-hidden="true"></i>
-                    <span>Explore</span>
-                </button>
-                <button id="mobile-maps-launcher-btn" type="button" aria-label="Open maps" aria-pressed="false" aria-expanded="false">
-                    <i class="ui-icon" data-lucide="map" aria-hidden="true"></i>
-                    <span>Maps</span>
+                <button id="mobile-sheet-launcher-btn" type="button" aria-label="Open atlas" aria-pressed="false" aria-expanded="false">
+                    <i class="ui-icon" data-lucide="panel-bottom-open" aria-hidden="true"></i>
+                    <span>Atlas</span>
                 </button>
             </div>
             <div id="mobile-search-panel" aria-hidden="true">
                 <div class="mobile-sheet-handle" aria-hidden="true"></div>
                 <div id="mobile-search-panel-header">
                     <div class="mobile-sheet-header-copy">
-                        <span class="mobile-sheet-eyebrow">Explore the Atlas</span>
+                        <span class="mobile-sheet-eyebrow">Atlas Stack</span>
                         <strong id="mobile-search-panel-title">Explore</strong>
                     </div>
-                    <button id="mobile-search-panel-close-btn" type="button" aria-label="Close search">
+                    <button id="mobile-search-panel-close-btn" type="button" aria-label="Close atlas">
                         <i class="ui-icon" data-lucide="x" aria-hidden="true"></i>
                     </button>
                 </div>
@@ -305,20 +301,6 @@
                         </div>
                         <div id="mobile-search-panel-results-slot"></div>
                     </div>
-                </div>
-            </div>
-            <div id="mobile-maps-sheet" aria-hidden="true">
-                <div class="mobile-sheet-handle" aria-hidden="true"></div>
-                <div id="mobile-maps-sheet-header">
-                    <div class="mobile-sheet-header-copy">
-                        <span class="mobile-sheet-eyebrow">Browse Atlas</span>
-                        <strong id="mobile-maps-sheet-title">Maps</strong>
-                    </div>
-                    <button id="mobile-maps-sheet-close-btn" type="button" aria-label="Close maps">
-                        <i class="ui-icon" data-lucide="x" aria-hidden="true"></i>
-                    </button>
-                </div>
-                <div id="mobile-maps-sheet-body">
                     <div id="mobile-maps-current-map-card" class="mobile-sheet-card">
                         <div class="mobile-sheet-card-title-row">
                             <span class="mobile-sheet-section-title">Current Map</span>
@@ -332,9 +314,9 @@
                     <div id="mobile-map-list-section" class="mobile-sheet-card">
                         <div class="mobile-sheet-card-title-row">
                             <span class="mobile-sheet-section-title">Maps</span>
-                            <span class="mobile-sheet-section-hint">Switch to another region or city</span>
+                            <span class="mobile-sheet-section-hint">Switch to another region or city below</span>
                         </div>
-                        <div id="mobile-maps-sheet-map-list-slot"></div>
+                        <div id="mobile-search-panel-map-list-slot"></div>
                     </div>
                 </div>
             </div>

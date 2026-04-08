@@ -52,8 +52,7 @@
     display: none;
 }
 
-#mobile-explore-launcher-btn,
-#mobile-maps-launcher-btn {
+#mobile-sheet-launcher-btn {
     border: 1px solid var(--glass-border-light);
     background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
     color: var(--text-primary);
@@ -64,14 +63,12 @@
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
 }
 
-#mobile-explore-launcher-btn[hidden],
-#mobile-maps-launcher-btn[hidden],
+#mobile-sheet-launcher-btn[hidden],
 #mobile-dock[hidden] {
     display: none !important;
 }
 
-:root[data-theme="dark"] #mobile-explore-launcher-btn,
-:root[data-theme="dark"] #mobile-maps-launcher-btn {
+:root[data-theme="dark"] #mobile-sheet-launcher-btn {
     border-color: var(--glass-border-dark);
     background: color-mix(in srgb, var(--bg-primary) 96%, transparent);
 }
@@ -106,8 +103,7 @@
         -webkit-backdrop-filter: blur(16px);
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-explore-launcher-btn,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-launcher-btn {
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-launcher-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -120,14 +116,12 @@
         letter-spacing: 0.01em;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-explore-launcher-btn .ui-icon,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-launcher-btn .ui-icon {
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-launcher-btn .ui-icon {
         width: 18px;
         height: 18px;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-explore-launcher-btn.active,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-launcher-btn.active {
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-launcher-btn.active {
         background:
             linear-gradient(135deg, color-mix(in srgb, var(--active-bg) 92%, transparent), color-mix(in srgb, var(--highlight-bg) 78%, transparent));
         box-shadow:
@@ -135,26 +129,23 @@
             0 10px 20px rgba(0, 0, 0, 0.14);
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel {
         left: calc(var(--safe-left) + 12px);
         right: calc(var(--safe-right) + 12px);
-        bottom: calc(var(--safe-bottom) + 84px);
+        bottom: calc(var(--safe-bottom) + 110px);
         top: auto;
         width: auto;
-        max-height: min(calc(var(--app-height) - var(--safe-top) - var(--safe-bottom) - 136px), 74vh);
+        max-height: min(calc(var(--app-height) - var(--safe-top) - var(--safe-bottom) - 162px), 72vh);
         padding: 10px 12px 14px;
         border-radius: 28px;
         transform: translateY(16px);
     }
 
-    html.mobile-layout-v2.is-mobile-layout .container.mobile-search-panel-open #mobile-search-panel,
-    html.mobile-layout-v2.is-mobile-layout .container.mobile-maps-sheet-open #mobile-maps-sheet {
+    html.mobile-layout-v2.is-mobile-layout .container.mobile-search-panel-open #mobile-search-panel {
         transform: translateY(0);
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-header,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-header {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-header {
         position: sticky;
         top: 0;
         z-index: 3;
@@ -162,8 +153,7 @@
         background: inherit;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-body,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-body {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-body {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         padding-bottom: 6px;
@@ -2411,9 +2401,13 @@ html.embedded-view #loading-indicator.initial-loader {
     }
 }
 
-/* Keep the mini-map above the bottom link bar in non-embed mode. */
+/* Keep the mini-map above the legacy bottom bar in non-embed desktop layouts. */
 body:not(.embedded-view) .leaflet-control-minimap {
     margin-bottom: 108px !important;
+}
+
+html.mobile-layout-v2.is-mobile-layout .leaflet-control-minimap {
+    display: none !important;
 }
 
 /* --- About / Help Modal --- */
@@ -2818,17 +2812,15 @@ html.mobile-layout-v2.map-interacting #map-blurb {
 }
 
 #mobile-search-panel,
-#mobile-maps-sheet,
 .mobile-placement-anchor {
     display: none;
 }
 
-#mobile-maps-launcher-btn {
+#mobile-sheet-launcher-btn {
     display: none;
 }
 
 #mobile-search-panel-close-btn,
-#mobile-maps-sheet-close-btn,
 #mobile-search-panel #search-refine-clear-btn,
 #mobile-search-panel #search-scope-atlas-btn {
     border: 1px solid var(--glass-border-light);
@@ -2841,13 +2833,12 @@ html.mobile-layout-v2.map-interacting #map-blurb {
 }
 
 :root[data-theme="dark"] #mobile-search-panel-close-btn,
-:root[data-theme="dark"] #mobile-maps-sheet-close-btn,
 :root[data-theme="dark"] #mobile-search-panel #search-refine-clear-btn,
 :root[data-theme="dark"] #mobile-search-panel #search-scope-atlas-btn {
     border-color: var(--glass-border-dark);
 }
 
-#mobile-maps-launcher-btn {
+#mobile-sheet-launcher-btn {
     border: 1px solid var(--glass-border-light);
     background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
     color: var(--text-primary);
@@ -2858,7 +2849,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
 }
 
-:root[data-theme="dark"] #mobile-maps-launcher-btn {
+:root[data-theme="dark"] #mobile-sheet-launcher-btn {
     border-color: var(--glass-border-dark);
     background: color-mix(in srgb, var(--bg-primary) 96%, transparent);
 }
@@ -2913,33 +2904,50 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         margin-left: 0;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-launcher-btn {
+    html.mobile-layout-v2.is-mobile-layout #mobile-dock {
         position: absolute;
         left: calc(var(--safe-left) + 12px);
+        right: calc(var(--safe-right) + 12px);
         bottom: calc(var(--safe-bottom) + 14px);
         z-index: 1413;
+        display: block;
+        padding: 8px;
+        border: 1px solid color-mix(in srgb, var(--glass-border-light) 92%, transparent);
+        border-radius: 24px;
+        background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
+        box-shadow: 0 18px 32px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+    }
+
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-launcher-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
-        min-width: 96px;
-        min-height: 48px;
+        width: 100%;
+        min-height: 52px;
         padding: 0 16px;
-        font-size: 0.94rem;
-        font-weight: 600;
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-launcher-btn[hidden] {
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-launcher-btn[hidden] {
         display: none;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-launcher-btn .ui-icon {
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-launcher-btn .ui-icon {
         width: 18px;
         height: 18px;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-launcher-btn.active {
-        background: var(--active-bg);
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-launcher-btn.active {
+        background:
+            linear-gradient(135deg, color-mix(in srgb, var(--active-bg) 92%, transparent), color-mix(in srgb, var(--highlight-bg) 78%, transparent));
+        box-shadow:
+            inset 0 0 0 1px color-mix(in srgb, var(--text-secondary) 16%, transparent),
+            0 10px 20px rgba(0, 0, 0, 0.14);
     }
 
     html.mobile-layout-v2.is-mobile-layout #mobile-search-panel #search-refine-clear-btn,
@@ -2950,8 +2958,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         gap: 8px;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel {
         position: absolute;
         z-index: 1411;
         display: flex;
@@ -2976,24 +2983,16 @@ html.mobile-layout-v2.map-interacting #map-blurb {
 
     html.mobile-layout-v2.is-mobile-layout #mobile-search-panel {
         top: calc(var(--safe-top) + 68px);
-        right: 12px;
-        left: auto;
-        width: min(360px, calc(100vw - 24px));
-        max-height: min(calc(var(--app-height) - var(--safe-top) - 88px), 62vh);
-        transform-origin: top right;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet {
-        left: 12px;
-        right: 12px;
-        bottom: calc(var(--safe-bottom) + 72px);
-        top: auto;
-        max-height: min(calc(var(--app-height) - var(--safe-top) - var(--safe-bottom) - 108px), 68vh);
+        left: calc(var(--safe-left) + 12px);
+        right: calc(var(--safe-right) + 12px);
+        bottom: calc(var(--safe-bottom) + 84px);
+        width: auto;
+        max-height: min(calc(var(--app-height) - var(--safe-top) - var(--safe-bottom) - 140px), 78vh);
         transform: translateY(14px);
+        transform-origin: bottom center;
     }
 
-    html.mobile-layout-v2.is-mobile-layout .container.mobile-search-panel-open #mobile-search-panel,
-    html.mobile-layout-v2.is-mobile-layout .container.mobile-maps-sheet-open #mobile-maps-sheet {
+    html.mobile-layout-v2.is-mobile-layout .container.mobile-search-panel-open #mobile-search-panel {
         opacity: 1;
         pointer-events: auto;
         transform: translateY(0);
@@ -3007,8 +3006,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         background: color-mix(in srgb, var(--text-secondary) 44%, transparent);
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-header,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-header {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -3030,14 +3028,12 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         color: var(--text-secondary);
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-title,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-title {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-title {
         font-size: 1.15rem;
         line-height: 1.15;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-close-btn,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-close-btn {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-close-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -3047,14 +3043,12 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         border-radius: 14px;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-close-btn .ui-icon,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-close-btn .ui-icon {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-close-btn .ui-icon {
         width: 20px;
         height: 20px;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-body,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-body {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-body {
         min-height: 0;
         display: flex;
         flex: 1 1 auto;
@@ -3146,29 +3140,29 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         overflow: hidden;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-map-list-slot {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-map-list-slot {
         min-height: 0;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-map-list-slot #map-list {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-map-list-slot #map-list {
         padding-right: 2px;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-map-list-slot #map-list li {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-map-list-slot #map-list li {
         margin-bottom: 4px;
         border-radius: 10px;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-map-list-slot .map-item {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-map-list-slot .map-item {
         padding: 9px 10px 9px 12px;
         font-size: 1rem;
         border-radius: 10px;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-map-list-slot .map-item.active,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-map-list-slot .folder-header.active .folder-main-action {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-map-list-slot .map-item.active,
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-map-list-slot .folder-header.active .folder-main-action {
         position: relative;
         background:
             linear-gradient(135deg, color-mix(in srgb, var(--active-bg) 92%, transparent), color-mix(in srgb, var(--highlight-bg) 76%, transparent));
@@ -3178,8 +3172,8 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         font-weight: 700;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-map-list-slot .map-item.active::after,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-map-list-slot .folder-header.active .folder-main-action::after {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-map-list-slot .map-item.active::after,
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-map-list-slot .folder-header.active .folder-main-action::after {
         content: 'Current';
         position: absolute;
         top: 50%;
@@ -3194,18 +3188,18 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         text-transform: uppercase;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-map-list-slot .folder-header {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-map-list-slot .folder-header {
         gap: 6px;
         padding: 2px;
         border-radius: 10px;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-map-list-slot .folder-main-action {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-map-list-slot .folder-main-action {
         padding: 9px 10px 9px 2px;
         border-radius: 10px;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-map-list-slot .folder-toggle-btn {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-map-list-slot .folder-toggle-btn {
         width: 34px;
         min-width: 34px;
         margin: 0;
@@ -3330,8 +3324,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         padding: 18px 18px calc(var(--safe-bottom) + 24px);
     }
 
-    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-search-panel,
-    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-maps-sheet {
+    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-search-panel {
         border-color: var(--glass-border-dark);
         background: color-mix(in srgb, var(--bg-primary) 96%, transparent);
     }
@@ -3347,15 +3340,15 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         border-bottom-color: color-mix(in srgb, var(--glass-border-dark) 76%, transparent);
     }
 
-    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-maps-sheet-map-list-slot .map-item.active,
-    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-maps-sheet-map-list-slot .folder-header.active .folder-main-action {
+    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-search-panel-map-list-slot .map-item.active,
+    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-search-panel-map-list-slot .folder-header.active .folder-main-action {
         box-shadow:
             inset 0 0 0 1px color-mix(in srgb, var(--text-secondary) 22%, transparent),
             0 12px 22px rgba(0, 0, 0, 0.22);
     }
 
-    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-maps-sheet-map-list-slot .map-item.active::after,
-    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-maps-sheet-map-list-slot .folder-header.active .folder-main-action::after {
+    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-search-panel-map-list-slot .map-item.active::after,
+    html.mobile-layout-v2.is-mobile-layout[data-theme="dark"] #mobile-search-panel-map-list-slot .folder-header.active .folder-main-action::after {
         background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
         color: var(--text-primary);
     }
@@ -3372,9 +3365,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         right: calc(var(--safe-right) + 12px);
         bottom: calc(var(--safe-bottom) + 14px);
         z-index: 1413;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
+        display: block;
         padding: 8px;
         border: 1px solid color-mix(in srgb, var(--glass-border-light) 92%, transparent);
         border-radius: 24px;
@@ -3384,8 +3375,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         -webkit-backdrop-filter: blur(16px);
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-explore-launcher-btn,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-launcher-btn {
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-launcher-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -3398,14 +3388,12 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         letter-spacing: 0.01em;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-explore-launcher-btn .ui-icon,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-launcher-btn .ui-icon {
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-launcher-btn .ui-icon {
         width: 18px;
         height: 18px;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-explore-launcher-btn.active,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-launcher-btn.active {
+    html.mobile-layout-v2.is-mobile-layout #mobile-sheet-launcher-btn.active {
         background:
             linear-gradient(135deg, color-mix(in srgb, var(--active-bg) 92%, transparent), color-mix(in srgb, var(--highlight-bg) 78%, transparent));
         box-shadow:
@@ -3413,26 +3401,23 @@ html.mobile-layout-v2.map-interacting #map-blurb {
             0 10px 20px rgba(0, 0, 0, 0.14);
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel {
         left: calc(var(--safe-left) + 12px);
         right: calc(var(--safe-right) + 12px);
         bottom: calc(var(--safe-bottom) + 84px);
         top: auto;
         width: auto;
-        max-height: min(calc(var(--app-height) - var(--safe-top) - var(--safe-bottom) - 136px), 74vh);
+        max-height: min(calc(var(--app-height) - var(--safe-top) - var(--safe-bottom) - 138px), 78vh);
         padding: 10px 12px 14px;
         border-radius: 28px;
         transform: translateY(16px);
     }
 
-    html.mobile-layout-v2.is-mobile-layout .container.mobile-search-panel-open #mobile-search-panel,
-    html.mobile-layout-v2.is-mobile-layout .container.mobile-maps-sheet-open #mobile-maps-sheet {
+    html.mobile-layout-v2.is-mobile-layout .container.mobile-search-panel-open #mobile-search-panel {
         transform: translateY(0);
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-header,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-header {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-header {
         position: sticky;
         top: 0;
         z-index: 3;
@@ -3440,8 +3425,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         background: inherit;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-body,
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-body {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-body {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         padding-bottom: 6px;
@@ -3604,7 +3588,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         overflow: hidden;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #mobile-maps-sheet-map-list-slot {
+    html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-map-list-slot {
         min-height: 0;
         max-height: none;
     }
