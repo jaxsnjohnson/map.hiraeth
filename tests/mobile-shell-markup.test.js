@@ -5,7 +5,9 @@ const indexSource = fs.readFileSync('index.html', 'utf8');
 const styleSource = fs.readFileSync('css/style.css', 'utf8');
 
 assert.match(indexSource, /id="mobile-dock"/);
+assert.match(indexSource, /id="mobile-info-help-btn"/);
 assert.match(indexSource, /id="mobile-sheet-launcher-btn"/);
+assert.match(indexSource, /id="mobile-search-launcher-btn"/);
 assert.match(indexSource, /id="mobile-search-panel"/);
 assert.match(indexSource, /id="mobile-search-panel-close-btn"/);
 assert.match(indexSource, /id="mobile-search-card"/);
@@ -45,6 +47,9 @@ assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-sear
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-results-card \{\s*min-height: 0;\s*flex: 0 0 auto;\s*overflow: visible;/m);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-panel-map-list-slot \{\s*min-height: 0;\s*max-height: none;\s*overflow: visible;/m);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-panel #search-results-container \{\s*display: block;\s*max-height: none;\s*overflow: visible;/m);
+assert.match(styleSource, /Authoritative mobile atlas scroll model: one sheet body scroll surface\./);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-panel-body \{[\s\S]*overflow-y: auto !important;[\s\S]*touch-action: pan-y;/m);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-panel-search-slot,[\s\S]*#mobile-search-panel #map-list \{[\s\S]*overflow: visible !important;[\s\S]*flex: 0 0 auto;/m);
 
 assert.doesNotMatch(indexSource, /id="mobile-explore-launcher-btn"/);
 assert.doesNotMatch(indexSource, /id="mobile-maps-launcher-btn"/);

@@ -24,6 +24,7 @@ const snippets = [
 global.isMobileLayoutActive = true;
 global.mobileSearchPanelOpen = false;
 global.mobileMapsExpanded = true;
+global.lastMobileSurfaceTriggerButton = null;
 global.currentSearchScope = 'map';
 global.searchControlContainer = { style: { display: 'block' } };
 global.mapListElement = {
@@ -33,6 +34,7 @@ global.mapListElement = {
 };
 global.poiSearchInput = { focusCalled: 0, focus() { this.focusCalled += 1; } };
 global.mobileSheetLauncherBtn = { focusCalled: 0, focus() { this.focusCalled += 1; } };
+global.mobileSearchLauncherBtn = { focusCalled: 0, focus() { this.focusCalled += 1; } };
 global.mobileSearchPanel = { attrs: {}, setAttribute(name, value) { this.attrs[name] = value; } };
 global.mobileMapListSection = {
     hidden: false,

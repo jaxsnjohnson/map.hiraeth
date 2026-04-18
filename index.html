@@ -232,17 +232,23 @@
             </div>
 
             <div id="active-filters-container" class="leaflet-control" aria-live="polite"></div>
+            <button id="mobile-info-help-btn" type="button" aria-label="Open map info and help">
+                <i class="ui-icon" data-lucide="circle-help" aria-hidden="true"></i>
+            </button>
             <div id="mobile-dock" aria-label="Mobile navigation">
                 <button id="mobile-sheet-launcher-btn" type="button" aria-label="Open atlas" aria-pressed="false" aria-expanded="false">
-                    <i class="ui-icon" data-lucide="panel-bottom-open" aria-hidden="true"></i>
-                    <span>Atlas</span>
+                    <i class="ui-icon" data-lucide="chevron-right" aria-hidden="true"></i>
+                    <span class="mobile-fab-label">Atlas</span>
+                </button>
+                <button id="mobile-search-launcher-btn" type="button" aria-label="Open search" aria-pressed="false" aria-expanded="false">
+                    <i class="ui-icon" data-lucide="search" aria-hidden="true"></i>
+                    <span class="mobile-fab-label">Search</span>
                 </button>
             </div>
             <div id="mobile-search-panel" aria-hidden="true">
                 <div class="mobile-sheet-handle" aria-hidden="true"></div>
                 <div id="mobile-search-panel-header">
                     <div class="mobile-sheet-header-copy">
-                        <span class="mobile-sheet-eyebrow">Atlas Stack</span>
                         <strong id="mobile-search-panel-title">Atlas</strong>
                     </div>
                     <button id="mobile-search-panel-close-btn" type="button" aria-label="Close atlas">

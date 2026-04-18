@@ -666,7 +666,9 @@ const sidebar = document.getElementById('sidebar');
 const mapListElement = document.getElementById('map-list');
 const toggleBtn = document.getElementById('toggle-sidebar-btn');
 const mobileDock = document.getElementById('mobile-dock');
+const mobileInfoHelpBtn = document.getElementById('mobile-info-help-btn');
 const mobileSheetLauncherBtn = document.getElementById('mobile-sheet-launcher-btn');
+const mobileSearchLauncherBtn = document.getElementById('mobile-search-launcher-btn');
 const themeToggle = document.getElementById('theme-checkbox');
 const themeSwitchWrapper = themeToggle ? themeToggle.closest('.theme-switch-wrapper') : null;
 const bodyElement = document.body;
@@ -769,6 +771,7 @@ let isMobileLayoutActive = false;
 let mobileSearchPanelOpen = false;
 let mobileMapsExpanded = false;
 let mobileFilterExpanded = false;
+let lastMobileSurfaceTriggerButton = null;
 let lastControlTouchAt = 0;
 let activeShareRelayContext = null;
 const shownShareRelaySessionKeys = new Set();
@@ -1184,18 +1187,25 @@ function closeMobileSearchPanel({ restoreFocus = false } = {}) {
     mobileSearchPanelOpen = false;
     syncMobileSearchPanelState();
     syncSidebarBackdropState();
-    if (restoreFocus && mobileSheetLauncherBtn) {
-        mobileSheetLauncherBtn.focus();
+    if (restoreFocus) {
+        const focusTarget = lastMobileSurfaceTriggerButton || mobileSheetLauncherBtn || mobileSearchLauncherBtn;
+        if (focusTarget) {
+            focusTarget.focus();
+        }
     }
 }
 
-function openMobileSearchPanel({ focusSearch = false } = {}) {
+function openMobileSearchPanel({ focusSearch = false, expandMaps = false, triggerButton = null } = {}) {
     if (!isMobileLayoutActive) return;
     if (!searchControlContainer || searchControlContainer.style.display === 'none') return;
     mobileSearchPanelOpen = true;
-    mobileMapsExpanded = false;
+    mobileMapsExpanded = !!expandMaps;
+    if (triggerButton) {
+        lastMobileSurfaceTriggerButton = triggerButton;
+    }
     setSearchScope(currentSearchScope);
     syncMobileSearchPanelState();
+    syncMobileExploreVisibility();
     syncSidebarBackdropState();
     if (focusSearch && poiSearchInput) {
         requestAnimationFrame(() => poiSearchInput.focus());
@@ -1311,17 +1321,31 @@ function syncMobileDockState() {
         mobileDock.hidden = !isMobileLayoutActive || isEmbeddedView;
     }
     if (mobileSheetLauncherBtn) {
-        const active = isMobileLayoutActive && mobileSearchPanelOpen;
+        const active = isMobileLayoutActive && mobileSearchPanelOpen && mobileMapsExpanded;
         mobileSheetLauncherBtn.hidden = !isMobileLayoutActive || isEmbeddedView;
         mobileSheetLauncherBtn.classList.toggle('active', active);
         mobileSheetLauncherBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
         mobileSheetLauncherBtn.setAttribute('aria-expanded', active ? 'true' : 'false');
         mobileSheetLauncherBtn.setAttribute('aria-label', active ? 'Close atlas' : 'Open atlas');
         mobileSheetLauncherBtn.innerHTML = active
-            ? `<i class="ui-icon" data-lucide="x" aria-hidden="true"></i><span>Close</span>`
-            : `<i class="ui-icon" data-lucide="panel-bottom-open" aria-hidden="true"></i><span>Atlas</span>`;
-        refreshLucideIcons();
+            ? `<i class="ui-icon" data-lucide="x" aria-hidden="true"></i><span class="mobile-fab-label">Close</span>`
+            : `<i class="ui-icon" data-lucide="chevron-right" aria-hidden="true"></i><span class="mobile-fab-label">Atlas</span>`;
     }
+    if (mobileSearchLauncherBtn) {
+        const active = isMobileLayoutActive && mobileSearchPanelOpen && !mobileMapsExpanded;
+        mobileSearchLauncherBtn.hidden = !isMobileLayoutActive || isEmbeddedView;
+        mobileSearchLauncherBtn.classList.toggle('active', active);
+        mobileSearchLauncherBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        mobileSearchLauncherBtn.setAttribute('aria-expanded', active ? 'true' : 'false');
+        mobileSearchLauncherBtn.setAttribute('aria-label', active ? 'Close search' : 'Open search');
+        mobileSearchLauncherBtn.innerHTML = active
+            ? `<i class="ui-icon" data-lucide="x" aria-hidden="true"></i><span class="mobile-fab-label">Close</span>`
+            : `<i class="ui-icon" data-lucide="search" aria-hidden="true"></i><span class="mobile-fab-label">Search</span>`;
+    }
+    if (mobileInfoHelpBtn) {
+        mobileInfoHelpBtn.hidden = !isMobileLayoutActive || isEmbeddedView;
+    }
+    refreshLucideIcons();
 }
 
 function markControlTouch(event) {
@@ -4632,11 +4656,33 @@ if (mobileSheetLauncherBtn) {
     mobileSheetLauncherBtn.addEventListener('click', (event) => {
         event.stopPropagation();
         if (!isMobileLayoutActive) return;
-        if (mobileSearchPanelOpen) {
+        lastMobileSurfaceTriggerButton = mobileSheetLauncherBtn;
+        if (mobileSearchPanelOpen && mobileMapsExpanded) {
             closeMobileSearchPanel({ restoreFocus: false });
             return;
         }
-        openMobileSearchPanel({ focusSearch: true });
+        openMobileSearchPanel({
+            focusSearch: false,
+            expandMaps: true,
+            triggerButton: mobileSheetLauncherBtn
+        });
+    });
+}
+
+if (mobileSearchLauncherBtn) {
+    mobileSearchLauncherBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (!isMobileLayoutActive) return;
+        lastMobileSurfaceTriggerButton = mobileSearchLauncherBtn;
+        if (mobileSearchPanelOpen && !mobileMapsExpanded) {
+            closeMobileSearchPanel({ restoreFocus: false });
+            return;
+        }
+        openMobileSearchPanel({
+            focusSearch: true,
+            expandMaps: false,
+            triggerButton: mobileSearchLauncherBtn
+        });
     });
 }
 
@@ -4651,6 +4697,18 @@ if (mobileMapListToggleBtn) {
     mobileMapListToggleBtn.addEventListener('click', (event) => {
         event.stopPropagation();
         toggleMobileMapListExpanded();
+    });
+}
+
+if (mobileInfoHelpBtn) {
+    mobileInfoHelpBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const primaryHelpTrigger = document.getElementById('help-btn');
+        if (primaryHelpTrigger) {
+            primaryHelpTrigger.click();
+        } else if (mobileHelpBtn && !mobileHelpBtn.disabled) {
+            mobileHelpBtn.click();
+        }
     });
 }
 
