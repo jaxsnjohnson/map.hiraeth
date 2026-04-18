@@ -55,6 +55,8 @@ let renderedSearchResults = [];
 let activeSearchResultIndex = -1;
 const isFirefox = typeof navigator !== 'undefined' && /firefox|fxios/i.test(navigator.userAgent);
 const MOBILE_LAYOUT_BREAKPOINT = 768;
+const MOBILE_SURFACE_MODE_ATLAS = 'atlas';
+const MOBILE_SURFACE_MODE_SEARCH = 'search';
 const MOBILE_LAYOUT_QUERY_PARAM = 'mobileLayout';
 const MOBILE_LAYOUT_MODE_V2 = 'v2';
 const MOBILE_LAYOUT_MODE_LEGACY = 'legacy';
@@ -768,8 +770,7 @@ const activeAudioFadeFrameIds = new WeakMap();
 let currentAtmosphereConfig = null;
 let mobileLayoutV2Enabled = false;
 let isMobileLayoutActive = false;
-let mobileSearchPanelOpen = false;
-let mobileMapsExpanded = false;
+let mobileSurfaceMode = null;
 let mobileFilterExpanded = false;
 let lastMobileSurfaceTriggerButton = null;
 let lastControlTouchAt = 0;
@@ -1011,6 +1012,7 @@ function syncMobileSearchResultsCardState() {
     if (!mobileSearchResultsCard) return;
     const hasVisibleResults =
         isMobileLayoutActive &&
+        isMobileSurfaceMode(MOBILE_SURFACE_MODE_SEARCH) &&
         searchResultsContainer &&
         searchResultsContainer.style.display !== 'none' &&
         searchResultsContainer.innerHTML.trim() !== '';
@@ -1028,15 +1030,59 @@ function resolveSearchScope(scope, {
 }
 
 function hasOpenMobileSurface() {
-    return mobileSearchPanelOpen;
+    return mobileSurfaceMode === MOBILE_SURFACE_MODE_ATLAS || mobileSurfaceMode === MOBILE_SURFACE_MODE_SEARCH;
 }
 
-function openMobileSheet({ focusSearch = false } = {}) {
-    openMobileSearchPanel({ focusSearch });
+function normalizeMobileSurfaceMode(mode) {
+    return mode === MOBILE_SURFACE_MODE_ATLAS ? MOBILE_SURFACE_MODE_ATLAS : MOBILE_SURFACE_MODE_SEARCH;
+}
+
+function getMobileSurfaceModeLabel(mode = mobileSurfaceMode) {
+    return mode === MOBILE_SURFACE_MODE_ATLAS ? 'atlas' : 'search';
+}
+
+function isMobileSurfaceMode(mode) {
+    return mobileSurfaceMode === mode;
+}
+
+function openMobileSheet({ mode = MOBILE_SURFACE_MODE_SEARCH, focusSearch = false, triggerButton = null } = {}) {
+    if (!isMobileLayoutActive) return;
+    const nextMode = normalizeMobileSurfaceMode(mode);
+    if (nextMode === MOBILE_SURFACE_MODE_SEARCH && (!searchControlContainer || searchControlContainer.style.display === 'none')) {
+        return;
+    }
+    mobileSurfaceMode = nextMode;
+    if (triggerButton) {
+        lastMobileSurfaceTriggerButton = triggerButton;
+    }
+    setSearchScope(currentSearchScope);
+    syncMobileSearchPanelState();
+    syncMobileExploreVisibility();
+    syncSidebarBackdropState();
+    if (focusSearch && nextMode === MOBILE_SURFACE_MODE_SEARCH && poiSearchInput) {
+        requestAnimationFrame(() => poiSearchInput.focus());
+    }
 }
 
 function closeMobileSheet({ restoreFocus = false } = {}) {
-    closeMobileSearchPanel({ restoreFocus });
+    if (!hasOpenMobileSurface()) return;
+    mobileSurfaceMode = null;
+    syncMobileSearchPanelState();
+    syncSidebarBackdropState();
+    if (restoreFocus) {
+        const focusTarget = lastMobileSurfaceTriggerButton || mobileSheetLauncherBtn || mobileSearchLauncherBtn;
+        if (focusTarget) {
+            focusTarget.focus();
+        }
+    }
+}
+
+function openMobileSearchPanel({ focusSearch = false, triggerButton = null } = {}) {
+    openMobileSheet({ mode: MOBILE_SURFACE_MODE_SEARCH, focusSearch, triggerButton });
+}
+
+function closeMobileSearchPanel({ restoreFocus = false } = {}) {
+    closeMobileSheet({ restoreFocus });
 }
 
 mobileLayoutV2Enabled = resolveMobileLayoutV2Enabled();
@@ -1144,17 +1190,15 @@ function updateMobileLayoutState() {
 
     rootElement.style.setProperty('--mobile-bottom-offset', active ? '14px' : '10px');
     if (!active && hasOpenMobileSurface()) {
-        mobileSearchPanelOpen = false;
-    }
-    if (!active) {
-        mobileMapsExpanded = false;
+        mobileSurfaceMode = null;
     }
     if (toggleBtn) {
         const collapsed = container.classList.contains('sidebar-collapsed');
         if (active) {
-            toggleBtn.title = mobileSearchPanelOpen ? 'Close search' : 'Open search';
-            toggleBtn.setAttribute('aria-label', mobileSearchPanelOpen ? 'Close search' : 'Open search');
-            toggleBtn.setAttribute('aria-expanded', mobileSearchPanelOpen ? 'true' : 'false');
+            const surfaceOpen = hasOpenMobileSurface();
+            toggleBtn.title = surfaceOpen ? `Close ${getMobileSurfaceModeLabel()}` : 'Open search';
+            toggleBtn.setAttribute('aria-label', surfaceOpen ? `Close ${getMobileSurfaceModeLabel()}` : 'Open search');
+            toggleBtn.setAttribute('aria-expanded', surfaceOpen ? 'true' : 'false');
         } else {
             toggleBtn.classList.remove('active');
             toggleBtn.innerHTML = collapsed
@@ -1167,6 +1211,8 @@ function updateMobileLayoutState() {
         }
     }
     syncMobileSheetPlacement();
+    renderMapBlurbContent();
+    setMapBlurbVisible(false);
     syncMobileSearchResultsCardState();
     syncMobileSearchPanelState();
     syncMobileFilterState();
@@ -1176,40 +1222,71 @@ function updateMobileLayoutState() {
 
 function syncMobileSearchPanelState() {
     if (!mobileSearchPanel) return;
-    const shouldShowPanel = isMobileLayoutActive && mobileSearchPanelOpen;
+    const mode = isMobileLayoutActive ? mobileSurfaceMode : null;
+    const showAtlas = mode === MOBILE_SURFACE_MODE_ATLAS;
+    const showSearch = mode === MOBILE_SURFACE_MODE_SEARCH;
+    const shouldShowPanel = !!mode;
     mobileSearchPanel.setAttribute('aria-hidden', shouldShowPanel ? 'false' : 'true');
+    mobileSearchPanel.dataset.mode = shouldShowPanel ? mode : '';
     container.classList.toggle('mobile-search-panel-open', shouldShowPanel);
+    container.classList.toggle('mobile-surface-atlas', showAtlas);
+    container.classList.toggle('mobile-surface-search', showSearch);
+    if (mobileSearchPanelTitle) {
+        mobileSearchPanelTitle.textContent = showAtlas ? 'Atlas' : (showSearch ? 'Search' : 'Atlas');
+    }
+    if (mobileSearchPanelCloseBtn) {
+        mobileSearchPanelCloseBtn.setAttribute('aria-label', shouldShowPanel ? `Close ${getMobileSurfaceModeLabel(mode)}` : 'Close panel');
+    }
+    if (mobileSearchPanelSearchSlot) {
+        mobileSearchPanelSearchSlot.hidden = !showSearch;
+    }
+    if (mobileMapListSection) {
+        mobileMapListSection.hidden = !showAtlas;
+    }
+    syncMobileSearchResultsCardState();
     syncMobileDockState();
 }
 
-function closeMobileSearchPanel({ restoreFocus = false } = {}) {
-    if (!mobileSearchPanelOpen) return;
-    mobileSearchPanelOpen = false;
-    syncMobileSearchPanelState();
-    syncSidebarBackdropState();
-    if (restoreFocus) {
-        const focusTarget = lastMobileSurfaceTriggerButton || mobileSheetLauncherBtn || mobileSearchLauncherBtn;
-        if (focusTarget) {
-            focusTarget.focus();
-        }
+function syncMapBlurbButtonState() {
+    const visible = !!(mapBlurbElement && mapBlurbElement.classList.contains('visible'));
+    if (toggleBlurbBtn) {
+        toggleBlurbBtn.classList.toggle('active', visible);
+        toggleBlurbBtn.setAttribute('aria-expanded', visible ? 'true' : 'false');
+    }
+    if (mobileInfoHelpBtn) {
+        mobileInfoHelpBtn.classList.toggle('active', visible);
+        mobileInfoHelpBtn.setAttribute('aria-pressed', visible ? 'true' : 'false');
+        mobileInfoHelpBtn.setAttribute('aria-expanded', visible ? 'true' : 'false');
     }
 }
 
-function openMobileSearchPanel({ focusSearch = false, expandMaps = false, triggerButton = null } = {}) {
-    if (!isMobileLayoutActive) return;
-    if (!searchControlContainer || searchControlContainer.style.display === 'none') return;
-    mobileSearchPanelOpen = true;
-    mobileMapsExpanded = !!expandMaps;
-    if (triggerButton) {
-        lastMobileSurfaceTriggerButton = triggerButton;
+function setMapBlurbVisible(visible) {
+    if (!mapBlurbElement) return;
+    mapBlurbElement.classList.toggle('visible', !!visible);
+    syncMapBlurbButtonState();
+}
+
+function renderMapBlurbContent(mapInfo = getMapRuntimeData(currentlyLoadedMapId)) {
+    if (!mapBlurbElement) return;
+    const safeName = escapeHtml(mapInfo?.name || 'Atlas');
+    const defaultCopy = '<p>Open the guide for controls, shortcuts, and atlas help.</p>';
+    const blurbBody = mapInfo?.blurb || defaultCopy;
+
+    if (isMobileLayoutActive) {
+        mapBlurbElement.innerHTML = `
+            <div class="mobile-map-blurb-card">
+                <div class="mobile-map-blurb-header">
+                    <span class="mobile-map-blurb-eyebrow">Map Info</span>
+                    <strong class="mobile-map-blurb-title">${safeName}</strong>
+                </div>
+                <div class="mobile-map-blurb-copy">${blurbBody}</div>
+                <button type="button" class="map-blurb-help-action">Open Guide</button>
+            </div>
+        `;
+        return;
     }
-    setSearchScope(currentSearchScope);
-    syncMobileSearchPanelState();
-    syncMobileExploreVisibility();
-    syncSidebarBackdropState();
-    if (focusSearch && poiSearchInput) {
-        requestAnimationFrame(() => poiSearchInput.focus());
-    }
+
+    mapBlurbElement.innerHTML = mapInfo?.blurb || '';
 }
 
 function getMobileMapListEntryCount() {
@@ -1218,25 +1295,9 @@ function getMobileMapListEntryCount() {
 }
 
 function syncMobileMapMeta(mapInfo, visibilityState) {
-    if (mobileCurrentMapSummaryName) {
-        mobileCurrentMapSummaryName.textContent = mapInfo?.name || 'Atlas';
-    }
-    if (mobileCurrentMapSummaryBlurb) {
-        mobileCurrentMapSummaryBlurb.textContent = getMobileMapSummaryExcerpt(mapInfo);
-    }
-    if (mobileMapListPreviewName) {
-        mobileMapListPreviewName.textContent = mapInfo?.name || 'Atlas';
-    }
-    if (mobileMapListPreviewMeta) {
-        const entryCount = getMobileMapListEntryCount();
-        mobileMapListPreviewMeta.textContent = entryCount > 0
-            ? `${entryCount} maps available in the atlas.`
-            : 'Browse the atlas map list.';
-    }
-
-    if (mobileSearchPanelTitle) {
-        mobileSearchPanelTitle.textContent = 'Atlas';
-    }
+    renderMapBlurbContent(mapInfo);
+    if (!mobileSearchPanelTitle) return;
+    mobileSearchPanelTitle.textContent = isMobileSurfaceMode(MOBILE_SURFACE_MODE_ATLAS) ? 'Atlas' : 'Search';
 }
 
 function syncMobileUtilityButton(button, {
@@ -1287,23 +1348,8 @@ function syncMobileSheetActionState(visibilityState) {
 
 function syncMobileExploreVisibility() {
     if (!mobileMapListSection) return;
-    const shouldShowSection = isMobileLayoutActive;
-    mobileMapListSection.hidden = !shouldShowSection;
-    mobileMapListSection.classList.toggle('expanded', shouldShowSection && mobileMapsExpanded);
-    if (mobileSearchPanelMapListShell) {
-        mobileSearchPanelMapListShell.hidden = !(shouldShowSection && mobileMapsExpanded);
-    }
-    if (mobileMapListToggleBtn) {
-        mobileMapListToggleBtn.hidden = !shouldShowSection;
-        mobileMapListToggleBtn.setAttribute('aria-expanded', shouldShowSection && mobileMapsExpanded ? 'true' : 'false');
-        mobileMapListToggleBtn.textContent = mobileMapsExpanded ? 'Hide Maps' : 'Show Maps';
-    }
-}
-
-function toggleMobileMapListExpanded() {
-    if (!isMobileLayoutActive || !mobileMapListSection) return;
-    mobileMapsExpanded = !mobileMapsExpanded;
-    syncMobileExploreVisibility();
+    const showAtlas = isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_ATLAS);
+    mobileMapListSection.hidden = !showAtlas;
 }
 
 function syncMobileFilterState() {
@@ -1320,8 +1366,9 @@ function syncMobileDockState() {
     if (mobileDock) {
         mobileDock.hidden = !isMobileLayoutActive || isEmbeddedView;
     }
+    const showSearchLauncher = !isEmbeddedView && isMobileLayoutActive && searchControlContainer && searchControlContainer.style.display !== 'none';
     if (mobileSheetLauncherBtn) {
-        const active = isMobileLayoutActive && mobileSearchPanelOpen && mobileMapsExpanded;
+        const active = isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_ATLAS);
         mobileSheetLauncherBtn.hidden = !isMobileLayoutActive || isEmbeddedView;
         mobileSheetLauncherBtn.classList.toggle('active', active);
         mobileSheetLauncherBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
@@ -1332,8 +1379,8 @@ function syncMobileDockState() {
             : `<i class="ui-icon" data-lucide="chevron-right" aria-hidden="true"></i><span class="mobile-fab-label">Atlas</span>`;
     }
     if (mobileSearchLauncherBtn) {
-        const active = isMobileLayoutActive && mobileSearchPanelOpen && !mobileMapsExpanded;
-        mobileSearchLauncherBtn.hidden = !isMobileLayoutActive || isEmbeddedView;
+        const active = isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_SEARCH);
+        mobileSearchLauncherBtn.hidden = !showSearchLauncher;
         mobileSearchLauncherBtn.classList.toggle('active', active);
         mobileSearchLauncherBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
         mobileSearchLauncherBtn.setAttribute('aria-expanded', active ? 'true' : 'false');
@@ -1351,13 +1398,13 @@ function syncMobileDockState() {
 function markControlTouch(event) {
     const target = event?.target;
     if (!(target instanceof Element)) return;
-    if (!target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-dock, #mobile-search-panel, #sidebar-backdrop, .modal-overlay, .modal-content')) return;
+    if (!target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-info-help-btn, #mobile-dock, #mobile-search-panel, #map-blurb, #sidebar-backdrop, .modal-overlay, .modal-content')) return;
     lastControlTouchAt = Date.now();
 }
 
 function shouldIgnoreMapPointerEvent(event) {
     const target = event?.originalEvent?.target;
-    if (target instanceof Element && target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-dock, #mobile-search-panel, .modal-overlay, .modal-content')) {
+    if (target instanceof Element && target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-info-help-btn, #mobile-dock, #mobile-search-panel, #map-blurb, .modal-overlay, .modal-content')) {
         return true;
     }
     if (isMobileLayoutActive && (Date.now() - lastControlTouchAt) < 150) {
@@ -2275,7 +2322,7 @@ function updateCurrentControlVisibility(selectedMap = null) {
 
     if (!visibilityState.showSearchControl) {
         closeSearchResults();
-        if (isMobileLayoutActive) {
+        if (isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_SEARCH)) {
             closeMobileSearchPanel({ restoreFocus: false });
         }
     }
@@ -2301,8 +2348,7 @@ function updateCurrentControlVisibility(selectedMap = null) {
             }
         }
         syncMobileFilterState();
-        mapBlurbElement.classList.remove('visible');
-        toggleBlurbBtn.classList.remove('active');
+        setMapBlurbVisible(false);
         coordinateDisplay.style.display = 'none';
         setAuxPanelVisible(gmPill, false);
         setAuxPanelVisible(sessionToolkitPanel, false);
@@ -2315,8 +2361,7 @@ function updateCurrentControlVisibility(selectedMap = null) {
     }
 
     if (isMobileLayoutActive) {
-        mapBlurbElement.classList.remove('visible');
-        toggleBlurbBtn.classList.remove('active');
+        setMapBlurbVisible(false);
         coordinateDisplay.style.display = 'none';
         setAuxPanelVisible(gmPill, false);
         setAuxPanelVisible(sessionToolkitPanel, false);
@@ -4000,7 +4045,7 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         currentMapData = null;
         currentlyLoadedMapId = null;
         setMapAtmosphere(null);
-        mapBlurbElement.classList.remove('visible');
+        setMapBlurbVisible(false);
         toggleMarkersBtn.style.display = 'none';
         measureToolBtn.style.display = 'none';
         toggleFiltersBtn.style.display = 'none';
@@ -4306,12 +4351,9 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     toggleMarkersBtn.title = markersVisible ? 'Hide Markers & Regions' : 'Show Markers & Regions';
     toggleMarkersBtn.setAttribute('aria-label', toggleMarkersBtn.title);
 
-    if (selectedMap.blurb) {
-        mapBlurbElement.innerHTML = selectedMap.blurb;
-    } else {
-        mapBlurbElement.innerHTML = '';
-        mapBlurbElement.classList.remove('visible');
-        toggleBlurbBtn.classList.remove('active');
+    renderMapBlurbContent(selectedMap);
+    if (!selectedMap.blurb && !isMobileLayoutActive) {
+        setMapBlurbVisible(false);
     }
 
     updateCurrentControlVisibility(selectedMap);
@@ -4657,13 +4699,13 @@ if (mobileSheetLauncherBtn) {
         event.stopPropagation();
         if (!isMobileLayoutActive) return;
         lastMobileSurfaceTriggerButton = mobileSheetLauncherBtn;
-        if (mobileSearchPanelOpen && mobileMapsExpanded) {
-            closeMobileSearchPanel({ restoreFocus: false });
+        if (isMobileSurfaceMode(MOBILE_SURFACE_MODE_ATLAS)) {
+            closeMobileSheet({ restoreFocus: false });
             return;
         }
-        openMobileSearchPanel({
+        openMobileSheet({
+            mode: MOBILE_SURFACE_MODE_ATLAS,
             focusSearch: false,
-            expandMaps: true,
             triggerButton: mobileSheetLauncherBtn
         });
     });
@@ -4674,13 +4716,13 @@ if (mobileSearchLauncherBtn) {
         event.stopPropagation();
         if (!isMobileLayoutActive) return;
         lastMobileSurfaceTriggerButton = mobileSearchLauncherBtn;
-        if (mobileSearchPanelOpen && !mobileMapsExpanded) {
-            closeMobileSearchPanel({ restoreFocus: false });
+        if (isMobileSurfaceMode(MOBILE_SURFACE_MODE_SEARCH)) {
+            closeMobileSheet({ restoreFocus: false });
             return;
         }
-        openMobileSearchPanel({
+        openMobileSheet({
+            mode: MOBILE_SURFACE_MODE_SEARCH,
             focusSearch: true,
-            expandMaps: false,
             triggerButton: mobileSearchLauncherBtn
         });
     });
@@ -4693,22 +4735,14 @@ if (mobileSearchPanelCloseBtn) {
     });
 }
 
-if (mobileMapListToggleBtn) {
-    mobileMapListToggleBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        toggleMobileMapListExpanded();
-    });
-}
-
 if (mobileInfoHelpBtn) {
     mobileInfoHelpBtn.addEventListener('click', (event) => {
         event.stopPropagation();
-        const primaryHelpTrigger = document.getElementById('help-btn');
-        if (primaryHelpTrigger) {
-            primaryHelpTrigger.click();
-        } else if (mobileHelpBtn && !mobileHelpBtn.disabled) {
-            mobileHelpBtn.click();
+        const nextVisible = !mapBlurbElement.classList.contains('visible');
+        if (nextVisible) {
+            lastMobileSurfaceTriggerButton = mobileInfoHelpBtn;
         }
+        setMapBlurbVisible(nextVisible);
     });
 }
 
@@ -5124,10 +5158,7 @@ function updateCoordinates(e) {
 map.on('click', function (e) {
     if (shouldIgnoreMapPointerEvent(e)) return;
     closeMobileSearchPanel({ restoreFocus: false });
-    if (mapBlurbElement.classList.contains('visible')) {
-        mapBlurbElement.classList.remove('visible');
-        toggleBlurbBtn.classList.remove('active');
-    }
+    setMapBlurbVisible(false);
     if (!isMeasuring && currentBounds) {
         unlockAdvancedControls('map_click');
     }
@@ -5146,15 +5177,18 @@ map.on('dblclick', function (e) {
         closeSearchResults();
     }
     // Measurement logic handled separately
-    // --- Hide Blurb on Map Click ---
-    if (mapBlurbElement.classList.contains('visible')) {
-        mapBlurbElement.classList.remove('visible');
-        toggleBlurbBtn.classList.remove('active');
-    }
+    setMapBlurbVisible(false);
 });
 
 // --- Blurb Element Click Stop ---
-mapBlurbElement.addEventListener('click', (e) => e.stopPropagation());
+mapBlurbElement.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const helpAction = e.target instanceof Element ? e.target.closest('.map-blurb-help-action') : null;
+    if (helpAction && openAboutModal) {
+        setMapBlurbVisible(false);
+        openAboutModal('guide', 'mobile_info_card');
+    }
+});
 
 // --- Coordinate Toggle Button Logic ---
 if (toggleCoordsBtn) {
@@ -5286,10 +5320,9 @@ toggleMarkersBtn.addEventListener('click', () => {
 toggleBlurbBtn.addEventListener('click', (e) => {
     unlockAdvancedControls('blurb_toggle');
     e.stopPropagation(); // Prevent map click event
-    mapBlurbElement.classList.toggle('visible');
-    toggleBlurbBtn.classList.toggle('active');
-    toggleBlurbBtn.setAttribute('aria-expanded', mapBlurbElement.classList.contains('visible'));
-    trackAnalytics('map_blurb_toggled', { visible: mapBlurbElement.classList.contains('visible') });
+    const nextVisible = !mapBlurbElement.classList.contains('visible');
+    setMapBlurbVisible(nextVisible);
+    trackAnalytics('map_blurb_toggled', { visible: nextVisible });
 });
 
 // --- Filter Panel Toggle Logic ---
@@ -5297,8 +5330,8 @@ function toggleFilterPanel() {
     if (!isMobileLayoutActive) {
         unlockAdvancedControls('filter_toggle');
     }
-    if (isMobileLayoutActive && !mobileSearchPanelOpen) {
-        openMobileSearchPanel({ focusSearch: false });
+    if (isMobileLayoutActive && !isMobileSurfaceMode(MOBILE_SURFACE_MODE_SEARCH)) {
+        openMobileSheet({ mode: MOBILE_SURFACE_MODE_SEARCH, focusSearch: false, triggerButton: mobileSearchLauncherBtn });
     }
     filtersPanelVisible = !filtersPanelVisible;
     mobileFilterExpanded = isMobileLayoutActive ? filtersPanelVisible : false;
@@ -5328,8 +5361,8 @@ poiSearchInput.addEventListener('focus', () => {
     if (!isMobileLayoutActive) {
         unlockAdvancedControls('search_focus');
     }
-    if (isMobileLayoutActive && !mobileSearchPanelOpen) {
-        openMobileSearchPanel({ focusSearch: false });
+    if (isMobileLayoutActive && !isMobileSurfaceMode(MOBILE_SURFACE_MODE_SEARCH)) {
+        openMobileSheet({ mode: MOBILE_SURFACE_MODE_SEARCH, focusSearch: false, triggerButton: mobileSearchLauncherBtn });
     }
 });
 poiSearchInput.addEventListener('keydown', (event) => {
@@ -6084,7 +6117,7 @@ async function loadMapData() {
                 case '/':
                     if (searchControlContainer && searchControlContainer.style.display !== 'none' && poiSearchInput) {
                         if (isMobileLayoutActive) {
-                            openMobileSheet({ mode: 'explore', focusSearch: true });
+                            openMobileSheet({ mode: MOBILE_SURFACE_MODE_SEARCH, focusSearch: true, triggerButton: mobileSearchLauncherBtn });
                         } else {
                             poiSearchInput.focus();
                         }
@@ -6097,7 +6130,7 @@ async function loadMapData() {
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
                 if (searchControlContainer && searchControlContainer.style.display !== 'none' && poiSearchInput) {
                     if (isMobileLayoutActive) {
-                        openMobileSheet({ mode: 'explore', focusSearch: true });
+                        openMobileSheet({ mode: MOBILE_SURFACE_MODE_SEARCH, focusSearch: true, triggerButton: mobileSearchLauncherBtn });
                     } else {
                         poiSearchInput.focus();
                     }
@@ -6229,7 +6262,7 @@ function initializeApp() {
         if (toggleBlurbBtn) toggleBlurbBtn.style.display = 'none';
         if (toggleGMPanelBtn) toggleGMPanelBtn.style.display = 'none';
         if (toggleToolkitPanelBtn) toggleToolkitPanelBtn.style.display = 'none';
-        if (mapBlurbElement) mapBlurbElement.classList.remove('visible');
+        if (mapBlurbElement) setMapBlurbVisible(false);
 
         // Hide the sidebar toggle button
         const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
@@ -6303,7 +6336,7 @@ function initializeApp() {
     } else {
         console.error("No loadable map data found for initialization.");
         sidebar.innerHTML = '<h2>Select Map</h2><p>No maps available.</p>';
-        mapBlurbElement.classList.remove('visible');
+        setMapBlurbVisible(false);
         // Ensure loading indicator is hidden if it somehow wasn't
         if (loadingIndicator) loadingIndicator.style.display = 'none';
         // Set a clean hash state

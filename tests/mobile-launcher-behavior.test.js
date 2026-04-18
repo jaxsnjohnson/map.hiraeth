@@ -18,11 +18,14 @@ function extractFunctionRange(startMarker, endMarker) {
 // eslint-disable-next-line no-eval
 eval(extractFunctionRange('function syncMobileDockState(', 'function markControlTouch('));
 
-global.mobileSearchPanelOpen = false;
-global.mobileMapsExpanded = false;
+global.MOBILE_SURFACE_MODE_ATLAS = 'atlas';
+global.MOBILE_SURFACE_MODE_SEARCH = 'search';
+global.mobileSurfaceMode = null;
+global.isMobileSurfaceMode = (mode) => global.mobileSurfaceMode === mode;
 global.isMobileLayoutActive = true;
 global.isEmbeddedView = false;
 global.refreshLucideIcons = () => {};
+global.searchControlContainer = { style: { display: 'block' } };
 global.mobileDock = {
     hidden: false
 };
@@ -66,35 +69,33 @@ assert.equal(global.mobileSheetLauncherBtn.hidden, false);
 assert.equal(global.mobileSearchLauncherBtn.hidden, false);
 assert.equal(global.mobileSheetLauncherBtn.attrs['aria-label'], 'Open atlas');
 assert.equal(global.mobileSheetLauncherBtn.attrs['aria-pressed'], 'false');
-assert.equal(global.mobileSheetLauncherBtn.attrs['aria-expanded'], 'false');
-assert.match(global.mobileSheetLauncherBtn.innerHTML, /Atlas/);
 assert.equal(global.mobileSearchLauncherBtn.attrs['aria-label'], 'Open search');
 assert.equal(global.mobileSearchLauncherBtn.attrs['aria-pressed'], 'false');
-assert.equal(global.mobileSearchLauncherBtn.attrs['aria-expanded'], 'false');
+assert.match(global.mobileSheetLauncherBtn.innerHTML, /Atlas/);
 assert.match(global.mobileSearchLauncherBtn.innerHTML, /Search/);
 
-global.mobileSearchPanelOpen = true;
-global.mobileMapsExpanded = true;
+global.mobileSurfaceMode = 'atlas';
 syncMobileDockState();
 assert.equal(global.mobileSheetLauncherBtn.attrs['aria-label'], 'Close atlas');
 assert.equal(global.mobileSheetLauncherBtn.attrs['aria-pressed'], 'true');
-assert.equal(global.mobileSheetLauncherBtn.attrs['aria-expanded'], 'true');
-assert.match(global.mobileSheetLauncherBtn.innerHTML, /Close/);
 assert.equal(global.mobileSearchLauncherBtn.attrs['aria-label'], 'Open search');
+assert.equal(global.mobileSearchLauncherBtn.attrs['aria-pressed'], 'false');
 
-global.mobileMapsExpanded = false;
+global.mobileSurfaceMode = 'search';
 syncMobileDockState();
 assert.equal(global.mobileSheetLauncherBtn.attrs['aria-label'], 'Open atlas');
 assert.equal(global.mobileSearchLauncherBtn.attrs['aria-label'], 'Close search');
 assert.equal(global.mobileSearchLauncherBtn.attrs['aria-pressed'], 'true');
-assert.equal(global.mobileSearchLauncherBtn.attrs['aria-expanded'], 'true');
 assert.match(global.mobileSearchLauncherBtn.innerHTML, /Close/);
+
+global.searchControlContainer.style.display = 'none';
+syncMobileDockState();
+assert.equal(global.mobileSearchLauncherBtn.hidden, true);
 
 global.isEmbeddedView = true;
 syncMobileDockState();
 assert.equal(global.mobileDock.hidden, true);
 assert.equal(global.mobileSheetLauncherBtn.hidden, true);
-assert.equal(global.mobileSearchLauncherBtn.hidden, true);
 assert.equal(global.mobileInfoHelpBtn.hidden, true);
 
 console.log('mobile launcher behavior regression checks passed');

@@ -232,8 +232,8 @@
             </div>
 
             <div id="active-filters-container" class="leaflet-control" aria-live="polite"></div>
-            <button id="mobile-info-help-btn" type="button" aria-label="Open map info and help">
-                <i class="ui-icon" data-lucide="circle-help" aria-hidden="true"></i>
+            <button id="mobile-info-help-btn" type="button" aria-label="Open map info and help" aria-pressed="false" aria-expanded="false">
+                <i class="ui-icon" data-lucide="info" aria-hidden="true"></i>
             </button>
             <div id="mobile-dock" aria-label="Mobile navigation">
                 <button id="mobile-sheet-launcher-btn" type="button" aria-label="Open atlas" aria-pressed="false" aria-expanded="false">
@@ -246,74 +246,21 @@
                 </button>
             </div>
             <div id="mobile-search-panel" aria-hidden="true">
-                <div class="mobile-sheet-handle" aria-hidden="true"></div>
                 <div id="mobile-search-panel-header">
                     <div class="mobile-sheet-header-copy">
                         <strong id="mobile-search-panel-title">Atlas</strong>
                     </div>
-                    <button id="mobile-search-panel-close-btn" type="button" aria-label="Close atlas">
+                    <button id="mobile-search-panel-close-btn" type="button" aria-label="Close panel">
                         <i class="ui-icon" data-lucide="x" aria-hidden="true"></i>
                     </button>
                 </div>
                 <div id="mobile-search-panel-body">
-                    <div id="mobile-search-card" class="mobile-sheet-card mobile-sheet-hero">
-                        <div class="mobile-sheet-hero-copy">
-                            <span class="mobile-sheet-section-title">Current Map</span>
-                            <strong id="mobile-current-map-summary-name">Atlas</strong>
-                            <p id="mobile-current-map-summary-blurb">Search locations, routes, and regions on this map.</p>
-                        </div>
-                        <div id="mobile-search-panel-search-slot"></div>
-                    </div>
-                    <div id="mobile-search-actions-card" class="mobile-sheet-card">
-                        <div class="mobile-sheet-card-title-row">
-                            <span class="mobile-sheet-section-title">Quick Actions</span>
-                        </div>
-                        <div id="mobile-utility-actions">
-                            <button id="mobile-markers-btn" type="button" aria-label="Toggle markers and regions" aria-pressed="false">
-                                <i class="ui-icon" data-lucide="map-pin" aria-hidden="true"></i>
-                                <span>Markers</span>
-                            </button>
-                            <button id="mobile-measure-btn" type="button" aria-label="Measure distance" aria-pressed="false">
-                                <i class="ui-icon" data-lucide="ruler" aria-hidden="true"></i>
-                                <span>Measure</span>
-                            </button>
-                            <button id="mobile-share-view-btn" type="button" aria-label="Share current view">
-                                <i class="ui-icon" data-lucide="share-2" aria-hidden="true"></i>
-                                <span>Share</span>
-                            </button>
-                            <button id="mobile-coords-btn" type="button" aria-label="Toggle coordinate display" aria-pressed="false">
-                                <i class="ui-icon" data-lucide="globe" aria-hidden="true"></i>
-                                <span>Coords</span>
-                            </button>
-                            <button id="mobile-help-btn" type="button" aria-label="Open help and about">
-                                <i class="ui-icon" data-lucide="circle-help" aria-hidden="true"></i>
-                                <span>Help</span>
-                            </button>
-                        </div>
-                    </div>
+                    <div id="mobile-search-panel-search-slot" class="mobile-sheet-card" hidden></div>
                     <div id="mobile-search-results-card" class="mobile-sheet-card" hidden>
-                        <div class="mobile-sheet-card-title-row">
-                            <span class="mobile-sheet-section-title">Results</span>
-                        </div>
                         <div id="mobile-search-panel-results-slot"></div>
                     </div>
-                    <div id="mobile-map-list-section" class="mobile-sheet-card">
-                        <div class="mobile-sheet-card-title-row">
-                            <div class="mobile-sheet-card-title-copy">
-                                <span class="mobile-sheet-section-title">Maps</span>
-                                <span class="mobile-sheet-section-hint">Switch regions and cities without leaving the sheet</span>
-                            </div>
-                            <button id="mobile-map-list-toggle-btn" type="button" aria-expanded="false" aria-controls="mobile-search-panel-map-list-shell">
-                                Show Maps
-                            </button>
-                        </div>
-                        <div id="mobile-map-list-preview">
-                            <strong id="mobile-map-list-preview-name">Atlas</strong>
-                            <p id="mobile-map-list-preview-meta">Browse the atlas map list.</p>
-                        </div>
-                        <div id="mobile-search-panel-map-list-shell" hidden>
-                            <div id="mobile-search-panel-map-list-slot"></div>
-                        </div>
+                    <div id="mobile-map-list-section" class="mobile-sheet-card" hidden>
+                        <div id="mobile-search-panel-map-list-slot"></div>
                     </div>
                 </div>
             </div>
