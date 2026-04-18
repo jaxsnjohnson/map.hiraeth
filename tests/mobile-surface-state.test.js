@@ -92,16 +92,25 @@ global.mobileInfoHelpBtn = {
     }
 };
 global.container = {
-    classes: new Set(),
+    classes: new Set(['sidebar-collapsed']),
     classList: {
         toggle(name, active) {
             if (active) global.container.classes.add(name);
             else global.container.classes.delete(name);
+        },
+        contains(name) {
+            return global.container.classes.has(name);
         }
     }
 };
 global.syncMobileDockState = () => {};
 global.syncSidebarBackdropState = () => {};
+global.setSidebarStateCalls = [];
+global.setSidebarState = (state) => {
+    global.setSidebarStateCalls.push(state);
+    global.container.classList.toggle('sidebar-collapsed', state === 'c');
+    syncMobileSearchPanelState();
+};
 global.setSearchScope = (scope) => { global.currentSearchScope = scope; };
 global.requestAnimationFrame = (callback) => callback();
 global.escapeHtml = (value) => String(value || '');
@@ -114,19 +123,23 @@ assert.equal(hasOpenMobileSurface(), false);
 
 openMobileSheet({ mode: 'atlas', triggerButton: global.mobileSheetLauncherBtn });
 assert.equal(global.mobileSurfaceMode, 'atlas');
-assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'false');
-assert.equal(global.mobileSearchPanel.dataset.mode, 'atlas');
-assert.equal(global.mobileSearchPanelTitle.textContent, 'Atlas');
-assert.equal(global.mobileSearchPanelCloseBtn.attrs['aria-label'], 'Close atlas');
+assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'true');
+assert.equal(global.mobileSearchPanel.dataset.mode, '');
+assert.equal(global.mobileSearchPanelTitle.textContent, 'Search');
+assert.equal(global.mobileSearchPanelCloseBtn.attrs['aria-label'], 'Close search');
 assert.equal(global.mobileSearchPanelSearchSlot.hidden, true);
-assert.equal(global.mobileMapListSection.hidden, false);
-assert.equal(global.container.classes.has('mobile-search-panel-open'), true);
+assert.equal(global.mobileMapListSection.hidden, true);
+assert.equal(global.container.classes.has('mobile-search-card-open'), false);
 assert.equal(global.container.classes.has('mobile-surface-atlas'), true);
+assert.equal(global.container.classes.has('sidebar-collapsed'), false);
+assert.deepEqual(global.setSidebarStateCalls, ['o']);
 
 closeMobileSheet({ restoreFocus: true });
 assert.equal(global.mobileSurfaceMode, null);
 assert.equal(global.mobileSheetLauncherBtn.focusCalled, 1);
 assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'true');
+assert.equal(global.container.classes.has('sidebar-collapsed'), true);
+assert.deepEqual(global.setSidebarStateCalls, ['o', 'c']);
 
 global.searchResultsContainer.style.display = 'block';
 global.searchResultsContainer.innerHTML = '<li>Result</li>';
@@ -135,22 +148,29 @@ assert.equal(global.mobileSurfaceMode, 'search');
 assert.equal(global.poiSearchInput.focusCalled, 1);
 assert.equal(global.mobileSearchPanelTitle.textContent, 'Search');
 assert.equal(global.mobileSearchPanelCloseBtn.attrs['aria-label'], 'Close search');
+assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'false');
+assert.equal(global.mobileSearchPanel.dataset.mode, 'search');
 assert.equal(global.mobileSearchPanelSearchSlot.hidden, false);
-assert.equal(global.mobileMapListSection.hidden, true);
 assert.equal(global.mobileSearchResultsCard.hidden, false);
 assert.equal(global.container.classes.has('mobile-surface-search'), true);
+assert.equal(global.container.classes.has('mobile-search-card-open'), true);
+assert.equal(global.container.classes.has('sidebar-collapsed'), true);
 
 syncMobileMapMeta({ name: 'Eldran', blurb: '<p>Ruins.</p>' });
 assert.match(global.mapBlurbElement.innerHTML, /Eldran/);
 assert.match(global.mapBlurbElement.innerHTML, /Open Guide/);
 
-setMapBlurbVisible(true);
-assert.equal(global.toggleBlurbBtn.attrs['aria-expanded'], 'true');
-assert.equal(global.mobileInfoHelpBtn.attrs['aria-expanded'], 'true');
-
 closeMobileSheet({ restoreFocus: true });
 assert.equal(global.mobileSurfaceMode, null);
 assert.equal(global.mobileSearchLauncherBtn.focusCalled, 1);
+assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'true');
+
+openMobileSearchPanel({ focusSearch: false, triggerButton: global.mobileSearchLauncherBtn });
+setMapBlurbVisible(true);
+assert.equal(global.mobileSurfaceMode, null);
+assert.equal(global.toggleBlurbBtn.attrs['aria-expanded'], 'true');
+assert.equal(global.mobileInfoHelpBtn.attrs['aria-expanded'], 'true');
+assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'true');
 
 global.isMobileLayoutActive = false;
 openMobileSheet({ mode: 'atlas', triggerButton: global.mobileSheetLauncherBtn });

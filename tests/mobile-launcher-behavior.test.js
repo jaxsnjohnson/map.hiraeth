@@ -73,6 +73,8 @@ assert.equal(global.mobileSearchLauncherBtn.attrs['aria-label'], 'Open search');
 assert.equal(global.mobileSearchLauncherBtn.attrs['aria-pressed'], 'false');
 assert.match(global.mobileSheetLauncherBtn.innerHTML, /Atlas/);
 assert.match(global.mobileSearchLauncherBtn.innerHTML, /Search/);
+assert.match(global.mobileSheetLauncherBtn.innerHTML, /chevron-right/);
+assert.match(global.mobileSearchLauncherBtn.innerHTML, /search/);
 
 global.mobileSurfaceMode = 'atlas';
 syncMobileDockState();
@@ -80,13 +82,16 @@ assert.equal(global.mobileSheetLauncherBtn.attrs['aria-label'], 'Close atlas');
 assert.equal(global.mobileSheetLauncherBtn.attrs['aria-pressed'], 'true');
 assert.equal(global.mobileSearchLauncherBtn.attrs['aria-label'], 'Open search');
 assert.equal(global.mobileSearchLauncherBtn.attrs['aria-pressed'], 'false');
+assert.match(global.mobileSheetLauncherBtn.innerHTML, /Atlas/);
+assert.doesNotMatch(global.mobileSheetLauncherBtn.innerHTML, /Close/);
 
 global.mobileSurfaceMode = 'search';
 syncMobileDockState();
 assert.equal(global.mobileSheetLauncherBtn.attrs['aria-label'], 'Open atlas');
 assert.equal(global.mobileSearchLauncherBtn.attrs['aria-label'], 'Close search');
 assert.equal(global.mobileSearchLauncherBtn.attrs['aria-pressed'], 'true');
-assert.match(global.mobileSearchLauncherBtn.innerHTML, /Close/);
+assert.match(global.mobileSearchLauncherBtn.innerHTML, /Search/);
+assert.doesNotMatch(global.mobileSearchLauncherBtn.innerHTML, /Close/);
 
 global.searchControlContainer.style.display = 'none';
 syncMobileDockState();

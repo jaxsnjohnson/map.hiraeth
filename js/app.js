@@ -701,16 +701,14 @@ const searchRefineFiltersBtn = document.getElementById('search-refine-filters-bt
 const searchRefineClearBtn = document.getElementById('search-refine-clear-btn');
 const activeFiltersContainer = document.getElementById('active-filters-container');
 const sidebarBackdrop = document.getElementById('sidebar-backdrop');
-const mobileSearchPanel = document.getElementById('mobile-search-panel');
-const mobileSearchPanelCloseBtn = document.getElementById('mobile-search-panel-close-btn');
-const mobileSearchPanelTitle = document.getElementById('mobile-search-panel-title');
-const mobileCurrentMapSummaryName = document.getElementById('mobile-current-map-summary-name');
-const mobileCurrentMapSummaryBlurb = document.getElementById('mobile-current-map-summary-blurb');
+const mobileSearchPanel = document.getElementById('mobile-search-card');
+const mobileSearchPanelCloseBtn = document.getElementById('mobile-search-card-close-btn');
+const mobileSearchPanelTitle = document.getElementById('mobile-search-card-title');
 const mobileSearchCard = document.getElementById('mobile-search-card');
 const mobileSearchActionsCard = document.getElementById('mobile-search-actions-card');
-const mobileSearchPanelSearchSlot = document.getElementById('mobile-search-panel-search-slot');
-const mobileSearchResultsCard = document.getElementById('mobile-search-results-card');
-const mobileSearchPanelResultsSlot = document.getElementById('mobile-search-panel-results-slot');
+const mobileSearchPanelSearchSlot = document.getElementById('mobile-search-card-search-slot');
+const mobileSearchResultsCard = document.getElementById('mobile-search-card-results-slot');
+const mobileSearchPanelResultsSlot = document.getElementById('mobile-search-card-results-slot');
 const mobileMapListSection = document.getElementById('mobile-map-list-section');
 const mobileMapListToggleBtn = document.getElementById('mobile-map-list-toggle-btn');
 const mobileMapListPreviewName = document.getElementById('mobile-map-list-preview-name');
@@ -975,7 +973,6 @@ function createMobilePlacementAnchor(element) {
 const mobileSearchControlAnchor = createMobilePlacementAnchor(searchControlContainer);
 const mobileSearchResultsAnchor = createMobilePlacementAnchor(searchResultsContainer);
 const mobileFilterAnchor = createMobilePlacementAnchor(poiFilterContainer);
-const mobileMapListAnchor = createMobilePlacementAnchor(mapListElement);
 
 function restorePlacedNode(anchor, element) {
     if (!anchor || !anchor.parentNode || !element) return;
@@ -994,9 +991,6 @@ function syncMobileSheetPlacement() {
         if (mobileSearchPanelResultsSlot && searchResultsContainer && searchResultsContainer.parentNode !== mobileSearchPanelResultsSlot) {
             mobileSearchPanelResultsSlot.appendChild(searchResultsContainer);
         }
-        if (mobileSearchPanelMapListSlot && mapListElement && mapListElement.parentNode !== mobileSearchPanelMapListSlot) {
-            mobileSearchPanelMapListSlot.appendChild(mapListElement);
-        }
         syncMobileSearchResultsCardState();
         return;
     }
@@ -1004,7 +998,6 @@ function syncMobileSheetPlacement() {
     restorePlacedNode(mobileSearchControlAnchor, searchControlContainer);
     restorePlacedNode(mobileSearchResultsAnchor, searchResultsContainer);
     restorePlacedNode(mobileFilterAnchor, poiFilterContainer);
-    restorePlacedNode(mobileMapListAnchor, mapListElement);
     syncMobileSearchResultsCardState();
 }
 
@@ -1055,7 +1048,15 @@ function openMobileSheet({ mode = MOBILE_SURFACE_MODE_SEARCH, focusSearch = fals
     if (triggerButton) {
         lastMobileSurfaceTriggerButton = triggerButton;
     }
+    if (mapBlurbElement && mapBlurbElement.classList.contains('visible')) {
+        setMapBlurbVisible(false);
+    }
     setSearchScope(currentSearchScope);
+    if (nextMode === MOBILE_SURFACE_MODE_ATLAS) {
+        setSidebarState('o', false);
+    } else if (container && !container.classList.contains('sidebar-collapsed')) {
+        setSidebarState('c', false);
+    }
     syncMobileSearchPanelState();
     syncMobileExploreVisibility();
     syncSidebarBackdropState();
@@ -1066,9 +1067,14 @@ function openMobileSheet({ mode = MOBILE_SURFACE_MODE_SEARCH, focusSearch = fals
 
 function closeMobileSheet({ restoreFocus = false } = {}) {
     if (!hasOpenMobileSurface()) return;
+    const closingMode = mobileSurfaceMode;
     mobileSurfaceMode = null;
-    syncMobileSearchPanelState();
-    syncSidebarBackdropState();
+    if (closingMode === MOBILE_SURFACE_MODE_ATLAS && container && !container.classList.contains('sidebar-collapsed')) {
+        setSidebarState('c', false);
+    } else {
+        syncMobileSearchPanelState();
+        syncSidebarBackdropState();
+    }
     if (restoreFocus) {
         const focusTarget = lastMobileSurfaceTriggerButton || mobileSheetLauncherBtn || mobileSearchLauncherBtn;
         if (focusTarget) {
@@ -1187,6 +1193,10 @@ function updateMobileLayoutState() {
     bodyElement.classList.toggle('mobile-layout-v2', mobileLayoutV2Enabled);
     bodyElement.classList.toggle('is-mobile-layout', active);
     container.classList.toggle('is-mobile-layout', active);
+    if (active && container && !isMobileSurfaceMode(MOBILE_SURFACE_MODE_ATLAS)) {
+        container.classList.add('sidebar-collapsed');
+        currentSidebarState = 'c';
+    }
 
     rootElement.style.setProperty('--mobile-bottom-offset', active ? '14px' : '10px');
     if (!active && hasOpenMobileSurface()) {
@@ -1225,23 +1235,23 @@ function syncMobileSearchPanelState() {
     const mode = isMobileLayoutActive ? mobileSurfaceMode : null;
     const showAtlas = mode === MOBILE_SURFACE_MODE_ATLAS;
     const showSearch = mode === MOBILE_SURFACE_MODE_SEARCH;
-    const shouldShowPanel = !!mode;
-    mobileSearchPanel.setAttribute('aria-hidden', shouldShowPanel ? 'false' : 'true');
-    mobileSearchPanel.dataset.mode = shouldShowPanel ? mode : '';
-    container.classList.toggle('mobile-search-panel-open', shouldShowPanel);
+    mobileSearchPanel.setAttribute('aria-hidden', showSearch ? 'false' : 'true');
+    mobileSearchPanel.dataset.mode = showSearch ? mode : '';
+    container.classList.toggle('mobile-search-panel-open', false);
+    container.classList.toggle('mobile-search-card-open', showSearch);
     container.classList.toggle('mobile-surface-atlas', showAtlas);
     container.classList.toggle('mobile-surface-search', showSearch);
     if (mobileSearchPanelTitle) {
-        mobileSearchPanelTitle.textContent = showAtlas ? 'Atlas' : (showSearch ? 'Search' : 'Atlas');
+        mobileSearchPanelTitle.textContent = 'Search';
     }
     if (mobileSearchPanelCloseBtn) {
-        mobileSearchPanelCloseBtn.setAttribute('aria-label', shouldShowPanel ? `Close ${getMobileSurfaceModeLabel(mode)}` : 'Close panel');
+        mobileSearchPanelCloseBtn.setAttribute('aria-label', 'Close search');
     }
     if (mobileSearchPanelSearchSlot) {
         mobileSearchPanelSearchSlot.hidden = !showSearch;
     }
     if (mobileMapListSection) {
-        mobileMapListSection.hidden = !showAtlas;
+        mobileMapListSection.hidden = true;
     }
     syncMobileSearchResultsCardState();
     syncMobileDockState();
@@ -1262,7 +1272,11 @@ function syncMapBlurbButtonState() {
 
 function setMapBlurbVisible(visible) {
     if (!mapBlurbElement) return;
-    mapBlurbElement.classList.toggle('visible', !!visible);
+    const nextVisible = !!visible;
+    if (nextVisible && hasOpenMobileSurface()) {
+        closeMobileSheet({ restoreFocus: false });
+    }
+    mapBlurbElement.classList.toggle('visible', nextVisible);
     syncMapBlurbButtonState();
 }
 
@@ -1297,7 +1311,7 @@ function getMobileMapListEntryCount() {
 function syncMobileMapMeta(mapInfo, visibilityState) {
     renderMapBlurbContent(mapInfo);
     if (!mobileSearchPanelTitle) return;
-    mobileSearchPanelTitle.textContent = isMobileSurfaceMode(MOBILE_SURFACE_MODE_ATLAS) ? 'Atlas' : 'Search';
+    mobileSearchPanelTitle.textContent = 'Search';
 }
 
 function syncMobileUtilityButton(button, {
@@ -1347,9 +1361,8 @@ function syncMobileSheetActionState(visibilityState) {
 }
 
 function syncMobileExploreVisibility() {
-    if (!mobileMapListSection) return;
     const showAtlas = isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_ATLAS);
-    mobileMapListSection.hidden = !showAtlas;
+    container.classList.toggle('mobile-atlas-open', showAtlas);
 }
 
 function syncMobileFilterState() {
@@ -1374,9 +1387,7 @@ function syncMobileDockState() {
         mobileSheetLauncherBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
         mobileSheetLauncherBtn.setAttribute('aria-expanded', active ? 'true' : 'false');
         mobileSheetLauncherBtn.setAttribute('aria-label', active ? 'Close atlas' : 'Open atlas');
-        mobileSheetLauncherBtn.innerHTML = active
-            ? `<i class="ui-icon" data-lucide="x" aria-hidden="true"></i><span class="mobile-fab-label">Close</span>`
-            : `<i class="ui-icon" data-lucide="chevron-right" aria-hidden="true"></i><span class="mobile-fab-label">Atlas</span>`;
+        mobileSheetLauncherBtn.innerHTML = `<i class="ui-icon" data-lucide="chevron-right" aria-hidden="true"></i><span class="mobile-fab-label">Atlas</span>`;
     }
     if (mobileSearchLauncherBtn) {
         const active = isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_SEARCH);
@@ -1385,9 +1396,7 @@ function syncMobileDockState() {
         mobileSearchLauncherBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
         mobileSearchLauncherBtn.setAttribute('aria-expanded', active ? 'true' : 'false');
         mobileSearchLauncherBtn.setAttribute('aria-label', active ? 'Close search' : 'Open search');
-        mobileSearchLauncherBtn.innerHTML = active
-            ? `<i class="ui-icon" data-lucide="x" aria-hidden="true"></i><span class="mobile-fab-label">Close</span>`
-            : `<i class="ui-icon" data-lucide="search" aria-hidden="true"></i><span class="mobile-fab-label">Search</span>`;
+        mobileSearchLauncherBtn.innerHTML = `<i class="ui-icon" data-lucide="search" aria-hidden="true"></i><span class="mobile-fab-label">Search</span>`;
     }
     if (mobileInfoHelpBtn) {
         mobileInfoHelpBtn.hidden = !isMobileLayoutActive || isEmbeddedView;
@@ -1398,13 +1407,13 @@ function syncMobileDockState() {
 function markControlTouch(event) {
     const target = event?.target;
     if (!(target instanceof Element)) return;
-    if (!target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-info-help-btn, #mobile-dock, #mobile-search-panel, #map-blurb, #sidebar-backdrop, .modal-overlay, .modal-content')) return;
+    if (!target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-info-help-btn, #mobile-dock, #mobile-search-card, #sidebar, #map-blurb, #sidebar-backdrop, .modal-overlay, .modal-content')) return;
     lastControlTouchAt = Date.now();
 }
 
 function shouldIgnoreMapPointerEvent(event) {
     const target = event?.originalEvent?.target;
-    if (target instanceof Element && target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-info-help-btn, #mobile-dock, #mobile-search-panel, #map-blurb, .modal-overlay, .modal-content')) {
+    if (target instanceof Element && target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-info-help-btn, #mobile-dock, #mobile-search-card, #sidebar, #map-blurb, .modal-overlay, .modal-content')) {
         return true;
     }
     if (isMobileLayoutActive && (Date.now() - lastControlTouchAt) < 150) {
@@ -2145,7 +2154,7 @@ function schedulePostLoadPrefetch(mapDefinition) {
 function setSidebarState(state, updateHash = true) {
     const shouldBeCollapsed = (state === 'c');
     const isCurrentlyCollapsed = container.classList.contains('sidebar-collapsed');
-    if (!shouldBeCollapsed && isMobileLayoutActive && hasOpenMobileSurface()) {
+    if (!shouldBeCollapsed && isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_SEARCH)) {
         closeMobileSearchPanel({ restoreFocus: false });
     }
     if (shouldBeCollapsed !== isCurrentlyCollapsed) {
@@ -4741,6 +4750,7 @@ if (mobileInfoHelpBtn) {
         const nextVisible = !mapBlurbElement.classList.contains('visible');
         if (nextVisible) {
             lastMobileSurfaceTriggerButton = mobileInfoHelpBtn;
+            closeMobileSheet({ restoreFocus: false });
         }
         setMapBlurbVisible(nextVisible);
     });
@@ -6316,7 +6326,7 @@ function initializeApp() {
     }
 
 
-    const effectiveSidebarState = isEmbeddedView ? 'c' : initialSidebarState;
+    const effectiveSidebarState = (isEmbeddedView || isMobileLayoutActive) ? 'c' : initialSidebarState;
     setSidebarState(effectiveSidebarState, false); // Set sidebar state without updating hash yet
 
     // Hide controls initially (loadMap will show them if needed)

@@ -245,23 +245,18 @@
                     <span class="mobile-fab-label">Search</span>
                 </button>
             </div>
-            <div id="mobile-search-panel" aria-hidden="true">
-                <div id="mobile-search-panel-header">
+            <div id="mobile-search-card" aria-hidden="true">
+                <div id="mobile-search-card-header">
                     <div class="mobile-sheet-header-copy">
-                        <strong id="mobile-search-panel-title">Atlas</strong>
+                        <strong id="mobile-search-card-title">Search</strong>
                     </div>
-                    <button id="mobile-search-panel-close-btn" type="button" aria-label="Close panel">
+                    <button id="mobile-search-card-close-btn" type="button" aria-label="Close search">
                         <i class="ui-icon" data-lucide="x" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div id="mobile-search-panel-body">
-                    <div id="mobile-search-panel-search-slot" class="mobile-sheet-card" hidden></div>
-                    <div id="mobile-search-results-card" class="mobile-sheet-card" hidden>
-                        <div id="mobile-search-panel-results-slot"></div>
-                    </div>
-                    <div id="mobile-map-list-section" class="mobile-sheet-card" hidden>
-                        <div id="mobile-search-panel-map-list-slot"></div>
-                    </div>
+                <div id="mobile-search-card-body">
+                    <div id="mobile-search-card-search-slot"></div>
+                    <div id="mobile-search-card-results-slot" hidden></div>
                 </div>
             </div>
             <div id="search-control-container" class="leaflet-control">
