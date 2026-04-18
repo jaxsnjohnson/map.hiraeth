@@ -32,8 +32,13 @@ assert.doesNotMatch(indexSource, /id="mobile-help-btn"/);
 
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-info-help-btn \{/);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-launcher-btn \{/);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-dock \{[\s\S]*background: transparent !important;[\s\S]*box-shadow: none !important;/m);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-sheet-launcher-btn,\s*html\.mobile-layout-v2\.is-mobile-layout #mobile-search-launcher-btn \{[\s\S]*position: absolute;[\s\S]*bottom: calc\(var\(--safe-bottom\) \+ 10px\);/m);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #map-controls-container \{[\s\S]*flex-direction: column;[\s\S]*align-items: flex-end;/m);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #map-blurb \{/);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #map-blurb \{[\s\S]*width: min\(250px,[\s\S]*background: var\(--mobile-drawer-bg\);/m);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-panel \{/);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-panel \{[\s\S]*bottom: calc\(var\(--safe-bottom\) \+ 68px\);[\s\S]*max-height: min\(42vh,/m);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-panel-search-slot,\s*[\s\S]*#mobile-map-list-section \{/m);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-panel-search-slot\[hidden\],/);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.mobile-map-blurb-card \{/);
