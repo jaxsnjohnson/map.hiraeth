@@ -102,11 +102,11 @@
         </main>
 
         <aside class="map-editor-inspector">
-            <section class="map-editor-section">
-                <div class="map-editor-section-header">
+            <details class="map-editor-section" open>
+                <summary class="map-editor-section-header">
                     <h2>Map Metadata</h2>
                     <span id="editor-current-map-id" class="map-editor-chip">No map</span>
-                </div>
+                </summary>
 
                 <form id="map-settings-form" class="map-editor-form">
                     <label>Name<input id="map-name-input" name="name" type="text"></label>
@@ -138,13 +138,13 @@
                         <textarea id="map-blurb-input" name="blurb" rows="5"></textarea>
                     </label>
                 </form>
-            </section>
+            </details>
 
-            <section class="map-editor-section">
-                <div class="map-editor-section-header">
+            <details class="map-editor-section" open>
+                <summary class="map-editor-section-header">
                     <h2>Features</h2>
                     <span id="editor-feature-summary" class="map-editor-chip">0 selected</span>
-                </div>
+                </summary>
 
                 <div class="map-editor-feature-columns">
                     <div>
@@ -160,19 +160,19 @@
                         <div id="editor-line-list" class="map-editor-feature-list"></div>
                     </div>
                 </div>
-            </section>
+            </details>
 
-            <section class="map-editor-section">
-                <div class="map-editor-section-header">
+            <details class="map-editor-section" open>
+                <summary class="map-editor-section-header">
                     <h2>Selected Feature</h2>
                     <span id="editor-selected-feature-chip" class="map-editor-chip">None</span>
-                </div>
+                </summary>
 
                 <div id="editor-feature-inspector-empty" class="map-editor-placeholder">
                     Select a POI, region, or line to edit its fields.
                 </div>
                 <form id="editor-feature-form" class="map-editor-form" hidden></form>
-            </section>
+            </details>
         </aside>
     </div>
 
