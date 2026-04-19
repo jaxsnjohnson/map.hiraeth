@@ -146,19 +146,18 @@
                     <span id="editor-feature-summary" class="map-editor-chip">0 selected</span>
                 </summary>
 
-                <div class="map-editor-feature-columns">
-                    <div>
-                        <h3>POIs</h3>
-                        <div id="editor-poi-list" class="map-editor-feature-list"></div>
-                    </div>
-                    <div>
-                        <h3>Regions</h3>
-                        <div id="editor-region-list" class="map-editor-feature-list"></div>
-                    </div>
-                    <div>
-                        <h3>Lines</h3>
-                        <div id="editor-line-list" class="map-editor-feature-list"></div>
-                    </div>
+                <div class="map-editor-feature-controls" style="display: flex; gap: 10px; margin-top: 14px; margin-bottom: 10px;">
+                    <select id="editor-feature-type-select" style="padding: 4px;">
+                        <option value="points">POIs</option>
+                        <option value="regions">Regions</option>
+                        <option value="lines">Lines</option>
+                    </select>
+                    <input id="editor-feature-search" type="search" placeholder="Search features..." style="flex: 1; padding: 4px;">
+                </div>
+
+                <div id="editor-unified-feature-list" class="map-editor-feature-list"></div>
+                <div style="text-align: center; margin-top: 10px;">
+                    <button id="editor-feature-show-more-btn" type="button" style="padding: 4px 10px;" hidden>Show More</button>
                 </div>
             </details>
 
