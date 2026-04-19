@@ -5,8 +5,9 @@
 }
 
 .map-editor-body {
+    overflow: hidden;
     margin: 0;
-    min-height: 100vh;
+    height: 100vh;
     font-family: "EB Garamond", serif;
     background:
         radial-gradient(circle at top left, color-mix(in srgb, var(--highlight-bg) 58%, transparent), transparent 45%),
@@ -15,7 +16,7 @@
 }
 
 .map-editor-shell {
-    min-height: 100vh;
+    height: 100vh;
     display: grid;
     grid-template-columns: minmax(250px, 280px) minmax(0, 1fr) minmax(320px, 380px);
     gap: 0;
@@ -24,7 +25,7 @@
 .map-editor-sidebar,
 .map-editor-inspector,
 .map-editor-canvas-panel {
-    min-height: 100vh;
+    height: 100vh;
 }
 
 .map-editor-sidebar,
@@ -37,6 +38,7 @@
 
 .map-editor-sidebar {
     border-right: 1px solid var(--editor-panel-border);
+    overflow-y: auto;
 }
 
 .map-editor-inspector {
