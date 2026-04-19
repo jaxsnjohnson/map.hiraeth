@@ -15,7 +15,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
     <script>
-        window.APP_ASSET_VERSION = "2026.04.19.02";
+        window.APP_ASSET_VERSION = "2026.04.19.03";
 
         (function applyInitialTheme() {
             const root = document.documentElement;
@@ -80,12 +80,16 @@
                 </div>
                 <p id="editor-selection-status" class="map-editor-status">Loading atlas data...</p>
             </div>
+            <div class="map-editor-toolbar-hint">
+                Click a feature to select it. Drag POI markers to move them, and drag orange vertex handles to reshape regions and lines.
+            </div>
 
             <div class="map-editor-map-frame">
                 <div id="editor-map"></div>
                 <div id="editor-map-empty-state" class="map-editor-empty-state" hidden>
-                    <h2>No Renderable Map Selected</h2>
-                    <p>Select a map with image data to edit points, regions, and lines.</p>
+                    <h2 id="editor-map-empty-title">No Renderable Map Selected</h2>
+                    <p id="editor-map-empty-copy">Select a map with image data to edit points, regions, and lines.</p>
+                    <p id="editor-map-empty-detail" class="map-editor-empty-detail" hidden></p>
                 </div>
             </div>
 

@@ -33,6 +33,9 @@
         reloadButton: document.getElementById('reload-editor-btn'),
         selectionStatus: document.getElementById('editor-selection-status'),
         mapEmptyState: document.getElementById('editor-map-empty-state'),
+        mapEmptyTitle: document.getElementById('editor-map-empty-title'),
+        mapEmptyCopy: document.getElementById('editor-map-empty-copy'),
+        mapEmptyDetail: document.getElementById('editor-map-empty-detail'),
         exportStatus: document.getElementById('editor-export-status'),
         currentMapId: document.getElementById('editor-current-map-id'),
         featureSummary: document.getElementById('editor-feature-summary'),
@@ -226,6 +229,72 @@
         dom.exportStatus.style.color = isError ? '#dc2626' : '';
     }
 
+    function setMapEmptyState({ hidden, title = '', copy = '', detail = '' }) {
+        dom.mapEmptyState.hidden = hidden;
+
+        if (!hidden) {
+            dom.mapEmptyTitle.textContent = title || 'No Renderable Map Selected';
+            dom.mapEmptyCopy.textContent = copy || 'Select a map with image data to edit points, regions, and lines.';
+        }
+
+        const normalizedDetail = String(detail || '').trim();
+        dom.mapEmptyDetail.hidden = !normalizedDetail;
+        dom.mapEmptyDetail.textContent = normalizedDetail;
+    }
+
+    function getMapContainerSize() {
+        if (!state.map) return { width: 0, height: 0 };
+        const container = state.map.getContainer();
+        if (!container) return { width: 0, height: 0 };
+        const rect = container.getBoundingClientRect();
+        return {
+            width: rect.width || 0,
+            height: rect.height || 0
+        };
+    }
+
+    function queueMapViewportReset() {
+        if (!state.map || !state.currentBounds) return;
+        let attempts = 0;
+        const resetViewport = () => {
+            if (!state.map || !state.currentBounds) return;
+            const { width, height } = getMapContainerSize();
+            if ((width < 16 || height < 16) && attempts < 8) {
+                attempts += 1;
+                requestAnimationFrame(resetViewport);
+                return;
+            }
+            state.map.invalidateSize(false);
+            try {
+                state.map.fitBounds(state.currentBounds, { padding: [20, 20] });
+            } catch (error) {
+                console.error('Map editor viewport reset failed.', {
+                    bounds: state.currentBounds,
+                    width,
+                    height,
+                    error
+                });
+                if (Array.isArray(state.currentBounds) && state.currentBounds[1]) {
+                    const mapHeight = Number(state.currentBounds[1][0]) || 0;
+                    const mapWidth = Number(state.currentBounds[1][1]) || 0;
+                    state.map.setView([mapHeight / 2, mapWidth / 2], -2, { animate: false });
+                }
+            }
+        };
+        requestAnimationFrame(resetViewport);
+    }
+
+    function clearMapVisualLayers() {
+        if (state.imageLayer) {
+            state.map.removeLayer(state.imageLayer);
+            state.imageLayer = null;
+        }
+        if (state.underlayLayer) {
+            state.map.removeLayer(state.underlayLayer);
+            state.underlayLayer = null;
+        }
+    }
+
     function getCurrentFeatureCollection(mode) {
         if (mode === 'points') return getCurrentPoints();
         if (mode === 'regions') return getCurrentRegions();
@@ -252,6 +321,11 @@
             state.selectedFeature = null;
         } else {
             state.selectedFeature = { mode, index };
+            if (mode === 'points') {
+                setSelectionStatus('POI selected. Drag the marker on the map to move it.');
+            } else {
+                setSelectionStatus('Geometry selected. Drag the orange vertex handles to reshape it.');
+            }
         }
         renderFeatureLists();
         renderFeatureInspector();
@@ -690,18 +764,19 @@
         state.lineLayer.clearLayers();
 
         const mapIsRenderable = canRenderMap(state.currentMap);
-        dom.mapEmptyState.hidden = mapIsRenderable;
 
         if (!mapIsRenderable) {
-            if (state.imageLayer) {
-                state.map.removeLayer(state.imageLayer);
-                state.imageLayer = null;
-            }
-            if (state.underlayLayer) {
-                state.map.removeLayer(state.underlayLayer);
-                state.underlayLayer = null;
-            }
+            clearMapVisualLayers();
             state.currentBounds = null;
+            setMapEmptyState({
+                hidden: false,
+                title: 'No Renderable Map Selected',
+                copy: 'Select a map with image data to edit points, regions, and lines.',
+                detail: state.currentMap
+                    ? `Image URL: ${state.currentMap.imageUrl || 'Missing imageUrl'}`
+                    : ''
+            });
+            setSelectionStatus('This map does not have renderable image data yet.');
             renderVertexHandles();
             renderDraftGeometry();
             syncToolbarState();
@@ -718,8 +793,7 @@
             state.imageLayer._url !== state.currentMap.imageUrl;
 
         if (needsImageReset) {
-            if (state.imageLayer) state.map.removeLayer(state.imageLayer);
-            if (state.underlayLayer) state.map.removeLayer(state.underlayLayer);
+            clearMapVisualLayers();
             state.currentBounds = nextBounds;
             state.underlayLayer = L.rectangle(nextBounds, {
                 stroke: false,
@@ -728,12 +802,41 @@
                 fillColor: state.currentMap.backgroundColor || '#0f172a',
                 interactive: false
             }).addTo(state.map);
-            state.imageLayer = L.imageOverlay(state.currentMap.imageUrl, nextBounds).addTo(state.map);
+            setMapEmptyState({
+                hidden: false,
+                title: 'Loading Map Image',
+                copy: `Loading "${state.currentMap.name || state.currentMap.id}" into the editor canvas...`,
+                detail: `Image URL: ${state.currentMap.imageUrl}`
+            });
+            setSelectionStatus(`Loading image for "${state.currentMap.name || state.currentMap.id}"...`);
+
+            const imageLayer = L.imageOverlay(state.currentMap.imageUrl, nextBounds);
+            imageLayer.once('load', () => {
+                if (state.imageLayer !== imageLayer) return;
+                setMapEmptyState({ hidden: true });
+                setSelectionStatus(`Image loaded for "${state.currentMap.name || state.currentMap.id}".`);
+                queueMapViewportReset();
+            });
+            imageLayer.once('error', () => {
+                if (state.imageLayer !== imageLayer) return;
+                state.map.removeLayer(imageLayer);
+                state.imageLayer = null;
+                setMapEmptyState({
+                    hidden: false,
+                    title: 'Image Failed To Load',
+                    copy: `The editor could not render "${state.currentMap.name || state.currentMap.id}".`,
+                    detail: `Image URL: ${state.currentMap.imageUrl}`
+                });
+                setSelectionStatus(`Image failed to load for "${state.currentMap.name || state.currentMap.id}".`);
+            });
+            state.imageLayer = imageLayer;
+            state.imageLayer.addTo(state.map);
         } else if (state.underlayLayer) {
             state.underlayLayer.setStyle({
                 fillColor: state.currentMap.backgroundColor || '#0f172a',
                 color: state.currentMap.backgroundColor || '#0f172a'
             });
+            setMapEmptyState({ hidden: true });
         }
 
         getCurrentPoints().forEach((point, index) => {
@@ -780,7 +883,7 @@
         renderDraftGeometry();
 
         if (resetView && state.currentBounds) {
-            state.map.fitBounds(state.currentBounds, { padding: [20, 20] });
+            queueMapViewportReset();
         }
 
         syncToolbarState();
@@ -977,8 +1080,8 @@
         renderMapSettingsForm();
         renderFeatureLists();
         renderFeatureInspector();
-        renderMapLayers(true);
         setSelectionStatus(`Editing "${state.currentMap.name || state.currentMap.id}".`);
+        renderMapLayers(true);
         setExportStatus('');
     }
 
@@ -991,6 +1094,7 @@
             zoomDelta: 0.25,
             doubleClickZoom: false
         });
+        state.map.setView([0, 0], 0, { animate: false });
         state.map.on('click', handleMapClick);
 
         state.pointLayer = L.layerGroup().addTo(state.map);
@@ -998,6 +1102,7 @@
         state.lineLayer = L.layerGroup().addTo(state.map);
         state.vertexLayer = L.layerGroup().addTo(state.map);
         state.draftLayer = L.layerGroup().addTo(state.map);
+        window.addEventListener('resize', queueMapViewportReset);
     }
 
     function registerEventListeners() {
@@ -1038,7 +1143,7 @@
         dom.deleteSelectionButton.addEventListener('click', deleteSelectedFeature);
         dom.resetViewButton.addEventListener('click', () => {
             if (state.currentBounds) {
-                state.map.fitBounds(state.currentBounds, { padding: [20, 20] });
+                queueMapViewportReset();
             }
         });
         dom.exportCurrentMapButton.addEventListener('click', exportCurrentMapJson);
