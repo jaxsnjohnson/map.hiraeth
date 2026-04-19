@@ -8,7 +8,8 @@ const {
     normalizeManifestTree,
     normalizePoint,
     resolveFeatureIndexFromSelection,
-    serializeEditorState
+    serializeEditorState,
+    serializeManifestState
 } = require('../js/editor-shared.js');
 
 const manifest = [
@@ -167,6 +168,38 @@ const selectedMapOnly = serializeEditorState({
 assert.equal(selectedMapOnly.id, 'main-map');
 assert.deepEqual(selectedMapOnly.lines, []);
 assert.equal(selectedMapOnly.roads, undefined);
+
+const slimManifest = [
+    {
+        id: 'main-map',
+        name: 'Main Map',
+        children: ['child-map']
+    }
+];
+
+const updatedSlimManifest = serializeManifestState({
+    masterMapData: slimManifest,
+    currentMapId: 'main-map',
+    mapSettings: {
+        name: 'Updated Main Map',
+        scalePixels: 9,
+        scaleKilometers: 4,
+        blurb: 'Slim manifest blurb'
+    }
+});
+assert.equal(updatedSlimManifest[0].name, 'Updated Main Map');
+assert.equal(updatedSlimManifest[0].scalePixels, 9);
+assert.equal(updatedSlimManifest[0].scaleKilometers, 4);
+assert.equal(updatedSlimManifest[0].blurb, 'Slim manifest blurb');
+
+const unchangedNestedStringManifest = serializeManifestState({
+    masterMapData: slimManifest,
+    currentMapId: 'child-map',
+    mapSettings: {
+        name: 'Child Override'
+    }
+});
+assert.deepEqual(unchangedNestedStringManifest, slimManifest);
 
 const pointSelection = buildFeatureSelectionKey('points', { name: 'Old Dock' });
 assert.equal(

@@ -1,0 +1,7545 @@
+{
+  "type": "folder",
+  "id": "main_continent",
+  "name": "Content Map",
+  "latLonBounds": {
+    "north": 73,
+    "south": 1.24,
+    "east": -48.34375,
+    "west": 71.65625
+  },
+  "width": 8192,
+  "height": 6144,
+  "scalePixels": 1,
+  "scaleKilometers": 1.3,
+  "imageUrl": "maps/Fair-Content.webp",
+  "filterGroups": {
+    "Regions": {
+      "Political": [
+        "Kingdom",
+        "Clan-based",
+        "Monarchy",
+        "League",
+        "Empire",
+        "Gnomish Technocracy",
+        "Confederacy",
+        "Cursed Land",
+        "Republic",
+        "Frontier",
+        "Hegemony",
+        "Divine Sanctuary",
+        "Dynasty",
+        "Monastic Society",
+        "Wasteland",
+        "Military Zone",
+        "Duchy",
+        "Territory",
+        "Krai",
+        "Meritocracy",
+        "Subjugated Territory",
+        "Vassal State"
+      ],
+      "Geographic": [
+        "Ashen Lands",
+        "Canyon",
+        "Wasteland",
+        "Sea",
+        "Islands"
+      ]
+    }
+  },
+  "regions": [
+    {
+      "id": "region-iron-mountain-dwarves",
+      "name": "Aethelumbra",
+      "pronunciation": "",
+      "description": "The ancient Aethelumbra, know as the home of the Iron Mountain Dwarves, have carved their kingdom into vast, honeycomb cities within the mountains, a realm governed by a monarch and a unique two-house parliament of commoners and guild masters. Their industrious society is deeply private, shaped by bitter experience with outsiders. They hold a weary suspicion of the elves since an incident involving a destroyed caffeine-fungus, but this pales before their outright hatred for the Athenaeum, who once turned the dwarven lands into a battleground for a human war the dwarves neither wanted nor cared for.",
+      "summary": "The reclusive Iron Mountain Dwarves carve honeycomb cities deep within the mountains, harboring a bitter hatred for outsiders.",
+      "type": "Political",
+      "value": "Kingdom",
+      "color": "#4F5B66",
+      "fillColor": "#7393B3",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          3040,
+          4026
+        ],
+        [
+          3175,
+          4004
+        ],
+        [
+          3307,
+          3976
+        ],
+        [
+          3345,
+          4096
+        ],
+        [
+          3140,
+          4164
+        ],
+        [
+          2976,
+          4482
+        ],
+        [
+          2856,
+          4804
+        ],
+        [
+          2684,
+          5344
+        ],
+        [
+          2619,
+          5359
+        ],
+        [
+          2609,
+          5132
+        ],
+        [
+          2624,
+          4892
+        ],
+        [
+          2576,
+          4740
+        ],
+        [
+          2584,
+          4600
+        ],
+        [
+          2986,
+          4224
+        ]
+      ],
+      "properties": {
+        "Climate": "Temperate, subterranean"
+      }
+    },
+    {
+      "id": "region-albynor",
+      "name": "Albynor",
+      "pronunciation": "",
+      "description": "Albynor is a realm ruled by clans, a people as stern and unyielding as the mountains and hills they inhabit. They are masters of stone and steel, their honor bound by oaths as old as the Highlands themselves.",
+      "summary": "In this stern realm, mountain clans rule with honor bound by oaths as old as the Highlands themselves.",
+      "type": "Political",
+      "value": "Clan-based",
+      "color": "#b08d57",
+      "fillColor": "#483d8b",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          4029,
+          1289
+        ],
+        [
+          4034,
+          1290
+        ],
+        [
+          4034,
+          1292
+        ],
+        [
+          4036,
+          1295
+        ],
+        [
+          4045,
+          1295
+        ],
+        [
+          4049,
+          1299
+        ],
+        [
+          4049,
+          1306
+        ],
+        [
+          4052,
+          1310
+        ],
+        [
+          4052,
+          1317
+        ],
+        [
+          4051,
+          1318
+        ],
+        [
+          4049,
+          1318
+        ],
+        [
+          4046,
+          1320
+        ],
+        [
+          4046,
+          1323
+        ],
+        [
+          4045,
+          1323
+        ],
+        [
+          4042,
+          1326
+        ],
+        [
+          4042,
+          1329
+        ],
+        [
+          4039,
+          1331
+        ],
+        [
+          4040,
+          1335
+        ],
+        [
+          4044,
+          1335
+        ],
+        [
+          4047,
+          1338
+        ],
+        [
+          4047,
+          1341
+        ],
+        [
+          4048,
+          1343
+        ],
+        [
+          4048,
+          1347
+        ],
+        [
+          4063,
+          1347
+        ],
+        [
+          4074,
+          1340
+        ],
+        [
+          4077,
+          1340
+        ],
+        [
+          4077,
+          1339
+        ],
+        [
+          4079,
+          1339
+        ],
+        [
+          4079,
+          1340
+        ],
+        [
+          4089,
+          1340
+        ],
+        [
+          4089,
+          1341
+        ],
+        [
+          4097,
+          1341
+        ],
+        [
+          4098,
+          1342
+        ],
+        [
+          4105,
+          1342
+        ],
+        [
+          4106,
+          1343
+        ],
+        [
+          4106,
+          1345
+        ],
+        [
+          4111,
+          1345
+        ],
+        [
+          4113,
+          1347
+        ],
+        [
+          4114,
+          1350
+        ],
+        [
+          4118,
+          1350
+        ],
+        [
+          4119,
+          1351
+        ],
+        [
+          4119,
+          1354
+        ],
+        [
+          4120,
+          1355
+        ],
+        [
+          4122,
+          1357
+        ],
+        [
+          4122,
+          1358
+        ],
+        [
+          4124,
+          1360
+        ],
+        [
+          4129,
+          1360
+        ],
+        [
+          4130,
+          1358
+        ],
+        [
+          4150,
+          1358
+        ],
+        [
+          4150,
+          1359
+        ],
+        [
+          4153,
+          1359
+        ],
+        [
+          4154,
+          1360
+        ],
+        [
+          4154,
+          1365
+        ],
+        [
+          4161,
+          1374
+        ],
+        [
+          4163,
+          1381
+        ],
+        [
+          4192,
+          1363
+        ],
+        [
+          4225,
+          1358
+        ],
+        [
+          4232,
+          1365
+        ],
+        [
+          4237,
+          1366
+        ],
+        [
+          4239,
+          1365
+        ],
+        [
+          4244,
+          1361
+        ],
+        [
+          4250,
+          1361
+        ],
+        [
+          4252,
+          1360
+        ],
+        [
+          4255,
+          1358
+        ],
+        [
+          4266,
+          1358
+        ],
+        [
+          4271,
+          1363
+        ],
+        [
+          4271,
+          1371
+        ],
+        [
+          4268,
+          1372
+        ],
+        [
+          4273,
+          1382
+        ],
+        [
+          4277,
+          1382
+        ],
+        [
+          4279,
+          1381
+        ],
+        [
+          4279,
+          1376
+        ],
+        [
+          4280,
+          1375
+        ],
+        [
+          4285,
+          1374
+        ],
+        [
+          4297,
+          1374
+        ],
+        [
+          4301,
+          1377
+        ],
+        [
+          4307,
+          1378
+        ],
+        [
+          4311,
+          1382
+        ],
+        [
+          4311,
+          1386
+        ],
+        [
+          4324,
+          1386
+        ],
+        [
+          4326,
+          1384
+        ],
+        [
+          4332,
+          1384
+        ],
+        [
+          4336,
+          1386
+        ],
+        [
+          4355,
+          1364
+        ],
+        [
+          4358,
+          1341
+        ],
+        [
+          4351,
+          1332
+        ],
+        [
+          4347,
+          1331
+        ],
+        [
+          4346,
+          1329
+        ],
+        [
+          4339,
+          1323
+        ],
+        [
+          4338,
+          1323
+        ],
+        [
+          4338,
+          1314
+        ],
+        [
+          4339,
+          1314
+        ],
+        [
+          4339,
+          1308
+        ],
+        [
+          4337,
+          1305
+        ],
+        [
+          4332,
+          1299
+        ],
+        [
+          4325,
+          1294
+        ],
+        [
+          4321,
+          1289
+        ],
+        [
+          4315,
+          1285
+        ],
+        [
+          4315,
+          1273
+        ],
+        [
+          4304,
+          1266
+        ],
+        [
+          4298,
+          1263
+        ],
+        [
+          4294,
+          1261
+        ],
+        [
+          4293,
+          1258
+        ],
+        [
+          4293,
+          1251
+        ],
+        [
+          4292,
+          1249
+        ],
+        [
+          4292,
+          1243
+        ],
+        [
+          4300,
+          1242
+        ],
+        [
+          4308,
+          1240
+        ],
+        [
+          4313,
+          1238
+        ],
+        [
+          4313,
+          1232
+        ],
+        [
+          4311,
+          1230
+        ],
+        [
+          4311,
+          1225
+        ],
+        [
+          4309,
+          1224
+        ],
+        [
+          4309,
+          1220
+        ],
+        [
+          4310,
+          1220
+        ],
+        [
+          4310,
+          1217
+        ],
+        [
+          4320,
+          1209
+        ],
+        [
+          4325,
+          1207
+        ],
+        [
+          4329,
+          1203
+        ],
+        [
+          4332,
+          1202
+        ],
+        [
+          4337,
+          1196
+        ],
+        [
+          4343,
+          1184
+        ],
+        [
+          4347,
+          1184
+        ],
+        [
+          4348,
+          1182
+        ],
+        [
+          4348,
+          1180
+        ],
+        [
+          4350,
+          1178
+        ],
+        [
+          4357,
+          1178
+        ],
+        [
+          4359,
+          1176
+        ],
+        [
+          4361,
+          1177
+        ],
+        [
+          4367,
+          1177
+        ],
+        [
+          4367,
+          1178
+        ],
+        [
+          4370,
+          1178
+        ],
+        [
+          4371,
+          1175
+        ],
+        [
+          4376,
+          1172
+        ],
+        [
+          4381,
+          1171
+        ],
+        [
+          4382,
+          1164
+        ],
+        [
+          4381,
+          1160
+        ],
+        [
+          4378,
+          1156
+        ],
+        [
+          4372,
+          1156
+        ],
+        [
+          4367,
+          1149
+        ],
+        [
+          4361,
+          1148
+        ],
+        [
+          4357,
+          1128
+        ],
+        [
+          4363,
+          1127
+        ],
+        [
+          4374,
+          1122
+        ],
+        [
+          4390,
+          1121
+        ],
+        [
+          4394,
+          1107
+        ],
+        [
+          4379,
+          1087
+        ],
+        [
+          4379,
+          1083
+        ],
+        [
+          4406,
+          1056
+        ],
+        [
+          4406,
+          1042
+        ],
+        [
+          4401,
+          1033
+        ],
+        [
+          4410,
+          1010
+        ],
+        [
+          4413,
+          1021
+        ],
+        [
+          4416,
+          1025
+        ],
+        [
+          4418,
+          1025
+        ],
+        [
+          4419,
+          1023
+        ],
+        [
+          4428,
+          1022
+        ],
+        [
+          4428,
+          1018
+        ],
+        [
+          4436,
+          1018
+        ],
+        [
+          4436,
+          1006
+        ],
+        [
+          4433,
+          1001
+        ],
+        [
+          4433,
+          995
+        ],
+        [
+          4434,
+          994
+        ],
+        [
+          4435,
+          990
+        ],
+        [
+          4435,
+          986
+        ],
+        [
+          4434,
+          985
+        ],
+        [
+          4434,
+          975
+        ],
+        [
+          4436,
+          972
+        ],
+        [
+          4436,
+          967
+        ],
+        [
+          4434,
+          965
+        ],
+        [
+          4432,
+          965
+        ],
+        [
+          4431,
+          963
+        ],
+        [
+          4451,
+          883
+        ],
+        [
+          4451,
+          878
+        ],
+        [
+          4453,
+          880
+        ],
+        [
+          4454,
+          880
+        ],
+        [
+          4454,
+          881
+        ],
+        [
+          4453,
+          882
+        ],
+        [
+          4452,
+          883
+        ],
+        [
+          4451,
+          883
+        ],
+        [
+          4431,
+          963
+        ],
+        [
+          4427,
+          968
+        ],
+        [
+          4424,
+          972
+        ],
+        [
+          4424,
+          980
+        ],
+        [
+          4423,
+          981
+        ],
+        [
+          4416,
+          981
+        ],
+        [
+          4415,
+          983
+        ],
+        [
+          4414,
+          986
+        ],
+        [
+          4417,
+          994
+        ],
+        [
+          4417,
+          997
+        ],
+        [
+          4412,
+          1008
+        ],
+        [
+          4410,
+          1010
+        ],
+        [
+          4401,
+          1033
+        ],
+        [
+          4376,
+          1028
+        ],
+        [
+          4376,
+          1052
+        ],
+        [
+          4364,
+          1057
+        ],
+        [
+          4363,
+          1079
+        ],
+        [
+          4361,
+          1086
+        ],
+        [
+          4356,
+          1090
+        ],
+        [
+          4346,
+          1092
+        ],
+        [
+          4339,
+          1100
+        ],
+        [
+          4334,
+          1100
+        ],
+        [
+          4327,
+          1102
+        ],
+        [
+          4324,
+          1110
+        ],
+        [
+          4326,
+          1119
+        ],
+        [
+          4325,
+          1124
+        ],
+        [
+          4323,
+          1126
+        ],
+        [
+          4323,
+          1130
+        ],
+        [
+          4325,
+          1132
+        ],
+        [
+          4323,
+          1137
+        ],
+        [
+          4322,
+          1140
+        ],
+        [
+          4318,
+          1141
+        ],
+        [
+          4318,
+          1146
+        ],
+        [
+          4315,
+          1148
+        ],
+        [
+          4315,
+          1150
+        ],
+        [
+          4316,
+          1152
+        ],
+        [
+          4315,
+          1154
+        ],
+        [
+          4315,
+          1158
+        ],
+        [
+          4307,
+          1167
+        ],
+        [
+          4303,
+          1168
+        ],
+        [
+          4299,
+          1168
+        ],
+        [
+          4293,
+          1163
+        ],
+        [
+          4293,
+          1167
+        ],
+        [
+          4300,
+          1170
+        ],
+        [
+          4301,
+          1171
+        ],
+        [
+          4301,
+          1176
+        ],
+        [
+          4285,
+          1191
+        ],
+        [
+          4279,
+          1191
+        ],
+        [
+          4275,
+          1192
+        ],
+        [
+          4273,
+          1195
+        ],
+        [
+          4261,
+          1195
+        ],
+        [
+          4260,
+          1196
+        ],
+        [
+          4254,
+          1196
+        ],
+        [
+          4248,
+          1200
+        ],
+        [
+          4237,
+          1201
+        ],
+        [
+          4235,
+          1206
+        ],
+        [
+          4235,
+          1211
+        ],
+        [
+          4233,
+          1212
+        ],
+        [
+          4233,
+          1215
+        ],
+        [
+          4229,
+          1219
+        ],
+        [
+          4228,
+          1224
+        ],
+        [
+          4224,
+          1226
+        ],
+        [
+          4218,
+          1226
+        ],
+        [
+          4217,
+          1227
+        ],
+        [
+          4209,
+          1227
+        ],
+        [
+          4209,
+          1226
+        ],
+        [
+          4205,
+          1226
+        ],
+        [
+          4201,
+          1224
+        ],
+        [
+          4198,
+          1223
+        ],
+        [
+          4198,
+          1217
+        ],
+        [
+          4197,
+          1217
+        ],
+        [
+          4197,
+          1215
+        ],
+        [
+          4194,
+          1215
+        ],
+        [
+          4193,
+          1214
+        ],
+        [
+          4193,
+          1209
+        ],
+        [
+          4191,
+          1208
+        ],
+        [
+          4189,
+          1208
+        ],
+        [
+          4188,
+          1207
+        ],
+        [
+          4188,
+          1204
+        ],
+        [
+          4182,
+          1204
+        ],
+        [
+          4174,
+          1198
+        ],
+        [
+          4166,
+          1187
+        ],
+        [
+          4166,
+          1181
+        ],
+        [
+          4160,
+          1173
+        ],
+        [
+          4159,
+          1173
+        ],
+        [
+          4158,
+          1172
+        ],
+        [
+          4157,
+          1172
+        ],
+        [
+          4157,
+          1170
+        ],
+        [
+          4154,
+          1170
+        ],
+        [
+          4154,
+          1169
+        ],
+        [
+          4150,
+          1169
+        ],
+        [
+          4147,
+          1166
+        ],
+        [
+          4142,
+          1166
+        ],
+        [
+          4141,
+          1165
+        ],
+        [
+          4137,
+          1165
+        ],
+        [
+          4130,
+          1158
+        ],
+        [
+          4128,
+          1159
+        ],
+        [
+          4128,
+          1161
+        ],
+        [
+          4125,
+          1163
+        ],
+        [
+          4125,
+          1171
+        ],
+        [
+          4123,
+          1171
+        ],
+        [
+          4121,
+          1172
+        ],
+        [
+          4121,
+          1174
+        ],
+        [
+          4117,
+          1174
+        ],
+        [
+          4113,
+          1177
+        ],
+        [
+          4120,
+          1191
+        ],
+        [
+          4123,
+          1194
+        ],
+        [
+          4127,
+          1195
+        ],
+        [
+          4127,
+          1196
+        ],
+        [
+          4133,
+          1196
+        ],
+        [
+          4136,
+          1210
+        ],
+        [
+          4136,
+          1219
+        ],
+        [
+          4130,
+          1224
+        ],
+        [
+          4130,
+          1230
+        ],
+        [
+          4116,
+          1254
+        ],
+        [
+          4117,
+          1265
+        ],
+        [
+          4102,
+          1288
+        ],
+        [
+          4093,
+          1288
+        ],
+        [
+          4086,
+          1296
+        ],
+        [
+          4085,
+          1297
+        ],
+        [
+          4080,
+          1295
+        ],
+        [
+          4073,
+          1290
+        ],
+        [
+          4066,
+          1286
+        ],
+        [
+          4062,
+          1281
+        ],
+        [
+          4062,
+          1276
+        ],
+        [
+          4061,
+          1275
+        ],
+        [
+          4056,
+          1275
+        ],
+        [
+          4051,
+          1268
+        ],
+        [
+          4048,
+          1264
+        ],
+        [
+          4038,
+          1264
+        ],
+        [
+          4037,
+          1267
+        ],
+        [
+          4035,
+          1270
+        ],
+        [
+          4031,
+          1276
+        ],
+        [
+          4031,
+          1283
+        ],
+        [
+          4029,
+          1285
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-arfordir",
+      "name": "Arfordir",
+      "pronunciation": "",
+      "description": "Famed for its fertile valleys and fragrant lavender fields, this kingdom is breathing a collective sigh of relief. It has only recently cast down a usurper to welcome its rightful Queen Eloise I, and a sense of hard-won peace now settles over the land.",
+      "summary": "This kingdom of fertile valleys and fragrant fields now enjoys a hard-won peace under its restored queen.",
+      "type": "Political",
+      "value": "Monarchy",
+      "color": "#001e57",
+      "fillColor": "#74a7fe",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          2204,
+          498
+        ],
+        [
+          2292,
+          492
+        ],
+        [
+          2328,
+          576
+        ],
+        [
+          2328,
+          676
+        ],
+        [
+          2323,
+          705
+        ],
+        [
+          2325,
+          757
+        ],
+        [
+          2326,
+          789
+        ],
+        [
+          2324,
+          820
+        ],
+        [
+          2323,
+          848
+        ],
+        [
+          2320,
+          851
+        ],
+        [
+          2315,
+          853
+        ],
+        [
+          2314,
+          856
+        ],
+        [
+          2319,
+          861
+        ],
+        [
+          2320,
+          865
+        ],
+        [
+          2319,
+          867
+        ],
+        [
+          2320,
+          869
+        ],
+        [
+          2324,
+          874
+        ],
+        [
+          2324,
+          878
+        ],
+        [
+          2323,
+          881
+        ],
+        [
+          2320,
+          883
+        ],
+        [
+          2322,
+          889
+        ],
+        [
+          2327,
+          890
+        ],
+        [
+          2329,
+          891
+        ],
+        [
+          2331,
+          893
+        ],
+        [
+          2332,
+          896
+        ],
+        [
+          2332,
+          901
+        ],
+        [
+          2335,
+          901
+        ],
+        [
+          2336,
+          903
+        ],
+        [
+          2343,
+          905
+        ],
+        [
+          2354,
+          911
+        ],
+        [
+          2361,
+          917
+        ],
+        [
+          2375,
+          924
+        ],
+        [
+          2388,
+          932
+        ],
+        [
+          2388,
+          935
+        ],
+        [
+          2390,
+          937
+        ],
+        [
+          2395,
+          937
+        ],
+        [
+          2403,
+          953
+        ],
+        [
+          2408,
+          967
+        ],
+        [
+          2409,
+          980
+        ],
+        [
+          2410,
+          992
+        ],
+        [
+          2410,
+          995
+        ],
+        [
+          2409,
+          996
+        ],
+        [
+          2409,
+          1015
+        ],
+        [
+          2408,
+          1015
+        ],
+        [
+          2408,
+          1030
+        ],
+        [
+          2417,
+          1039
+        ],
+        [
+          2426,
+          1047
+        ],
+        [
+          2429,
+          1047
+        ],
+        [
+          2429,
+          1055
+        ],
+        [
+          2431,
+          1059
+        ],
+        [
+          2432,
+          1063
+        ],
+        [
+          2435,
+          1066
+        ],
+        [
+          2444,
+          1076
+        ],
+        [
+          2450,
+          1077
+        ],
+        [
+          2451,
+          1082
+        ],
+        [
+          2451,
+          1088
+        ],
+        [
+          2456,
+          1102
+        ],
+        [
+          2460,
+          1120
+        ],
+        [
+          2463,
+          1124
+        ],
+        [
+          2472,
+          1139
+        ],
+        [
+          2479,
+          1152
+        ],
+        [
+          2484,
+          1166
+        ],
+        [
+          2482,
+          1175
+        ],
+        [
+          2478,
+          1179
+        ],
+        [
+          2467,
+          1186
+        ],
+        [
+          2455,
+          1189
+        ],
+        [
+          2447,
+          1190
+        ],
+        [
+          2421,
+          1186
+        ],
+        [
+          2411,
+          1186
+        ],
+        [
+          2405,
+          1189
+        ],
+        [
+          2401,
+          1194
+        ],
+        [
+          2398,
+          1200
+        ],
+        [
+          2394,
+          1217
+        ],
+        [
+          2388,
+          1229
+        ],
+        [
+          2383,
+          1235
+        ],
+        [
+          2375,
+          1239
+        ],
+        [
+          2370,
+          1239
+        ],
+        [
+          2366,
+          1237
+        ],
+        [
+          2359,
+          1231
+        ],
+        [
+          2349,
+          1222
+        ],
+        [
+          2343,
+          1217
+        ],
+        [
+          2334,
+          1213
+        ],
+        [
+          2320,
+          1212
+        ],
+        [
+          2308,
+          1217
+        ],
+        [
+          2302,
+          1227
+        ],
+        [
+          2300,
+          1234
+        ],
+        [
+          2300,
+          1259
+        ],
+        [
+          2282,
+          1260
+        ],
+        [
+          2274,
+          1255
+        ],
+        [
+          2269,
+          1251
+        ],
+        [
+          2269,
+          1200
+        ],
+        [
+          2269,
+          1095
+        ],
+        [
+          2242,
+          1079
+        ],
+        [
+          2179,
+          904
+        ],
+        [
+          2031,
+          925
+        ],
+        [
+          1988,
+          969
+        ],
+        [
+          1846,
+          979
+        ],
+        [
+          1710,
+          946
+        ],
+        [
+          1716,
+          929
+        ],
+        [
+          1728,
+          912
+        ],
+        [
+          1739,
+          875
+        ],
+        [
+          1747,
+          843
+        ],
+        [
+          1753,
+          820
+        ],
+        [
+          1760,
+          806
+        ],
+        [
+          1770,
+          770
+        ],
+        [
+          1786,
+          751
+        ],
+        [
+          1808,
+          697
+        ],
+        [
+          1797,
+          664
+        ],
+        [
+          1776,
+          654
+        ],
+        [
+          1773,
+          623
+        ],
+        [
+          1777,
+          606
+        ],
+        [
+          1801,
+          590
+        ],
+        [
+          1803,
+          583
+        ],
+        [
+          1789,
+          561
+        ],
+        [
+          1792,
+          530
+        ],
+        [
+          1788,
+          504
+        ],
+        [
+          1785,
+          490
+        ],
+        [
+          1795,
+          462
+        ],
+        [
+          1822,
+          454
+        ],
+        [
+          2070,
+          518
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-athenaeum",
+      "name": "Athenaeum",
+      "pronunciation": "",
+      "description": "Born from the hubris of post-war treaties, this league of city-states is ruled from the sacred lake where the God of Magic died. A tense quiet now hangs over its marble halls after a shadowy cataclysm nearly tore the capital apart, leaving the nation's fate in the hands of a single, powerful archivist.",
+      "summary": "A league of city-states reels in tense quiet after a magical cataclysm nearly tore its capital apart.",
+      "type": "Political",
+      "value": "League",
+      "color": "#942192",
+      "fillColor": "#e392fe",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          2569,
+          4515
+        ],
+        [
+          2554,
+          4526
+        ],
+        [
+          2515,
+          4623
+        ],
+        [
+          2265,
+          4703
+        ],
+        [
+          2285,
+          4761
+        ],
+        [
+          2259,
+          4858
+        ],
+        [
+          2268,
+          4930
+        ],
+        [
+          2271,
+          4955
+        ],
+        [
+          2281,
+          4970
+        ],
+        [
+          2291,
+          4991
+        ],
+        [
+          2276,
+          5016
+        ],
+        [
+          2221,
+          5042
+        ],
+        [
+          2282,
+          5086
+        ],
+        [
+          2263,
+          5113
+        ],
+        [
+          2263,
+          5131
+        ],
+        [
+          2300,
+          5192
+        ],
+        [
+          2437,
+          5347
+        ],
+        [
+          2525,
+          5356
+        ],
+        [
+          2525,
+          5454
+        ],
+        [
+          2601,
+          5450
+        ],
+        [
+          2619,
+          5359
+        ],
+        [
+          2609,
+          5132
+        ],
+        [
+          2624,
+          4892
+        ],
+        [
+          2576,
+          4740
+        ],
+        [
+          2584,
+          4600
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-bec",
+      "name": "Bec",
+      "pronunciation": "",
+      "description": "Bec is the glittering, autocratic heart of the ascendant Beccin Empire, a vast land stretching from the sun-drenched rice paddies of its southern provinces to the frigid, windswept mountains of the north. Its society is one of stark contrasts, where the unimaginable opulence of the nobility's gilded palaces is built upon the endless toil of the peasantry. Fueled by relentless expansion and the flow of tribute from its satellite states, the empire's wealth and power grow with each passing year.",
+      "summary": "The glittering heart of an ascendant empire, Bec's opulence is built on the toil of its peasantry.",
+      "type": "Political",
+      "value": "Empire",
+      "color": "#5a1c00",
+      "fillColor": "#ffc4ab",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          4380,
+          6632
+        ],
+        [
+          4756,
+          7028
+        ],
+        [
+          5136,
+          7352
+        ],
+        [
+          5372,
+          7604
+        ],
+        [
+          5172,
+          7636
+        ],
+        [
+          5100,
+          7752
+        ],
+        [
+          4884,
+          7676
+        ],
+        [
+          4572,
+          7888
+        ],
+        [
+          3904,
+          7884
+        ],
+        [
+          3612,
+          7672
+        ],
+        [
+          3616,
+          7344
+        ],
+        [
+          3528,
+          7272
+        ],
+        [
+          3404,
+          7128
+        ],
+        [
+          3420,
+          6980
+        ],
+        [
+          3704,
+          6708
+        ],
+        [
+          3740,
+          6400
+        ],
+        [
+          3868,
+          6208
+        ],
+        [
+          3940,
+          6164
+        ],
+        [
+          4176,
+          6456
+        ],
+        [
+          4420,
+          6460
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-blū",
+      "name": "Blū",
+      "pronunciation": "",
+      "description": "A nation of humming factory-cities and alchemical ingenuity, where every citizen is a vital cog in a grand, well-oiled machine. Generations of gnomish innovation have forged a society of relentless progress and unparalleled collective welfare, making the state itself their greatest invention.",
+      "summary": "Generations of gnomish ingenuity have forged a nation of humming factory-cities and relentless progress.",
+      "type": "Political",
+      "value": "Gnomish Technocracy",
+      "color": "#8e258f",
+      "fillColor": "#ffb5f8",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          2500,
+          1190
+        ],
+        [
+          2482,
+          1186
+        ],
+        [
+          2479,
+          1185
+        ],
+        [
+          2476,
+          1186
+        ],
+        [
+          2472,
+          1189
+        ],
+        [
+          2471,
+          1190
+        ],
+        [
+          2462,
+          1199
+        ],
+        [
+          2452,
+          1206
+        ],
+        [
+          2438,
+          1219
+        ],
+        [
+          2394,
+          1207
+        ],
+        [
+          2343,
+          1197
+        ],
+        [
+          2310,
+          1208
+        ],
+        [
+          2269,
+          1200
+        ],
+        [
+          2269,
+          1294
+        ],
+        [
+          2319,
+          1359
+        ],
+        [
+          2340,
+          1463
+        ],
+        [
+          2368,
+          1564
+        ],
+        [
+          2516,
+          1568
+        ],
+        [
+          2548,
+          1550
+        ],
+        [
+          2596,
+          1556
+        ],
+        [
+          2654,
+          1466
+        ],
+        [
+          2664,
+          1455
+        ],
+        [
+          2655,
+          1448
+        ],
+        [
+          2643,
+          1443
+        ],
+        [
+          2633,
+          1435
+        ],
+        [
+          2628,
+          1417
+        ],
+        [
+          2628,
+          1408
+        ],
+        [
+          2625,
+          1402
+        ],
+        [
+          2621,
+          1390
+        ],
+        [
+          2614,
+          1384
+        ],
+        [
+          2601,
+          1382
+        ],
+        [
+          2599,
+          1380
+        ],
+        [
+          2599,
+          1374
+        ],
+        [
+          2590,
+          1368
+        ],
+        [
+          2577,
+          1366
+        ],
+        [
+          2575,
+          1362
+        ],
+        [
+          2565,
+          1318
+        ],
+        [
+          2551,
+          1297
+        ],
+        [
+          2547,
+          1285
+        ],
+        [
+          2545,
+          1271
+        ],
+        [
+          2529,
+          1243
+        ],
+        [
+          2517,
+          1241
+        ],
+        [
+          2508,
+          1233
+        ],
+        [
+          2509,
+          1213
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-bugon-kingdom",
+      "name": "Bugon Kingdom",
+      "pronunciation": "",
+      "description": "Often Called \"Bugdom\" for the fact when people first found the people of this island they were dealing with a bad case of sea spiders.",
+      "summary": "This island kingdom earned its nickname 'Bugdom' after outsiders discovered them during a sea spider infestation.",
+      "type": "Political",
+      "value": "Kingdom",
+      "color": "#008080",
+      "fillColor": "#40E0D0",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          614,
+          5398
+        ],
+        [
+          802,
+          5342
+        ],
+        [
+          958,
+          5370
+        ],
+        [
+          974,
+          5480
+        ],
+        [
+          706,
+          5624
+        ],
+        [
+          612,
+          5504
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-confederacy-of-half-hieghts",
+      "name": "Confederacy of Half Hieghts",
+      "pronunciation": "",
+      "description": "The Confederacy of Half Heights is a vibrant constitutional commonwealth governed by a Chancellor. The region is defined by its dramatic, sweeping canyons, which are naturally formed, though local folklore insists they were carved from the earth by ancient giants. Enjoying a balmy, Mediterranean climate, the landscape is dotted with fragrant shrubs of summer jasmine and bay laurel. To thrive in this environment, the inhabitants have mastered elaborate rain collection systems to sustain their terraced gardens and daily needs. Though the region earned its name as the ancestral homeland of the halflings, the Confederacy is now a welcoming melting pot of diverse races. Their settlements are a marvel of engineering, beautifully blending the colorful, sun-drenched masonry of Anzio-style villas with the practical, cliff-integrated tiers of Pueblo architecture. Navigating the steep canyon trails are large, flightless avians that the locals use as beasts of burden instead of traditional horses. Despite the peaceful and bustling nature of these communities, the region still holds ancient secrets, with forgotten tombs hidden deep within the shadowy recesses of the mountains and canyon floors.",
+      "summary": "This territory is a peaceful alliance of communities nestled among tranquil canyons and valleys.",
+      "type": "Political",
+      "value": "Confederacy",
+      "color": "#E2725B",
+      "fillColor": "#F4A460",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          1559,
+          1674
+        ],
+        [
+          1564,
+          1671
+        ],
+        [
+          1572,
+          1668
+        ],
+        [
+          1585,
+          1688
+        ],
+        [
+          1594,
+          1709
+        ],
+        [
+          1611,
+          1743
+        ],
+        [
+          1613,
+          1762
+        ],
+        [
+          1600,
+          1793
+        ],
+        [
+          1605,
+          1804
+        ],
+        [
+          1601,
+          1871
+        ],
+        [
+          1593,
+          1877
+        ],
+        [
+          1589,
+          1889
+        ],
+        [
+          1584,
+          1899
+        ],
+        [
+          1578,
+          1892
+        ],
+        [
+          1570,
+          1866
+        ],
+        [
+          1580,
+          1829
+        ],
+        [
+          1567,
+          1794
+        ],
+        [
+          1545,
+          1787
+        ],
+        [
+          1530,
+          1751
+        ],
+        [
+          1547,
+          1723
+        ],
+        [
+          1556,
+          1710
+        ],
+        [
+          1560,
+          1690
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-cursed-oldlin",
+      "name": "Cursed Oldlin",
+      "pronunciation": "",
+      "description": "This land was once a sun-kissed jewel, a vibrant valley whose people knew only bountiful harvests and bright horizons. That was before the arrival of him, Strahd. He took the valley first by the niceness think himself freed from damnation, then the cycle started a new and his dark pact poisoned the very soil, bleeding the life and color from the world. Now the land is a twisted reflection of its master's tormented soul: the sun is a stranger, the forests have grown teeth, and the entire valley is caged in a ghostly mist—a monument not to a kingdom, but to one man's tragic and eternal damnation.",
+      "summary": "Once a vibrant valley, this land is now a twisted reflection of its master's eternal damnation, caged in mist.",
+      "type": "Political",
+      "value": "Cursed Land",
+      "color": "#000000",
+      "fillColor": "#c0c0c0",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          4478,
+          2946
+        ],
+        [
+          4457,
+          3158
+        ],
+        [
+          4427,
+          3114
+        ],
+        [
+          4369,
+          3252
+        ],
+        [
+          4330,
+          3239
+        ],
+        [
+          4266,
+          3240
+        ],
+        [
+          4257,
+          3138
+        ],
+        [
+          4261,
+          3065
+        ],
+        [
+          4287,
+          3027
+        ],
+        [
+          4277,
+          2975
+        ],
+        [
+          4297,
+          2917
+        ],
+        [
+          4405,
+          2901
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-farnear",
+      "name": "Farnear",
+      "pronunciation": "",
+      "description": "While the farming communities of the great river basin are as old as any on the continent, the nation of Farnear is a recent invention. For generations, this fertile breadbasket was a disconnected patchwork of independent nations. This changed when the pragmatic gnomes of Blū, seeking a more efficient and stable trading partner, brokered a grand unification - this caused a short and violent civil war. By offering infrastructure investments and access to advanced technology, they helped organize them into a cohesive republic. The name 'Farnear' was chosen by the new council to signify their new reality: no longer a 'far'-flung collection of nations, but a single, 'near' neighbor, united in prosperity.",
+      "summary": "Gnomish pragmatism helped forge a patchwork of farming communities into a single, prosperous republic.",
+      "type": "Political",
+      "value": "Republic",
+      "color": "#ffbf00",
+      "fillColor": "#ffd700",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          2840,
+          1469
+        ],
+        [
+          2945,
+          1479
+        ],
+        [
+          2969,
+          1488
+        ],
+        [
+          2990,
+          1511
+        ],
+        [
+          3138,
+          1531
+        ],
+        [
+          3139,
+          1623
+        ],
+        [
+          3105,
+          1770
+        ],
+        [
+          3095,
+          1855
+        ],
+        [
+          3088,
+          1892
+        ],
+        [
+          3070,
+          1927
+        ],
+        [
+          3058,
+          1943
+        ],
+        [
+          3041,
+          1957
+        ],
+        [
+          3019,
+          1966
+        ],
+        [
+          2998,
+          2050
+        ],
+        [
+          3018,
+          2136
+        ],
+        [
+          2958,
+          2304
+        ],
+        [
+          2950,
+          2333
+        ],
+        [
+          2951,
+          2344
+        ],
+        [
+          2956,
+          2350
+        ],
+        [
+          2967,
+          2359
+        ],
+        [
+          2975,
+          2372
+        ],
+        [
+          2983,
+          2390
+        ],
+        [
+          2987,
+          2413
+        ],
+        [
+          2990,
+          2431
+        ],
+        [
+          2994,
+          2489
+        ],
+        [
+          3002,
+          2527
+        ],
+        [
+          3009,
+          2546
+        ],
+        [
+          3016,
+          2562
+        ],
+        [
+          3024,
+          2576
+        ],
+        [
+          3033,
+          2592
+        ],
+        [
+          3044,
+          2607
+        ],
+        [
+          3054,
+          2617
+        ],
+        [
+          3069,
+          2633
+        ],
+        [
+          3087,
+          2647
+        ],
+        [
+          3110,
+          2660
+        ],
+        [
+          3125,
+          2667
+        ],
+        [
+          3131,
+          2669
+        ],
+        [
+          3134,
+          2671
+        ],
+        [
+          3135,
+          2674
+        ],
+        [
+          3136,
+          2678
+        ],
+        [
+          3136,
+          2684
+        ],
+        [
+          3135,
+          2694
+        ],
+        [
+          3132,
+          2703
+        ],
+        [
+          3125,
+          2720
+        ],
+        [
+          3117,
+          2736
+        ],
+        [
+          3108,
+          2749
+        ],
+        [
+          3095,
+          2763
+        ],
+        [
+          3081,
+          2769
+        ],
+        [
+          3068,
+          2784
+        ],
+        [
+          3060,
+          2801
+        ],
+        [
+          3055,
+          2830
+        ],
+        [
+          2982,
+          2804
+        ],
+        [
+          2815,
+          2696
+        ],
+        [
+          2762,
+          2707
+        ],
+        [
+          2721,
+          2693
+        ],
+        [
+          2671,
+          2503
+        ],
+        [
+          2659,
+          2467
+        ],
+        [
+          2611,
+          2398
+        ],
+        [
+          2584,
+          2395
+        ],
+        [
+          2520,
+          2266
+        ],
+        [
+          2484,
+          2120
+        ],
+        [
+          2487,
+          1995
+        ],
+        [
+          2464,
+          1970
+        ],
+        [
+          2436,
+          1848
+        ],
+        [
+          2400,
+          1793
+        ],
+        [
+          2392,
+          1715
+        ],
+        [
+          2370,
+          1644
+        ],
+        [
+          2368,
+          1564
+        ],
+        [
+          2516,
+          1568
+        ],
+        [
+          2548,
+          1550
+        ],
+        [
+          2596,
+          1556
+        ],
+        [
+          2654,
+          1466
+        ],
+        [
+          2664,
+          1455
+        ],
+        [
+          2779,
+          1480
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-ferendel",
+      "name": "Ferendel",
+      "pronunciation": "",
+      "description": "Nestled within a dramatic fjord, this kingdom was for a generation shrouded in a mysterious, self-imposed isolation. Today, its bustling port has reopened to the world, yet the nation retains an atmosphere of guarded secrets and quiet resilience.",
+      "summary": "A fjord kingdom reopens its ports to the world after a generation of mysterious, self-imposed isolation.",
+      "type": "Political",
+      "value": "Kingdom",
+      "color": "#2F4F4F",
+      "fillColor": "#5F9EA0",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          4530,
+          2102
+        ],
+        [
+          4564,
+          2108
+        ],
+        [
+          4574,
+          2138
+        ],
+        [
+          4553,
+          2332
+        ],
+        [
+          4454,
+          2495
+        ],
+        [
+          4336,
+          2490
+        ],
+        [
+          4182,
+          2396
+        ],
+        [
+          4226,
+          2356
+        ],
+        [
+          4162,
+          2296
+        ],
+        [
+          4109,
+          2328
+        ],
+        [
+          4051,
+          2307
+        ],
+        [
+          4067,
+          2246
+        ],
+        [
+          4019,
+          2220
+        ],
+        [
+          4047,
+          2125
+        ],
+        [
+          3898,
+          2043
+        ],
+        [
+          3934,
+          1931
+        ],
+        [
+          4007,
+          1879
+        ],
+        [
+          4068,
+          1865
+        ],
+        [
+          4362,
+          1936
+        ],
+        [
+          4518,
+          2070
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-goldwind",
+      "name": "Goldwind",
+      "pronunciation": "",
+      "description": "In this sun-scorched expanse, where glittering sands whisper tales of easily won fortunes and powerful dust devils carve canyons, a rough-and-tumble society thrives. Here, beneath the vast, unforgiving sky, disputes are settled with a blend of frontier justice and arcane arts.",
+      "summary": "In this sun-scorched frontier, a rough society thrives where fortunes are won with raw justice and arcane arts.",
+      "type": "Political",
+      "value": "Frontier",
+      "color": "#a77b00",
+      "fillColor": "#fff76b",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          2638,
+          6139
+        ],
+        [
+          2504,
+          6150
+        ],
+        [
+          2428,
+          6422
+        ],
+        [
+          2384,
+          6698
+        ],
+        [
+          2370,
+          6850
+        ],
+        [
+          2344,
+          6922
+        ],
+        [
+          2484,
+          7020
+        ],
+        [
+          2540,
+          7134
+        ],
+        [
+          2815,
+          7183
+        ],
+        [
+          2919,
+          7182
+        ],
+        [
+          2990,
+          7097
+        ],
+        [
+          3068,
+          6425
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-harold-ford",
+      "name": "Harold Ford",
+      "pronunciation": "",
+      "description": "An ancient kingdom forged from the union of proud and culturally distinct peoples, its rolling green hills and rugged highlands are often shrouded in mist. From the sprawling, historic capital that shares the nation's name, a single crown now governs the formerly warring lands, navigating a delicate peace built on a shared, yet often contested, history.",
+      "summary": "From its mist-shrouded capital, an ancient kingdom navigates a delicate peace between formerly warring peoples.",
+      "type": "Political",
+      "value": "Kingdom",
+      "color": "#DA2125",
+      "fillColor": "#E66E6F",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          4025,
+          1297
+        ],
+        [
+          4032,
+          1338
+        ],
+        [
+          3940,
+          1358
+        ],
+        [
+          3911,
+          1392
+        ],
+        [
+          3813,
+          1425
+        ],
+        [
+          3767,
+          1471
+        ],
+        [
+          3686,
+          1440
+        ],
+        [
+          3646,
+          1451
+        ],
+        [
+          3608,
+          1427
+        ],
+        [
+          3606,
+          1275
+        ],
+        [
+          3596,
+          1176
+        ],
+        [
+          3592,
+          1078
+        ],
+        [
+          3620,
+          1054
+        ],
+        [
+          3746,
+          1038
+        ],
+        [
+          3894,
+          1164
+        ],
+        [
+          3978,
+          1240
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-himmelsrand",
+      "name": "Himmelsrand",
+      "pronunciation": "",
+      "description": "Himmelsrand is a realm where the earth rises violently to meet the heavens, a jagged expanse of gray stone and white silence. To travel here is to breathe air so cold it tastes like iron, walking beneath pine forests so ancient and dense that they swallow the light of the pale sun. The province is defined by its verticality; massive, cloud-piercing peaks ring the horizon like the walls of a fortress, their summits forever shrouded in violent blizzards, while the valleys below are carpeted in golden tundra grass and winding, icy rivers that freeze solid in the depths of winter. The land feels lived-in but wild, marked by the decaying grandeur of the Zarate of Tiamat. You cannot walk the mountain passes without seeing the scars of that lost - pillars jutting from the mountainsides like broken ribs, or the crumbling foundations of black citadels now reclaimed by moss and heavy drifts of snow. These ruins are no longer seats of power, but simply part of the geography, looming silently over the wooden villages of the Nords. At night, when the auroras bleed emerald and violet across the sky, the wind howls through the hollow arches of Tiamat’s fallen monuments, creating a mournful song that reminds every traveler that this savage beauty was once tamed by something far darker.",
+      "summary": "Himmelsrand is a savage northern wilderness, once the imperial seat of the Zarate of Tiamat, reminders of a dark power now reclaimed by the ice.",
+      "type": "Political",
+      "value": "Kingdom",
+      "color": "#2f4f4f",
+      "fillColor": "#f0f8ff",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          4692,
+          3379
+        ],
+        [
+          4862,
+          3359
+        ],
+        [
+          5030,
+          3461
+        ],
+        [
+          5097,
+          3590
+        ],
+        [
+          5081,
+          3741
+        ],
+        [
+          5019,
+          3881
+        ],
+        [
+          4853,
+          4261
+        ],
+        [
+          4764,
+          4308
+        ],
+        [
+          4673,
+          4357
+        ],
+        [
+          4671,
+          4358
+        ],
+        [
+          4670,
+          4361
+        ],
+        [
+          4667,
+          4358
+        ],
+        [
+          4659,
+          4359
+        ],
+        [
+          4657,
+          4363
+        ],
+        [
+          4657,
+          4371
+        ],
+        [
+          4650,
+          4371
+        ],
+        [
+          4636,
+          4377
+        ],
+        [
+          4632,
+          4383
+        ],
+        [
+          4624,
+          4395
+        ],
+        [
+          4622,
+          4398
+        ],
+        [
+          4619,
+          4401
+        ],
+        [
+          4619,
+          4404
+        ],
+        [
+          4618,
+          4405
+        ],
+        [
+          4618,
+          4410
+        ],
+        [
+          4620,
+          4412
+        ],
+        [
+          4623,
+          4412
+        ],
+        [
+          4625,
+          4423
+        ],
+        [
+          4623,
+          4425
+        ],
+        [
+          4622,
+          4429
+        ],
+        [
+          4620,
+          4426
+        ],
+        [
+          4619,
+          4424
+        ],
+        [
+          4616,
+          4423
+        ],
+        [
+          4615,
+          4424
+        ],
+        [
+          4613,
+          4423
+        ],
+        [
+          4612,
+          4421
+        ],
+        [
+          4607,
+          4422
+        ],
+        [
+          4606,
+          4424
+        ],
+        [
+          4607,
+          4428
+        ],
+        [
+          4612,
+          4429
+        ],
+        [
+          4613,
+          4432
+        ],
+        [
+          4611,
+          4432
+        ],
+        [
+          4610,
+          4433
+        ],
+        [
+          4609,
+          4434
+        ],
+        [
+          4609,
+          4437
+        ],
+        [
+          4605,
+          4437
+        ],
+        [
+          4604,
+          4438
+        ],
+        [
+          4603,
+          4439
+        ],
+        [
+          4601,
+          4440
+        ],
+        [
+          4597,
+          4438
+        ],
+        [
+          4588,
+          4438
+        ],
+        [
+          4580,
+          4438
+        ],
+        [
+          4578,
+          4439
+        ],
+        [
+          4578,
+          4443
+        ],
+        [
+          4572,
+          4443
+        ],
+        [
+          4568,
+          4443
+        ],
+        [
+          4568,
+          4444
+        ],
+        [
+          4565,
+          4444
+        ],
+        [
+          4565,
+          4443
+        ],
+        [
+          4552,
+          4443
+        ],
+        [
+          4551,
+          4442
+        ],
+        [
+          4550,
+          4438
+        ],
+        [
+          4546,
+          4437
+        ],
+        [
+          4542,
+          4437
+        ],
+        [
+          4541,
+          4440
+        ],
+        [
+          4538,
+          4443
+        ],
+        [
+          4534,
+          4443
+        ],
+        [
+          4530,
+          4445
+        ],
+        [
+          4526,
+          4449
+        ],
+        [
+          4524,
+          4449
+        ],
+        [
+          4521,
+          4452
+        ],
+        [
+          4517,
+          4452
+        ],
+        [
+          4514,
+          4450
+        ],
+        [
+          4507,
+          4444
+        ],
+        [
+          4500,
+          4442
+        ],
+        [
+          4493,
+          4433
+        ],
+        [
+          4490,
+          4425
+        ],
+        [
+          4492,
+          4403
+        ],
+        [
+          4492,
+          4387
+        ],
+        [
+          4487,
+          4378
+        ],
+        [
+          4481,
+          4374
+        ],
+        [
+          4472,
+          4371
+        ],
+        [
+          4462,
+          4364
+        ],
+        [
+          4444,
+          4364
+        ],
+        [
+          4431,
+          4363
+        ],
+        [
+          4427,
+          4366
+        ],
+        [
+          4425,
+          4369
+        ],
+        [
+          4417,
+          4379
+        ],
+        [
+          4412,
+          4390
+        ],
+        [
+          4404,
+          4400
+        ],
+        [
+          4395,
+          4400
+        ],
+        [
+          4387,
+          4394
+        ],
+        [
+          4380,
+          4393
+        ],
+        [
+          4376,
+          4388
+        ],
+        [
+          4369,
+          4386
+        ],
+        [
+          4363,
+          4386
+        ],
+        [
+          4358,
+          4389
+        ],
+        [
+          4355,
+          4386
+        ],
+        [
+          4349,
+          4385
+        ],
+        [
+          4343,
+          4387
+        ],
+        [
+          4341,
+          4392
+        ],
+        [
+          4337,
+          4393
+        ],
+        [
+          4335,
+          4394
+        ],
+        [
+          4331,
+          4396
+        ],
+        [
+          4324,
+          4396
+        ],
+        [
+          4322,
+          4398
+        ],
+        [
+          4316,
+          4399
+        ],
+        [
+          4302,
+          4393
+        ],
+        [
+          4264,
+          4390
+        ],
+        [
+          4261,
+          4387
+        ],
+        [
+          4254,
+          4387
+        ],
+        [
+          4253,
+          4349
+        ],
+        [
+          4243,
+          4196
+        ],
+        [
+          4254,
+          4140
+        ],
+        [
+          4222,
+          4102
+        ],
+        [
+          4221,
+          4045
+        ],
+        [
+          4199,
+          3992
+        ],
+        [
+          4204,
+          3932
+        ],
+        [
+          4161,
+          3883
+        ],
+        [
+          4153,
+          3851
+        ],
+        [
+          4168,
+          3721
+        ],
+        [
+          4206,
+          3667
+        ],
+        [
+          4206,
+          3613
+        ],
+        [
+          4262,
+          3551
+        ],
+        [
+          4321,
+          3337
+        ],
+        [
+          4354,
+          3304
+        ],
+        [
+          4382,
+          3219
+        ],
+        [
+          4412,
+          3174
+        ],
+        [
+          4478,
+          3273
+        ],
+        [
+          4577,
+          3338
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-icebeach",
+      "name": "Icebeach",
+      "pronunciation": "",
+      "description": "This brutal, frozen frontier is a land of hardy survivors and terrifying beasts, where scattered settlements cling to life like flickering candles against an oppressive and isolating terrain. Legends of a lich's forgotten fortress and secrets buried within the great glacier's sunless heart lend a palpable sense of terror to the landscape.",
+      "summary": "This brutal, frozen frontier is a land of hardy survivors, terrifying beasts, and legends of a lich's fortress.",
+      "type": "Political",
+      "value": "Frontier",
+      "color": "#00364a",
+      "fillColor": "#00c7fc",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          4574,
+          2138
+        ],
+        [
+          4553,
+          2331
+        ],
+        [
+          4454,
+          2496
+        ],
+        [
+          4440,
+          2923
+        ],
+        [
+          4478,
+          2946
+        ],
+        [
+          4457,
+          3158
+        ],
+        [
+          4542,
+          3160
+        ],
+        [
+          4561,
+          3242
+        ],
+        [
+          4849,
+          3352
+        ],
+        [
+          5029,
+          3460
+        ],
+        [
+          5100,
+          3323
+        ],
+        [
+          5154,
+          3267
+        ],
+        [
+          5202,
+          3279
+        ],
+        [
+          5230,
+          3305
+        ],
+        [
+          5297,
+          3333
+        ],
+        [
+          5340,
+          3242
+        ],
+        [
+          5420,
+          3307
+        ],
+        [
+          5472,
+          3277
+        ],
+        [
+          5452,
+          3173
+        ],
+        [
+          5457,
+          3131
+        ],
+        [
+          5549,
+          3052
+        ],
+        [
+          5599,
+          3024
+        ],
+        [
+          5645,
+          3025
+        ],
+        [
+          5668,
+          2970
+        ],
+        [
+          5645,
+          2897
+        ],
+        [
+          5597,
+          2845
+        ],
+        [
+          5579,
+          2853
+        ],
+        [
+          5557,
+          2856
+        ],
+        [
+          5543,
+          2841
+        ],
+        [
+          5530,
+          2839
+        ],
+        [
+          5517,
+          2841
+        ],
+        [
+          5513,
+          2841
+        ],
+        [
+          5509,
+          2842
+        ],
+        [
+          5506,
+          2846
+        ],
+        [
+          5506,
+          2862
+        ],
+        [
+          5499,
+          2874
+        ],
+        [
+          5501,
+          2875
+        ],
+        [
+          5501,
+          2880
+        ],
+        [
+          5499,
+          2882
+        ],
+        [
+          5496,
+          2883
+        ],
+        [
+          5496,
+          2889
+        ],
+        [
+          5491,
+          2896
+        ],
+        [
+          5484,
+          2906
+        ],
+        [
+          5482,
+          2911
+        ],
+        [
+          5482,
+          2913
+        ],
+        [
+          5483,
+          2915
+        ],
+        [
+          5486,
+          2915
+        ],
+        [
+          5487,
+          2917
+        ],
+        [
+          5488,
+          2918
+        ],
+        [
+          5488,
+          2921
+        ],
+        [
+          5485,
+          2924
+        ],
+        [
+          5482,
+          2925
+        ],
+        [
+          5482,
+          2936
+        ],
+        [
+          5483,
+          2937
+        ],
+        [
+          5483,
+          2942
+        ],
+        [
+          5480,
+          2948
+        ],
+        [
+          5480,
+          2952
+        ],
+        [
+          5478,
+          2955
+        ],
+        [
+          5478,
+          2959
+        ],
+        [
+          5480,
+          2962
+        ],
+        [
+          5480,
+          2970
+        ],
+        [
+          5480,
+          2972
+        ],
+        [
+          5483,
+          2974
+        ],
+        [
+          5483,
+          2978
+        ],
+        [
+          5479,
+          2980
+        ],
+        [
+          5472,
+          2984
+        ],
+        [
+          5459,
+          2985
+        ],
+        [
+          5457,
+          2987
+        ],
+        [
+          5455,
+          2988
+        ],
+        [
+          5454,
+          2991
+        ],
+        [
+          5454,
+          2995
+        ],
+        [
+          5449,
+          3000
+        ],
+        [
+          5446,
+          3004
+        ],
+        [
+          5442,
+          3004
+        ],
+        [
+          5430,
+          3010
+        ],
+        [
+          5366,
+          3013
+        ],
+        [
+          5250,
+          2885
+        ],
+        [
+          5155,
+          2785
+        ],
+        [
+          4896,
+          2633
+        ],
+        [
+          4882,
+          2505
+        ],
+        [
+          4840,
+          2399
+        ],
+        [
+          4641,
+          2169
+        ],
+        [
+          4608,
+          2153
+        ],
+        [
+          4612,
+          2150
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "island-iron-bash",
+      "name": "Iron Bash",
+      "pronunciation": "",
+      "description": "Life on the islands of the Iron Bash is tethered to the tides of the immortal Empress Mael Muire. Her people enjoy a profound security; the Empress's will is the sea itself, forming a protective wall of storms and treacherous currents that no foreign navy dares to cross. She is their guardian and their sustainer, calming the waters for their fishing fleets and trade. Yet, the sea is also their greatest fear. Her sanity is a fickle ocean, and a sudden, deep swell of madness can turn a minor offense into a capital crime. This unleashes the terrifying wrath that gives the nation its name: the 'Bash' is the sound of a tidal wave of her own making, crashing against the cliffs with the force of hammered iron. The people of the Iron Bash offer their Empress both genuine gratitude and cautious obedience, forever reading the moods of the ocean for a sign of the storm within their queen.",
+      "summary": "The people here live in cautious obedience to their immortal Empress, whose control of the sea offers both protection and terror.",
+      "type": "Political",
+      "value": "Empire",
+      "color": "#919191",
+      "fillColor": "#d6d6d6",
+      "fillOpacity": 0.01,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          1192,
+          1760
+        ],
+        [
+          1062,
+          1516
+        ],
+        [
+          1106,
+          1508
+        ],
+        [
+          1142,
+          1446
+        ],
+        [
+          1270,
+          1444
+        ],
+        [
+          1208,
+          1164
+        ],
+        [
+          1321,
+          1156
+        ],
+        [
+          1303,
+          1146
+        ],
+        [
+          1201,
+          1139
+        ],
+        [
+          969,
+          1323
+        ],
+        [
+          926,
+          1647
+        ],
+        [
+          853,
+          1701
+        ],
+        [
+          831,
+          1750
+        ],
+        [
+          728,
+          1858
+        ],
+        [
+          721,
+          2030
+        ],
+        [
+          848,
+          2444
+        ],
+        [
+          1059,
+          2329
+        ],
+        [
+          1161,
+          1999
+        ],
+        [
+          1043,
+          1747
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-the-raided-lands-of-the-mounted-ones",
+      "name": "Kargotha",
+      "pronunciation": "",
+      "description": "The full name is the Kargotha - The Ormakth Hegemony of the Kaliean Reach.  This land is not a nation but an area under the control of a warlord raiding party of goliaths.  They are a bunch of clans all ran by members of the Ormakth, said to be a line similar to the one that Beckarak forged.",
+      "summary": "This territory is not a nation but the raiding grounds of the Ormakth Hegemony, a powerful goliath alliance.",
+      "type": "Political",
+      "value": "Hegemony",
+      "color": "#CC5500",
+      "fillColor": "#D2691E",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          4188,
+          4006
+        ],
+        [
+          4192,
+          4168
+        ],
+        [
+          4132,
+          4960
+        ],
+        [
+          4050,
+          5068
+        ],
+        [
+          4006,
+          5294
+        ],
+        [
+          3813,
+          5813
+        ],
+        [
+          3494,
+          5720
+        ],
+        [
+          3224,
+          5322
+        ],
+        [
+          3428,
+          4772
+        ],
+        [
+          3352,
+          4094
+        ],
+        [
+          3596,
+          4042
+        ],
+        [
+          4220,
+          3734
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-nokkar-the-nag",
+      "name": "Nokkar the Nag",
+      "pronunciation": "",
+      "description": "Originally charted as 'The Rest' due to its proximity to a fabled dark fortress on the coast of Icebeach, this remote, ice-bound island has a history steeped in superstition and linguistic corruption. Dwarven mariners, finding the name too serene for such a malevolent place, dubbed it 'Nagargrom' ('spirit-stone' in their tongue). This harsh name was eventually clipped and hardened by human sailors into 'Nokkar.' Over generations, its reputation as a perilous and unavoidable navigational hazard earned it the additional moniker 'the Nag.' Legends persist that the island is not merely a landmark but a source of unnatural cold, a place where compasses fail and ghostly lights dance on its frozen peaks, leading many to believe it is a magical prison or the very anchor of some terrible, undying soul to the mortal plane.",
+      "summary": "Nokkar the Nag is a cursed, frozen island rumored to be a magical prison that disrupts compasses with its unnatural cold.",
+      "type": "Political",
+      "value": "Cursed Land",
+      "color": "#1a1a2a",
+      "fillColor": "#e8eaf6",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          4650,
+          1923
+        ],
+        [
+          4653,
+          1929
+        ],
+        [
+          4655,
+          1936
+        ],
+        [
+          4659,
+          1941
+        ],
+        [
+          4659,
+          1948
+        ],
+        [
+          4663,
+          1953
+        ],
+        [
+          4665,
+          1958
+        ],
+        [
+          4665,
+          1962
+        ],
+        [
+          4661,
+          1964
+        ],
+        [
+          4657,
+          1966
+        ],
+        [
+          4655,
+          1968
+        ],
+        [
+          4654,
+          1976
+        ],
+        [
+          4653,
+          1981
+        ],
+        [
+          4652,
+          1983
+        ],
+        [
+          4650,
+          1984
+        ],
+        [
+          4650,
+          1991
+        ],
+        [
+          4648,
+          1994
+        ],
+        [
+          4639,
+          1997
+        ],
+        [
+          4621,
+          1987
+        ],
+        [
+          4620,
+          1984
+        ],
+        [
+          4619,
+          1980
+        ],
+        [
+          4621,
+          1977
+        ],
+        [
+          4627,
+          1973
+        ],
+        [
+          4628,
+          1968
+        ],
+        [
+          4630,
+          1965
+        ],
+        [
+          4630,
+          1954
+        ],
+        [
+          4626,
+          1944
+        ],
+        [
+          4638,
+          1927
+        ],
+        [
+          4644,
+          1924
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-oldlin",
+      "name": "Oldlin",
+      "pronunciation": "olden",
+      "description": "Oldlin is less a nation and more a divine sanctuary, a swath of tranquil farmland held sacred by the god Pythia. It is a sparsely populated land of rolling hills and unnaturally bountiful fields, forbidden to outsiders by divine decree. The borders are not guarded by soldiers, but by a palpable aura of judgment, and tales of those who trespassed and vanished are told as warnings in the neighboring realms. Only those who have received 'permission'—a blessing said to be granted through cryptic visions to the worthy or the truly desperate—may enter its serene landscape without incurring the god's wrath.",
+      "summary": "A divine sanctuary of unnaturally bountiful fields, this tranquil land is forbidden to all but the worthy.",
+      "type": "Political",
+      "value": "Divine Sanctuary",
+      "color": "#38571a",
+      "fillColor": "#cce8b5",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          4052,
+          2307
+        ],
+        [
+          4109,
+          2327
+        ],
+        [
+          4163,
+          2294
+        ],
+        [
+          4227,
+          2359
+        ],
+        [
+          4181,
+          2397
+        ],
+        [
+          4336,
+          2490
+        ],
+        [
+          4454,
+          2495
+        ],
+        [
+          4441,
+          2924
+        ],
+        [
+          4478,
+          2946
+        ],
+        [
+          4457,
+          3158
+        ],
+        [
+          4427,
+          3114
+        ],
+        [
+          4387,
+          3208
+        ],
+        [
+          4361,
+          3223
+        ],
+        [
+          4330,
+          3382
+        ],
+        [
+          4349,
+          3488
+        ],
+        [
+          4114,
+          3633
+        ],
+        [
+          3568,
+          3920
+        ],
+        [
+          3307,
+          3976
+        ],
+        [
+          3294,
+          3879
+        ],
+        [
+          3346,
+          3790
+        ],
+        [
+          3298,
+          3734
+        ],
+        [
+          3301,
+          3627
+        ],
+        [
+          3381,
+          3480
+        ],
+        [
+          3325,
+          3429
+        ],
+        [
+          3328,
+          3322
+        ],
+        [
+          3397,
+          3179
+        ],
+        [
+          3369,
+          3134
+        ],
+        [
+          3406,
+          3039
+        ],
+        [
+          3533,
+          2924
+        ],
+        [
+          3515,
+          2855
+        ],
+        [
+          3582,
+          2769
+        ],
+        [
+          3728,
+          2688
+        ],
+        [
+          3716,
+          2649
+        ],
+        [
+          3759,
+          2579
+        ],
+        [
+          3865,
+          2500
+        ],
+        [
+          3866,
+          2462
+        ],
+        [
+          3916,
+          2397
+        ],
+        [
+          3954,
+          2375
+        ],
+        [
+          3987,
+          2373
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-peris-dynasty",
+      "name": "Peris Dynasty",
+      "pronunciation": "",
+      "description": "",
+      "summary": "The secluded Peris Dynasty governs a remote island whose traditions are known only to its people.",
+      "type": "Political",
+      "value": "Dynasty",
+      "color": "#4B0082",
+      "fillColor": "#8A2BE2",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          734,
+          4734
+        ],
+        [
+          654,
+          4612
+        ],
+        [
+          548,
+          4702
+        ],
+        [
+          530,
+          5120
+        ],
+        [
+          608,
+          5242
+        ],
+        [
+          702,
+          5166
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-pyralis",
+      "name": "Pyralis",
+      "pronunciation": "",
+      "description": "Sequestered from the world, Pyralis is a monastic society dedicated to a single purpose: watching the heavens. Warmed by the celestial fragment they call the Firesoul, the scholar-monks of Pyralis spend their lives charting cosmic movements and guarding the secrets of their orders. They are a reclusive people, rarely venturing out, but their eerily accurate prophecies—cautiously traded for rare books and knowledge—grant them a quiet influence that belies their profound isolation.",
+      "summary": "An isolated monastic society charts the cosmos, trading eerily accurate prophecies for rare knowledge.",
+      "type": "Political",
+      "value": "Monastic Society",
+      "color": "#7c2a00",
+      "fillColor": "#ffc4ab",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          3234,
+          7568
+        ],
+        [
+          3285,
+          7473
+        ],
+        [
+          3313,
+          7529
+        ],
+        [
+          3331,
+          7601
+        ],
+        [
+          3326,
+          7644
+        ],
+        [
+          3284,
+          7653
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-roswin",
+      "name": "RosWin",
+      "pronunciation": "",
+      "description": "While newer nations practice agriculture on an industrial scale, the ancient kingdom of RosWin is the continent's traditional, gourmet heartland. Its name is believed to be a corruption of an old phrase for 'Red Wine,' hinting at the rolling, sun-drenched hills of vineyards that define its landscape. Here, heritage and quality are valued over mere quantity; power lies not in armies, but in the unique terroir of the soil and the prestige of a family's ancient vintage. Governed by noble houses whose passionate rivalries over their harvests are legendary, RosWin has long survived as a political crossroads, a neutral ground where treaties are often sealed over a bottle of its finest wine.",
+      "summary": "In this ancient kingdom, power lies not in armies but in the prestige of a family's sun-drenched vineyards.",
+      "type": "Political",
+      "value": "Kingdom",
+      "color": "#ff6a00",
+      "fillColor": "#ffc4ab",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          3353,
+          1265
+        ],
+        [
+          3547,
+          1398
+        ],
+        [
+          3606,
+          1447
+        ],
+        [
+          3678,
+          1531
+        ],
+        [
+          3976,
+          1739
+        ],
+        [
+          4019,
+          1804
+        ],
+        [
+          4013,
+          1877
+        ],
+        [
+          4007,
+          1879
+        ],
+        [
+          3933,
+          1930
+        ],
+        [
+          3897,
+          2042
+        ],
+        [
+          4047,
+          2125
+        ],
+        [
+          4019,
+          2220
+        ],
+        [
+          4066,
+          2246
+        ],
+        [
+          4051,
+          2307
+        ],
+        [
+          3987,
+          2373
+        ],
+        [
+          3953,
+          2375
+        ],
+        [
+          3917,
+          2396
+        ],
+        [
+          3867,
+          2461
+        ],
+        [
+          3865,
+          2500
+        ],
+        [
+          3759,
+          2578
+        ],
+        [
+          3717,
+          2648
+        ],
+        [
+          3728,
+          2688
+        ],
+        [
+          3582,
+          2769
+        ],
+        [
+          3516,
+          2855
+        ],
+        [
+          3533,
+          2924
+        ],
+        [
+          3406,
+          3038
+        ],
+        [
+          3369,
+          3133
+        ],
+        [
+          3284,
+          3091
+        ],
+        [
+          3220,
+          2856
+        ],
+        [
+          3090,
+          2842
+        ],
+        [
+          3058,
+          2831
+        ],
+        [
+          3062,
+          2806
+        ],
+        [
+          3071,
+          2785
+        ],
+        [
+          3079,
+          2776
+        ],
+        [
+          3087,
+          2770
+        ],
+        [
+          3097,
+          2765
+        ],
+        [
+          3108,
+          2756
+        ],
+        [
+          3129,
+          2720
+        ],
+        [
+          3138,
+          2696
+        ],
+        [
+          3140,
+          2678
+        ],
+        [
+          3137,
+          2669
+        ],
+        [
+          3130,
+          2664
+        ],
+        [
+          3117,
+          2659
+        ],
+        [
+          3101,
+          2651
+        ],
+        [
+          3079,
+          2637
+        ],
+        [
+          3057,
+          2616
+        ],
+        [
+          3040,
+          2596
+        ],
+        [
+          3020,
+          2562
+        ],
+        [
+          3006,
+          2525
+        ],
+        [
+          2998,
+          2490
+        ],
+        [
+          2995,
+          2454
+        ],
+        [
+          2989,
+          2402
+        ],
+        [
+          2981,
+          2375
+        ],
+        [
+          2970,
+          2358
+        ],
+        [
+          2953,
+          2341
+        ],
+        [
+          2955,
+          2328
+        ],
+        [
+          2963,
+          2302
+        ],
+        [
+          3018,
+          2136
+        ],
+        [
+          2998,
+          2050
+        ],
+        [
+          3021,
+          1970
+        ],
+        [
+          3054,
+          1953
+        ],
+        [
+          3086,
+          1912
+        ],
+        [
+          3101,
+          1855
+        ],
+        [
+          3109,
+          1773
+        ],
+        [
+          3129,
+          1677
+        ],
+        [
+          3139,
+          1624
+        ],
+        [
+          3139,
+          1529
+        ],
+        [
+          3189,
+          1523
+        ],
+        [
+          3218,
+          1525
+        ],
+        [
+          3239,
+          1511
+        ],
+        [
+          3257,
+          1507
+        ],
+        [
+          3275,
+          1466
+        ],
+        [
+          3275,
+          1413
+        ],
+        [
+          3308,
+          1316
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-seaslinate-dynasty",
+      "name": "Seaslinate Dynasty",
+      "pronunciation": "",
+      "description": "",
+      "summary": "The Seaslinate Dynasty governs a vibrant chain of tropical islands with a culture tied to the sea.",
+      "type": "Political",
+      "value": "Dynasty",
+      "color": "#2E8B57",
+      "fillColor": "#66CDAA",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          728,
+          4322
+        ],
+        [
+          598,
+          4510
+        ],
+        [
+          744,
+          4658
+        ],
+        [
+          754,
+          4794
+        ],
+        [
+          708,
+          4916
+        ],
+        [
+          814,
+          5072
+        ],
+        [
+          788,
+          5272
+        ],
+        [
+          918,
+          5308
+        ],
+        [
+          994,
+          5158
+        ],
+        [
+          1016,
+          4820
+        ],
+        [
+          868,
+          4632
+        ],
+        [
+          918,
+          4468
+        ],
+        [
+          900,
+          4372
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-Tewhal",
+      "name": "Tewhal",
+      "pronunciation": "",
+      "description": "A land that was under the control of the gnomes and wizards of the Athenaeum for manufacturing of the flying islands and other machines of war.  It is sparcerly populated now and the land is stained with the remnates of machines of war.  Some ranching farms and towns are up in the high, dry, and desolet dessert.",
+      "summary": "A desolate wasteland stained with war machines, this land is a shadow of its former life as a gnomish factory zone.",
+      "type": "Political",
+      "value": "Wasteland",
+      "color": "#919191",
+      "fillColor": "#d6d6d6",
+      "fillOpacity": 0.01,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          2818,
+          2812
+        ],
+        [
+          2784,
+          2754
+        ],
+        [
+          2762,
+          2707
+        ],
+        [
+          2815,
+          2696
+        ],
+        [
+          2982,
+          2804
+        ],
+        [
+          3088,
+          2842
+        ],
+        [
+          3220,
+          2856
+        ],
+        [
+          3282,
+          3091
+        ],
+        [
+          3369,
+          3134
+        ],
+        [
+          3397,
+          3179
+        ],
+        [
+          3328,
+          3322
+        ],
+        [
+          3325,
+          3429
+        ],
+        [
+          3381,
+          3480
+        ],
+        [
+          3301,
+          3627
+        ],
+        [
+          3298,
+          3734
+        ],
+        [
+          3346,
+          3790
+        ],
+        [
+          3294,
+          3879
+        ],
+        [
+          3307,
+          3976
+        ],
+        [
+          3166,
+          4006
+        ],
+        [
+          3040,
+          4026
+        ],
+        [
+          2986,
+          4224
+        ],
+        [
+          2584,
+          4599
+        ],
+        [
+          2569,
+          4515
+        ],
+        [
+          2554,
+          4526
+        ],
+        [
+          2588,
+          4258
+        ],
+        [
+          2618,
+          4118
+        ],
+        [
+          2654,
+          4118
+        ],
+        [
+          2632,
+          3934
+        ],
+        [
+          2662,
+          3818
+        ],
+        [
+          2628,
+          3662
+        ],
+        [
+          2648,
+          3426
+        ],
+        [
+          2783,
+          3157
+        ],
+        [
+          2812,
+          2843
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-the-ashen-lands---egna",
+      "name": "The Ashen Lands - Egna",
+      "pronunciation": "",
+      "description": "Egna, the Ashen Lands, is not a land but a gaping wound upon the world. A great, bleeding artery of magma flows from its shattered core, carving a path through a landscape of splintered basalt and razor-sharp obsidian. Constant ashfall from its countless vents chokes the sky, blanketing the scarred terrain in a perpetual grey twilight. The air is a toxic brew of sulfur and heat, and the ground trembles with the death throes of a land that has torn itself apart, a desolate and broken remnant of a forgotten cataclysm utterly hostile to life.",
+      "summary": "The Ashen Lands of Egna are the broken, uninhabitable remnants of a great cataclysm, a scarred island perpetually bleeding lava from its fractured heart.",
+      "type": "Geographic",
+      "value": "Ashen Lands",
+      "color": "#11053b",
+      "fillColor": "#f1c9fe",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          4916,
+          6292
+        ],
+        [
+          4700,
+          6712
+        ],
+        [
+          4724,
+          6988
+        ],
+        [
+          5308,
+          7448
+        ],
+        [
+          5724,
+          7204
+        ],
+        [
+          5876,
+          6936
+        ],
+        [
+          5784,
+          6592
+        ],
+        [
+          5456,
+          6440
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-the-bulwark-command",
+      "name": "The Bulwark Command",
+      "pronunciation": "",
+      "description": "Officially, The Bulwark Command is a fortified military zone protecting the Beccin Empire's frontier. In truth, it is the empire's most brutal and profitable resource-extraction colony. The landscape is not one of natural beauty, but of colossal quarries and smoke-belching refineries that scar the earth. Under the watchful eyes of imperial legions, a populace of convicts, debtors, and conscripts toils to strip the land of its rare minerals. The entire operation is the personal fiefdom of the Emperor's apprentice Legate Crassus, a notoriously avaricious governor who measures the value of a mountain in ore and the value of a person in the labor they can provide to the imperial coffers.",
+      "summary": "This fortified military zone is secretly the empire's most brutal and profitable resource-extraction colony.",
+      "type": "Political",
+      "value": "Military Zone",
+      "color": "#556B2F",
+      "fillColor": "#808000",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          3810,
+          5816
+        ],
+        [
+          3810,
+          5980
+        ],
+        [
+          3978,
+          6216
+        ],
+        [
+          3710,
+          6374
+        ],
+        [
+          3638,
+          6558
+        ],
+        [
+          3436,
+          6414
+        ],
+        [
+          3364,
+          6216
+        ],
+        [
+          3296,
+          6178
+        ],
+        [
+          3252,
+          6064
+        ],
+        [
+          3318,
+          5910
+        ],
+        [
+          3502,
+          5736
+        ],
+        [
+          3694,
+          5762
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-the-counties-of-fair",
+      "name": "The Counties State of Fair",
+      "pronunciation": "",
+      "description": "",
+      "summary": "This peaceful republic is composed of allied counties known for their rich farmland and rolling hills.",
+      "type": "Political",
+      "value": "Republic",
+      "color": "#38571a",
+      "fillColor": "#00f900",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          1829,
+          2547
+        ],
+        [
+          1820,
+          2453
+        ],
+        [
+          1692,
+          2386
+        ],
+        [
+          1674,
+          2439
+        ],
+        [
+          1691,
+          2478
+        ],
+        [
+          1845,
+          2670
+        ],
+        [
+          1803,
+          2990
+        ],
+        [
+          1806,
+          3076
+        ],
+        [
+          1908,
+          3268
+        ],
+        [
+          1992,
+          3420
+        ],
+        [
+          2070,
+          3559
+        ],
+        [
+          2077,
+          3565
+        ],
+        [
+          2073,
+          3576
+        ],
+        [
+          2073,
+          3593
+        ],
+        [
+          2073,
+          3611
+        ],
+        [
+          2075,
+          3626
+        ],
+        [
+          2080,
+          3640
+        ],
+        [
+          2076,
+          3643
+        ],
+        [
+          2075,
+          3650
+        ],
+        [
+          2075,
+          3668
+        ],
+        [
+          2079,
+          3674
+        ],
+        [
+          2084,
+          3677
+        ],
+        [
+          2084,
+          3680
+        ],
+        [
+          2081,
+          3683
+        ],
+        [
+          2087,
+          3689
+        ],
+        [
+          2093,
+          3700
+        ],
+        [
+          2104,
+          3711
+        ],
+        [
+          2109,
+          3723
+        ],
+        [
+          2106,
+          3733
+        ],
+        [
+          2106,
+          3742
+        ],
+        [
+          2108,
+          3751
+        ],
+        [
+          2106,
+          3753
+        ],
+        [
+          2106,
+          3755
+        ],
+        [
+          2109,
+          3758
+        ],
+        [
+          2114,
+          3758
+        ],
+        [
+          2114,
+          3760
+        ],
+        [
+          2116,
+          3761
+        ],
+        [
+          2116,
+          3763
+        ],
+        [
+          2129,
+          3774
+        ],
+        [
+          2131,
+          3784
+        ],
+        [
+          2138,
+          3798
+        ],
+        [
+          2145,
+          3807
+        ],
+        [
+          2154,
+          3820
+        ],
+        [
+          2160,
+          3826
+        ],
+        [
+          2166,
+          3833
+        ],
+        [
+          2166,
+          3840
+        ],
+        [
+          2168,
+          3846
+        ],
+        [
+          2176,
+          3855
+        ],
+        [
+          2178,
+          3863
+        ],
+        [
+          2174,
+          3872
+        ],
+        [
+          2174,
+          3876
+        ],
+        [
+          2175,
+          3879
+        ],
+        [
+          2175,
+          3886
+        ],
+        [
+          2172,
+          3897
+        ],
+        [
+          2172,
+          3906
+        ],
+        [
+          2168,
+          3910
+        ],
+        [
+          2166,
+          3916
+        ],
+        [
+          2166,
+          3924
+        ],
+        [
+          2168,
+          3927
+        ],
+        [
+          2168,
+          3938
+        ],
+        [
+          2172,
+          3939
+        ],
+        [
+          2179,
+          3950
+        ],
+        [
+          2183,
+          3964
+        ],
+        [
+          2179,
+          3978
+        ],
+        [
+          2177,
+          3983
+        ],
+        [
+          2173,
+          3983
+        ],
+        [
+          2175,
+          3990
+        ],
+        [
+          2174,
+          4006
+        ],
+        [
+          2173,
+          4015
+        ],
+        [
+          2168,
+          4027
+        ],
+        [
+          2164,
+          4031
+        ],
+        [
+          2160,
+          4034
+        ],
+        [
+          2160,
+          4041
+        ],
+        [
+          2152,
+          4060
+        ],
+        [
+          2148,
+          4065
+        ],
+        [
+          2150,
+          4069
+        ],
+        [
+          2151,
+          4086
+        ],
+        [
+          2148,
+          4092
+        ],
+        [
+          2133,
+          4110
+        ],
+        [
+          2116,
+          4116
+        ],
+        [
+          2093,
+          4155
+        ],
+        [
+          2091,
+          4163
+        ],
+        [
+          2087,
+          4164
+        ],
+        [
+          2080,
+          4169
+        ],
+        [
+          2074,
+          4192
+        ],
+        [
+          2076,
+          4232
+        ],
+        [
+          2087,
+          4263
+        ],
+        [
+          2098,
+          4290
+        ],
+        [
+          2101,
+          4318
+        ],
+        [
+          2112,
+          4340
+        ],
+        [
+          2113,
+          4361
+        ],
+        [
+          2131,
+          4425
+        ],
+        [
+          2147,
+          4460
+        ],
+        [
+          2158,
+          4491
+        ],
+        [
+          2164,
+          4499
+        ],
+        [
+          2165,
+          4512
+        ],
+        [
+          2177,
+          4545
+        ],
+        [
+          2183,
+          4551
+        ],
+        [
+          2183,
+          4559
+        ],
+        [
+          2191,
+          4572
+        ],
+        [
+          2222,
+          4614
+        ],
+        [
+          2225,
+          4627
+        ],
+        [
+          2243,
+          4650
+        ],
+        [
+          2254,
+          4691
+        ],
+        [
+          2254,
+          4706
+        ],
+        [
+          2516,
+          4622
+        ],
+        [
+          2554,
+          4526
+        ],
+        [
+          2588,
+          4258
+        ],
+        [
+          2618,
+          4118
+        ],
+        [
+          2654,
+          4118
+        ],
+        [
+          2632,
+          3934
+        ],
+        [
+          2662,
+          3818
+        ],
+        [
+          2628,
+          3662
+        ],
+        [
+          2630,
+          3473
+        ],
+        [
+          2532,
+          3390
+        ],
+        [
+          2420,
+          3534
+        ],
+        [
+          2338,
+          3430
+        ],
+        [
+          2233,
+          3418
+        ],
+        [
+          2191,
+          3247
+        ],
+        [
+          2128,
+          3203
+        ],
+        [
+          2085,
+          3092
+        ],
+        [
+          2096,
+          2930
+        ],
+        [
+          2038,
+          2826
+        ],
+        [
+          2027,
+          2695
+        ],
+        [
+          1933,
+          2663
+        ],
+        [
+          1900,
+          2578
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-the-grate-basin",
+      "name": "The Grate Basin",
+      "pronunciation": "",
+      "description": "Breathtaking and expansive, the deep canyon the stape of the desert. This canyon system vast and dangious, lots of hidden side passages and and uncharted areas.  Only the bravest prospectors or adventures would venture into its sun-scorched depths.",
+      "summary": "This breathtaking and expansive canyon system is a dangerous labyrinth of hidden, sun-scorched passages",
+      "type": "Geographic",
+      "value": "Canyon",
+      "color": "#aa7942",
+      "fillColor": "#aa7942",
+      "fillOpacity": 0.01,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          2901,
+          6681
+        ],
+        [
+          2814,
+          6696
+        ],
+        [
+          2782,
+          6732
+        ],
+        [
+          2751,
+          6720
+        ],
+        [
+          2725,
+          6723
+        ],
+        [
+          2711,
+          6693
+        ],
+        [
+          2613,
+          6673
+        ],
+        [
+          2574,
+          6702
+        ],
+        [
+          2539,
+          6704
+        ],
+        [
+          2468,
+          6738
+        ],
+        [
+          2429,
+          6738
+        ],
+        [
+          2435,
+          6706
+        ],
+        [
+          2498,
+          6624
+        ],
+        [
+          2479,
+          6593
+        ],
+        [
+          2477,
+          6536
+        ],
+        [
+          2536,
+          6530
+        ],
+        [
+          2550,
+          6498
+        ],
+        [
+          2572,
+          6504
+        ],
+        [
+          2633,
+          6558
+        ],
+        [
+          2668,
+          6571
+        ],
+        [
+          2681,
+          6590
+        ],
+        [
+          2727,
+          6605
+        ],
+        [
+          2741,
+          6627
+        ],
+        [
+          2789,
+          6595
+        ],
+        [
+          2809,
+          6585
+        ],
+        [
+          2824,
+          6590
+        ],
+        [
+          2867,
+          6622
+        ],
+        [
+          2876,
+          6660
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-the-iron-duchy-of-vardenheim",
+      "name": "The Iron Duchy of Vardenheim",
+      "pronunciation": "",
+      "description": "To the outside world, the Iron Duchy of Vardenheim is a loyal Beccin vassal state, a windswept land of hardy folk on the imperial frontier, dutifully providing iron and soldiers. This official narrative is a carefully crafted lie. In truth, Vardenheim is the Empire's clandestine operations hub for the entire region. From its grim citadels, the Duke orchestrates a vast network of spies, while its remote location makes it the perfect site for the Empire's most secret and forbidden magical research. It is a paranoid land of watchful eyes, where the wind across the steppes carries whispers of the dark work being done for the glory of the empire.",
+      "summary": "Appearing as a loyal vassal, this duchy is secretly the empire's hub for spies and forbidden magic.",
+      "type": "Political",
+      "value": "Duchy",
+      "color": "#28324a",
+      "fillColor": "#46517e",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          3345,
+          4096
+        ],
+        [
+          3388,
+          4328
+        ],
+        [
+          3408,
+          4760
+        ],
+        [
+          3292,
+          5100
+        ],
+        [
+          3188,
+          5362
+        ],
+        [
+          3032,
+          5552
+        ],
+        [
+          2692,
+          5551
+        ],
+        [
+          2662,
+          5467
+        ],
+        [
+          2684,
+          5344
+        ],
+        [
+          2856,
+          4805
+        ],
+        [
+          3140,
+          4164
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-the-kamensky-coast",
+      "name": "The Kamensky Coast",
+      "pronunciation": "",
+      "description": "A stark, coastal land wind-carved rock and thin, stubborn soil. Known for its rich marble quarries and strategic ports, the land is sparsely populated. It is a rugged, resource-focused territory, defined more by its harsh geography than by its people.",
+      "summary": "A rugged territory of hardy folk, the coast is defined by its strategic ports and rich marble quarries.",
+      "type": "Political",
+      "value": "Territory",
+      "color": "#836C58",
+      "fillColor": "#D2C4B4",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          2462,
+          7319
+        ],
+        [
+          2539,
+          7134
+        ],
+        [
+          2813,
+          7183
+        ],
+        [
+          3072,
+          7181
+        ],
+        [
+          3108,
+          7355
+        ],
+        [
+          3260,
+          7519
+        ],
+        [
+          3234,
+          7568
+        ],
+        [
+          3224,
+          7702
+        ],
+        [
+          3098,
+          7696
+        ],
+        [
+          2970,
+          7562
+        ],
+        [
+          2696,
+          7496
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-aurora-dwarves",
+      "name": "The Kingdom of the Auroran Dwarves",
+      "pronunciation": "",
+      "description": "This dwarf kingdom is very isolationist, not outright xenophobic but prides themselves in being independet and not involved in geopolitcs.",
+      "summary": "The isolationist Auroran Dwarves pride themselves on self-sufficiency, remaining apart from global politics.",
+      "type": "Political",
+      "value": "Kingdom",
+      "color": "#8B4513",
+      "fillColor": "#A0522D",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          4114,
+          3633
+        ],
+        [
+          4348,
+          3488
+        ],
+        [
+          4330,
+          3381
+        ],
+        [
+          4362,
+          3222
+        ],
+        [
+          4526,
+          3134
+        ],
+        [
+          4704,
+          3105
+        ],
+        [
+          4756,
+          3056
+        ],
+        [
+          4793,
+          3094
+        ],
+        [
+          4755,
+          3145
+        ],
+        [
+          4790,
+          3203
+        ],
+        [
+          4842,
+          3258
+        ],
+        [
+          4984,
+          3218
+        ],
+        [
+          5032,
+          3273
+        ],
+        [
+          5007,
+          3328
+        ],
+        [
+          4958,
+          3327
+        ],
+        [
+          4859,
+          3360
+        ],
+        [
+          4691,
+          3379
+        ],
+        [
+          4577,
+          3338
+        ],
+        [
+          4478,
+          3273
+        ],
+        [
+          4411,
+          3295
+        ],
+        [
+          4403,
+          3344
+        ],
+        [
+          4368,
+          3370
+        ],
+        [
+          4384,
+          3430
+        ],
+        [
+          4388,
+          3491
+        ],
+        [
+          4309,
+          3757
+        ],
+        [
+          3934,
+          3930
+        ],
+        [
+          3717,
+          3946
+        ],
+        [
+          3549,
+          4118
+        ],
+        [
+          3344,
+          4095
+        ],
+        [
+          3310,
+          3976
+        ],
+        [
+          3568,
+          3920
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-krasnogory-krai",
+      "name": "The Krasnogory Krai",
+      "pronunciation": "",
+      "description": "Governed by a volatile council of jealous Boyars and grizzled Atamans, the people of the Krai are defined by stoykost', a grim fortitude that allows them to endure the unforgiving land and their own leaders' endless feuds. This fragile unity is forged in a shared reverence for the sacred, warmth-giving Solntsekamen they carve from the heart of their mountains, a resource that is both the source of their wealth and the cause of their eternal conflict.",
+      "summary": "A volatile council of feuding leaders finds fragile unity in their shared reverence for sacred, warmth-giving stones.",
+      "type": "Political",
+      "value": "Krai",
+      "color": "#b51a00",
+      "fillColor": "#ffa57d",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          2262,
+          6879
+        ],
+        [
+          2201,
+          6909
+        ],
+        [
+          2203,
+          7021
+        ],
+        [
+          2462,
+          7320
+        ],
+        [
+          2539,
+          7134
+        ],
+        [
+          2484,
+          7021
+        ],
+        [
+          2344,
+          6922
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-the-last-elven-state",
+      "name": "The Last Elven State",
+      "pronunciation": "",
+      "description": "As the oldest continuous government on the continent, this ancient and verdant elven democratic republic is a land of deep history and living memory. Though it thrives, its splendor is shadowed by its status as a satellite state, a beautiful but captive jewel in the Beccin Empire's imperial crown.",
+      "summary": "As the continent's oldest government, this elven republic is now a beautiful but captive jewel in an empire's crown.",
+      "type": "Political",
+      "value": "Republic",
+      "color": "#5a1c00",
+      "fillColor": "#ff6a00",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          1770,
+          3252
+        ],
+        [
+          1784,
+          3556
+        ],
+        [
+          1788,
+          3804
+        ],
+        [
+          1766,
+          3888
+        ],
+        [
+          1634,
+          4050
+        ],
+        [
+          1692,
+          4460
+        ],
+        [
+          1840,
+          4540
+        ],
+        [
+          2044,
+          5112
+        ],
+        [
+          2082,
+          5358
+        ],
+        [
+          2076,
+          5650
+        ],
+        [
+          2182,
+          5700
+        ],
+        [
+          2280,
+          5628
+        ],
+        [
+          2252,
+          5430
+        ],
+        [
+          2300,
+          5192
+        ],
+        [
+          2436,
+          5346
+        ],
+        [
+          2524,
+          5356
+        ],
+        [
+          2524,
+          5560
+        ],
+        [
+          2388,
+          6282
+        ],
+        [
+          2272,
+          6794
+        ],
+        [
+          2261,
+          6879
+        ],
+        [
+          2201,
+          6909
+        ],
+        [
+          2167,
+          6886
+        ],
+        [
+          2011,
+          6879
+        ],
+        [
+          1846,
+          6830
+        ],
+        [
+          1790,
+          6776
+        ],
+        [
+          1774,
+          6700
+        ],
+        [
+          1708,
+          6392
+        ],
+        [
+          1506,
+          6258
+        ],
+        [
+          1432,
+          6156
+        ],
+        [
+          1372,
+          5960
+        ],
+        [
+          1463,
+          5573
+        ],
+        [
+          1400,
+          5300
+        ],
+        [
+          1388,
+          4776
+        ],
+        [
+          1372,
+          3772
+        ],
+        [
+          1456,
+          3348
+        ],
+        [
+          1484,
+          3292
+        ],
+        [
+          1628,
+          3172
+        ],
+        [
+          1722,
+          3190
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-ossurian-forges-of-dûr-gromthal",
+      "name": "The Ossurian Forges of Dûr-Gromthal",
+      "pronunciation": "/ðə ɔːˈsʊəriən fɔːrdʒəz əv ˌdʊr ˈɡrɒmθɔːl/",
+      "description": "The Ossurian Forges of Dûr-Gromthal is a formidable, soot-stained dwarven kingdom where the roar of industry has violently supplanted the quiet wisdom of ancestors. Once an Ossuary Kingdom guided by an Undying Council, this ancient leadership was overthrown by the revolutionary Anvilwrights, a faction of smiths and engineers who chose survival over tradition during the last great war. Their coup was sealed by the Hearth-Anvil Compact and a pragmatic, secret pact with the Beccin Empire, trading their industrial might for military protection. Today, Dûr-Gromthal is a relentless meritocracy run by the Forgemasters Guild, serving as the official arsenal of the Empire, and its rune-etched hallmark is a symbol of both imperial power and oppression. This alliance has brought them wealth but also the enmity of rivals like the Iron Duchy and the scorn of traditional dwarves, all while the Guild secretly labors to forge its ultimate weapon: an undying army of clockwork soldiers.",
+      "summary": "The Ossurian Forges of Dûr-Gromthal is an industrial dwarven meritocracy that betrayed its ancestral past to become the powerful, and widely despised, arsenal of the Beccin Empire.",
+      "type": "Political",
+      "value": "Meritocracy",
+      "color": "#919191",
+      "fillColor": "#c0c0c0",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          2524,
+          5455
+        ],
+        [
+          2601,
+          5450
+        ],
+        [
+          2619,
+          5359
+        ],
+        [
+          2684,
+          5344
+        ],
+        [
+          2662,
+          5467
+        ],
+        [
+          2692,
+          5552
+        ],
+        [
+          2615,
+          5547
+        ],
+        [
+          2545,
+          6077
+        ],
+        [
+          2634,
+          6138
+        ],
+        [
+          2503,
+          6150
+        ],
+        [
+          2424,
+          6436
+        ],
+        [
+          2382,
+          6707
+        ],
+        [
+          2370,
+          6851
+        ],
+        [
+          2343,
+          6922
+        ],
+        [
+          2261,
+          6879
+        ],
+        [
+          2271,
+          6797
+        ],
+        [
+          2365,
+          6380
+        ],
+        [
+          2386,
+          6289
+        ],
+        [
+          2424,
+          6089
+        ],
+        [
+          2524,
+          5560
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-the-rimewaste",
+      "name": "The Rimewaste",
+      "pronunciation": "",
+      "description": "The Rimewastes are less a nation and more a vast, primal expanse of unending ice and wind-scoured rock where civilization holds no sway. Here, nomadic tribes of humans and goliaths follow the migratory paths of colossal megafauna, living not by the laws of kings but by ancient pacts. Survival is the only creed in this land that does not bow to any empire, and the scattered campfires of its people are but fleeting sparks of warmth against a truly unforgiving lands.",
+      "summary": "In this primal expanse of ice, nomadic tribes hunt colossal megafauna, bowing to no king or empire.",
+      "type": "Geographic",
+      "value": "Wasteland",
+      "color": "#ffffff",
+      "fillColor": "#caf0fe",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          4191,
+          4225
+        ],
+        [
+          4133,
+          4959
+        ],
+        [
+          4049,
+          5069
+        ],
+        [
+          4006,
+          5294
+        ],
+        [
+          3862,
+          5681
+        ],
+        [
+          3813,
+          5813
+        ],
+        [
+          3810,
+          5816
+        ],
+        [
+          3810,
+          5980
+        ],
+        [
+          3940,
+          6164
+        ],
+        [
+          4176,
+          6456
+        ],
+        [
+          4424,
+          6460
+        ],
+        [
+          4440,
+          6284
+        ],
+        [
+          4364,
+          6032
+        ],
+        [
+          4240,
+          5652
+        ],
+        [
+          4180,
+          5604
+        ],
+        [
+          4236,
+          5576
+        ],
+        [
+          4204,
+          5360
+        ],
+        [
+          4240,
+          5288
+        ],
+        [
+          4232,
+          5224
+        ],
+        [
+          4280,
+          5080
+        ],
+        [
+          4312,
+          5008
+        ],
+        [
+          4276,
+          4876
+        ],
+        [
+          4224,
+          4576
+        ],
+        [
+          4256,
+          4544
+        ],
+        [
+          4255,
+          4349
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-the-sea-of-silver-tears",
+      "name": "The Sea of Silver Tears",
+      "pronunciation": "",
+      "description": "",
+      "summary": "A notoriously treacherous sea, its waters are known for unpredictable currents and the ghostly shipwrecks below.",
+      "type": "Geographic",
+      "value": "Sea",
+      "color": "#666100",
+      "fillColor": "#fffb00",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          1846,
+          3106
+        ],
+        [
+          1988,
+          3378
+        ],
+        [
+          1992,
+          3534
+        ],
+        [
+          1858,
+          3488
+        ],
+        [
+          1768,
+          3422
+        ],
+        [
+          1788,
+          3376
+        ],
+        [
+          1762,
+          3338
+        ],
+        [
+          1746,
+          3214
+        ],
+        [
+          1694,
+          3194
+        ],
+        [
+          1570,
+          3114
+        ],
+        [
+          1328,
+          3008
+        ],
+        [
+          1146,
+          2962
+        ],
+        [
+          874,
+          2814
+        ],
+        [
+          796,
+          2710
+        ],
+        [
+          804,
+          2570
+        ],
+        [
+          890,
+          2500
+        ],
+        [
+          1000,
+          2510
+        ],
+        [
+          1080,
+          2608
+        ],
+        [
+          1176,
+          2672
+        ],
+        [
+          1244,
+          2764
+        ],
+        [
+          1314,
+          2736
+        ],
+        [
+          1444,
+          2718
+        ],
+        [
+          1534,
+          2788
+        ],
+        [
+          1544,
+          2866
+        ],
+        [
+          1596,
+          2916
+        ],
+        [
+          1672,
+          2908
+        ],
+        [
+          1786,
+          2940
+        ],
+        [
+          1810,
+          3032
+        ],
+        [
+          1806,
+          3084
+        ],
+        [
+          1830,
+          3110
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-the-southern-state-of-fair",
+      "name": "The Southern State of Fair",
+      "pronunciation": "",
+      "description": "Sprawling across the continent's heartland, this vast republic stands as a monument to unity and a crossroads for all peoples. Once a collection of disparate territories, it is now the humming epicenter of culture and governance, where the continent's future is forged in the grand theater of its politics.",
+      "summary": "This vast republic is the continent's humming epicenter of culture and governance.",
+      "type": "Political",
+      "value": "Republic",
+      "color": "#38571a",
+      "fillColor": "#00f900",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          1712,
+          944
+        ],
+        [
+          2179,
+          904
+        ],
+        [
+          2242,
+          1079
+        ],
+        [
+          2269,
+          1095
+        ],
+        [
+          2269,
+          1294
+        ],
+        [
+          2321,
+          1360
+        ],
+        [
+          2342,
+          1476
+        ],
+        [
+          2368,
+          1564
+        ],
+        [
+          2370,
+          1644
+        ],
+        [
+          2392,
+          1715
+        ],
+        [
+          2400,
+          1793
+        ],
+        [
+          2437,
+          1848
+        ],
+        [
+          2464,
+          1973
+        ],
+        [
+          2488,
+          1994
+        ],
+        [
+          2484,
+          2120
+        ],
+        [
+          2520,
+          2261
+        ],
+        [
+          2584,
+          2395
+        ],
+        [
+          2612,
+          2399
+        ],
+        [
+          2659,
+          2466
+        ],
+        [
+          2673,
+          2511
+        ],
+        [
+          2721,
+          2692
+        ],
+        [
+          2762,
+          2707
+        ],
+        [
+          2818,
+          2813
+        ],
+        [
+          2784,
+          3161
+        ],
+        [
+          2623,
+          3473
+        ],
+        [
+          2531,
+          3386
+        ],
+        [
+          2420,
+          3534
+        ],
+        [
+          2335,
+          3431
+        ],
+        [
+          2233,
+          3416
+        ],
+        [
+          2193,
+          3252
+        ],
+        [
+          2126,
+          3212
+        ],
+        [
+          2088,
+          3100
+        ],
+        [
+          2093,
+          2922
+        ],
+        [
+          2040,
+          2828
+        ],
+        [
+          2026,
+          2692
+        ],
+        [
+          1928,
+          2658
+        ],
+        [
+          1900,
+          2578
+        ],
+        [
+          1824,
+          2538
+        ],
+        [
+          1821,
+          2455
+        ],
+        [
+          1692,
+          2381
+        ],
+        [
+          1629,
+          1734
+        ],
+        [
+          1606,
+          1553
+        ],
+        [
+          1611,
+          1246
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-The-Sundered-March",
+      "name": "The Sundered March",
+      "pronunciation": "",
+      "description": "A volatile, magically-scarred DMZ created by a cataclysmic event at the end of the last great war between the Athenaeum and the Beccin Empire. This wasteland is saturated with raw, unstable arcane energy that makes spellcasting wildly unpredictable and dangerous. The entire region is crisscrossed by immense, permanent wards—lingering echoes of the conflict—that are powerful enough to disintegrate armies, effectively creating an impassable buffer zone. Watched warily by its neighbors, the March serves as a grim and effective deterrent against any large-scale invasion.",
+      "summary": "A magically-scarred wasteland, the March serves as a grim and impassable buffer zone between empires.",
+      "type": "Geographic",
+      "value": "Wasteland",
+      "color": "#A52A2A",
+      "fillColor": "#D2B48C",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          2615,
+          5547
+        ],
+        [
+          2692,
+          5552
+        ],
+        [
+          3032,
+          5552
+        ],
+        [
+          3189,
+          5363
+        ],
+        [
+          3271,
+          5387
+        ],
+        [
+          3502,
+          5733
+        ],
+        [
+          3319,
+          5911
+        ],
+        [
+          3252,
+          6064
+        ],
+        [
+          3298,
+          6179
+        ],
+        [
+          3364,
+          6218
+        ],
+        [
+          3322,
+          6350
+        ],
+        [
+          3069,
+          6427
+        ],
+        [
+          2637,
+          6139
+        ],
+        [
+          2545,
+          6078
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-the-thane's-steps",
+      "name": "The Thane's Steps",
+      "pronunciation": "",
+      "description": "The Thane's Steps are a rugged chain of wind-scoured islands, named for the legendary Dwarven Thane, Borin Stone-Tread, who was the first to dare the crossing from the mountainous southern mainland to the frozen continent of the north. Each island is considered a footprint on his monumental journey, and the character of the isles changes drastically from south to north, marking the progress of his legendary expedition. The southernmost islands, often called the 'Hearth-Stones,' are heavily fortified extensions of the dwarven homeland. Carved from sea-granite and ancient basalt, their shores are dotted with fortress-lighthouses and deep, protected harbors. Here, hardy dwarven clans mine rare oceanic minerals, fish the rich waters, and maintain the garrisons that protect the vital trade route. The air is cold and misty, but the islands are green with tough, wiry grasses and mosses clinging to the rocks. As one travels north, the islands become smaller, more treacherous, and less hospitable. This central stretch is known as 'The Gamble,' where the Thane's path was most uncertain. The islands here are jagged teeth of black rock, often shrouded in a permanent, disorienting fog. Safe anchorages are few, and the waters are plagued by unpredictable currents and submerged rocks. These islands are largely uninhabited, save for hardy seabirds and lone prospectors seeking their fortune in solitude. The final islands before the northern coast are the 'Rime-Stones.' They are bleak, barren, and perpetually cold, offering the first taste of the arctic winds that howl down from the continent. Snow clings to their peaks year-round, and the sparse vegetation is little more than pale lichen on frost-shattered rock. These are grim outposts, home to a few hardy northern folk, exiled dwarves, or those who hunt the strange, cold-water beasts that swim in the icy depths. They are the last, desperate step before the endless ice.",
+      "summary": "The Thane's Steps are a perilous chain of islands forged from the warmth of a dwarf homeland to the unforgiving ice of the northern frontier.",
+      "type": "Geographic",
+      "value": "Islands",
+      "color": "#A2B8B4",
+      "fillColor": "#B3A389",
+      "fillOpacity": 0.1,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          4372,
+          1360
+        ],
+        [
+          4508,
+          1436
+        ],
+        [
+          4672,
+          1488
+        ],
+        [
+          4728,
+          1564
+        ],
+        [
+          4824,
+          1576
+        ],
+        [
+          4892,
+          1640
+        ],
+        [
+          4964,
+          1724
+        ],
+        [
+          5068,
+          1764
+        ],
+        [
+          5204,
+          1900
+        ],
+        [
+          5456,
+          2152
+        ],
+        [
+          5496,
+          2368
+        ],
+        [
+          5600,
+          2476
+        ],
+        [
+          5624,
+          2668
+        ],
+        [
+          5576,
+          2700
+        ],
+        [
+          5492,
+          2416
+        ],
+        [
+          5424,
+          2344
+        ],
+        [
+          5412,
+          2188
+        ],
+        [
+          5292,
+          2108
+        ],
+        [
+          5216,
+          2004
+        ],
+        [
+          5104,
+          1976
+        ],
+        [
+          5080,
+          1840
+        ],
+        [
+          4864,
+          1712
+        ],
+        [
+          4684,
+          1604
+        ],
+        [
+          4612,
+          1532
+        ],
+        [
+          4460,
+          1480
+        ],
+        [
+          4364,
+          1392
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-The-Volgrad-March",
+      "name": "The Volgrad March",
+      "pronunciation": "",
+      "description": "A subjugated territory of the Beccin Empire, once home to proud, nomadic horse-clans. Conquered a generation ago to secure a strategic land route for the Empire, the Volg people have been forced from their traditional lifestyle into agricultural servitude. Though imperial fortresses now scar the windswept plains, the occupation is met with simmering resentment and frequent guerilla raids by rebels known as 'land-partisans.' The spirit of the Volg remains unbroken as they fight to reclaim the freedom symbolized by the wild dragons of the nearby Gorá-Sirotá mountain.",
+      "summary": "In this subjugated land, rebellious horse-clans fight to reclaim their freedom from imperial conquerors.",
+      "type": "Political",
+      "value": "Subjugated Territory",
+      "color": "#708090",
+      "fillColor": "#B0C4DE",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          3046,
+          6434
+        ],
+        [
+          3322,
+          6350
+        ],
+        [
+          3362,
+          6520
+        ],
+        [
+          3440,
+          6461
+        ],
+        [
+          3460,
+          6436
+        ],
+        [
+          3637,
+          6556
+        ],
+        [
+          3721,
+          6553
+        ],
+        [
+          3704,
+          6707
+        ],
+        [
+          3422,
+          6979
+        ],
+        [
+          3401,
+          7123
+        ],
+        [
+          3349,
+          7167
+        ],
+        [
+          3077,
+          7181
+        ],
+        [
+          2954,
+          7218
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-toppicaea-dynasty",
+      "name": "Toppicaea Dynasty",
+      "pronunciation": "",
+      "description": "",
+      "summary": "The Toppicaea Dynasty governs from a jewel-like city atop a high plateau, isolated by cliffs.",
+      "type": "Political",
+      "value": "Dynasty",
+      "color": "#C71585",
+      "fillColor": "#FF1493",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          872,
+          4618
+        ],
+        [
+          990,
+          4678
+        ],
+        [
+          1004,
+          4612
+        ],
+        [
+          970,
+          4562
+        ],
+        [
+          910,
+          4570
+        ]
+      ],
+      "properties": {}
+    },
+    {
+      "id": "region-zafra",
+      "name": "Zafra",
+      "pronunciation": "",
+      "description": "Known as the Scorched Jewel of the Beccin Empire, the coastal nation of Zafra is a land of simmering resentment. Once a proud maritime kingdom whose fleets ruled the eastern seas, its skilled sailors now serve imperial masters. Beneath the veneer of imperial order, however, the old ways persist in port towns and hidden coves, where smugglers plot and the spirit of piracy waits for the tide to turn against their conquerors.",
+      "summary": "In this vassal state, the piratical spirit of a conquered maritime kingdom plots against its imperial masters.",
+      "type": "Political",
+      "value": "Vassal State",
+      "color": "#F4C430",
+      "fillColor": "#FFDB58",
+      "fillOpacity": 0.2,
+      "wikiLink": "",
+      "coordinates": [
+        [
+          3354,
+          7167
+        ],
+        [
+          3403,
+          7127
+        ],
+        [
+          3525,
+          7269
+        ],
+        [
+          3525,
+          7301
+        ],
+        [
+          3394,
+          7299
+        ],
+        [
+          3331,
+          7241
+        ],
+        [
+          3225,
+          7246
+        ],
+        [
+          3197,
+          7315
+        ],
+        [
+          3285,
+          7473
+        ],
+        [
+          3261,
+          7520
+        ],
+        [
+          3108,
+          7355
+        ],
+        [
+          3072,
+          7181
+        ]
+      ],
+      "properties": {}
+    }
+  ],
+  "blurb": "From the gold-laced dust of its western canyons to the haunted glaciers of the far north, Fair is a land of adventure and antiquity. Chart a course through newly-opened fjord kingdoms, navigate the politics of ancient empires, and unearth the secrets of a world shaped by heroes and forgotten evils.",
+  "children": [
+    "IceBeach",
+    "southern-thalassia",
+    "Cursed-Old-Lin",
+    "Arfordir",
+    "The-Port-City-of-Stomion"
+  ],
+  "pointsOfInterest": [
+    {
+      "coords": [
+        1592,
+        1817
+      ],
+      "name": "Apsley",
+      "pronunciation": "",
+      "type": "Capital",
+      "description": "Apsley is the principal city and political heart of the Commonwealth of Half Height, rising in bright tiers of stone, stucco, and retaining walls from its busy docks to its sunlit upper terraces. Long admired as a free-port miracle, the city is known for its ministries, merchant houses, embassies, legal arcades, and the great gondola-funicular spine that binds its heights together. Yet Apsley’s prosperity rests upon a deep social divide: the upper wards enjoy ceremony, comfort, and influence, while the lower districts bear the burdens of freight, customs, industry, and unrest. Its culture is shaped by halfling household politics, public hospitality, and reputation-driven commerce, giving the city a reputation for both generosity and quiet coercion. To admirers, Apsley is proof that disciplined law and trade can secure independence in a dangerous world; to critics, it is a city of polished facades sustained by patronage, inequality, and carefully managed disorder.",
+      "summary": "Apsley is the cliffside capital of the Commonwealth of Half Height, famed for its trade, wealth, and white-stone terraces.",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        1636,
+        5351
+      ],
+      "name": "Argyra",
+      "pronunciation": "",
+      "type": "Capital",
+      "description": "A city of breathtaking, ancient silver spires wrapped in a permanent gray fog (industrial smog mixed with coastal mist). It is terrifyingly quiet. The Elven Senate debates for months while the city starves under a literal 'Glass Ceiling' built by the Empire. Oppressive silence, beautiful architecture decaying, surveillance state.",
+      "summary": "",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        5423,
+        3017
+      ],
+      "name": "Castgate",
+      "pronunciation": "",
+      "type": "City",
+      "description": "Encased within a dome that holds the winter at bay, Castgate's picturesque beauty was earned through legendary battles against a goddess and an undead horde. Today, its bustling streets shine as a beacon of defiant prosperity, a testament to the heroes of Sub Rosa who fought to give the city a future.",
+      "summary": "This city thrives inside a winter-defying dome, a beacon of prosperity won in legendary battles.",
+      "wikiLink": "",
+      "properties": {
+        "Population": "15,000"
+      }
+    },
+    {
+      "coords": [
+        2176,
+        3901
+      ],
+      "name": "Ceremead",
+      "pronunciation": "",
+      "type": "Capital",
+      "description": "",
+      "summary": "",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        2557,
+        4977
+      ],
+      "name": "Delphi",
+      "pronunciation": "",
+      "type": "City",
+      "description": "The marble metropolis of Delphi, a jewel on the shore of a sacred lake, is still reeling from the 'Slip'—a magical cataclysm that recently tore through its heart. Now, the air is thick not only with the dust of reconstruction, but with the renewed, ruthless ambitions of its magical elite.",
+      "summary": "Following a magical cataclysm, the marble city of Delphi rebuilds, fueled by ruthless ambition.",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        3140,
+        1626
+      ],
+      "name": "Fook & Took",
+      "pronunciation": "",
+      "type": "City",
+      "description": "The twin city that is a city-state of its own.  The cities recently split.",
+      "summary": "Once a single hub, these recently divided twin cities now exist as wary, competing city-states.",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        3382,
+        6357
+      ],
+      "name": "Gorá-Sirotá",
+      "pronunciation": "",
+      "type": "Mountain",
+      "description": "Gorá-Sirotá, the Orphan Mountain, rises in stark isolation from the plains, a peak where dragons are often seen locked in vicious combat. Common legend holds that they fight over the lost treasure of a dwarven kingdom that was long ago driven from the mountain. The other ledgeons are more primal: the mountain is an ancient and sacred draconic graveyard. The dwarves were not destroyed for their gold, but for the sacrilege of disturbing the hallowed bones within. The dragons of today continue their war not just for treasure, but for the instinctual right to claim the mountain as their final roost.",
+      "summary": "Atop this lone mountain, dragons viciously battle for the right to claim it as their final roost.",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        3703,
+        1241
+      ],
+      "name": "Harold-Ford",
+      "pronunciation": "",
+      "type": "City",
+      "description": "The sprawling capital of Harold-Ford, which once united warring peoples, stands shrouded in both river mist and a fanatical devotion to its grand temples. While the crown maintains a delicate peace over its contested history, the city's avenues are rife with tension fueled by a cold war with a rival empire.",
+      "summary": "The sprawling capital navigates a tense cold war with a rival empire.",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        2289,
+        5615
+      ],
+      "name": "Katia",
+      "pronunciation": "",
+      "type": "Town",
+      "description": "Once a serene elven town nestled in an ancient forest at a river's mouth, Katia is now a stark symbol of imperial occupation. The old woods have been clear-cut for Beccin military operations, leaving the town simmering with quiet resentment under the watch of its unwelcome garrisons.",
+      "summary": "Once a serene elven town, Katia is now a stark symbol of occupation with its ancient forest clear-cut.",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        2186,
+        6358
+      ],
+      "name": "Kausis",
+      "pronunciation": "",
+      "type": "Town",
+      "description": "There is no day or night here, only the glow of the furnaces. Raw resources from the West are turned into weapons. The population is mostly indentured servants and Warforged prototypes.",
+      "summary": "",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        1554,
+        5465
+      ],
+      "name": "Mnemosyne",
+      "pronunciation": "",
+      "type": "Ruin",
+      "description": "Once the home of the Athenaeum wizards before they defected. Now, a ghost town of empty libraries and locked towers. The Empire forbids entry, claiming 'Magical Radiation' left behind by the traitors.",
+      "summary": "",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        5302,
+        3149
+      ],
+      "name": "Morana's Fang",
+      "pronunciation": "",
+      "type": "Mountain",
+      "description": "This jagged peak is the tallest point in the world.",
+      "summary": "The jagged, ice-crowned peak of Morana's Fang is the tallest mountain in the known world.",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        2560,
+        4953
+      ],
+      "name": "Mt. Primo",
+      "pronunciation": "",
+      "type": "Mountain",
+      "description": "The seat of magical power and the death place of Arcana.",
+      "summary": "This sacred mountain is the very seat of magical power and the fabled death place of a god.",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        1833,
+        4574
+      ],
+      "name": "Obol",
+      "pronunciation": "",
+      "type": "City",
+      "description": "A gambling and banking city built on a cluster of islands connected by bridges. Since the Empire banned Gold, Obol is the only place where 'Heavy Money' is still secretly traded under the table of the Iron Coffers. It is bright, loud, and desperate.",
+      "summary": "",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        2300,
+        661
+      ],
+      "name": "Rockdrift",
+      "pronunciation": "",
+      "type": "City",
+      "description": "As the mercantile capital of Arfordir, Rockdrift is better known as the 'Stonehearted City' , a bustling hub where coin is king and powerful guilds control all commerce. While the city celebrates the restoration of its queen , whispers of a newly discovered fortune have begun to quietly stir the ambitions of its most influential citizens.",
+      "summary": "Known as the 'Stonehearted City,' this mercantile capital is ruled by powerful, ambitious guilds.",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        1888,
+        2906
+      ],
+      "name": "Sindel",
+      "pronunciation": "",
+      "type": "City",
+      "description": "",
+      "summary": "",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        4108,
+        2020
+      ],
+      "name": "Skjoldvik",
+      "pronunciation": "",
+      "type": "Capital",
+      "description": "Nestled at the head of a deep, fjord, the kingdom's capital rises in a vibrant cascade of color against the stark green and grey of the surrounding cliffs. Steeply pitched roofs of slate and painted timber in hues of deep crimson, rich ochre, and forest green line the bustling cobblestone streets, which all spiral down to a crescent-shaped harbor alive with the masts of merchant ships and fishing vessels. Presiding over it all from a high, stony bluff is the royal castle, its elegant spires and soaring towers a constant, graceful symbol of the kingdom's enduring prosperity.",
+      "summary": "This vibrant capital rises in a cascade of colorful buildings against the stark cliffs of its fjord.",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        2096,
+        5686
+      ],
+      "name": "Stomion",
+      "pronunciation": "",
+      "type": "City",
+      "description": "A massive, grim port city built into a river delta. Beccin 'Customs Officers' act as state-sponsored gangsters, demanding bribes to let fishing boats leave. The air smells of brine and unwashed bodies.",
+      "summary": "",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        1667,
+        1795
+      ],
+      "name": "Sucardia",
+      "pronunciation": "",
+      "type": "Capital",
+      "description": "",
+      "summary": "",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        5151,
+        2781
+      ],
+      "name": "The Fractured Point",
+      "pronunciation": "",
+      "type": "City",
+      "description": "",
+      "summary": "The city is built among towering, shattered spires of rock that jut sharply from the sea.",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        895,
+        2094
+      ],
+      "name": "The Iron Throne of the Bash",
+      "pronunciation": "",
+      "type": "Capital",
+      "description": "",
+      "summary": "From this imposing fortress, an immortal Empress rules over the islands of the Bash.",
+      "wikiLink": "",
+      "properties": {}
+    },
+    {
+      "coords": [
+        2320,
+        6710
+      ],
+      "name": "Vincuta",
+      "pronunciation": "",
+      "type": "Fortress",
+      "description": "A brutalist fortress carved into the side of the mountain. This is where Imperial Intelligence operates",
+      "summary": "",
+      "wikiLink": "",
+      "properties": {}
+    }
+  ],
+  "scaleUnits": 1.3,
+  "lines": [
+    {
+      "id": "line-main_continent-1757961351595-21ron",
+      "name": "The Sheer",
+      "pronunciation": "",
+      "type": "cliff",
+      "color": "#000000",
+      "weight": 3,
+      "dashArray": "",
+      "description": "",
+      "summary": "The Sheer is a colossal and unbroken cliff face, carving a dramatic and impassable border across the land.",
+      "wikiLink": "",
+      "coordinates": [
+        [
+          4060,
+          2312
+        ],
+        [
+          3984,
+          2372
+        ],
+        [
+          3922,
+          2384
+        ],
+        [
+          3862,
+          2456
+        ],
+        [
+          3862,
+          2512
+        ],
+        [
+          3744,
+          2588
+        ],
+        [
+          3722,
+          2694
+        ],
+        [
+          3568,
+          2776
+        ],
+        [
+          3502,
+          2848
+        ],
+        [
+          3516,
+          2928
+        ],
+        [
+          3390,
+          3042
+        ],
+        [
+          3364,
+          3164
+        ],
+        [
+          3404,
+          3174
+        ],
+        [
+          3320,
+          3322
+        ],
+        [
+          3326,
+          3450
+        ],
+        [
+          3384,
+          3482
+        ],
+        [
+          3308,
+          3600
+        ],
+        [
+          3300,
+          3736
+        ],
+        [
+          3338,
+          3798
+        ],
+        [
+          3280,
+          3900
+        ],
+        [
+          3304,
+          3982
+        ]
+      ],
+      "properties": {
+        "Constructed": "Naturally Occurring"
+      }
+    }
+  ]
+}

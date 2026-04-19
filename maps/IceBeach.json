@@ -6,7 +6,7 @@
     "castgate"
   ],
   "latLonBounds": {
-    "north": 73.0,
+    "north": 73,
     "south": 33,
     "east": 15,
     "west": 44
@@ -30,8 +30,8 @@
       "speed": 28.97
     },
     {
-       "name": "Naval",
-       "speed": 50
+      "name": "Naval",
+      "speed": 50
     }
   ],
   "blurb": "A detailed view of the <a href='https://www.hiraeth.wiki/books/players-guide-to-icebeach' target='_blank' rel='noopener noreferrer'>Icebeach region</a>, known for its harsh climate and resilient settlements.",

@@ -33,6 +33,14 @@ function hasInlinePayload(item) {
     );
 }
 
+function hasInlineChildObjects(item) {
+    return Boolean(
+        item &&
+        Array.isArray(item.children) &&
+        item.children.some((child) => child && typeof child === 'object')
+    );
+}
+
 function buildGeneratorContext(repoRoot) {
     const mapsDir = path.join(repoRoot, 'maps');
     return {
@@ -165,8 +173,8 @@ function buildSearchEntriesForMap(context, item) {
     });
 }
 
-function writeGeneratedMapData(context, item) {
-    if (!item || !item.id || !hasInlinePayload(item)) return '';
+function writeGeneratedMapData(context, item, force = false) {
+    if (!item || !item.id || (!force && !hasInlinePayload(item))) return '';
     const relativeUrl = `maps/generated/${item.id}.json`;
     const absolutePath = path.join(context.repoRoot, relativeUrl);
     if (!context.writtenGeneratedFiles.has(absolutePath)) {
@@ -229,22 +237,29 @@ function resolveMapSource(context, item, origin) {
         };
     }
 
-    if (Array.isArray(item.children) && item.children.length > 0) {
-        return {
-            sourceItem: cloneJson(item),
-            dataUrl: writeGeneratedMapData(context, item)
-        };
-    }
-
     const explicitDataUrl = String(item.dataUrl || '').trim();
     if (explicitDataUrl) {
         return loadFileBackedMap(context, explicitDataUrl, item);
     }
 
-    if (hasInlinePayload(item)) {
+    if (item.type === 'folder') {
+        if (item.id) {
+            const defaultFilePath = `maps/${item.id}.json`;
+            const absoluteDefaultPath = path.join(context.repoRoot, defaultFilePath);
+            if (fs.existsSync(absoluteDefaultPath)) {
+                return loadFileBackedMap(context, defaultFilePath, item);
+            }
+        }
         return {
             sourceItem: cloneJson(item),
-            dataUrl: writeGeneratedMapData(context, item)
+            dataUrl: ''
+        };
+    }
+
+    if (hasInlineChildObjects(item) || hasInlinePayload(item)) {
+        return {
+            sourceItem: cloneJson(item),
+            dataUrl: writeGeneratedMapData(context, item, hasInlineChildObjects(item))
         };
     }
 

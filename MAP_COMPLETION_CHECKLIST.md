@@ -1,6 +1,6 @@
 # Map Fill Checklist (Per Region + Point)
 
-Scope: `maps/maps.json` active maps only (no `OLD-*`, `DEV-*`, old/archive folders).
+Scope: active file-backed map JSON under `maps/*.json` (no `OLD-*`, `DEV-*`, old/archive folders).
 
 Legend: `item name: missing fields`
 
@@ -348,4 +348,3 @@ Path: Content Map > The Port City of Stomion
 
 ### Lines/Roads
 - None
-

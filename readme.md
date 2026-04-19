@@ -50,7 +50,8 @@ You need a modern web browser and a local web server to run this project. Due to
 ├── about.html          # About page providing context
 ├── point-finder.html   # Tool for creating and editing map data
 ├── maps/
-│   ├── maps.json       # Index file listing available maps and folders
+│   ├── maps.json       # Slim authoring manifest for map order and hierarchy
+│   ├── atlas-index.json# Generated runtime atlas/search index
 │   ├── [map_id].json   # Map data files (points, regions, etc.)
 │   └── [map_id].webp   # Map image files
 ├── sounds/
@@ -63,7 +64,8 @@ You need a modern web browser and a local web server to run this project. Due to
 
 The map data is stored in JSON files within the `maps/` directory.
 
-*   **`maps/maps.json`**: This file acts as an index of all available maps and how they are organized in the sidebar. It contains an array of map and folder objects.
+*   **`maps/maps.json`**: This file is the slim authoring manifest for map order and hierarchy. It contains folder/map entries and child references, but not the full inline payload for every map.
+*   **`maps/atlas-index.json`**: This generated file is the runtime atlas manifest. The app boots from it, builds atlas search from it, and uses its `dataUrl` entries to lazy-load full map definitions.
 *   **`<map_id>.json`**: Each map has its own JSON file containing its metadata:
     *   `id`, `name`, `width`, `height`, `imageUrl`
     *   `scalePixels`, `scaleKilometers`: For the measurement tool.
@@ -74,7 +76,7 @@ The map data is stored in JSON files within the `maps/` directory.
 ## Features
 
 *   **Interactive Map Display**: Smooth zooming and panning with Leaflet.js.
-*   **Dynamic Data Loading**: Maps and POIs are loaded from JSON files.
+*   **Dynamic Data Loading**: The app boots from a generated atlas index, then lazy-loads each full map JSON on demand.
 *   **Sidebar Navigation**: Collapsible sidebar with a list of available maps.
 *   **Markers & Regions**: Toggleable markers for POIs and colored polygon regions.
 *   **Filtering & Search**: Filter POIs and regions by type, and search for POIs by name.

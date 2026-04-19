@@ -1517,7 +1517,7 @@
         // --- State Variables ---
         let map = null;
         let imageLayer = null;
-        let masterMapData = []; // Will hold the entire maps.json content
+        let masterMapData = []; // Current manifest/base document for export flows
         let currentMapObject = null; // The specific map object being edited
         let currentBounds = null;
         let lastClickedCoordsArray = null;
@@ -1571,8 +1571,10 @@
         const regionUndoStack = [];
         const maxRegionUndoSteps = 100;
 
-        let serverMapData = []; // Cached server map data
+        let serverMapData = []; // Cached atlas tree for server browsing
+        let serverManifestData = []; // Cached slim manifest for server export flows
         let currentLineCollectionKey = 'lines';
+        let isSingleMapSource = false;
 
 
         const poiTypeGroups = {
@@ -1647,6 +1649,34 @@
 	                sourceLocalContent.classList.remove('hidden');
 	            }
 	        }
+
+            function isServerSourceActive() {
+                return Array.from(sourceTabs).some((tab) => tab.dataset.source === 'server' && tab.classList.contains('active'));
+            }
+
+            async function fetchJsonDocument(url) {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            }
+
+            async function resolveMapDocument(mapData) {
+                if (!mapData || !mapData.dataUrl) {
+                    return editorUtils.cloneJson(mapData);
+                }
+                const fileBackedMap = await fetchJsonDocument(mapData.dataUrl);
+                return {
+                    ...editorUtils.cloneJson(mapData),
+                    ...fileBackedMap
+                };
+            }
+
+            function getCurrentCompleteExportFilename() {
+                if (isSingleMapSource && currentMapObject) {
+                    return `${currentMapObject.id || 'selected-map'}.json`;
+                }
+                return 'maps.json';
+            }
 
 	        function filterMapTree(items, query) {
 	            return editorUtils.filterMapTree(items, query);
@@ -1897,11 +1927,14 @@
         async function fetchServerMaps() {
             serverMapTree.innerHTML = '<div style="padding:10px; text-align:center; color: #888;">Fetching maps...</div>';
             try {
-                const response = await fetch('maps/maps.json');
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const maps = await response.json();
-                serverMapData = editorUtils.normalizeManifestTree(maps);
-                masterMapData = serverMapData;
+                const [atlas, manifest] = await Promise.all([
+                    fetchJsonDocument('maps/atlas-index.json'),
+                    fetchJsonDocument('maps/maps.json')
+                ]);
+                serverMapData = editorUtils.normalizeManifestTree(atlas.tree || []);
+                serverManifestData = editorUtils.normalizeManifestTree(Array.isArray(manifest) ? manifest : []);
+                masterMapData = editorUtils.normalizeManifestTree(serverManifestData);
+                isSingleMapSource = false;
                 renderServerMaps(serverMapSearch ? serverMapSearch.value : '');
                 showToast("Map list updated", "success");
             } catch (e) {
@@ -2916,6 +2949,7 @@
                     
 	                    if (Array.isArray(jsonObject)) {
 	                        masterMapData = editorUtils.normalizeManifestTree(jsonObject);
+                            isSingleMapSource = false;
 	                        populateSubMapSelector(masterMapData);
 	                        resetUIForNewMap();
 	                        setStatus("Manifest file loaded. Select a map.", "success");
@@ -2934,6 +2968,7 @@
 
                     } else if (typeof jsonObject === 'object' && jsonObject !== null && jsonObject.imageUrl) {
                         masterMapData = [editorUtils.cloneJson(jsonObject)];
+                        isSingleMapSource = true;
                         subMapSelect.innerHTML = `<option value="${jsonObject.id || ''}" selected>${jsonObject.name || 'Single Map'}</option>`;
                         subMapSelect.disabled = true;
                         loadSubMapBtn.disabled = true;
@@ -2946,6 +2981,7 @@
                     setStatus(`Error loading map file '${file.name}': ${error.message}`, 'error');
                     console.error(error);
                     masterMapData = [];
+                    isSingleMapSource = false;
                     subMapSelect.innerHTML = '<option value="">-- Load failed --</option>';
                     subMapSelect.disabled = true;
                     loadSubMapBtn.disabled = true;
@@ -2982,30 +3018,31 @@
             }
             
             resetUIForNewMap();
-            currentMapObject = mapData;
-            currentLineCollectionKey = editorUtils.detectLineCollectionKey(mapData);
-            updateCurrentMapChip();
-            showMapEmptyState(false);
-
             loadSubMapBtn.disabled = true; setStatus('Loading image and map data...');
             
             try {
+                const resolvedMapData = await resolveMapDocument(mapData);
+                currentMapObject = resolvedMapData;
+                currentLineCollectionKey = editorUtils.detectLineCollectionKey(currentMapObject);
+                updateCurrentMapChip();
+                showMapEmptyState(false);
+
                 const img = new Image();
                 await new Promise((resolve, reject) => {
                     img.crossOrigin = 'anonymous';
                     img.onload = resolve; 
-                    img.onerror = () => reject(new Error(`Could not load image file: ${mapData.imageUrl}. Ensure the URL is correct and accessible.`));
-                    img.src = mapData.imageUrl;
+                    img.onerror = () => reject(new Error(`Could not load image file: ${currentMapObject.imageUrl}. Ensure the URL is correct and accessible.`));
+                    img.src = currentMapObject.imageUrl;
                 });
 
-                const mapWidth = mapData.width || img.naturalWidth;
-                const mapHeight = mapData.height || img.naturalHeight;
+                const mapWidth = currentMapObject.width || img.naturalWidth;
+                const mapHeight = currentMapObject.height || img.naturalHeight;
                 if (mapWidth === 0 || mapHeight === 0) throw new Error('Image has zero dimensions.');
                 
                 currentBounds = [[0, 0], [mapHeight, mapWidth]];
                 if (!map) throw new Error("Map object not initialized.");
                 
-                imageLayer = L.imageOverlay(mapData.imageUrl, currentBounds).addTo(map);
+                imageLayer = L.imageOverlay(currentMapObject.imageUrl, currentBounds).addTo(map);
                 map.fitBounds(currentBounds);
 
                 coastlineSnapIndex = buildCoastlineSnapIndexFromImage(img, mapWidth, mapHeight);
@@ -3733,19 +3770,19 @@
                 return null;
             }
 
-            return editorUtils.serializeEditorState({
+            if (isSingleMapSource) {
+                return generateSelectedMapPreview();
+            }
+
+            return editorUtils.serializeManifestState({
                 masterMapData,
                 currentMapId: currentMapObject.id,
-                collectedPoints,
-                collectedRegions,
-                collectedLines,
                 mapSettings: {
                     name: currentMapObject.name || '',
                     scalePixels: scalePixelsInput.value,
                     scaleKilometers: scaleUnitsInput.value,
                     blurb: mapBlurbInput.value || ''
-                },
-                lineCollectionKey: currentLineCollectionKey
+                }
             });
         }
 
@@ -3756,7 +3793,7 @@
             }
 
             return editorUtils.serializeEditorState({
-                masterMapData,
+                masterMapData: [editorUtils.cloneJson(currentMapObject)],
                 currentMapId: currentMapObject.id,
                 collectedPoints,
                 collectedRegions,
@@ -3778,8 +3815,9 @@
                 setStatus('Export failed.', 'error'); return; 
             }
             const jsonString = JSON.stringify(finalData, null, 2);
-            showJsonModal(jsonString, 'maps.json');
-            setStatus('Complete map data ready to copy from the modal.', 'success');
+            const filename = getCurrentCompleteExportFilename();
+            showJsonModal(jsonString, filename);
+            setStatus(`${filename} ready to copy from the modal.`, 'success');
         }
         function showJsonModal(jsonContent, filename) { 
             const existingModal = document.querySelector('.json-modal');
@@ -3807,10 +3845,11 @@
             const finalData = generateCompleteMapData();
             if (!finalData) { setStatus('Copy failed.', 'error'); return; }
             const jsonString = JSON.stringify(finalData, null, 2);
+            const filename = getCurrentCompleteExportFilename();
             navigator.clipboard.writeText(jsonString)
                 .then(() => {
-                    setStatus('Complete map JSON copied!', 'success');
-                    showToast('Map JSON copied to clipboard!', 'success');
+                    setStatus(`${filename} copied!`, 'success');
+                    showToast(`${filename} copied to clipboard!`, 'success');
                 })
                 .catch(err => { setStatus('Failed to copy JSON.', 'error'); console.error("Copy JSON error:", err); });
         }
@@ -3832,17 +3871,18 @@
                 setStatus('Download failed.', 'error');
                 return;
             }
+            const filename = getCurrentCompleteExportFilename();
             const blob = new Blob([`${JSON.stringify(finalData, null, 2)}\n`], { type: 'application/json' });
             const objectUrl = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = objectUrl;
-            link.download = 'maps.json';
+            link.download = filename;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(objectUrl);
-            setStatus('Complete maps.json downloaded.', 'success');
-            showToast('maps.json downloaded', 'success');
+            setStatus(`${filename} downloaded.`, 'success');
+            showToast(`${filename} downloaded`, 'success');
         }
 
         function initMap() {

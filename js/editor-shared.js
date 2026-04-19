@@ -135,6 +135,14 @@
         return filterGroups;
     }
 
+    function applyMapSettings(mapToUpdate, mapSettings = {}) {
+        if (!mapToUpdate || typeof mapToUpdate !== 'object') return;
+        mapToUpdate.scalePixels = parseInt(mapSettings.scalePixels, 10) || 3;
+        mapToUpdate.scaleKilometers = parseFloat(mapSettings.scaleKilometers) || 1;
+        mapToUpdate.blurb = mapSettings.blurb || '';
+        if (mapSettings.name !== undefined) mapToUpdate.name = mapSettings.name || '';
+    }
+
     function serializeEditorState(options) {
         const {
             masterMapData,
@@ -155,10 +163,7 @@
         const mapToUpdate = findMapRecursive(updatedMasterData, currentMapId);
         if (!mapToUpdate) return null;
 
-        mapToUpdate.scalePixels = parseInt(mapSettings.scalePixels, 10) || 3;
-        mapToUpdate.scaleKilometers = parseFloat(mapSettings.scaleKilometers) || 1;
-        mapToUpdate.blurb = mapSettings.blurb || '';
-        if (mapSettings.name !== undefined) mapToUpdate.name = mapSettings.name || '';
+        applyMapSettings(mapToUpdate, mapSettings);
 
         const sortedPoints = (Array.isArray(collectedPoints) ? collectedPoints : [])
             .map(normalizePoint)
@@ -192,6 +197,25 @@
         delete mapToUpdate[lineCollectionKey === 'roads' ? 'lines' : 'roads'];
 
         return selectedMapOnly ? mapToUpdate : updatedMasterData;
+    }
+
+    function serializeManifestState(options) {
+        const {
+            masterMapData,
+            currentMapId,
+            mapSettings = {}
+        } = options || {};
+
+        if (!currentMapId) return null;
+
+        const updatedMasterData = Array.isArray(masterMapData)
+            ? cloneJson(masterMapData)
+            : [];
+        const mapToUpdate = findMapRecursive(updatedMasterData, currentMapId);
+        if (mapToUpdate) {
+            applyMapSettings(mapToUpdate, mapSettings);
+        }
+        return updatedMasterData;
     }
 
     function buildFeatureSelectionKey(mode, item) {
@@ -232,6 +256,7 @@
         normalizePoint,
         normalizeRegion,
         resolveFeatureIndexFromSelection,
-        serializeEditorState
+        serializeEditorState,
+        serializeManifestState
     };
 }));
