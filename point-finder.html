@@ -1660,13 +1660,39 @@
                 return response.json();
             }
 
+            function hasInlineMapPayload(mapData) {
+                return Boolean(
+                    mapData &&
+                    (
+                        mapData.blurb ||
+                        mapData.filterGroups ||
+                        mapData.gmNotes ||
+                        mapData.gmOverview ||
+                        (Array.isArray(mapData.pointsOfInterest) && mapData.pointsOfInterest.length) ||
+                        (Array.isArray(mapData.points) && mapData.points.length) ||
+                        (Array.isArray(mapData.regions) && mapData.regions.length) ||
+                        (Array.isArray(mapData.roads) && mapData.roads.length) ||
+                        (Array.isArray(mapData.lines) && mapData.lines.length) ||
+                        (Array.isArray(mapData.routes) && mapData.routes.length) ||
+                        (Array.isArray(mapData.encounterTables) && mapData.encounterTables.length)
+                    )
+                );
+            }
+
             async function resolveMapDocument(mapData) {
-                if (!mapData || !mapData.dataUrl) {
-                    return editorUtils.cloneJson(mapData);
+                const fallbackMap = editorUtils.cloneJson(mapData);
+                const inferredDataUrl = (!mapData?.dataUrl && mapData?.id && !hasInlineMapPayload(mapData))
+                    ? `maps/${mapData.id}.json`
+                    : '';
+                const dataUrl = String(mapData?.dataUrl || inferredDataUrl || '').trim();
+
+                if (!mapData || !dataUrl) {
+                    return fallbackMap;
                 }
-                const fileBackedMap = await fetchJsonDocument(mapData.dataUrl);
+
+                const fileBackedMap = await fetchJsonDocument(dataUrl);
                 return {
-                    ...editorUtils.cloneJson(mapData),
+                    ...fallbackMap,
                     ...fileBackedMap
                 };
             }
@@ -1974,17 +2000,18 @@
                  nameSpan.textContent = item.name || 'Unnamed';
 
                  if (isMap) {
+                     folderDiv.title = 'Click to load map';
+                     folderDiv.onclick = () => {
+                         document.querySelectorAll('.tree-item, .tree-folder-name').forEach(el => el.classList.remove('active'));
+                         nameSpan.classList.add('active');
+                         loadMap(item);
+                     };
+
                      // It's a map folder: Name click loads map
                      nameSpan.title = "Click to load map";
                      nameSpan.onclick = (e) => {
                          e.stopPropagation();
-
-                         // Update active state
-                         document.querySelectorAll('.tree-item, .tree-folder-name').forEach(el => el.classList.remove('active'));
-                         nameSpan.classList.add('active');
-
-                         // Load the map
-                         loadMap(item);
+                         folderDiv.onclick();
                      };
                  } else {
                      // It's just a folder: Name click toggles

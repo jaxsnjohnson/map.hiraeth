@@ -9,7 +9,19 @@
       "Cursed-Old-Lin",
       "Arfordir",
       "The-Port-City-of-Stomion"
-    ]
+    ],
+    "width": 8192,
+    "height": 6144,
+    "imageUrl": "maps/Fair-Content.webp",
+    "latLonBounds": {
+      "north": 73,
+      "south": 1.24,
+      "east": -48.34375,
+      "west": 71.65625
+    },
+    "scalePixels": 1,
+    "scaleKilometers": 1.3,
+    "blurb": "From the gold-laced dust of its western canyons to the haunted glaciers of the far north, Fair is a land of adventure and antiquity. Chart a course through newly-opened fjord kingdoms, navigate the politics of ancient empires, and unearth the secrets of a world shaped by heroes and forgotten evils."
   },
   {
     "id": "IRL Old Maps",

@@ -45,7 +45,28 @@ function buildStandaloneMap(item) {
 
 function buildSlimManifestEntry(item) {
     const manifestEntry = {};
-    const keysToCopy = ['id', 'name', 'type', 'status', 'visibility'];
+    const keysToCopy = [
+        'id',
+        'name',
+        'type',
+        'status',
+        'visibility',
+        'width',
+        'height',
+        'imageUrl',
+        'mobileImageUrl',
+        'imageUrlMobile',
+        'smallImageUrl',
+        'imageUrlSmall',
+        'imageVariants',
+        'latLonBounds',
+        'scalePixels',
+        'scaleKilometers',
+        'scaleUnitName',
+        'backgroundColor',
+        'atmosphere',
+        'blurb'
+    ];
 
     keysToCopy.forEach((key) => {
         if (item[key] !== undefined) {
