@@ -1572,7 +1572,9 @@
         const maxRegionUndoSteps = 100;
 
         let serverMapData = []; // Cached atlas tree for server browsing
+        let localBrowserMapData = []; // Hydrated local manifest tree for browsing/loading
         let serverManifestData = []; // Cached slim manifest for server export flows
+        let localManifestHydrationCache = new Map();
         let currentLineCollectionKey = 'lines';
         let isSingleMapSource = false;
 
@@ -1660,41 +1662,32 @@
                 return response.json();
             }
 
-            function hasInlineMapPayload(mapData) {
-                return Boolean(
-                    mapData &&
-                    (
-                        mapData.blurb ||
-                        mapData.filterGroups ||
-                        mapData.gmNotes ||
-                        mapData.gmOverview ||
-                        (Array.isArray(mapData.pointsOfInterest) && mapData.pointsOfInterest.length) ||
-                        (Array.isArray(mapData.points) && mapData.points.length) ||
-                        (Array.isArray(mapData.regions) && mapData.regions.length) ||
-                        (Array.isArray(mapData.roads) && mapData.roads.length) ||
-                        (Array.isArray(mapData.lines) && mapData.lines.length) ||
-                        (Array.isArray(mapData.routes) && mapData.routes.length) ||
-                        (Array.isArray(mapData.encounterTables) && mapData.encounterTables.length)
-                    )
-                );
+            function buildDefaultLocalDataUrl(mapId) {
+                return `maps/${String(mapId || '').trim()}.json`;
+            }
+
+            function getActiveBrowserMapData() {
+                if (isServerSourceActive()) return serverMapData;
+                if (localBrowserMapData.length > 0) return localBrowserMapData;
+                return masterMapData;
             }
 
             async function resolveMapDocument(mapData) {
                 const fallbackMap = editorUtils.cloneJson(mapData);
-                const inferredDataUrl = (!mapData?.dataUrl && mapData?.id && !hasInlineMapPayload(mapData))
-                    ? `maps/${mapData.id}.json`
-                    : '';
-                const dataUrl = String(mapData?.dataUrl || inferredDataUrl || '').trim();
+                const dataUrl = String(mapData?.dataUrl || '').trim();
 
                 if (!mapData || !dataUrl) {
+                    delete fallbackMap.dataUrl;
                     return fallbackMap;
                 }
 
                 const fileBackedMap = await fetchJsonDocument(dataUrl);
-                return {
+                const resolvedMap = {
                     ...fallbackMap,
                     ...fileBackedMap
                 };
+                delete resolvedMap.dataUrl;
+                return resolvedMap;
             }
 
             function getCurrentCompleteExportFilename() {
@@ -1920,33 +1913,20 @@
         
         function populateSubMapSelector(mapData) {
             subMapSelect.innerHTML = '<option value="">-- Choose a map --</option>';
-            const foundMaps = [];
-
-            function findMapsRecursive(items) {
-                if (!items || !Array.isArray(items)) return;
-                items.forEach(item => {
-                    if (item && typeof item === 'object') {
-                        if (item.imageUrl && item.id && item.name) {
-                            foundMaps.push({ id: item.id, name: item.name });
-                        }
-                        if (item.children && Array.isArray(item.children)) {
-                           findMapsRecursive(item.children);
-                        }
-                    }
-                });
-            }
-
-            findMapsRecursive(mapData);
+            const foundMaps = editorUtils.collectMapSelectionEntries(mapData);
 
             foundMaps.sort((a,b) => a.name.localeCompare(b.name)).forEach(mapInfo => {
                const option = document.createElement('option');
                option.value = mapInfo.id;
-               option.textContent = mapInfo.name;
+               option.textContent = mapInfo.disabled ? `${mapInfo.name} (unavailable)` : mapInfo.name;
+               option.disabled = !!mapInfo.disabled;
+               if (mapInfo.title) option.title = mapInfo.title;
                subMapSelect.appendChild(option);
             });
             
-            subMapSelect.disabled = foundMaps.length === 0;
-            loadSubMapBtn.disabled = foundMaps.length === 0;
+            const hasLoadableMap = foundMaps.some((mapInfo) => !mapInfo.disabled);
+            subMapSelect.disabled = !hasLoadableMap;
+            loadSubMapBtn.disabled = !hasLoadableMap;
         }
 
         // --- NEW: Server Map Fetching Logic ---
@@ -1960,6 +1940,8 @@
                 serverMapData = editorUtils.normalizeManifestTree(atlas.tree || []);
                 serverManifestData = editorUtils.normalizeManifestTree(Array.isArray(manifest) ? manifest : []);
                 masterMapData = editorUtils.normalizeManifestTree(serverManifestData);
+                localBrowserMapData = [];
+                localManifestHydrationCache = new Map();
                 isSingleMapSource = false;
                 renderServerMaps(serverMapSearch ? serverMapSearch.value : '');
                 showToast("Map list updated", "success");
@@ -2974,19 +2956,25 @@
                 try {
                     const jsonObject = JSON.parse(e.target.result);
                     
-	                    if (Array.isArray(jsonObject)) {
-	                        masterMapData = editorUtils.normalizeManifestTree(jsonObject);
-                            isSingleMapSource = false;
-	                        populateSubMapSelector(masterMapData);
-	                        resetUIForNewMap();
-	                        setStatus("Manifest file loaded. Select a map.", "success");
-	                        subMapSelect.disabled = false;
-	                        loadSubMapBtn.disabled = false;
+                    if (Array.isArray(jsonObject)) {
+                        masterMapData = editorUtils.normalizeManifestTree(jsonObject);
+                        localManifestHydrationCache = new Map();
+                        localBrowserMapData = await editorUtils.hydrateFileBackedManifestTree(
+                            masterMapData,
+                            (mapId) => fetchJsonDocument(buildDefaultLocalDataUrl(mapId)),
+                            {
+                                cache: localManifestHydrationCache,
+                                resolveDataUrl: buildDefaultLocalDataUrl
+                            }
+                        );
+                        isSingleMapSource = false;
+                        populateSubMapSelector(localBrowserMapData);
+                        resetUIForNewMap();
+                        setStatus("Manifest file loaded. Select a map.", "success");
 
                         // Auto-load if only one map available
-                        const allMaps = [];
-                        function collect(items) { items.forEach(i => { if(i.imageUrl) allMaps.push(i); if(i.children) collect(i.children); }) }
-                        collect(masterMapData);
+                        const allMaps = editorUtils.collectMapSelectionEntries(localBrowserMapData)
+                            .filter((mapInfo) => !mapInfo.disabled);
 
                         if (allMaps.length === 1) {
                             subMapSelect.value = allMaps[0].id;
@@ -2995,6 +2983,8 @@
 
                     } else if (typeof jsonObject === 'object' && jsonObject !== null && jsonObject.imageUrl) {
                         masterMapData = [editorUtils.cloneJson(jsonObject)];
+                        localBrowserMapData = [editorUtils.cloneJson(jsonObject)];
+                        localManifestHydrationCache = new Map();
                         isSingleMapSource = true;
                         subMapSelect.innerHTML = `<option value="${jsonObject.id || ''}" selected>${jsonObject.name || 'Single Map'}</option>`;
                         subMapSelect.disabled = true;
@@ -3008,6 +2998,8 @@
                     setStatus(`Error loading map file '${file.name}': ${error.message}`, 'error');
                     console.error(error);
                     masterMapData = [];
+                    localBrowserMapData = [];
+                    localManifestHydrationCache = new Map();
                     isSingleMapSource = false;
                     subMapSelect.innerHTML = '<option value="">-- Load failed --</option>';
                     subMapSelect.disabled = true;
@@ -3029,7 +3021,7 @@
         async function loadMapFromSelector() {
             const selectedMapId = subMapSelect.value;
             if (!selectedMapId) { alert("Please select a map from the dropdown."); return; }
-            const mapData = editorUtils.findMapRecursive(masterMapData, selectedMapId);
+            const mapData = editorUtils.findMapRecursive(getActiveBrowserMapData(), selectedMapId);
 
             if (mapData) {
                 await loadMap(mapData);

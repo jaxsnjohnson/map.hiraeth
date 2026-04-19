@@ -135,6 +135,113 @@
         return filterGroups;
     }
 
+    function createUnavailableMapEntry(id, error = '') {
+        const normalizedId = String(id || '').trim();
+        return {
+            id: normalizedId,
+            name: normalizedId || 'Unavailable Map',
+            status: 'coming-soon',
+            error: String(error || `Could not resolve map "${normalizedId}".`)
+        };
+    }
+
+    async function hydrateFileBackedManifestTree(items, loadMapById, options = {}) {
+        if (!Array.isArray(items) || typeof loadMapById !== 'function') return [];
+
+        const cache = options.cache instanceof Map ? options.cache : new Map();
+        const resolveDataUrl = typeof options.resolveDataUrl === 'function'
+            ? options.resolveDataUrl
+            : null;
+
+        async function hydrateFromId(id) {
+            const normalizedId = String(id || '').trim();
+            if (!normalizedId) return null;
+
+            if (!cache.has(normalizedId)) {
+                cache.set(normalizedId, Promise.resolve()
+                    .then(() => loadMapById(normalizedId))
+                    .then((loadedMap) => {
+                        if (!loadedMap || typeof loadedMap !== 'object') {
+                            return createUnavailableMapEntry(normalizedId, `Map "${normalizedId}" returned no data.`);
+                        }
+                        return hydrateNode(loadedMap);
+                    })
+                    .catch((error) => createUnavailableMapEntry(normalizedId, error?.message || 'Unknown error.')));
+            }
+
+            return cloneJson(await cache.get(normalizedId));
+        }
+
+        async function hydrateNode(node) {
+            if (!node || typeof node !== 'object') return null;
+
+            const hydrated = cloneJson(node);
+            if (resolveDataUrl && hydrated.id && hydrated.imageUrl && !hydrated.dataUrl) {
+                hydrated.dataUrl = resolveDataUrl(hydrated.id);
+            }
+
+            if (Array.isArray(hydrated.children)) {
+                const hydratedChildren = await Promise.all(hydrated.children.map((child) => {
+                    if (typeof child === 'string') return hydrateFromId(child);
+                    return hydrateNode(child);
+                }));
+                hydrated.children = hydratedChildren.filter(Boolean);
+            }
+
+            return hydrated;
+        }
+
+        const hydratedItems = await Promise.all(items.map((item) => {
+            if (typeof item === 'string') return hydrateFromId(item);
+            return hydrateNode(item);
+        }));
+
+        return hydratedItems.filter(Boolean);
+    }
+
+    function collectMapSelectionEntries(items) {
+        const selections = [];
+        const seenIds = new Set();
+
+        function walk(nodes) {
+            if (!Array.isArray(nodes)) return;
+            nodes.forEach((item) => {
+                if (!item || typeof item !== 'object') return;
+
+                const normalizedId = String(item.id || '').trim();
+                const label = String(item.name || normalizedId || '').trim();
+                const isLoadable = Boolean(
+                    normalizedId &&
+                    label &&
+                    item.imageUrl &&
+                    item.status !== 'coming-soon' &&
+                    !item.error
+                );
+                const isUnavailablePlaceholder = Boolean(
+                    normalizedId &&
+                    (item.status === 'coming-soon' || item.error)
+                );
+
+                if ((isLoadable || isUnavailablePlaceholder) && !seenIds.has(normalizedId)) {
+                    seenIds.add(normalizedId);
+                    selections.push({
+                        id: normalizedId,
+                        name: label || normalizedId,
+                        disabled: !isLoadable,
+                        title: String(item.error || (item.status === 'coming-soon' ? 'Unavailable' : ''))
+                    });
+                }
+
+                if (Array.isArray(item.children)) {
+                    walk(item.children);
+                }
+            });
+        }
+
+        walk(items);
+        return selections;
+    }
+
     function applyMapSettings(mapToUpdate, mapSettings = {}) {
         if (!mapToUpdate || typeof mapToUpdate !== 'object') return;
         mapToUpdate.scalePixels = parseInt(mapSettings.scalePixels, 10) || 3;
@@ -256,6 +363,9 @@
         normalizePoint,
         normalizeRegion,
         resolveFeatureIndexFromSelection,
+        createUnavailableMapEntry,
+        hydrateFileBackedManifestTree,
+        collectMapSelectionEntries,
         serializeEditorState,
         serializeManifestState
     };
