@@ -15,6 +15,12 @@
         drawMode: '',
         draftCoordinates: [],
         selectedFeature: null,
+        featureListState: {
+            type: 'points',
+            searchQuery: '',
+            expanded: false,
+            defaultLimit: 5
+        },
         expandedFolderIds: new Set(),
         treeSearch: '',
         map: null,
@@ -44,9 +50,10 @@
         mapSettingsForm: document.getElementById('map-settings-form'),
         featureForm: document.getElementById('editor-feature-form'),
         featureFormEmpty: document.getElementById('editor-feature-inspector-empty'),
-        poiList: document.getElementById('editor-poi-list'),
-        regionList: document.getElementById('editor-region-list'),
-        lineList: document.getElementById('editor-line-list'),
+        featureTypeSelect: document.getElementById('editor-feature-type-select'),
+        featureSearchInput: document.getElementById('editor-feature-search'),
+        unifiedFeatureList: document.getElementById('editor-unified-feature-list'),
+        featureShowMoreButton: document.getElementById('editor-feature-show-more-btn'),
         addPoiButton: document.getElementById('editor-add-poi-btn'),
         addRegionButton: document.getElementById('editor-add-region-btn'),
         addLineButton: document.getElementById('editor-add-line-btn'),
@@ -437,35 +444,59 @@
     }
 
     function renderFeatureLists() {
-        const featureGroups = [
-            { mode: 'points', container: dom.poiList, items: getCurrentPoints() },
-            { mode: 'regions', container: dom.regionList, items: getCurrentRegions() },
-            { mode: 'lines', container: dom.lineList, items: getCurrentLines() }
-        ];
+        const { type, searchQuery, expanded, defaultLimit } = state.featureListState;
+        dom.featureTypeSelect.value = type;
+        dom.unifiedFeatureList.innerHTML = '';
+        dom.featureShowMoreButton.hidden = true;
 
-        featureGroups.forEach(({ mode, container, items }) => {
-            container.innerHTML = '';
-            if (!Array.isArray(items) || items.length === 0) {
-                container.innerHTML = '<p class="map-editor-placeholder">No entries yet.</p>';
-                return;
-            }
+        let items = [];
+        if (type === 'points') items = getCurrentPoints();
+        else if (type === 'regions') items = getCurrentRegions();
+        else if (type === 'lines') items = getCurrentLines();
 
-            items.forEach((item, index) => {
-                const button = document.createElement('button');
-                button.type = 'button';
-                button.className = 'map-editor-feature-entry';
-                if (state.selectedFeature && state.selectedFeature.mode === mode && state.selectedFeature.index === index) {
-                    button.classList.add('active');
-                }
-                const label = item.name || item.id || `${mode.slice(0, -1)} ${index + 1}`;
-                const meta = mode === 'points'
-                    ? `${item.type || 'Point'} - ${Array.isArray(item.coords) ? item.coords.join(', ') : 'No coords'}`
-                    : `${mode === 'regions' ? (item.value || item.type || 'Region') : (item.type || 'Line')} - ${(Array.isArray(item.coordinates) ? item.coordinates.length : 0)} vertices`;
-                button.innerHTML = `${escapeHtml(label)}<span class="map-editor-feature-meta">${escapeHtml(meta)}</span>`;
-                button.addEventListener('click', () => selectFeature(mode, index));
-                container.appendChild(button);
-            });
+        if (!Array.isArray(items) || items.length === 0) {
+            dom.unifiedFeatureList.innerHTML = '<p class="map-editor-placeholder">No entries yet.</p>';
+            dom.featureSummary.textContent = getFeatureSummaryLabel();
+            return;
+        }
+
+        const query = searchQuery.toLowerCase();
+        const filteredItems = items.map((item, index) => ({ item, index })).filter(({ item, index }) => {
+            if (!query) return true;
+            const label = item.name || item.id || `${type.slice(0, -1)} ${index + 1}`;
+            const meta = type === 'points' ? (item.type || 'Point') : (type === 'regions' ? (item.value || item.type || 'Region') : (item.type || 'Line'));
+            return label.toLowerCase().includes(query) || meta.toLowerCase().includes(query);
         });
+
+        if (filteredItems.length === 0) {
+            dom.unifiedFeatureList.innerHTML = '<p class="map-editor-placeholder">No matching entries found.</p>';
+            dom.featureSummary.textContent = getFeatureSummaryLabel();
+            return;
+        }
+
+        const limit = expanded ? filteredItems.length : defaultLimit;
+        const visibleItems = filteredItems.slice(0, limit);
+
+        visibleItems.forEach(({ item, index }) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'map-editor-feature-entry';
+            if (state.selectedFeature && state.selectedFeature.mode === type && state.selectedFeature.index === index) {
+                button.classList.add('active');
+            }
+            const label = item.name || item.id || `${type.slice(0, -1)} ${index + 1}`;
+            const meta = type === 'points'
+                ? `${item.type || 'Point'} - ${Array.isArray(item.coords) ? item.coords.join(', ') : 'No coords'}`
+                : `${type === 'regions' ? (item.value || item.type || 'Region') : (item.type || 'Line')} - ${(Array.isArray(item.coordinates) ? item.coordinates.length : 0)} vertices`;
+            button.innerHTML = `${escapeHtml(label)}<span class="map-editor-feature-meta">${escapeHtml(meta)}</span>`;
+            button.addEventListener('click', () => selectFeature(type, index));
+            dom.unifiedFeatureList.appendChild(button);
+        });
+
+        if (filteredItems.length > defaultLimit) {
+            dom.featureShowMoreButton.hidden = false;
+            dom.featureShowMoreButton.textContent = expanded ? 'Show Less' : `Show All (${filteredItems.length})`;
+        }
 
         dom.featureSummary.textContent = getFeatureSummaryLabel();
     }
@@ -916,6 +947,7 @@
                 properties: {}
             });
             clearDrawMode();
+            state.featureListState.type = 'regions';
             selectFeature('regions', getCurrentRegions().length - 1);
             setSelectionStatus('Created a new region.');
             return;
@@ -940,6 +972,7 @@
             properties: {}
         });
         clearDrawMode();
+        state.featureListState.type = 'lines';
         selectFeature('lines', getCurrentLines().length - 1);
         setSelectionStatus('Created a new line.');
     }
@@ -960,6 +993,7 @@
                 properties: {}
             });
             clearDrawMode();
+            state.featureListState.type = 'points';
             selectFeature('points', getCurrentPoints().length - 1);
             setSelectionStatus('Added a new POI.');
             return;
@@ -1136,6 +1170,23 @@
             const field = event.target.dataset.field;
             if (!field || field === 'description' || field === 'summary') return;
             updateSelectedFeatureFromForm(event);
+        });
+
+        dom.featureTypeSelect.addEventListener('change', (event) => {
+            state.featureListState.type = event.target.value;
+            state.featureListState.expanded = false;
+            renderFeatureLists();
+        });
+
+        dom.featureSearchInput.addEventListener('input', (event) => {
+            state.featureListState.searchQuery = event.target.value;
+            state.featureListState.expanded = false;
+            renderFeatureLists();
+        });
+
+        dom.featureShowMoreButton.addEventListener('click', () => {
+            state.featureListState.expanded = !state.featureListState.expanded;
+            renderFeatureLists();
         });
 
         dom.addPoiButton.addEventListener('click', () => beginDrawMode('point'));
