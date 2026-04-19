@@ -2,11 +2,13 @@ const assert = require('node:assert/strict');
 
 const {
     buildFeatureSelectionKey,
+    createRepoFileBackedMapSource,
     detectLineCollectionKey,
     filterMapTree,
     findMapRecursive,
     normalizeManifestTree,
     normalizePoint,
+    resolveFileBackedMapDocument,
     resolveFeatureIndexFromSelection,
     serializeEditorState,
     serializeManifestState
@@ -221,4 +223,183 @@ assert.equal(
     0
 );
 
-console.log('editor shared helper regression checks passed');
+(async () => {
+    let inlineLoadCount = 0;
+    const inlineResolved = await resolveFileBackedMapDocument(
+        {
+            id: 'inline-map',
+            name: 'Inline Map',
+            imageUrl: 'maps/inline-map.webp',
+            pointsOfInterest: [{ name: 'Dock', coords: [1, 2], type: 'Harbor' }]
+        },
+        {
+            loadJsonByPath: async () => {
+                inlineLoadCount += 1;
+                return {};
+            }
+        }
+    );
+    assert.equal(inlineResolved.pointsOfInterest.length, 1);
+    assert.equal(inlineLoadCount, 0);
+
+    const dataUrlResolved = await resolveFileBackedMapDocument(
+        {
+            id: 'data-url-map',
+            name: 'Data URL Map',
+            imageUrl: 'maps/data-url-map.webp',
+            dataUrl: 'maps/custom-map.json'
+        },
+        {
+            loadJsonByPath: async (path) => {
+                assert.equal(path, 'maps/custom-map.json');
+                return {
+                    id: 'data-url-map',
+                    pointsOfInterest: [{ name: 'Gate', coords: [3, 4], type: 'City' }]
+                };
+            }
+        }
+    );
+    assert.equal(dataUrlResolved.pointsOfInterest[0].name, 'Gate');
+
+    const fallbackResolved = await resolveFileBackedMapDocument(
+        {
+            id: 'fallback-map',
+            name: 'Fallback Map',
+            imageUrl: 'maps/fallback-map.webp'
+        },
+        {
+            loadJsonByPath: async (path) => {
+                assert.equal(path, 'maps/fallback-map.json');
+                return {
+                    id: 'fallback-map',
+                    pointsOfInterest: [{ name: 'Harbor', coords: [5, 6], type: 'Harbor' }]
+                };
+            }
+        }
+    );
+    assert.equal(fallbackResolved.pointsOfInterest[0].name, 'Harbor');
+
+    await assert.rejects(
+        () => resolveFileBackedMapDocument(
+            {
+                id: 'missing-map',
+                name: 'Missing Map',
+                imageUrl: 'maps/missing-map.webp'
+            },
+            {
+                loadJsonByPath: async (path) => {
+                    throw new Error(`Not found: ${path}`);
+                }
+            }
+        ),
+        /Could not resolve full map JSON for "missing-map": tried maps\/missing-map\.json/
+    );
+
+    const rootSelectionSource = await createRepoFileBackedMapSource([
+        {
+            path: 'repo/maps/maps.json',
+            text: JSON.stringify([
+                {
+                    id: 'root-map',
+                    name: 'Root Map',
+                    imageUrl: 'maps/root-map.webp'
+                }
+            ])
+        },
+        {
+            path: 'repo/maps/atlas-index.json',
+            text: JSON.stringify({
+                tree: [
+                    {
+                        id: 'root-map',
+                        name: 'Root Map',
+                        imageUrl: 'maps/root-map.webp',
+                        dataUrl: 'maps/root-map.json'
+                    }
+                ]
+            })
+        },
+        {
+            path: 'repo/maps/root-map.json',
+            text: JSON.stringify({
+                id: 'root-map',
+                name: 'Root Map',
+                imageUrl: 'maps/root-map.webp',
+                pointsOfInterest: [{ name: 'Root Harbor', coords: [1, 1], type: 'Harbor' }]
+            })
+        },
+        {
+            path: 'repo/maps/root-map.webp',
+            text: 'unused'
+        }
+    ]);
+    assert.equal(rootSelectionSource.baseManifest[0].id, 'root-map');
+    assert.equal(rootSelectionSource.browseTree[0].id, 'root-map');
+    assert.equal((await rootSelectionSource.resolveMapDocument(rootSelectionSource.browseTree[0])).pointsOfInterest[0].name, 'Root Harbor');
+
+    const mapsFolderSource = await createRepoFileBackedMapSource([
+        {
+            path: 'maps/maps.json',
+            text: JSON.stringify([
+                {
+                    id: 'folder-map',
+                    name: 'Folder Map',
+                    imageUrl: 'maps/folder-map.webp',
+                    children: ['child-map']
+                }
+            ])
+        },
+        {
+            path: 'maps/folder-map.json',
+            text: JSON.stringify({
+                id: 'folder-map',
+                name: 'Folder Map',
+                imageUrl: 'maps/folder-map.webp',
+                children: ['child-map']
+            })
+        },
+        {
+            path: 'maps/child-map.json',
+            text: JSON.stringify({
+                id: 'child-map',
+                name: 'Child Map',
+                imageUrl: 'maps/child-map.webp',
+                pointsOfInterest: [{ name: 'Child Harbor', coords: [9, 9], type: 'Harbor' }]
+            })
+        },
+        {
+            path: 'maps/folder-map.webp',
+            text: 'unused'
+        },
+        {
+            path: 'maps/child-map.webp',
+            text: 'unused'
+        }
+    ]);
+    const hydratedChild = findMapRecursive(mapsFolderSource.browseTree, 'child-map');
+    assert.ok(hydratedChild);
+    assert.equal(hydratedChild.dataUrl, 'maps/child-map.json');
+    assert.equal((await mapsFolderSource.resolveMapDocument(hydratedChild)).pointsOfInterest[0].name, 'Child Harbor');
+
+    await assert.rejects(
+        () => mapsFolderSource.resolveMapDocument({
+            id: 'missing-child',
+            name: 'Missing Child',
+            imageUrl: 'maps/missing-child.webp'
+        }),
+        /Missing required file: maps\/missing-child\.json/
+    );
+
+    assert.throws(
+        () => mapsFolderSource.resolveImageEntry({
+            id: 'missing-child',
+            imageUrl: 'maps/missing-child.webp'
+        }),
+        /Missing required file: maps\/missing-child\.webp/
+    );
+
+    console.log('editor shared helper regression checks passed');
+})().catch((error) => {
+    console.error(error);
+    process.exit(1);
+});

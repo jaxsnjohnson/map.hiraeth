@@ -145,6 +145,216 @@
         };
     }
 
+    function buildDefaultMapDataUrl(id) {
+        const normalizedId = String(id || '').trim();
+        return normalizedId ? `maps/${normalizedId}.json` : '';
+    }
+
+    function hasInlineEditableMapPayload(mapData) {
+        if (!mapData || typeof mapData !== 'object') return false;
+        return Array.isArray(mapData.pointsOfInterest) ||
+            Array.isArray(mapData.regions) ||
+            Array.isArray(mapData.lines) ||
+            Array.isArray(mapData.roads) ||
+            typeof mapData.blurb === 'string' ||
+            (mapData.filterGroups && typeof mapData.filterGroups === 'object');
+    }
+
+    async function resolveFileBackedMapDocument(mapData, options = {}) {
+        if (!mapData || typeof mapData !== 'object') {
+            throw new Error('Cannot resolve map document: invalid map node.');
+        }
+
+        const fallbackMap = cloneJson(mapData);
+        if (hasInlineEditableMapPayload(fallbackMap)) {
+            delete fallbackMap.dataUrl;
+            return fallbackMap;
+        }
+
+        const loadJsonByPath = typeof options.loadJsonByPath === 'function'
+            ? options.loadJsonByPath
+            : null;
+        const resolveDefaultDataUrl = typeof options.resolveDefaultDataUrl === 'function'
+            ? options.resolveDefaultDataUrl
+            : buildDefaultMapDataUrl;
+        const mapId = String(fallbackMap.id || fallbackMap.name || 'unknown-map').trim();
+
+        if (!loadJsonByPath) {
+            throw new Error(`Could not resolve full map JSON for "${mapId}": no loader configured.`);
+        }
+
+        const candidatePaths = [];
+        const explicitDataUrl = String(fallbackMap.dataUrl || '').trim();
+        if (explicitDataUrl) candidatePaths.push(explicitDataUrl);
+
+        const defaultDataUrl = String(resolveDefaultDataUrl(fallbackMap.id, fallbackMap) || '').trim();
+        if (defaultDataUrl && !candidatePaths.includes(defaultDataUrl)) {
+            candidatePaths.push(defaultDataUrl);
+        }
+
+        if (candidatePaths.length === 0) {
+            throw new Error(`Could not resolve full map JSON for "${mapId}": no dataUrl or default path was available.`);
+        }
+
+        const failures = [];
+        for (const candidatePath of candidatePaths) {
+            try {
+                const loadedMap = await loadJsonByPath(candidatePath, fallbackMap);
+                if (!loadedMap || typeof loadedMap !== 'object') {
+                    throw new Error('returned no JSON object');
+                }
+
+                const resolvedMap = {
+                    ...fallbackMap,
+                    ...cloneJson(loadedMap)
+                };
+                delete resolvedMap.dataUrl;
+                return resolvedMap;
+            } catch (error) {
+                failures.push(`${candidatePath} (${error?.message || 'Unknown error.'})`);
+            }
+        }
+
+        throw new Error(`Could not resolve full map JSON for "${mapId}": tried ${failures.join('; ')}`);
+    }
+
+    function normalizeRepoEntryPath(entry) {
+        if (!entry || typeof entry !== 'object') return '';
+        const rawPath = entry.path || entry.relativePath || entry.webkitRelativePath || entry.name || '';
+        return String(rawPath)
+            .replace(/\\/g, '/')
+            .replace(/^\.?\//, '')
+            .replace(/\/+/g, '/')
+            .trim();
+    }
+
+    function buildRepoPathAliases(pathname) {
+        const normalizedPath = String(pathname || '').trim();
+        if (!normalizedPath) return [];
+
+        const parts = normalizedPath.split('/').filter(Boolean);
+        const aliases = [];
+        for (let index = 0; index < parts.length; index += 1) {
+            aliases.push(parts.slice(index).join('/'));
+        }
+        return aliases;
+    }
+
+    async function createRepoFileBackedMapSource(entries, options = {}) {
+        if (!Array.isArray(entries) || entries.length === 0) {
+            throw new Error('No files were provided for the repo folder.');
+        }
+
+        const readText = typeof options.readText === 'function'
+            ? options.readText
+            : async (entry) => {
+                if (!entry || typeof entry !== 'object') {
+                    throw new Error('Missing repo file entry.');
+                }
+                if (typeof entry.text === 'string') return entry.text;
+                if (typeof entry.text === 'function') return entry.text();
+                if (entry.file && typeof entry.file.text === 'function') return entry.file.text();
+                throw new Error(`Could not read "${normalizeRepoEntryPath(entry)}".`);
+            };
+
+        const entryByAlias = new Map();
+        const jsonCache = new Map();
+
+        entries.forEach((entry) => {
+            const normalizedPath = normalizeRepoEntryPath(entry);
+            if (!normalizedPath) return;
+            const normalizedEntry = {
+                ...entry,
+                path: normalizedPath
+            };
+            const aliases = buildRepoPathAliases(normalizedPath);
+            aliases.forEach((alias) => {
+                const existingEntry = entryByAlias.get(alias);
+                if (!existingEntry || existingEntry.path.length > normalizedEntry.path.length) {
+                    entryByAlias.set(alias, normalizedEntry);
+                }
+            });
+        });
+
+        function getFileEntry(relativePath) {
+            const normalizedPath = String(relativePath || '')
+                .replace(/\\/g, '/')
+                .replace(/^\.?\//, '')
+                .replace(/\/+/g, '/')
+                .trim();
+            if (!normalizedPath) {
+                throw new Error('Missing required file path.');
+            }
+            const entry = entryByAlias.get(normalizedPath);
+            if (!entry) {
+                throw new Error(`Missing required file: ${normalizedPath}`);
+            }
+            return entry;
+        }
+
+        async function loadJsonByPath(relativePath) {
+            const normalizedPath = String(relativePath || '')
+                .replace(/\\/g, '/')
+                .replace(/^\.?\//, '')
+                .replace(/\/+/g, '/')
+                .trim();
+            if (!normalizedPath) {
+                throw new Error('Missing JSON file path.');
+            }
+
+            if (!jsonCache.has(normalizedPath)) {
+                jsonCache.set(normalizedPath, Promise.resolve().then(async () => {
+                    const entry = getFileEntry(normalizedPath);
+                    const rawText = await readText(entry);
+                    try {
+                        return JSON.parse(rawText);
+                    } catch (error) {
+                        throw new Error(`Invalid JSON in ${normalizedPath}: ${error.message}`);
+                    }
+                }));
+            }
+
+            return cloneJson(await jsonCache.get(normalizedPath));
+        }
+
+        const manifest = await loadJsonByPath('maps/maps.json');
+        if (!Array.isArray(manifest)) {
+            throw new Error('maps/maps.json must contain an array of map entries.');
+        }
+
+        let browseTree;
+        try {
+            const atlas = await loadJsonByPath('maps/atlas-index.json');
+            browseTree = normalizeManifestTree(Array.isArray(atlas?.tree) ? atlas.tree : []);
+        } catch (error) {
+            browseTree = await hydrateFileBackedManifestTree(
+                manifest,
+                async (mapId) => loadJsonByPath(buildDefaultMapDataUrl(mapId)),
+                {
+                    resolveDataUrl: buildDefaultMapDataUrl
+                }
+            );
+        }
+
+        return {
+            kind: 'repo-folder',
+            baseManifest: normalizeManifestTree(manifest),
+            browseTree,
+            loadJsonByPath,
+            resolveMapDocument: (mapData) => resolveFileBackedMapDocument(mapData, {
+                loadJsonByPath,
+                resolveDefaultDataUrl: buildDefaultMapDataUrl
+            }),
+            resolveImageEntry: (mapData) => {
+                const imageUrl = String(mapData?.imageUrl || '').trim();
+                if (!imageUrl) {
+                    throw new Error(`Map "${String(mapData?.id || mapData?.name || 'unknown-map')}" is missing an imageUrl.`);
+                }
+                return getFileEntry(imageUrl);
+            }
+        };
+    }
+
     async function hydrateFileBackedManifestTree(items, loadMapById, options = {}) {
         if (!Array.isArray(items) || typeof loadMapById !== 'function') return [];
 
@@ -364,8 +574,10 @@
         normalizeRegion,
         resolveFeatureIndexFromSelection,
         createUnavailableMapEntry,
+        createRepoFileBackedMapSource,
         hydrateFileBackedManifestTree,
         collectMapSelectionEntries,
+        resolveFileBackedMapDocument,
         serializeEditorState,
         serializeManifestState
     };

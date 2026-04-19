@@ -1045,7 +1045,12 @@
                         <input type="file" id="jsonFileInput" accept=".json">
                     </div>
                     <div class="control-row">
-                         <label for="subMapSelect">2. Select Map</label>
+                        <label for="loadRepoFolderBtn">2. Load Repo Folder</label>
+                        <button id="loadRepoFolderBtn" class="secondary" type="button">Load Repo Folder</button>
+                        <input type="file" id="repoFolderInput" webkitdirectory directory multiple class="hidden">
+                    </div>
+                    <div class="control-row">
+                         <label for="subMapSelect">3. Select Map</label>
                          <select id="subMapSelect" disabled>
                             <option value="">-- Load file first --</option>
                          </select>
@@ -1364,7 +1369,7 @@
                 <h2>Start Here</h2>
                 <p>Select a map, then add points, regions, or lines directly on the map.</p>
                 <ol>
-                    <li>Choose a map from Server Maps (or load a local JSON file)</li>
+                    <li>Choose a map from Server Maps, load a JSON file, or load a repo folder</li>
                     <li>Select Points / Regions / Lines</li>
                     <li>Click the map to add, then Save</li>
                 </ol>
@@ -1381,20 +1386,25 @@
     </main>
 </div>
 
+    <script>
+        window.APP_ASSET_VERSION = "2026.04.18.01";
+    </script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
         crossorigin=""></script>
     <script src="https://unpkg.com/leaflet-geometryutil"></script>
-    <script src="js/libs/text-toolbar.js"></script>
+    <script src="js/libs/text-toolbar.js?v=2026.04.18.01"></script>
 
     <!-- Paste Original JS Logic Here with minimal tweaks -->
-    <script src="js/editor-shared.js"></script>
+    <script src="js/editor-shared.js?v=2026.04.18.01"></script>
     <script>
         const editorUtils = window.MapEditorUtils;
 
         // --- DOM Element References ---
         const mapElement = document.getElementById('map');
         const jsonFileInput = document.getElementById('jsonFileInput');
+        const repoFolderInput = document.getElementById('repoFolderInput');
+        const loadRepoFolderBtn = document.getElementById('loadRepoFolderBtn');
         const subMapSelect = document.getElementById('subMapSelect');
         const loadSubMapBtn = document.getElementById('loadSubMapBtn');
         const exportMapDataBtn = document.getElementById('exportMapDataBtn');
@@ -1517,8 +1527,8 @@
         // --- State Variables ---
         let map = null;
         let imageLayer = null;
-        let masterMapData = []; // Current manifest/base document for export flows
         let currentMapObject = null; // The specific map object being edited
+        let currentMapImageUrl = '';
         let currentBounds = null;
         let lastClickedCoordsArray = null;
         let collectedPoints = [];
@@ -1571,12 +1581,10 @@
         const regionUndoStack = [];
         const maxRegionUndoSteps = 100;
 
-        let serverMapData = []; // Cached atlas tree for server browsing
-        let localBrowserMapData = []; // Hydrated local manifest tree for browsing/loading
-        let serverManifestData = []; // Cached slim manifest for server export flows
-        let localManifestHydrationCache = new Map();
+        let activeMapSource = null;
+        let serverMapSource = null;
+        let localMapSource = null;
         let currentLineCollectionKey = 'lines';
-        let isSingleMapSource = false;
 
 
         const poiTypeGroups = {
@@ -1652,12 +1660,60 @@
 	            }
 	        }
 
-            function isServerSourceActive() {
-                return Array.from(sourceTabs).some((tab) => tab.dataset.source === 'server' && tab.classList.contains('active'));
+            function withAssetVersion(url) {
+                const rawUrl = String(url || '').trim();
+                if (!rawUrl) return rawUrl;
+                if (/^(blob:|data:|javascript:)/i.test(rawUrl)) return rawUrl;
+
+                try {
+                    const parsedUrl = new URL(rawUrl, window.location.href);
+                    if (parsedUrl.origin !== window.location.origin) return rawUrl;
+                    parsedUrl.searchParams.set('v', window.APP_ASSET_VERSION || '0');
+                    return parsedUrl.toString();
+                } catch (error) {
+                    return rawUrl;
+                }
             }
 
-            async function fetchJsonDocument(url) {
-                const response = await fetch(url);
+            function createEmptyMapSource(kind = 'empty') {
+                return {
+                    kind,
+                    browseTree: [],
+                    baseManifest: [],
+                    exportMode: 'manifest',
+                    async resolveMapDocument(mapData) {
+                        return editorUtils.cloneJson(mapData);
+                    },
+                    async resolveImageUrl(mapData) {
+                        return String(mapData?.imageUrl || '').trim();
+                    },
+                    cleanup() {}
+                };
+            }
+
+            function setActiveMapSource(nextSource) {
+                activeMapSource = nextSource || createEmptyMapSource();
+            }
+
+            function replaceLocalMapSource(nextSource) {
+                const previousLocalSource = localMapSource;
+                if (previousLocalSource && previousLocalSource !== serverMapSource && typeof previousLocalSource.cleanup === 'function') {
+                    previousLocalSource.cleanup();
+                }
+                localMapSource = nextSource || null;
+                if (nextSource) {
+                    setActiveMapSource(nextSource);
+                } else if (activeMapSource === previousLocalSource) {
+                    setActiveMapSource(serverMapSource || createEmptyMapSource());
+                }
+            }
+
+            function getCurrentBaseManifest() {
+                return Array.isArray(activeMapSource?.baseManifest) ? activeMapSource.baseManifest : [];
+            }
+
+            async function fetchJsonDocument(url, options = {}) {
+                const response = await fetch(options.versioned === false ? url : withAssetVersion(url));
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 return response.json();
             }
@@ -1666,32 +1722,104 @@
                 return `maps/${String(mapId || '').trim()}.json`;
             }
 
-            function getActiveBrowserMapData() {
-                if (isServerSourceActive()) return serverMapData;
-                if (localBrowserMapData.length > 0) return localBrowserMapData;
-                return masterMapData;
+            function createServedRepoSource(browseTree, baseManifest) {
+                return {
+                    kind: 'served-repo',
+                    browseTree: editorUtils.normalizeManifestTree(browseTree),
+                    baseManifest: editorUtils.normalizeManifestTree(baseManifest),
+                    exportMode: 'manifest',
+                    resolveMapDocument: (mapData) => editorUtils.resolveFileBackedMapDocument(mapData, {
+                        loadJsonByPath: (path) => fetchJsonDocument(path),
+                        resolveDefaultDataUrl: buildDefaultLocalDataUrl
+                    }),
+                    resolveImageUrl: async (mapData) => withAssetVersion(mapData?.imageUrl),
+                    cleanup() {}
+                };
             }
 
-            async function resolveMapDocument(mapData) {
-                const fallbackMap = editorUtils.cloneJson(mapData);
-                const dataUrl = String(mapData?.dataUrl || '').trim();
-
-                if (!mapData || !dataUrl) {
-                    delete fallbackMap.dataUrl;
-                    return fallbackMap;
-                }
-
-                const fileBackedMap = await fetchJsonDocument(dataUrl);
-                const resolvedMap = {
-                    ...fallbackMap,
-                    ...fileBackedMap
+            function createSingleMapSource(mapData) {
+                const normalizedMap = editorUtils.cloneJson(mapData);
+                return {
+                    kind: 'single-map',
+                    browseTree: [editorUtils.cloneJson(normalizedMap)],
+                    baseManifest: [editorUtils.cloneJson(normalizedMap)],
+                    exportMode: 'single-map',
+                    async resolveMapDocument() {
+                        return editorUtils.cloneJson(normalizedMap);
+                    },
+                    async resolveImageUrl(mapDocument) {
+                        return withAssetVersion(mapDocument?.imageUrl);
+                    },
+                    cleanup() {}
                 };
-                delete resolvedMap.dataUrl;
-                return resolvedMap;
+            }
+
+            async function createHttpManifestSource(manifestData) {
+                const normalizedManifest = editorUtils.normalizeManifestTree(manifestData);
+                const hydrationCache = new Map();
+                const browseTree = await editorUtils.hydrateFileBackedManifestTree(
+                    normalizedManifest,
+                    async (mapId) => fetchJsonDocument(buildDefaultLocalDataUrl(mapId)),
+                    {
+                        cache: hydrationCache,
+                        resolveDataUrl: buildDefaultLocalDataUrl
+                    }
+                );
+
+                return {
+                    kind: 'http-manifest',
+                    browseTree,
+                    baseManifest: normalizedManifest,
+                    exportMode: 'manifest',
+                    resolveMapDocument: (mapData) => editorUtils.resolveFileBackedMapDocument(mapData, {
+                        loadJsonByPath: (path) => fetchJsonDocument(path),
+                        resolveDefaultDataUrl: buildDefaultLocalDataUrl
+                    }),
+                    resolveImageUrl: async (mapDocument) => withAssetVersion(mapDocument?.imageUrl),
+                    cleanup() {}
+                };
+            }
+
+            async function createRepoFolderMapSource(fileList) {
+                const fileEntries = Array.from(fileList || []).map((file) => ({
+                    file,
+                    path: file.webkitRelativePath || file.name
+                }));
+                const repoSource = await editorUtils.createRepoFileBackedMapSource(fileEntries);
+                const blobUrlCache = new Map();
+
+                return {
+                    kind: 'repo-folder',
+                    browseTree: editorUtils.normalizeManifestTree(repoSource.browseTree),
+                    baseManifest: editorUtils.normalizeManifestTree(repoSource.baseManifest),
+                    exportMode: 'manifest',
+                    resolveMapDocument: repoSource.resolveMapDocument,
+                    async resolveImageUrl(mapDocument) {
+                        const imageEntry = repoSource.resolveImageEntry(mapDocument);
+                        const cacheKey = imageEntry.path;
+                        if (!blobUrlCache.has(cacheKey)) {
+                            const backingFile = imageEntry.file || imageEntry;
+                            blobUrlCache.set(cacheKey, URL.createObjectURL(backingFile));
+                        }
+                        return blobUrlCache.get(cacheKey);
+                    },
+                    cleanup() {
+                        blobUrlCache.forEach((blobUrl) => URL.revokeObjectURL(blobUrl));
+                        blobUrlCache.clear();
+                    }
+                };
+            }
+
+            function getLocalBrowseTree() {
+                return Array.isArray(localMapSource?.browseTree) ? localMapSource.browseTree : [];
+            }
+
+            function getServerBrowseTree() {
+                return Array.isArray(serverMapSource?.browseTree) ? serverMapSource.browseTree : [];
             }
 
             function getCurrentCompleteExportFilename() {
-                if (isSingleMapSource && currentMapObject) {
+                if (activeMapSource?.exportMode === 'single-map' && currentMapObject) {
                     return `${currentMapObject.id || 'selected-map'}.json`;
                 }
                 return 'maps.json';
@@ -1702,9 +1830,9 @@
 	        }
 
 	        function renderServerMaps(filterText = '') {
-	            const filtered = filterMapTree(serverMapData, filterText);
+	            const filtered = filterMapTree(getServerBrowseTree(), filterText);
 	            const isFilteredView = !!String(filterText || '').trim();
-	            renderMapTree(filtered, serverMapTree, { isFilteredView });
+	            renderMapTree(filtered, serverMapTree, { isFilteredView, source: serverMapSource });
 	        }
 
         function getSelectionKey(mode, item) {
@@ -1937,12 +2065,10 @@
                     fetchJsonDocument('maps/atlas-index.json'),
                     fetchJsonDocument('maps/maps.json')
                 ]);
-                serverMapData = editorUtils.normalizeManifestTree(atlas.tree || []);
-                serverManifestData = editorUtils.normalizeManifestTree(Array.isArray(manifest) ? manifest : []);
-                masterMapData = editorUtils.normalizeManifestTree(serverManifestData);
-                localBrowserMapData = [];
-                localManifestHydrationCache = new Map();
-                isSingleMapSource = false;
+                serverMapSource = createServedRepoSource(atlas.tree || [], Array.isArray(manifest) ? manifest : []);
+                if (!activeMapSource || activeMapSource.kind === 'served-repo' || activeMapSource.kind === 'empty') {
+                    setActiveMapSource(serverMapSource);
+                }
                 renderServerMaps(serverMapSearch ? serverMapSearch.value : '');
                 showToast("Map list updated", "success");
             } catch (e) {
@@ -1953,7 +2079,7 @@
         }
 
         function createTreeItem(item, options = {}) {
-            const { isFilteredView = false } = options;
+            const { isFilteredView = false, source = serverMapSource } = options;
             const li = document.createElement('li');
 
             // Determine if it should be treated as a folder (expandable container)
@@ -1983,10 +2109,10 @@
 
                  if (isMap) {
                      folderDiv.title = 'Click to load map';
-                     folderDiv.onclick = () => {
+                     folderDiv.onclick = async () => {
                          document.querySelectorAll('.tree-item, .tree-folder-name').forEach(el => el.classList.remove('active'));
                          nameSpan.classList.add('active');
-                         loadMap(item);
+                         await loadMapFromSource(source, item);
                      };
 
                      // It's a map folder: Name click loads map
@@ -2022,10 +2148,10 @@
                     mapDiv.classList.add('disabled');
                     mapDiv.title = item.error || "Coming Soon";
                 } else {
-                    mapDiv.onclick = () => {
+                    mapDiv.onclick = async () => {
                         document.querySelectorAll('.tree-item, .tree-folder-name').forEach(el => el.classList.remove('active'));
                         mapDiv.classList.add('active');
-                        loadMap(item);
+                        await loadMapFromSource(source, item);
                     }
                 }
                 li.appendChild(mapDiv);
@@ -2892,7 +3018,7 @@
 
         function resetUIForNewMap() {
             regionUndoStack.length = 0;
-            setStatus('Select a map from Server Maps, or load a local JSON file.');
+            setStatus('Select a map from Server Maps, load a JSON file, or load a repo folder.');
             coordsDisplay.textContent = '[Y, X]';
             pointNameInput.value = ''; pointPronunciationInput.value = ''; poiTypeSelect.value = ''; pointDescriptionInput.value = ''; pointSummaryInput.value = ''; pointWikiLinkInput.value = ''; pointLinkedMapIdInput.value = '';
             displayProperties(pointPropertiesContainer, {});
@@ -2934,7 +3060,7 @@
                 }
             }
             imageLayer = null;
-            currentMapObject = null; currentBounds = null; 
+            currentMapObject = null; currentMapImageUrl = ''; currentBounds = null; 
             coastlineSnapIndex = null;
             setMapCoastSnapAvailability(false, 'Load a map image to enable coastline snapping.');
             updateCurrentMapChip();
@@ -2948,69 +3074,67 @@
             updateRegionVerticesCount(); updateLineVerticesCount();
         }
 
+        function resetLocalSelector(placeholderText = '-- Load file first --') {
+            subMapSelect.innerHTML = `<option value="">${placeholderText}</option>`;
+            subMapSelect.disabled = true;
+            loadSubMapBtn.disabled = true;
+        }
+
         // Refactored file processing to reuse for drop and input
-        function processFile(file) {
+        async function processFile(file) {
             setStatus(`Loading ${file.name}...`, 'info');
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                try {
-                    const jsonObject = JSON.parse(e.target.result);
-                    
-                    if (Array.isArray(jsonObject)) {
-                        masterMapData = editorUtils.normalizeManifestTree(jsonObject);
-                        localManifestHydrationCache = new Map();
-                        localBrowserMapData = await editorUtils.hydrateFileBackedManifestTree(
-                            masterMapData,
-                            (mapId) => fetchJsonDocument(buildDefaultLocalDataUrl(mapId)),
-                            {
-                                cache: localManifestHydrationCache,
-                                resolveDataUrl: buildDefaultLocalDataUrl
-                            }
-                        );
-                        isSingleMapSource = false;
-                        populateSubMapSelector(localBrowserMapData);
-                        resetUIForNewMap();
-                        setStatus("Manifest file loaded. Select a map.", "success");
+            try {
+                const jsonObject = JSON.parse(await file.text());
 
-                        // Auto-load if only one map available
-                        const allMaps = editorUtils.collectMapSelectionEntries(localBrowserMapData)
-                            .filter((mapInfo) => !mapInfo.disabled);
-
-                        if (allMaps.length === 1) {
-                            subMapSelect.value = allMaps[0].id;
-                            loadMapFromSelector(); // Auto load
+                if (Array.isArray(jsonObject)) {
+                    let nextLocalSource;
+                    try {
+                        nextLocalSource = await createHttpManifestSource(jsonObject);
+                        const manifestSelections = editorUtils.collectMapSelectionEntries(nextLocalSource.browseTree);
+                        const loadableSelections = manifestSelections.filter((mapInfo) => !mapInfo.disabled);
+                        if (loadableSelections.length === 0 && manifestSelections.length > 0) {
+                            const exampleFailure = manifestSelections.find((mapInfo) => mapInfo.title)?.title || 'Repo-backed map files were unavailable.';
+                            throw new Error(exampleFailure);
                         }
-
-                    } else if (typeof jsonObject === 'object' && jsonObject !== null && jsonObject.imageUrl) {
-                        masterMapData = [editorUtils.cloneJson(jsonObject)];
-                        localBrowserMapData = [editorUtils.cloneJson(jsonObject)];
-                        localManifestHydrationCache = new Map();
-                        isSingleMapSource = true;
-                        subMapSelect.innerHTML = `<option value="${jsonObject.id || ''}" selected>${jsonObject.name || 'Single Map'}</option>`;
-                        subMapSelect.disabled = true;
-                        loadSubMapBtn.disabled = true;
-                        await loadMap(masterMapData[0]);
-                    } else {
-                        throw new Error("Invalid JSON format. Must be an array of map objects or a single map object.");
+                    } catch (error) {
+                        throw new Error(`Manifest file requires repo-backed map files that were not reachable over HTTP. Use "Load Repo Folder" for direct repo loading. ${error.message}`);
                     }
 
-                } catch(error) {
-                    setStatus(`Error loading map file '${file.name}': ${error.message}`, 'error');
-                    console.error(error);
-                    masterMapData = [];
-                    localBrowserMapData = [];
-                    localManifestHydrationCache = new Map();
-                    isSingleMapSource = false;
-                    subMapSelect.innerHTML = '<option value="">-- Load failed --</option>';
+                    replaceLocalMapSource(nextLocalSource);
+                    setSourceTab('local');
+                    populateSubMapSelector(nextLocalSource.browseTree);
+                    resetUIForNewMap();
+                    setStatus('Manifest file loaded. Select a map.', 'success');
+
+                    const allMaps = editorUtils.collectMapSelectionEntries(nextLocalSource.browseTree)
+                        .filter((mapInfo) => !mapInfo.disabled);
+
+                    if (allMaps.length === 1) {
+                        subMapSelect.value = allMaps[0].id;
+                        await loadMapFromSelector();
+                    }
+                    return;
+                }
+
+                if (typeof jsonObject === 'object' && jsonObject !== null && jsonObject.imageUrl) {
+                    const nextLocalSource = createSingleMapSource(jsonObject);
+                    replaceLocalMapSource(nextLocalSource);
+                    setSourceTab('local');
+                    subMapSelect.innerHTML = `<option value="${jsonObject.id || ''}" selected>${jsonObject.name || 'Single Map'}</option>`;
                     subMapSelect.disabled = true;
                     loadSubMapBtn.disabled = true;
-                    resetUIForNewMap();
+                    await loadMapFromSource(nextLocalSource, nextLocalSource.browseTree[0]);
+                    return;
                 }
-            };
-            reader.onerror = () => {
-                 setStatus(`Error reading file: ${file.name}`, 'error');
+
+                throw new Error('Invalid JSON format. Must be an array of map objects or a single map object.');
+            } catch (error) {
+                console.error(error);
+                replaceLocalMapSource(null);
+                resetLocalSelector('-- Load failed --');
+                resetUIForNewMap();
+                setStatus(`Error loading map file '${file.name}': ${error.message}`, 'error');
             }
-            reader.readAsText(file);
         }
 
         function handleJsonFileLoad(event) {
@@ -3018,13 +3142,57 @@
             if (file) processFile(file);
         }
 
+        async function processRepoFolder(fileList) {
+            setStatus('Loading repo folder...', 'info');
+            try {
+                const nextLocalSource = await createRepoFolderMapSource(fileList);
+                replaceLocalMapSource(nextLocalSource);
+                setSourceTab('local');
+                populateSubMapSelector(nextLocalSource.browseTree);
+                resetUIForNewMap();
+                setStatus('Repo folder loaded. Select a map.', 'success');
+                showToast('Repo folder loaded', 'success');
+
+                const allMaps = editorUtils.collectMapSelectionEntries(nextLocalSource.browseTree)
+                    .filter((mapInfo) => !mapInfo.disabled);
+                if (allMaps.length === 1) {
+                    subMapSelect.value = allMaps[0].id;
+                    await loadMapFromSelector();
+                }
+            } catch (error) {
+                console.error(error);
+                replaceLocalMapSource(null);
+                resetLocalSelector('-- Load failed --');
+                resetUIForNewMap();
+                setStatus(`Error loading repo folder: ${error.message}`, 'error');
+                showToast('Repo folder load failed', 'error');
+            }
+        }
+
+        function handleRepoFolderLoad(event) {
+            const files = Array.from(event.target.files || []);
+            if (files.length > 0) processRepoFolder(files);
+        }
+
+        async function loadMapFromSource(source, mapData) {
+            if (!source) {
+                throw new Error('Map source is not available.');
+            }
+            setActiveMapSource(source);
+            await loadMap(mapData);
+        }
+
         async function loadMapFromSelector() {
             const selectedMapId = subMapSelect.value;
             if (!selectedMapId) { alert("Please select a map from the dropdown."); return; }
-            const mapData = editorUtils.findMapRecursive(getActiveBrowserMapData(), selectedMapId);
+            if (!localMapSource) {
+                alert('Load a JSON file or repo folder first.');
+                return;
+            }
+            const mapData = editorUtils.findMapRecursive(getLocalBrowseTree(), selectedMapId);
 
             if (mapData) {
-                await loadMap(mapData);
+                await loadMapFromSource(localMapSource, mapData);
             } else {
                 alert(`Could not find map data in the manifest for ID: ${selectedMapId}`);
             }
@@ -3037,21 +3205,27 @@
             }
             
             resetUIForNewMap();
-            loadSubMapBtn.disabled = true; setStatus('Loading image and map data...');
+            const shouldRestoreLocalLoadButton = !!localMapSource && !subMapSelect.disabled;
+            if (shouldRestoreLocalLoadButton) loadSubMapBtn.disabled = true;
+            setStatus('Loading image and map data...');
             
             try {
-                const resolvedMapData = await resolveMapDocument(mapData);
+                const resolvedMapData = await activeMapSource.resolveMapDocument(mapData);
+                const resolvedImageUrl = await activeMapSource.resolveImageUrl(resolvedMapData);
                 currentMapObject = resolvedMapData;
+                currentMapImageUrl = resolvedImageUrl;
                 currentLineCollectionKey = editorUtils.detectLineCollectionKey(currentMapObject);
                 updateCurrentMapChip();
                 showMapEmptyState(false);
 
                 const img = new Image();
                 await new Promise((resolve, reject) => {
-                    img.crossOrigin = 'anonymous';
+                    if (!/^blob:/i.test(currentMapImageUrl)) {
+                        img.crossOrigin = 'anonymous';
+                    }
                     img.onload = resolve; 
                     img.onerror = () => reject(new Error(`Could not load image file: ${currentMapObject.imageUrl}. Ensure the URL is correct and accessible.`));
-                    img.src = currentMapObject.imageUrl;
+                    img.src = currentMapImageUrl;
                 });
 
                 const mapWidth = currentMapObject.width || img.naturalWidth;
@@ -3061,7 +3235,7 @@
                 currentBounds = [[0, 0], [mapHeight, mapWidth]];
                 if (!map) throw new Error("Map object not initialized.");
                 
-                imageLayer = L.imageOverlay(currentMapObject.imageUrl, currentBounds).addTo(map);
+                imageLayer = L.imageOverlay(currentMapImageUrl, currentBounds).addTo(map);
                 map.fitBounds(currentBounds);
 
                 coastlineSnapIndex = buildCoastlineSnapIndexFromImage(img, mapWidth, mapHeight);
@@ -3097,14 +3271,8 @@
                 setStatus(`Error loading map: ${error.message}`, 'error'); 
                 console.error("Map Loading Error:", error); 
                 resetUIForNewMap();
-                if (masterMapData.length > 1) {
-                    subMapSelect.disabled = false;
-                    loadSubMapBtn.disabled = false;
-                }
             } finally { 
-                if (masterMapData.length > 1) {
-                    loadSubMapBtn.disabled = false;
-                }
+                if (shouldRestoreLocalLoadButton) loadSubMapBtn.disabled = false;
             }
         }
 
@@ -3789,12 +3957,12 @@
                 return null;
             }
 
-            if (isSingleMapSource) {
+            if (activeMapSource?.exportMode === 'single-map') {
                 return generateSelectedMapPreview();
             }
 
             return editorUtils.serializeManifestState({
-                masterMapData,
+                masterMapData: getCurrentBaseManifest(),
                 currentMapId: currentMapObject.id,
                 mapSettings: {
                     name: currentMapObject.name || '',
@@ -4121,6 +4289,8 @@
             initMap(); 
             populateTypeDropdown();
             setMode('points');
+            setActiveMapSource(createEmptyMapSource());
+            resetLocalSelector('-- Load JSON file or repo folder first --');
             resetUIForNewMap(); 
             initDragAndDrop();
 
@@ -4165,7 +4335,7 @@
                 });
             }
 
-            setStatus('Select a map from the list or load a JSON file.');
+            setStatus('Select a map from the list, load a JSON file, or load a repo folder.');
 
             document.addEventListener('keydown', (e) => {
                 const activeTag = document.activeElement?.tagName?.toLowerCase();
@@ -4189,6 +4359,13 @@
             });
 
             jsonFileInput.addEventListener('change', handleJsonFileLoad);
+            if (loadRepoFolderBtn) {
+                loadRepoFolderBtn.addEventListener('click', () => {
+                    setSourceTab('local');
+                    repoFolderInput.click();
+                });
+            }
+            if (repoFolderInput) repoFolderInput.addEventListener('change', handleRepoFolderLoad);
             loadSubMapBtn.addEventListener('click', loadMapFromSelector);
             exportMapDataBtn.addEventListener('click', exportMapData);
 
