@@ -18,8 +18,23 @@
 .map-editor-shell {
     height: 100vh;
     display: grid;
-    grid-template-columns: minmax(250px, 280px) minmax(0, 1fr) minmax(320px, 380px);
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
     gap: 0;
+}
+
+.map-editor-shell[data-mode="select"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.map-editor-shell[data-mode="select"] .map-editor-canvas-panel,
+.map-editor-shell[data-mode="select"] .map-editor-inspector {
+    display: none;
+}
+
+.map-editor-shell[data-mode="edit"] .map-editor-sidebar {
+    display: none;
 }
 
 .map-editor-sidebar,
@@ -37,8 +52,14 @@
 }
 
 .map-editor-sidebar {
-    border-right: 1px solid var(--editor-panel-border);
+    border: 1px solid var(--editor-panel-border);
+    border-radius: 12px;
     overflow-y: auto;
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    max-height: 80vh;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .map-editor-inspector {

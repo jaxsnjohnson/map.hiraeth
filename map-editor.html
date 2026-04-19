@@ -51,7 +51,7 @@
     </script>
 </head>
 <body class="map-editor-body">
-    <div id="map-editor-app" class="map-editor-shell">
+    <div id="map-editor-app" class="map-editor-shell" data-mode="select">
         <aside class="map-editor-sidebar">
             <div class="map-editor-panel-header">
                 <div>
@@ -70,6 +70,7 @@
         <main class="map-editor-canvas-panel">
             <div class="map-editor-toolbar">
                 <div class="map-editor-toolbar-group">
+                    <button id="editor-choose-map-btn" type="button">⬅ Choose Map</button>
                     <button id="editor-add-poi-btn" type="button">Add POI</button>
                     <button id="editor-add-region-btn" type="button">Draw Region</button>
                     <button id="editor-add-line-btn" type="button">Draw Line</button>

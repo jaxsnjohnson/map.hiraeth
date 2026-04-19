@@ -28,6 +28,7 @@
     };
 
     const dom = {
+        appShell: document.getElementById('map-editor-app'),
         atlasTree: document.getElementById('editor-atlas-tree'),
         treeSearch: document.getElementById('editor-tree-search'),
         reloadButton: document.getElementById('reload-editor-btn'),
@@ -54,7 +55,8 @@
         deleteSelectionButton: document.getElementById('editor-delete-selection-btn'),
         resetViewButton: document.getElementById('editor-reset-view-btn'),
         exportCurrentMapButton: document.getElementById('export-current-map-btn'),
-        exportAtlasStructureButton: document.getElementById('export-atlas-structure-btn')
+        exportAtlasStructureButton: document.getElementById('export-atlas-structure-btn'),
+        chooseMapButton: document.getElementById('editor-choose-map-btn')
     };
 
     function roundCoordinate(value) {
@@ -800,7 +802,8 @@
                 fill: true,
                 fillOpacity: 1,
                 fillColor: state.currentMap.backgroundColor || '#0f172a',
-                interactive: false
+                interactive: false,
+                pane: 'tilePane'
             }).addTo(state.map);
             setMapEmptyState({
                 hidden: false,
@@ -1083,6 +1086,9 @@
         setSelectionStatus(`Editing "${state.currentMap.name || state.currentMap.id}".`);
         renderMapLayers(true);
         setExportStatus('');
+
+        dom.appShell.setAttribute('data-mode', 'edit');
+        queueMapViewportReset();
     }
 
     function initializeMap() {
@@ -1146,6 +1152,11 @@
                 queueMapViewportReset();
             }
         });
+        if (dom.chooseMapButton) {
+            dom.chooseMapButton.addEventListener('click', () => {
+                dom.appShell.setAttribute('data-mode', 'select');
+            });
+        }
         dom.exportCurrentMapButton.addEventListener('click', exportCurrentMapJson);
         dom.exportAtlasStructureButton.addEventListener('click', exportAtlasStructure);
     }
