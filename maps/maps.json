@@ -1,48 +1,171 @@
 [
   {
     "id": "main_continent",
+    "order": 0,
     "name": "Content Map",
-    "type": "folder",
-    "children": [
-      "IceBeach",
-      "southern-thalassia",
-      "Cursed-Old-Lin",
-      "Arfordir",
-      "The-Port-City-of-Stomion"
-    ],
-    "width": 8192,
-    "height": 6144,
-    "imageUrl": "maps/Fair-Content.webp",
-    "latLonBounds": {
-      "north": 73,
-      "south": 1.24,
-      "east": -48.34375,
-      "west": 71.65625
-    },
-    "scalePixels": 1,
-    "scaleKilometers": 1.3,
-    "blurb": "From the gold-laced dust of its western canyons to the haunted glaciers of the far north, Fair is a land of adventure and antiquity. Chart a course through newly-opened fjord kingdoms, navigate the politics of ancient empires, and unearth the secrets of a world shaped by heroes and forgotten evils."
+    "dataUrl": "maps/Fair-Content.json",
+    "type": "folder"
+  },
+  {
+    "id": "IceBeach",
+    "order": 0,
+    "parentId": "main_continent",
+    "name": "IceBeach",
+    "dataUrl": "maps/IceBeach.json",
+    "type": "folder"
+  },
+  {
+    "id": "castgate",
+    "order": 0,
+    "parentId": "IceBeach",
+    "name": "Castgate",
+    "dataUrl": "maps/castgate.json"
+  },
+  {
+    "id": "southern-thalassia",
+    "order": 1,
+    "parentId": "main_continent",
+    "name": "Southern Thalassia",
+    "dataUrl": "maps/southern-thalassia.json"
+  },
+  {
+    "id": "Cursed-Old-Lin",
+    "order": 2,
+    "parentId": "main_continent",
+    "name": "Cursed-Old-Lin",
+    "dataUrl": "maps/Cursed-Old-Lin.json"
+  },
+  {
+    "id": "Arfordir",
+    "order": 3,
+    "parentId": "main_continent",
+    "name": "Arfordir",
+    "dataUrl": "maps/Arfordir.json",
+    "type": "folder"
+  },
+  {
+    "id": "Gelwood",
+    "order": 0,
+    "parentId": "Arfordir",
+    "name": "Gelwood",
+    "dataUrl": "maps/Gelwood.json"
+  },
+  {
+    "id": "The-Port-City-of-Stomion",
+    "order": 4,
+    "parentId": "main_continent",
+    "name": "The Port City of Stomion",
+    "dataUrl": "maps/The-Port-City-of-Stomion.json"
   },
   {
     "id": "IRL Old Maps",
+    "order": 1,
     "name": "Old Dev Maps",
-    "type": "folder",
-    "children": [
-      "DEV-2025-08-Fair-Content",
-      "OLD-Oldlins",
-      "OLD-Fair",
-      "OLD-CONT",
-      "OLD-Goldwind",
-      "OLD-Icebeach-Drawn-Map-POI",
-      "OLD-Icebeach-Map",
-      "OLD-rockdrift",
-      "OLD-map-of-south-eastern-fair",
-      "OLD-Arfordir",
-      "OLD-Bec",
-      "OLD-Castgate",
-      "OLD-Wolgari-Collage",
-      "OLD-Collage-Side",
-      "OLD-Icebeach-LARGE"
-    ]
+    "type": "folder"
+  },
+  {
+    "id": "DEV-2025-08-Fair-Content",
+    "order": 0,
+    "parentId": "IRL Old Maps",
+    "name": "DEV-2025-08-Fair-Content",
+    "dataUrl": "maps/DEV-2025-08-Fair-Content.json"
+  },
+  {
+    "id": "OLD-Oldlins",
+    "order": 1,
+    "parentId": "IRL Old Maps",
+    "name": "Oldlin",
+    "dataUrl": "maps/OLD-Oldlins.json"
+  },
+  {
+    "id": "OLD-Fair",
+    "order": 2,
+    "parentId": "IRL Old Maps",
+    "name": "Fair",
+    "dataUrl": "maps/OLD-Fair.json"
+  },
+  {
+    "id": "OLD-CONT",
+    "order": 3,
+    "parentId": "IRL Old Maps",
+    "name": "Found Content",
+    "dataUrl": "maps/OLD-CONT.json"
+  },
+  {
+    "id": "OLD-Goldwind",
+    "order": 4,
+    "parentId": "IRL Old Maps",
+    "name": "Goldwind",
+    "dataUrl": "maps/OLD-Goldwind.json"
+  },
+  {
+    "id": "OLD-Icebeach-Drawn-Map-POI",
+    "order": 5,
+    "parentId": "IRL Old Maps",
+    "name": "Hand Drawn Icebeach",
+    "dataUrl": "maps/OLD-Icebeach-Drawn-Map-POI.json"
+  },
+  {
+    "id": "OLD-Icebeach-Map",
+    "order": 6,
+    "parentId": "IRL Old Maps",
+    "name": "Icebeach 2022",
+    "dataUrl": "maps/OLD-Icebeach-Map.json"
+  },
+  {
+    "id": "OLD-rockdrift",
+    "order": 7,
+    "parentId": "IRL Old Maps",
+    "name": "Rockdrift",
+    "dataUrl": "maps/OLD-rockdrift.json"
+  },
+  {
+    "id": "OLD-map-of-south-eastern-fair",
+    "order": 8,
+    "parentId": "IRL Old Maps",
+    "name": "South Eastern Fair",
+    "dataUrl": "maps/OLD-map-of-south-eastern-fair.json"
+  },
+  {
+    "id": "OLD-Arfordir",
+    "order": 9,
+    "parentId": "IRL Old Maps",
+    "name": "Arfordir",
+    "dataUrl": "maps/OLD-Arfordir.json"
+  },
+  {
+    "id": "OLD-Bec",
+    "order": 10,
+    "parentId": "IRL Old Maps",
+    "name": "Bec",
+    "dataUrl": "maps/OLD-Bec.json"
+  },
+  {
+    "id": "OLD-Castgate",
+    "order": 11,
+    "parentId": "IRL Old Maps",
+    "name": "Castgate",
+    "dataUrl": "maps/OLD-Castgate.json"
+  },
+  {
+    "id": "OLD-Wolgari-Collage",
+    "order": 12,
+    "parentId": "IRL Old Maps",
+    "name": "Collage Top",
+    "dataUrl": "maps/OLD-Wolgari-Collage.json"
+  },
+  {
+    "id": "OLD-Collage-Side",
+    "order": 13,
+    "parentId": "IRL Old Maps",
+    "name": "Collage Side",
+    "dataUrl": "maps/OLD-Collage-Side.json"
+  },
+  {
+    "id": "OLD-Icebeach-LARGE",
+    "order": 14,
+    "parentId": "IRL Old Maps",
+    "name": "Large Icebeach",
+    "dataUrl": "maps/OLD-Icebeach-LARGE.json"
   }
 ]

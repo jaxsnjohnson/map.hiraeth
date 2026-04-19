@@ -301,8 +301,8 @@ assert.equal(
             text: JSON.stringify([
                 {
                     id: 'root-map',
-                    name: 'Root Map',
-                    imageUrl: 'maps/root-map.webp'
+                    order: 0,
+                    dataUrl: 'maps/root-map.json'
                 }
             ])
         },
@@ -343,9 +343,14 @@ assert.equal(
             text: JSON.stringify([
                 {
                     id: 'folder-map',
-                    name: 'Folder Map',
-                    imageUrl: 'maps/folder-map.webp',
-                    children: ['child-map']
+                    order: 0,
+                    dataUrl: 'maps/folder-map.json'
+                },
+                {
+                    id: 'child-map',
+                    parentId: 'folder-map',
+                    order: 0,
+                    dataUrl: 'maps/child-map.json'
                 }
             ])
         },

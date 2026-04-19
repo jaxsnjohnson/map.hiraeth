@@ -2,9 +2,6 @@
   "type": "folder",
   "id": "IceBeach",
   "name": "IceBeach",
-  "children": [
-    "castgate"
-  ],
   "latLonBounds": {
     "north": 73,
     "south": 33,

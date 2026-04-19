@@ -16,27 +16,28 @@ fs.writeFileSync(path.join(mapsDir, 'maps.json'), `${JSON.stringify([
         id: 'folder-root',
         name: 'Root',
         type: 'folder',
-        children: [
+        order: 0
+    },
+    {
+        id: 'file-backed-map',
+        parentId: 'folder-root',
+        order: 0,
+        dataUrl: 'maps/file-backed-map.json',
+        name: 'File Backed'
+    },
+    {
+        id: 'inline-map',
+        parentId: 'folder-root',
+        order: 1,
+        name: 'Inline Map',
+        width: 100,
+        height: 100,
+        imageUrl: 'maps/inline-map.webp',
+        pointsOfInterest: [
             {
-                id: 'file-backed-map',
-                name: 'File Backed',
-                width: 100,
-                height: 100,
-                imageUrl: 'maps/file-backed-map.webp'
-            },
-            {
-                id: 'inline-map',
-                name: 'Inline Map',
-                width: 100,
-                height: 100,
-                imageUrl: 'maps/inline-map.webp',
-                pointsOfInterest: [
-                    {
-                        name: 'Inline POI',
-                        coords: [1, 2],
-                        type: 'Point of Interest'
-                    }
-                ]
+                name: 'Inline POI',
+                coords: [1, 2],
+                type: 'Point of Interest'
             }
         ]
     }

@@ -48,9 +48,8 @@ You need a modern web browser and a local web server to run this project. Due to
 .
 ├── index.html          # Main map viewer application
 ├── about.html          # About page providing context
-├── point-finder.html   # Tool for creating and editing map data
 ├── maps/
-│   ├── maps.json       # Slim authoring manifest for map order and hierarchy
+│   ├── maps.json       # Flat authoring manifest for map order and hierarchy
 │   ├── atlas-index.json# Generated runtime atlas/search index
 │   ├── [map_id].json   # Map data files (points, regions, etc.)
 │   └── [map_id].webp   # Map image files
@@ -64,7 +63,7 @@ You need a modern web browser and a local web server to run this project. Due to
 
 The map data is stored in JSON files within the `maps/` directory.
 
-*   **`maps/maps.json`**: This file is the slim authoring manifest for map order and hierarchy. It contains folder/map entries and child references, but not the full inline payload for every map.
+*   **`maps/maps.json`**: This file is the flat authoring manifest for map order and hierarchy. Each entry describes one map or folder, and relationships are expressed with `parentId`, `order`, and `dataUrl` instead of nested child objects.
 *   **`maps/atlas-index.json`**: This generated file is the runtime atlas manifest. The app boots from it, builds atlas search from it, and uses its `dataUrl` entries to lazy-load full map definitions.
 *   **`<map_id>.json`**: Each map has its own JSON file containing its metadata:
     *   `id`, `name`, `width`, `height`, `imageUrl`
@@ -84,4 +83,3 @@ The map data is stored in JSON files within the `maps/` directory.
 *   **Measurement Tool**: Measure distances on the map.
 *   **Ambient Sounds**: Background sounds that change with the theme.
 *   **Embeddable View**: UI can be hidden for embedding in other websites.
-*   **Map Data Editor**: A separate tool (`point-finder.html`) for creating and editing map data.

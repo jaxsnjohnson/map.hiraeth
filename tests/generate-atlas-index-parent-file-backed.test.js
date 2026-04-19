@@ -13,9 +13,14 @@ fs.mkdirSync(mapsDir, { recursive: true });
 fs.writeFileSync(path.join(mapsDir, 'maps.json'), `${JSON.stringify([
     {
         id: 'continent-map',
-        name: 'Continent Map',
-        type: 'folder',
-        children: ['harbor-map']
+        order: 0,
+        dataUrl: 'maps/continent-map.json'
+    },
+    {
+        id: 'harbor-map',
+        parentId: 'continent-map',
+        order: 0,
+        dataUrl: 'maps/harbor-map.json'
     }
 ], null, 2)}\n`);
 

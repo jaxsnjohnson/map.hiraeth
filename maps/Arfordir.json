@@ -2,9 +2,6 @@
   "type": "folder",
   "id": "Arfordir",
   "name": "Arfordir",
-  "children": [
-    "Gelwood"
-  ],
   "width": 7456,
   "height": 8192,
   "imageUrl": "maps/Arfordir.webp",

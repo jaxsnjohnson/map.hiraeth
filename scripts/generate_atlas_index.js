@@ -41,6 +41,76 @@ function hasInlineChildObjects(item) {
     );
 }
 
+function getManifestEntries(manifestDocument) {
+    if (Array.isArray(manifestDocument)) return cloneJson(manifestDocument);
+    if (manifestDocument && Array.isArray(manifestDocument.maps)) {
+        return cloneJson(manifestDocument.maps);
+    }
+    return null;
+}
+
+function isFlatManifestEntry(entry) {
+    if (!entry || typeof entry !== 'object') return false;
+    return Object.prototype.hasOwnProperty.call(entry, 'parentId') ||
+        Object.prototype.hasOwnProperty.call(entry, 'order');
+}
+
+function buildManifestTreeFromFlatEntries(entries) {
+    if (!Array.isArray(entries)) return [];
+
+    const normalizedEntries = cloneJson(entries)
+        .filter((entry) => entry && typeof entry === 'object' && String(entry.id || '').trim());
+    const knownIds = new Set(normalizedEntries.map((entry) => String(entry.id || '').trim()));
+    const childrenByParentId = new Map();
+
+    normalizedEntries.forEach((entry, index) => {
+        const normalizedId = String(entry.id || '').trim();
+        const rawParentId = String(entry.parentId || '').trim();
+        const normalizedParentId = rawParentId && knownIds.has(rawParentId) ? rawParentId : '';
+        if (!childrenByParentId.has(normalizedParentId)) {
+            childrenByParentId.set(normalizedParentId, []);
+        }
+        childrenByParentId.get(normalizedParentId).push({ entry, index, normalizedId });
+    });
+
+    function buildNodes(parentId = '') {
+        const groupedEntries = childrenByParentId.get(parentId) || [];
+        groupedEntries.sort((left, right) => {
+            const leftOrder = Number.isFinite(Number(left.entry.order))
+                ? Number(left.entry.order)
+                : Number.MAX_SAFE_INTEGER;
+            const rightOrder = Number.isFinite(Number(right.entry.order))
+                ? Number(right.entry.order)
+                : Number.MAX_SAFE_INTEGER;
+            if (leftOrder !== rightOrder) return leftOrder - rightOrder;
+            return left.index - right.index;
+        });
+
+        return groupedEntries.map(({ entry, normalizedId }) => {
+            const node = cloneJson(entry);
+            delete node.parentId;
+            delete node.order;
+
+            const children = buildNodes(normalizedId);
+            if (children.length > 0) node.children = children;
+            else delete node.children;
+
+            return node;
+        });
+    }
+
+    return buildNodes('');
+}
+
+function buildManifestTreeFromDocument(manifestDocument) {
+    const manifestEntries = getManifestEntries(manifestDocument);
+    if (!Array.isArray(manifestEntries)) return [];
+    if (!manifestEntries.some(isFlatManifestEntry)) {
+        return manifestEntries;
+    }
+    return buildManifestTreeFromFlatEntries(manifestEntries);
+}
+
 function buildGeneratorContext(repoRoot) {
     const mapsDir = path.join(repoRoot, 'maps');
     return {
@@ -207,7 +277,8 @@ function mergeMapDefinitions(indexItem, sourceItem) {
         'backgroundColor',
         'atmosphere',
         'visibility',
-        'blurb'
+        'blurb',
+        'children'
     ];
 
     overlayKeys.forEach((key) => {
@@ -326,7 +397,11 @@ function toManifestItem(context, item, origin) {
 function generateAtlasIndex(options = {}) {
     const repoRoot = path.resolve(options.repoRoot || path.resolve(__dirname, '..'));
     const context = buildGeneratorContext(repoRoot);
-    const rawIndex = readJsonFile(context.sourceIndexPath);
+    const manifestDocument = readJsonFile(context.sourceIndexPath);
+    const rawIndex = buildManifestTreeFromDocument(manifestDocument);
+    if (!Array.isArray(rawIndex) || rawIndex.length === 0) {
+        throw new Error('maps/maps.json must contain manifest entries.');
+    }
     const atlasTree = rawIndex.map((item) => toManifestItem(context, item, { kind: 'inline' }));
     const atlasIndex = {
         generatedAt: new Date().toISOString(),

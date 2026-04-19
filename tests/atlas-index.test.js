@@ -11,7 +11,7 @@ assert.ok(atlas.searchIndex.length > 0);
 
 const mainContinent = atlas.tree.find((item) => item.id === 'main_continent');
 assert.ok(mainContinent);
-assert.equal(mainContinent.dataUrl, 'maps/main_continent.json');
+assert.equal(mainContinent.dataUrl, 'maps/Fair-Content.json');
 assert.ok(Array.isArray(mainContinent.children));
 assert.ok(mainContinent.children.length > 0);
 

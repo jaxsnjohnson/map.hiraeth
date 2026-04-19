@@ -7141,13 +7141,6 @@
     }
   ],
   "blurb": "From the gold-laced dust of its western canyons to the haunted glaciers of the far north, Fair is a land of adventure and antiquity. Chart a course through newly-opened fjord kingdoms, navigate the politics of ancient empires, and unearth the secrets of a world shaped by heroes and forgotten evils.",
-  "children": [
-    "IceBeach",
-    "southern-thalassia",
-    "Cursed-Old-Lin",
-    "Arfordir",
-    "The-Port-City-of-Stomion"
-  ],
   "pointsOfInterest": [
     {
       "coords": [

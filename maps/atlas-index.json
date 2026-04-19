@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-19T02:31:52.944Z",
+  "generatedAt": "2026-04-19T15:37:14.007Z",
   "tree": [
     {
       "type": "folder",
@@ -16,7 +16,7 @@
       },
       "scalePixels": 1,
       "scaleKilometers": 1.3,
-      "dataUrl": "maps/main_continent.json",
+      "dataUrl": "maps/Fair-Content.json",
       "children": [
         {
           "type": "folder",

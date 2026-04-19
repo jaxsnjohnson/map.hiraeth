@@ -14,6 +14,76 @@
         return cloneJson(items);
     }
 
+    function getManifestEntries(manifestDocument) {
+        if (Array.isArray(manifestDocument)) return cloneJson(manifestDocument);
+        if (manifestDocument && Array.isArray(manifestDocument.maps)) {
+            return cloneJson(manifestDocument.maps);
+        }
+        return null;
+    }
+
+    function isFlatManifestEntry(entry) {
+        if (!entry || typeof entry !== 'object') return false;
+        return Object.prototype.hasOwnProperty.call(entry, 'parentId') ||
+            Object.prototype.hasOwnProperty.call(entry, 'order');
+    }
+
+    function buildManifestTreeFromFlatEntries(entries) {
+        if (!Array.isArray(entries)) return [];
+
+        const normalizedEntries = cloneJson(entries)
+            .filter((entry) => entry && typeof entry === 'object' && String(entry.id || '').trim());
+        const knownIds = new Set(normalizedEntries.map((entry) => String(entry.id || '').trim()));
+        const childrenByParentId = new Map();
+
+        normalizedEntries.forEach((entry, index) => {
+            const normalizedId = String(entry.id || '').trim();
+            const rawParentId = String(entry.parentId || '').trim();
+            const normalizedParentId = rawParentId && knownIds.has(rawParentId) ? rawParentId : '';
+            if (!childrenByParentId.has(normalizedParentId)) {
+                childrenByParentId.set(normalizedParentId, []);
+            }
+            childrenByParentId.get(normalizedParentId).push({ entry, index, normalizedId });
+        });
+
+        function buildNodes(parentId = '') {
+            const groupedEntries = childrenByParentId.get(parentId) || [];
+            groupedEntries.sort((left, right) => {
+                const leftOrder = Number.isFinite(Number(left.entry.order))
+                    ? Number(left.entry.order)
+                    : Number.MAX_SAFE_INTEGER;
+                const rightOrder = Number.isFinite(Number(right.entry.order))
+                    ? Number(right.entry.order)
+                    : Number.MAX_SAFE_INTEGER;
+                if (leftOrder !== rightOrder) return leftOrder - rightOrder;
+                return left.index - right.index;
+            });
+
+            return groupedEntries.map(({ entry, normalizedId }) => {
+                const node = cloneJson(entry);
+                delete node.parentId;
+                delete node.order;
+
+                const children = buildNodes(normalizedId);
+                if (children.length > 0) node.children = children;
+                else delete node.children;
+
+                return node;
+            });
+        }
+
+        return buildNodes('');
+    }
+
+    function buildManifestTreeFromDocument(manifestDocument) {
+        const manifestEntries = getManifestEntries(manifestDocument);
+        if (!Array.isArray(manifestEntries)) return [];
+        if (!manifestEntries.some(isFlatManifestEntry)) {
+            return normalizeManifestTree(manifestEntries);
+        }
+        return buildManifestTreeFromFlatEntries(manifestEntries);
+    }
+
     function findMapRecursive(items, id) {
         if (!Array.isArray(items) || !id) return null;
         for (const item of items) {
@@ -317,9 +387,13 @@
             return cloneJson(await jsonCache.get(normalizedPath));
         }
 
-        const manifest = await loadJsonByPath('maps/maps.json');
-        if (!Array.isArray(manifest)) {
-            throw new Error('maps/maps.json must contain an array of map entries.');
+        const manifestDocument = await loadJsonByPath('maps/maps.json');
+        const manifest = buildManifestTreeFromDocument(manifestDocument);
+        if (
+            (!Array.isArray(manifestDocument?.maps) && !Array.isArray(manifestDocument)) ||
+            manifest.length === 0
+        ) {
+            throw new Error('maps/maps.json must contain manifest entries.');
         }
 
         let browseTree;
@@ -329,9 +403,13 @@
         } catch (error) {
             browseTree = await hydrateFileBackedManifestTree(
                 manifest,
-                async (mapId) => loadJsonByPath(buildDefaultMapDataUrl(mapId)),
+                async (mapId, manifestNode) => loadJsonByPath(
+                    String(manifestNode?.dataUrl || buildDefaultMapDataUrl(mapId)).trim()
+                ),
                 {
-                    resolveDataUrl: buildDefaultMapDataUrl
+                    resolveDataUrl: (mapId, manifestNode) => String(
+                        manifestNode?.dataUrl || buildDefaultMapDataUrl(mapId)
+                    ).trim()
                 }
             );
         }
@@ -385,9 +463,30 @@
         async function hydrateNode(node) {
             if (!node || typeof node !== 'object') return null;
 
-            const hydrated = cloneJson(node);
+            let hydrated = cloneJson(node);
+            const normalizedId = String(hydrated.id || '').trim();
+            const explicitDataUrl = String(hydrated.dataUrl || '').trim();
+
+            if (
+                normalizedId &&
+                explicitDataUrl &&
+                !hasInlineEditableMapPayload(hydrated)
+            ) {
+                try {
+                    const loadedMap = await loadMapById(normalizedId, hydrated);
+                    if (loadedMap && typeof loadedMap === 'object') {
+                        hydrated = {
+                            ...cloneJson(loadedMap),
+                            ...hydrated
+                        };
+                    }
+                } catch (error) {
+                    return createUnavailableMapEntry(normalizedId, error?.message || 'Unknown error.');
+                }
+            }
+
             if (resolveDataUrl && hydrated.id && hydrated.imageUrl && !hydrated.dataUrl) {
-                hydrated.dataUrl = resolveDataUrl(hydrated.id);
+                hydrated.dataUrl = resolveDataUrl(hydrated.id, hydrated);
             }
 
             if (Array.isArray(hydrated.children)) {
@@ -564,6 +663,8 @@
     return {
         buildFeatureSelectionKey,
         buildRegionFilterGroups,
+        buildManifestTreeFromDocument,
+        buildManifestTreeFromFlatEntries,
         cloneJson,
         detectLineCollectionKey,
         filterMapTree,
