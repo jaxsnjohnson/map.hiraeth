@@ -84,6 +84,48 @@
         return buildManifestTreeFromFlatEntries(manifestEntries);
     }
 
+    function buildFlatManifestEntries(items, options = {}) {
+        if (!Array.isArray(items)) return [];
+
+        const keysToCopy = Array.isArray(options.keysToCopy) && options.keysToCopy.length > 0
+            ? options.keysToCopy
+            : [
+                'id',
+                'name',
+                'type',
+                'status',
+                'visibility',
+                'dataUrl'
+            ];
+        const flattenedEntries = [];
+
+        function walk(nodes, parentId = '') {
+            if (!Array.isArray(nodes)) return;
+            nodes.forEach((item, index) => {
+                if (!item || typeof item !== 'object' || !String(item.id || '').trim()) return;
+
+                const entry = {};
+                keysToCopy.forEach((key) => {
+                    if (item[key] === undefined) return;
+                    if (typeof item[key] === 'string' && !String(item[key]).trim() && key !== 'name') return;
+                    entry[key] = cloneJson(item[key]);
+                });
+
+                entry.id = String(item.id || '').trim();
+                entry.order = index;
+                if (parentId) entry.parentId = parentId;
+                flattenedEntries.push(entry);
+
+                if (Array.isArray(item.children) && item.children.length > 0) {
+                    walk(item.children, entry.id);
+                }
+            });
+        }
+
+        walk(items);
+        return flattenedEntries;
+    }
+
     function findMapRecursive(items, id) {
         if (!Array.isArray(items) || !id) return null;
         for (const item of items) {
@@ -551,12 +593,88 @@
         return selections;
     }
 
+    function assignStringField(target, key, value, options = {}) {
+        if (!target || typeof target !== 'object' || value === undefined) return;
+        const allowEmpty = options.allowEmpty === true;
+        const normalizedValue = allowEmpty ? String(value ?? '') : String(value ?? '').trim();
+
+        if (allowEmpty || normalizedValue) {
+            target[key] = normalizedValue;
+            return;
+        }
+
+        delete target[key];
+    }
+
+    function assignNumberField(target, key, value, options = {}) {
+        if (!target || typeof target !== 'object' || value === undefined) return;
+        const rawValue = String(value ?? '').trim();
+        if (!rawValue) {
+            delete target[key];
+            return;
+        }
+
+        const parsedValue = options.integer
+            ? parseInt(rawValue, 10)
+            : parseFloat(rawValue);
+        if (Number.isFinite(parsedValue)) {
+            target[key] = parsedValue;
+            return;
+        }
+
+        delete target[key];
+    }
+
     function applyMapSettings(mapToUpdate, mapSettings = {}) {
         if (!mapToUpdate || typeof mapToUpdate !== 'object') return;
-        mapToUpdate.scalePixels = parseInt(mapSettings.scalePixels, 10) || 3;
-        mapToUpdate.scaleKilometers = parseFloat(mapSettings.scaleKilometers) || 1;
-        mapToUpdate.blurb = mapSettings.blurb || '';
-        if (mapSettings.name !== undefined) mapToUpdate.name = mapSettings.name || '';
+
+        assignStringField(mapToUpdate, 'name', mapSettings.name, { allowEmpty: true });
+        assignStringField(mapToUpdate, 'blurb', mapSettings.blurb, { allowEmpty: true });
+        assignStringField(mapToUpdate, 'type', mapSettings.type);
+        assignStringField(mapToUpdate, 'status', mapSettings.status);
+        assignStringField(mapToUpdate, 'visibility', mapSettings.visibility);
+        assignStringField(mapToUpdate, 'imageUrl', mapSettings.imageUrl);
+        assignStringField(mapToUpdate, 'mobileImageUrl', mapSettings.mobileImageUrl);
+        assignStringField(mapToUpdate, 'imageUrlMobile', mapSettings.imageUrlMobile);
+        assignStringField(mapToUpdate, 'smallImageUrl', mapSettings.smallImageUrl);
+        assignStringField(mapToUpdate, 'imageUrlSmall', mapSettings.imageUrlSmall);
+        assignStringField(mapToUpdate, 'scaleUnitName', mapSettings.scaleUnitName);
+        assignStringField(mapToUpdate, 'backgroundColor', mapSettings.backgroundColor);
+        assignStringField(mapToUpdate, 'atmosphere', mapSettings.atmosphere);
+        assignStringField(mapToUpdate, 'dataUrl', mapSettings.dataUrl);
+
+        assignNumberField(mapToUpdate, 'width', mapSettings.width, { integer: true });
+        assignNumberField(mapToUpdate, 'height', mapSettings.height, { integer: true });
+        assignNumberField(mapToUpdate, 'scalePixels', mapSettings.scalePixels, { integer: true });
+        assignNumberField(mapToUpdate, 'scaleKilometers', mapSettings.scaleKilometers);
+
+        if (mapSettings.latLonBounds && typeof mapSettings.latLonBounds === 'object') {
+            const nextBounds = {};
+            ['north', 'south', 'east', 'west'].forEach((key) => {
+                const rawValue = String(mapSettings.latLonBounds[key] ?? '').trim();
+                if (!rawValue) return;
+                const parsedValue = parseFloat(rawValue);
+                if (Number.isFinite(parsedValue)) {
+                    nextBounds[key] = parsedValue;
+                }
+            });
+
+            if (Object.keys(nextBounds).length > 0) {
+                mapToUpdate.latLonBounds = nextBounds;
+            } else {
+                delete mapToUpdate.latLonBounds;
+            }
+        }
+    }
+
+    function stripStructureFieldsFromMapDocument(mapDocument) {
+        if (!mapDocument || typeof mapDocument !== 'object') return null;
+        const exportedDocument = cloneJson(mapDocument);
+        delete exportedDocument.children;
+        delete exportedDocument.parentId;
+        delete exportedDocument.order;
+        delete exportedDocument.dataUrl;
+        return exportedDocument;
     }
 
     function serializeEditorState(options) {
@@ -634,6 +752,32 @@
         return updatedMasterData;
     }
 
+    function serializeFlatManifestState(options) {
+        const {
+            masterMapData,
+            currentMapId,
+            mapSettings = {}
+        } = options || {};
+
+        const updatedMasterData = Array.isArray(masterMapData)
+            ? cloneJson(masterMapData)
+            : [];
+        const mapToUpdate = currentMapId ? findMapRecursive(updatedMasterData, currentMapId) : null;
+        if (mapToUpdate) {
+            applyMapSettings(mapToUpdate, mapSettings);
+        }
+        return buildFlatManifestEntries(updatedMasterData);
+    }
+
+    function serializeMapDocumentState(options) {
+        const serializedMap = serializeEditorState({
+            ...options,
+            selectedMapOnly: true
+        });
+        if (!serializedMap) return null;
+        return stripStructureFieldsFromMapDocument(serializedMap);
+    }
+
     function buildFeatureSelectionKey(mode, item) {
         if (!item || !mode) return '';
         const identity = mode === 'lines'
@@ -662,6 +806,7 @@
 
     return {
         buildFeatureSelectionKey,
+        buildFlatManifestEntries,
         buildRegionFilterGroups,
         buildManifestTreeFromDocument,
         buildManifestTreeFromFlatEntries,
@@ -678,8 +823,12 @@
         createRepoFileBackedMapSource,
         hydrateFileBackedManifestTree,
         collectMapSelectionEntries,
+        applyMapSettings,
         resolveFileBackedMapDocument,
         serializeEditorState,
-        serializeManifestState
+        serializeManifestState,
+        serializeFlatManifestState,
+        serializeMapDocumentState,
+        stripStructureFieldsFromMapDocument
     };
 }));

@@ -1,7 +1,9 @@
 const assert = require('node:assert/strict');
 
 const {
+    applyMapSettings,
     buildFeatureSelectionKey,
+    buildFlatManifestEntries,
     createRepoFileBackedMapSource,
     detectLineCollectionKey,
     filterMapTree,
@@ -11,7 +13,10 @@ const {
     resolveFileBackedMapDocument,
     resolveFeatureIndexFromSelection,
     serializeEditorState,
-    serializeManifestState
+    serializeFlatManifestState,
+    serializeManifestState,
+    serializeMapDocumentState,
+    stripStructureFieldsFromMapDocument
 } = require('../js/editor-shared.js');
 
 const manifest = [
@@ -193,6 +198,130 @@ assert.equal(updatedSlimManifest[0].name, 'Updated Main Map');
 assert.equal(updatedSlimManifest[0].scalePixels, 9);
 assert.equal(updatedSlimManifest[0].scaleKilometers, 4);
 assert.equal(updatedSlimManifest[0].blurb, 'Slim manifest blurb');
+
+const flattenedManifest = buildFlatManifestEntries([
+    {
+        id: 'root-folder',
+        name: 'Root Folder',
+        type: 'folder',
+        children: [
+            {
+                id: 'child-map',
+                name: 'Child Map',
+                dataUrl: 'maps/child-map.json'
+            }
+        ]
+    }
+]);
+assert.deepEqual(flattenedManifest, [
+    {
+        id: 'root-folder',
+        name: 'Root Folder',
+        type: 'folder',
+        order: 0
+    },
+    {
+        id: 'child-map',
+        name: 'Child Map',
+        dataUrl: 'maps/child-map.json',
+        order: 0,
+        parentId: 'root-folder'
+    }
+]);
+
+const flatManifestExport = serializeFlatManifestState({
+    masterMapData: [
+        {
+            id: 'root-folder',
+            name: 'Root Folder',
+            type: 'folder',
+            children: [
+                {
+                    id: 'child-map',
+                    name: 'Child Map',
+                    dataUrl: 'maps/child-map.json'
+                }
+            ]
+        }
+    ],
+    currentMapId: 'child-map',
+    mapSettings: {
+        name: 'Updated Child Map',
+        dataUrl: 'maps/updated-child-map.json',
+        width: 600
+    }
+});
+assert.equal(flatManifestExport[1].name, 'Updated Child Map');
+assert.equal(flatManifestExport[1].dataUrl, 'maps/updated-child-map.json');
+assert.equal(flatManifestExport[1].width, undefined);
+
+const strippedMapDocument = stripStructureFieldsFromMapDocument({
+    id: 'current-map',
+    name: 'Current Map',
+    dataUrl: 'maps/current-map.json',
+    parentId: 'root-folder',
+    order: 1,
+    children: [{ id: 'nested-child' }],
+    pointsOfInterest: []
+});
+assert.equal(strippedMapDocument.dataUrl, undefined);
+assert.equal(strippedMapDocument.parentId, undefined);
+assert.equal(strippedMapDocument.order, undefined);
+assert.equal(strippedMapDocument.children, undefined);
+
+const serializedMapDocument = serializeMapDocumentState({
+    masterMapData: clonedManifest,
+    currentMapId: 'main-map',
+    collectedPoints: [],
+    collectedRegions: [],
+    collectedLines: [],
+    mapSettings: {
+        name: 'Serialized Main Map',
+        width: 640,
+        imageUrl: 'maps/serialized-main-map.webp'
+    },
+    lineCollectionKey: 'roads'
+});
+assert.equal(serializedMapDocument.name, 'Serialized Main Map');
+assert.equal(serializedMapDocument.width, 640);
+assert.equal(serializedMapDocument.imageUrl, 'maps/serialized-main-map.webp');
+assert.equal(serializedMapDocument.dataUrl, undefined);
+
+const mapSettingsTarget = {};
+applyMapSettings(mapSettingsTarget, {
+    name: 'Settings Map',
+    type: 'folder',
+    status: 'draft',
+    visibility: 'private',
+    imageUrl: 'maps/settings-map.webp',
+    mobileImageUrl: 'maps/settings-map-mobile.webp',
+    smallImageUrl: 'maps/settings-map-small.webp',
+    width: '800',
+    height: '600',
+    scalePixels: '3',
+    scaleKilometers: '1.5',
+    scaleUnitName: 'miles',
+    backgroundColor: '#111827',
+    atmosphere: 'night',
+    dataUrl: 'maps/settings-map.json',
+    latLonBounds: {
+        north: '10.5',
+        south: '1.5',
+        east: '20',
+        west: '-5'
+    }
+});
+assert.equal(mapSettingsTarget.name, 'Settings Map');
+assert.equal(mapSettingsTarget.type, 'folder');
+assert.equal(mapSettingsTarget.mobileImageUrl, 'maps/settings-map-mobile.webp');
+assert.equal(mapSettingsTarget.width, 800);
+assert.equal(mapSettingsTarget.scaleKilometers, 1.5);
+assert.deepEqual(mapSettingsTarget.latLonBounds, {
+    north: 10.5,
+    south: 1.5,
+    east: 20,
+    west: -5
+});
 
 const unchangedNestedStringManifest = serializeManifestState({
     masterMapData: slimManifest,
