@@ -2310,7 +2310,7 @@ input:focus-visible,
 #map-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex-grow: 1; }
 #map-list li { border-radius: 4px; margin-bottom: 3px; overflow: hidden; }
 .map-item {
-    padding: 10px 10px 10px 11px; cursor: pointer; transition: background-color 0.2s ease;
+    padding: 10px 10px 10px 8px; cursor: pointer; transition: background-color 0.2s ease;
     white-space: nowrap; text-overflow: ellipsis; font-size: 1.1rem;
     background-color: transparent; display: block;
 }
@@ -2330,14 +2330,14 @@ input:focus-visible,
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    min-width: 30px;
+    width: 26px;
+    min-width: 26px;
     border: none;
     border-radius: 4px;
     background: transparent;
     color: var(--text-secondary);
     cursor: pointer;
-    margin: 2px 0 2px 1px;
+    margin: 2px 0 2px 0;
 }
 .folder-toggle-btn:hover {
     background-color: var(--highlight-bg);
@@ -2366,7 +2366,7 @@ input:focus-visible,
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 10px 10px 3px;
+    padding: 10px 10px 10px 1px;
     border: none;
     border-radius: 4px;
     background: transparent;
@@ -2399,7 +2399,7 @@ input:focus-visible,
     background-color: var(--active-bg);
     font-weight: 600;
 }
-.nested-list { list-style: none; padding: 0; margin: 0 0 0 10px; max-height: 1000px; overflow: hidden; transition: max-height 0.3s ease-out; }
+.nested-list { list-style: none; padding: 0; margin: 0 0 0 6px; max-height: 1000px; overflow: hidden; transition: max-height 0.3s ease-out; }
 .folder.closed > .nested-list { max-height: 0; }
 
 /* --- Coming Soon Sidebar Item Styling --- */
@@ -4835,7 +4835,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     }
 
     html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-map-list-slot .map-item {
-        padding: 9px 10px 9px 12px;
+        padding: 9px 10px 9px 10px;
         font-size: 1rem;
         border-radius: 10px;
     }
@@ -4868,19 +4868,19 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     }
 
     html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-map-list-slot .folder-header {
-        gap: 6px;
+        gap: 4px;
         padding: 2px;
         border-radius: 10px;
     }
 
     html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-map-list-slot .folder-main-action {
-        padding: 9px 10px 9px 2px;
+        padding: 9px 10px 9px 0;
         border-radius: 10px;
     }
 
     html.mobile-layout-v2.is-mobile-layout #mobile-search-panel-map-list-slot .folder-toggle-btn {
-        width: 34px;
-        min-width: 34px;
+        width: 30px;
+        min-width: 30px;
         margin: 0;
     }
 

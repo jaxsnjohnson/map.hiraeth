@@ -17284,7 +17284,7 @@
   "main_continent": {
     "type": "folder",
     "id": "main_continent",
-    "name": "Content Map",
+    "name": "Fair",
     "latLonBounds": {
       "north": 73,
       "south": 1.24,

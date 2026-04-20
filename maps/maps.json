@@ -2,7 +2,7 @@
   {
     "id": "main_continent",
     "order": 0,
-    "name": "Content Map",
+    "name": "Fair",
     "dataUrl": "maps/Fair-Content.json",
     "type": "folder"
   },

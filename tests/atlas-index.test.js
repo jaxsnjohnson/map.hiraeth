@@ -25,7 +25,7 @@ assert.equal(stomion.dataUrl, 'maps/The-Port-City-of-Stomion.json');
 
 const mapSearchEntry = atlas.searchIndex.find((entry) => entry.kind === 'map' && entry.mapId === 'main_continent');
 assert.ok(mapSearchEntry);
-assert.equal(mapSearchEntry.name, 'Content Map');
+assert.equal(mapSearchEntry.name, 'Fair');
 
 const stomionPoiEntry = atlas.searchIndex.find((entry) => entry.kind === 'poi' && entry.mapId === 'The-Port-City-of-Stomion');
 assert.ok(stomionPoiEntry);
