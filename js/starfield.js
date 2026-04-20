@@ -40,9 +40,17 @@
 
     function resize() {
         const rect = container.getBoundingClientRect();
-        width = Math.max(1, Math.round(rect.width));
-        height = Math.max(1, Math.round(rect.height));
-        dpr = Math.max(1, Math.round(window.devicePixelRatio || 1));
+        const nextWidth = Math.max(1, Math.round(rect.width));
+        const nextHeight = Math.max(1, Math.round(rect.height));
+        const nextDpr = Math.max(1, Math.round(window.devicePixelRatio || 1));
+
+        if (nextWidth === width && nextHeight === height && nextDpr === dpr) {
+            return false;
+        }
+
+        width = nextWidth;
+        height = nextHeight;
+        dpr = nextDpr;
 
         canvas.width = width * dpr;
         canvas.height = height * dpr;
@@ -56,6 +64,15 @@
             if (bufferCtx) {
                 bufferCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
             }
+        }
+
+        return true;
+    }
+
+    function syncCanvasToContainer(now = performance.now()) {
+        const resized = resize();
+        if (resized || shouldRender()) {
+            renderFrame(now);
         }
     }
 
@@ -132,8 +149,7 @@
         return () => {
             clearTimeout(timeout);
             timeout = setTimeout(() => {
-                resize();
-                renderFrame(performance.now());
+                syncCanvasToContainer();
             }, 120);
         };
     })();
@@ -146,6 +162,13 @@
             renderFrame(lastFrame);
         }
     });
+
+    if (typeof ResizeObserver === 'function') {
+        const layoutObserver = new ResizeObserver(() => {
+            syncCanvasToContainer();
+        });
+        layoutObserver.observe(container);
+    }
 
     const themeObserver = new MutationObserver(() => {
         renderFrame(performance.now());
