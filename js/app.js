@@ -1120,7 +1120,7 @@ function getViewportHeight() {
 
 function clampFloatingPanels() {
     if (!mobileLayoutV2Enabled || isMobileLayoutActive) return;
-    [routePanel, sessionToolkitPanel, gmPill, poiFilterContainer].forEach((panel) => {
+    [routePanel, sessionToolkitPanel, gmPill].forEach((panel) => {
         if (!panel) return;
         panel.style.maxHeight = '';
         panel.style.top = '';

@@ -3304,7 +3304,7 @@ body.embedded-view #share-relay-coachmark {
     position: absolute;
     top: 110px;
     left: 10px;
-    z-index: 999; /* Below controls, above map */
+    z-index: 1003; /* Above desktop controls and sidebar toggle */
     background-color: var(--glass-bg-light);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
