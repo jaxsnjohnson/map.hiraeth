@@ -1,4 +1,16 @@
 // --- Global Variables ---
+const APP_CONFIG = typeof window !== 'undefined' && window.AppConfig ? window.AppConfig : null;
+const getConfigValue = (path, fallbackValue) => APP_CONFIG ? APP_CONFIG.get(path, fallbackValue) : fallbackValue;
+const getFeatureFlag = (name, fallbackValue = true) => getConfigValue(`features.${name}`, fallbackValue) !== false;
+const getPerformanceNumber = (name, fallbackValue) => {
+    const value = Number(getConfigValue(`performance.${name}`, fallbackValue));
+    return Number.isFinite(value) ? value : fallbackValue;
+};
+if (APP_CONFIG && typeof document !== 'undefined') {
+    APP_CONFIG.applyDocumentMetadata(document);
+    APP_CONFIG.applyThemeTokens(document);
+    APP_CONFIG.hydrateStaticDom(document);
+}
 let mapData = []; // Will be populated by loadMapData
 let loadingProgressInterval = null;
 let loadingProgress = 0;
@@ -54,7 +66,7 @@ let currentSearchScope = SEARCH_SCOPE_MAP;
 let renderedSearchResults = [];
 let activeSearchResultIndex = -1;
 const isFirefox = typeof navigator !== 'undefined' && /firefox|fxios/i.test(navigator.userAgent);
-const MOBILE_LAYOUT_BREAKPOINT = 768;
+const MOBILE_LAYOUT_BREAKPOINT = getPerformanceNumber('mobileBreakpoint', 768);
 const MOBILE_SURFACE_MODE_ATLAS = 'atlas';
 const MOBILE_SURFACE_MODE_SEARCH = 'search';
 const MOBILE_SURFACE_MODE_TOOLS = 'tools';
@@ -189,13 +201,14 @@ function updateCoordinateDisplay(lat, lon) {
     displaySpan.innerHTML = `${latString}, ${lonString}`;
 }
 
-const poiTypeGroups = {
+const DEFAULT_POI_TYPE_GROUPS = {
     "Settlements": ["City", "Town", "Village", "Hamlet", "Settlement", "Capital"],
     "Structures": ["Castle", "Fortress", "Fort", "Tower", "Ruin", "Temple", "Shrine", "Mine", "Lighthouse", "Bridge", "Dungeon", "Lair", "Camp", "Asylum", "Landmark"],
     "Natural Features": ["Mountain", "Peak", "Forest", "Wood", "River", "Lake", "Cave", "Cavern", "Coast", "Bay", "Cove", "Swamp", "Marsh", "Desert", "Natural Landmark"],
     "Other": ["Point of Interest", "Region", "Portal"],
     "Unknown": ["Unknown"]
 };
+const poiTypeGroups = getConfigValue('taxonomy.poiTypeGroups', DEFAULT_POI_TYPE_GROUPS);
 
 function getUrlParameters() {
     const params = {};
@@ -560,13 +573,14 @@ for (const groupName in poiTypeGroups) {
     });
 }
 
-const poiGroupIconConfig = {
+const DEFAULT_POI_GROUP_ICON_CONFIG = {
     "Settlements": "images/poi-icons/settlements.png",
     "Structures": "images/poi-icons/structures.png",
     "Natural Features": "images/poi-icons/natural-features.png",
     "Other": "images/poi-icons/other.png",
     "Unknown": "images/poi-icons/unknown.png"
 };
+const poiGroupIconConfig = getConfigValue('assets.poiIcons', DEFAULT_POI_GROUP_ICON_CONFIG);
 
 const poiIconCache = new Map();
 
@@ -614,13 +628,14 @@ const DEFAULT_MAP_BACKGROUND_COLORS = {
     light: '#f4f0eb',
     dark: '#050510'
 };
+const configuredMapBackgroundColors = getConfigValue('theme.mapBackgroundColors', DEFAULT_MAP_BACKGROUND_COLORS);
 
 function getMapBackgroundColor(mapEntry) {
     const candidate = String(mapEntry?.backgroundColor || '').trim();
     if (candidate) return candidate;
     return currentEffectiveTheme === 'dark'
-        ? DEFAULT_MAP_BACKGROUND_COLORS.dark
-        : DEFAULT_MAP_BACKGROUND_COLORS.light;
+        ? (configuredMapBackgroundColors.dark || DEFAULT_MAP_BACKGROUND_COLORS.dark)
+        : (configuredMapBackgroundColors.light || DEFAULT_MAP_BACKGROUND_COLORS.light);
 }
 
 function updateMapUnderlayColor(mapEntry = null) {
@@ -912,13 +927,13 @@ function resolveControlVisibilityState({
     gmVisible = false
 } = {}) {
     const showMarkers = hasPOIs || hasRegions;
-    const showSearch = hasPOIs || hasRegions || hasRoads || hasRoutes || atlasSearchCount > 0;
-    const showFilters = hasPOIs || hasRegions || hasRoads;
+    const showSearch = getFeatureFlag('atlasSearch', true) && (hasPOIs || hasRegions || hasRoads || hasRoutes || atlasSearchCount > 0);
+    const showFilters = getFeatureFlag('filters', true) && (hasPOIs || hasRegions || hasRoads);
     const showAdvanced = advancedControls && !isEmbedded;
     const showMobileSheet = isMobileLayout && !isEmbedded;
     const showMobileCoreUtility = showMobileSheet;
-    const showMobileToolkit = showMobileSheet && allowGMToolkit;
-    const showMobileRoutes = showMobileSheet && routeCount > 0;
+    const showMobileToolkit = showMobileSheet && allowGMToolkit && getFeatureFlag('sessionToolkit', true);
+    const showMobileRoutes = showMobileSheet && routeCount > 0 && getFeatureFlag('routes', true);
 
     return {
         showMarkersButton: showMarkers && !isMobileLayout,
@@ -928,14 +943,14 @@ function resolveControlVisibilityState({
         showFiltersButton: showFilters && !isMobileLayout,
         showSearchFilterAction: showFilters,
         showMeasureButton: showAdvanced && hasValidScale && !isMobileLayout,
-        showSoundButton: showAdvanced && !isMobileLayout,
+        showSoundButton: getFeatureFlag('sound', true) && showAdvanced && !isMobileLayout,
         showBlurbButton: showAdvanced && hasBlurb && !isMobileLayout,
-        showCoordsButton: showAdvanced && hasLatLonBounds && !isMobileLayout,
-        showShareButton: showAdvanced && !isMobileLayout,
+        showCoordsButton: getFeatureFlag('coordinates', true) && showAdvanced && hasLatLonBounds && !isMobileLayout,
+        showShareButton: getFeatureFlag('shareLinks', true) && showAdvanced && !isMobileLayout,
         showGMButton: showAdvanced && allowGMToolkit && !isMobileLayout,
-        showToolkitButton: showAdvanced && allowGMToolkit && !isMobileLayout,
-        showRoutePanel: routeCount > 0 && !isEmbedded && !isMobileLayout,
-        showToolkitPanel: allowGMToolkit && toolkitVisible && !isMobileLayout,
+        showToolkitButton: getFeatureFlag('sessionToolkit', true) && showAdvanced && allowGMToolkit && !isMobileLayout,
+        showRoutePanel: getFeatureFlag('routes', true) && routeCount > 0 && !isEmbedded && !isMobileLayout,
+        showToolkitPanel: getFeatureFlag('sessionToolkit', true) && allowGMToolkit && toolkitVisible && !isMobileLayout,
         showGMPill: allowGMToolkit && gmVisible && !isMobileLayout,
         showMobileExploreMode: showMobileSheet,
         showMobileMapMode: showMobileSheet,
@@ -944,9 +959,9 @@ function resolveControlVisibilityState({
         showMobileMarkersAction: showMobileCoreUtility && showMarkers,
         showMobileFiltersAction: showMobileCoreUtility && showFilters,
         showMobileMeasureAction: showMobileCoreUtility && hasValidScale,
-        showMobileShareAction: showMobileCoreUtility,
-        showMobileSoundAction: showMobileCoreUtility,
-        showMobileCoordsAction: showMobileCoreUtility && hasLatLonBounds,
+        showMobileShareAction: getFeatureFlag('shareLinks', true) && showMobileCoreUtility,
+        showMobileSoundAction: getFeatureFlag('sound', true) && showMobileCoreUtility,
+        showMobileCoordsAction: getFeatureFlag('coordinates', true) && showMobileCoreUtility && hasLatLonBounds,
         showMobileHelpAction: showMobileCoreUtility,
         showMobileGMAction: showMobileToolkit,
         showMobileRoutesAction: showMobileRoutes,
@@ -1722,6 +1737,11 @@ function applyAtmosphereLayer() {
 }
 
 function setMapAtmosphere(rawConfig) {
+    if (!getFeatureFlag('atmosphere', true)) {
+        currentAtmosphereConfig = null;
+        applyAtmosphereLayer();
+        return;
+    }
     currentAtmosphereConfig = normalizeAtmosphereConfig(rawConfig);
     applyAtmosphereLayer();
 }
@@ -1765,6 +1785,10 @@ function isPublicHost() {
 }
 
 function canAccessGMToolkit() {
+    if (!getFeatureFlag('gmMode', true)) return false;
+    const policy = String(getConfigValue('security.gmToolkitPolicy', 'local-only')).toLowerCase();
+    if (policy === 'public') return true;
+    if (policy === 'disabled') return false;
     return isLocalHost();
 }
 
@@ -1818,6 +1842,10 @@ function updatePanelToggleButtons() {
 }
 
 function initializeGMVisibility() {
+    if (!getFeatureFlag('gmMode', true)) {
+        setGMVisibility(false, 'disabled');
+        return;
+    }
     if (isLocalHost()) {
         setGMVisibility(true, 'localhost');
         return;
@@ -2081,7 +2109,9 @@ async function getMapDefinition(mapId, preResolvedMap = null) {
 }
 
 function getSearchScopeLabel(scope = currentSearchScope) {
-    return scope === SEARCH_SCOPE_ATLAS ? 'Atlas' : 'This Map';
+    return scope === SEARCH_SCOPE_ATLAS
+        ? getConfigValue('taxonomy.labels.atlasSearchScope', 'Atlas')
+        : getConfigValue('taxonomy.labels.mapSearchScope', 'This Map');
 }
 
 function setSearchScope(scope) {
@@ -2209,6 +2239,7 @@ function cancelIdleTask(id) {
 }
 
 function registerServiceWorker() {
+    if (!getFeatureFlag('serviceWorker', true) || getConfigValue('performance.serviceWorker', true) === false) return;
     if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
     if (!/^https?:$/i.test(window.location.protocol)) return;
 
@@ -2221,6 +2252,7 @@ function registerServiceWorker() {
 }
 
 async function prefetchJsonAsset(url) {
+    if (getConfigValue('performance.prefetchJson', true) === false) return;
     const normalizedUrl = withAssetVersion(url);
     if (!url || prefetchedJsonUrls.has(normalizedUrl)) return;
     prefetchedJsonUrls.add(normalizedUrl);
@@ -2232,6 +2264,7 @@ async function prefetchJsonAsset(url) {
 }
 
 function prefetchImageAsset(url) {
+    if (getConfigValue('performance.prefetchImages', true) === false) return;
     const normalizedUrl = withAssetVersion(url);
     if (!url || prefetchedImageUrls.has(normalizedUrl)) return;
     prefetchedImageUrls.add(normalizedUrl);
@@ -2298,7 +2331,7 @@ function schedulePostLoadPrefetch(mapDefinition) {
         }
 
         collectLinkedMapPrefetchCandidates(mapDefinition)
-            .slice(0, 3)
+            .slice(0, Math.max(0, Math.round(getPerformanceNumber('linkedMapPrefetchLimit', 3))))
             .forEach((candidateId, index) => {
                 const candidateEntry = findMapRecursive(mapData, candidateId);
                 if (!candidateEntry) return;
@@ -3415,7 +3448,7 @@ function populateFilters(pointsOfInterest, mapId) {
     if (hasPOIs) {
         if (poiFilterContainer.querySelector('h3')) {
             const poiHeader = document.createElement('h3');
-            poiHeader.textContent = "POI Types:";
+            poiHeader.textContent = getConfigValue('taxonomy.labels.poiTypes', 'POI Types:');
             poiFilterContainer.appendChild(poiHeader);
         }
         const relevantGroups = new Set();
@@ -3609,7 +3642,7 @@ function populateFilters(pointsOfInterest, mapId) {
     updateActiveFilterChips();
 }
 const sharedLinkOpenSessionKeys = new Set();
-const SHARE_RELAY_DEFAULT_COPY = 'Shared with you. Pass it on to your party.';
+const SHARE_RELAY_DEFAULT_COPY = getConfigValue('copy.shareRelay.default', 'Shared with you. Pass it on to your party.');
 
 function getShareContextFromParams(params) {
     if (!(params instanceof URLSearchParams)) return null;
@@ -3694,8 +3727,8 @@ function showShareRelayPrompt(context) {
     if (shareRelayCopy) {
         const featureName = String(context.featureName || '').trim();
         shareRelayCopy.textContent = context.sharedType === 'view'
-            ? 'Shared with you. Pass this map view to your party.'
-            : `Shared with you: ${featureName}. Pass it on to your party.`;
+            ? getConfigValue('copy.shareRelay.mapView', 'Shared with you. Pass this map view to your party.')
+            : getConfigValue('copy.shareRelay.feature', 'Shared with you: {featureName}. Pass it on to your party.').replace('{featureName}', featureName);
     }
     shareRelayCoachmark.hidden = false;
 
@@ -5290,7 +5323,7 @@ function initializeSoundState() {
         refreshLucideIcons();
     };
 
-    if (isEmbeddedView) {
+    if (isEmbeddedView || !getFeatureFlag('sound', true)) {
         soundEnabled = false; // Ensure state reflects no sound
         // Set icon/title to muted state (even though button is hidden)
         setSoundIcon(false);
@@ -5337,6 +5370,7 @@ function initializeSoundState() {
 
 if (toggleSoundBtn) {
     toggleSoundBtn.addEventListener('click', (e) => {
+        if (!getFeatureFlag('sound', true)) return;
         unlockAdvancedControls('sound_toggle');
         e.stopPropagation();
         applySoundEnabledState(!soundEnabled);
@@ -6140,7 +6174,7 @@ async function loadMapData() {
             loadingIndicator.classList.add('initial-loader');
             const progressBar = loadingIndicator.querySelector('.progress-bar');
             if (progressBar) progressBar.style.width = '10%'; // Initial progress
-            setLoadingMessage('Loading map index...', {
+            setLoadingMessage(getConfigValue('copy.loading.mapIndex', 'Loading map index...'), {
                 showSpinner: true,
                 showProgress: true,
                 showRetry: false
@@ -6155,7 +6189,7 @@ async function loadMapData() {
 
         if (loadingIndicator && loadingIndicator.querySelector('.progress-bar')) {
             loadingIndicator.querySelector('.progress-bar').style.width = '30%';
-            setLoadingMessage('Processing map data...', {
+            setLoadingMessage(getConfigValue('copy.loading.processing', 'Processing map data...'), {
                 showSpinner: true,
                 showProgress: true,
                 showRetry: false
@@ -6428,12 +6462,12 @@ async function loadMapData() {
         console.error('Error loading map data:', error);
         if (loadingIndicator) {
             setLoadingMessage(
-                'Error loading map index. Check your connection and press Retry.',
+                getConfigValue('copy.loading.mapIndexError', 'Error loading map index. Check your connection and press Retry.'),
                 { showSpinner: false, showProgress: false, showRetry: true }
             );
         }
         // Optionally display an error message to the user in the UI
-        sidebar.innerHTML = '<h2>Error</h2><p>Could not load map data. Please try refreshing the page or check the console for details.</p>';
+        sidebar.innerHTML = `<h2>Error</h2><p>${escapeHtml(getConfigValue('copy.loading.mapIndexError', 'Could not load map data. Please try refreshing the page or check the console for details.'))}</p>`;
         trackAnalytics('map_index_load_failed', { reason: error?.message || 'unknown' });
     }
 }
@@ -6616,7 +6650,7 @@ function initializeApp() {
         loadMap(mapIdToLoad, false); // Load map, don't update hash yet
     } else {
         console.error("No loadable map data found for initialization.");
-        sidebar.innerHTML = '<h2>Select Map</h2><p>No maps available.</p>';
+        sidebar.innerHTML = `<h2>${escapeHtml(getConfigValue('copy.sidebarTitle', 'Select Map'))}</h2><p>${escapeHtml(getConfigValue('copy.loading.noMaps', 'No maps available.'))}</p>`;
         setMapBlurbVisible(false);
         // Ensure loading indicator is hidden if it somehow wasn't
         if (loadingIndicator) loadingIndicator.style.display = 'none';

@@ -7,9 +7,20 @@
     const root = document.documentElement;
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const useOffscreen = typeof OffscreenCanvas !== 'undefined';
+    const config = window.AppConfig || null;
+    const getConfigValue = (path, fallbackValue) => config ? config.get(path, fallbackValue) : fallbackValue;
+    if (getConfigValue('features.stars', true) === false) {
+        canvas.getContext('2d', { alpha: true })?.clearRect(0, 0, canvas.width, canvas.height);
+        return;
+    }
 
-    const STAR_COUNT = 450;
-    const FPS = 30;
+    const lowQualityMode = getConfigValue('performance.lowQualityMode', false) === true;
+    const STAR_COUNT = lowQualityMode
+        ? Math.max(0, Math.round(Number(getConfigValue('performance.starCount', 450)) * 0.45))
+        : Math.max(0, Math.round(Number(getConfigValue('performance.starCount', 450))));
+    const FPS = lowQualityMode
+        ? Math.max(1, Math.round(Number(getConfigValue('performance.starFps', 30)) * 0.5))
+        : Math.max(1, Math.round(Number(getConfigValue('performance.starFps', 30))));
     const stars = [];
     let width = 0;
     let height = 0;

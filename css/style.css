@@ -441,7 +441,7 @@ input:focus-visible,
 
 :root[data-theme="light"] #map::before {
     content: '';
-    background-image: url('../images/clouds.webp');
+    background-image: var(--cloud-texture-url, url('../images/clouds.webp'));
     background-repeat: repeat-x;
     background-size: auto 400px;
     mix-blend-mode: normal;
@@ -452,7 +452,7 @@ input:focus-visible,
 
 :root[data-theme="light"] #map::after {
     content: '';
-    background-image: url('../images/clouds.webp');
+    background-image: var(--cloud-texture-url, url('../images/clouds.webp'));
     background-repeat: repeat-x;
     background-size: auto 400px;
     mix-blend-mode: normal;
@@ -472,7 +472,7 @@ input:focus-visible,
 /* Keep clouds animating during dark-mode fade-out to avoid abrupt visual snap. */
 :root.theme-cloud-handoff #map::before {
     content: '';
-    background-image: url('../images/clouds.webp');
+    background-image: var(--cloud-texture-url, url('../images/clouds.webp'));
     background-repeat: repeat-x;
     background-size: auto 400px;
     mix-blend-mode: normal;
@@ -482,7 +482,7 @@ input:focus-visible,
 
 :root.theme-cloud-handoff #map::after {
     content: '';
-    background-image: url('../images/clouds.webp');
+    background-image: var(--cloud-texture-url, url('../images/clouds.webp'));
     background-repeat: repeat-x;
     background-size: auto 400px;
     mix-blend-mode: normal;

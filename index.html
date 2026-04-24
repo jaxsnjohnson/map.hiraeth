@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
-    <meta property="og:description" content="Explore interactive maps, discover points of interest, and measure distances in Hiraeth!">
-
-    <meta property="og:image" content="https://maps.hiraeth.wiki/images/hiraeth-maps-preview.png">
-    <meta property="og:url" content="https://maps.hiraeth.wiki/">
-    <title>HAG Interactive World Map Viewer</title>
+    <meta property="og:description" content="">
+    <meta property="og:image" content="">
+    <meta property="og:url" content="">
+    <title>Interactive Atlas</title>
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -17,13 +16,9 @@
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
         crossorigin=""/>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
-
+    <script src="js/app-config.js"></script>
     <script>
-        // Bump this value on each deploy that changes local JS/CSS/images behavior.
-        window.APP_ASSET_VERSION = "2026.04.19.01";
+        window.APP_ASSET_VERSION = window.AppConfig ? window.AppConfig.get("assets.version", "0") : "0";
         window.THEME_STORAGE_KEYS = {
             legacyTheme: "theme",
             themePreference: "themePreference"
@@ -66,6 +61,11 @@
             root.style.colorScheme = effectiveTheme;
             window.__INITIAL_THEME_PREFERENCE__ = preference;
             window.__INITIAL_EFFECTIVE_THEME__ = effectiveTheme;
+            if (window.AppConfig) {
+                window.AppConfig.applyThemeTokens(document);
+                window.AppConfig.injectFont(document);
+                window.AppConfig.applyDocumentMetadata(document);
+            }
         })();
 
         (function applyInitialEmbedMode() {
@@ -103,19 +103,25 @@
             document.documentElement.classList.toggle("mobile-layout-v2", mode === "v2");
         })();
 
-        (function injectVersionedStyles() {
-            const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
-            const localStylesheets = [
-                "css/style.css",
-                "css/stars.css",
-                "css/Control.MiniMap.min.css"
-            ];
+        (function loadConfigAndInjectVersionedStyles() {
+            const loadConfig = window.AppConfig ? window.AppConfig.loadConfig() : Promise.resolve();
+            loadConfig.then(() => {
+                if (window.AppConfig) {
+                    window.AppConfig.applyDocumentMetadata(document);
+                    window.AppConfig.applyThemeTokens(document);
+                    window.AppConfig.injectFont(document);
+                }
+                const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
+                const localStylesheets = window.AppConfig
+                    ? window.AppConfig.get("assets.stylesheets", ["css/style.css", "css/stars.css", "css/Control.MiniMap.min.css"])
+                    : ["css/style.css", "css/stars.css", "css/Control.MiniMap.min.css"];
 
-            localStylesheets.forEach((href) => {
-                const link = document.createElement("link");
-                link.rel = "stylesheet";
-                link.href = `${href}?v=${version}`;
-                document.head.appendChild(link);
+                localStylesheets.forEach((href) => {
+                    const link = document.createElement("link");
+                    link.rel = "stylesheet";
+                    link.href = `${href}?v=${version}`;
+                    document.head.appendChild(link);
+                });
             });
         })();
     </script>
@@ -388,10 +394,10 @@
             </div>
 
             <div id="bottom-link-bar">
-                <a href="https://jsnj.link/maps-to-wiki" target="_blank" rel="noopener noreferrer">Wiki</a>
-                <a href="https://jsnj.link/maps-blog-post" target="_blank" rel="noopener noreferrer">Blog</a>
+                <a href="#" target="_blank" rel="noopener noreferrer">Wiki</a>
+                <a href="#" target="_blank" rel="noopener noreferrer">Blog</a>
                 <a href="#" id="about-link" class="back-link">About</a>
-                <a href="https://jsnj.link/map-hiraeth-source" target="_blank" rel="noopener noreferrer">Source </a>
+                <a href="#" target="_blank" rel="noopener noreferrer">Source </a>
             </div>
             <div id="sidebar-backdrop" aria-hidden="true"></div>
         </div>
@@ -411,10 +417,11 @@
 
     <script>
         (function loadVersionedLocalScripts() {
-            const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
+            const ready = window.AppConfig ? window.AppConfig.ready : Promise.resolve();
 
             function appendScript(src, onload) {
                 const script = document.createElement("script");
+                const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
                 script.src = `${src}?v=${version}`;
                 if (typeof onload === "function") {
                     script.onload = onload;
@@ -422,9 +429,26 @@
                 document.body.appendChild(script);
             }
 
-            appendScript("js/libs/Control.MiniMap.min.js", () => {
-                appendScript("js/starfield.js", () => {
-                    appendScript("js/app.js");
+            ready.then(() => {
+                if (window.AppConfig) {
+                    window.AppConfig.hydrateStaticDom(document);
+                    document.addEventListener("DOMContentLoaded", () => {
+                        window.AppConfig.hydrateStaticDom(document);
+                    }, { once: true });
+                }
+                const scripts = window.AppConfig
+                    ? window.AppConfig.get("assets.scripts", ["js/libs/Control.MiniMap.min.js", "js/starfield.js", "js/app.js"])
+                    : ["js/libs/Control.MiniMap.min.js", "js/starfield.js", "js/app.js"];
+                const appendNext = (index) => {
+                    if (index >= scripts.length) return;
+                    appendScript(scripts[index], () => appendNext(index + 1));
+                };
+                appendNext(0);
+            }).catch(() => {
+                appendScript("js/libs/Control.MiniMap.min.js", () => {
+                    appendScript("js/starfield.js", () => {
+                        appendScript("js/app.js");
+                    });
                 });
             });
         })();
@@ -437,145 +461,12 @@
     <div id="about-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <button id="close-about-modal-btn" class="modal-close-btn" aria-label="Close Modal">&times;</button>
-
             <div class="modal-tabs">
-                <button class="tab-btn active" data-tab="guide">Traveler's Guide</button>
-                <button class="tab-btn" data-tab="lore">The Setting</button>
-                <button class="tab-btn" data-tab="changelog">Changelog</button>
+                <button class="tab-btn active" data-tab="guide">Guide</button>
             </div>
 
             <div class="modal-body">
-                <!-- Tab: Traveler's Guide -->
-                <div id="tab-guide" class="tab-content active">
-                    <div class="guide-grid">
-                        <div class="guide-section">
-                            <h3>Navigation & Interaction</h3>
-                            <p>Move freely through the map by clicking and dragging. Use your mouse wheel or trackpad to zoom in for detail or out for an overview.</p>
-                            <ul>
-                                <li><strong>Single Click:</strong> Identify a location or select a point for measurement.</li>
-                                <li><strong>Double Click:</strong> Lock the coordinate display to a specific point (useful for copying exact coordinates).</li>
-                                <li><strong>Click Links:</strong> Shareable links to specific Points of Interest (POIs) can be shared natively (when supported) or copied by clicking the share icon in any popup.</li>
-                            </ul>
-
-                            <h3>Toolbar Controls</h3>
-                            <ul>
-                                <li><strong>Sidebar:</strong> Toggle the map list on the left.</li>
-                                <li><strong>Markers (Eye Icon):</strong> Show or hide all map markers and regions for a clear view of the terrain.</li>
-                                <li><strong>Filters:</strong> Open the filter panel to toggle specific categories of locations.</li>
-                                <li><strong>Ruler:</strong> Activate the distance measurement tool. Click multiple points to measure a path; double-click to finish.</li>
-                                <li><strong>Sound:</strong> Toggle ambient background audio (themed for Day/Night modes).</li>
-                            </ul>
-                        </div>
-
-                        <div class="guide-section">
-                            <h3>Keyboard Shortcuts</h3>
-                            <p>Master these keys to navigate the realm swiftly.</p>
-                            <div class="shortcut-grid">
-                                <kbd>+</kbd> <span class="shortcut-desc">Zoom In</span>
-                                <kbd>-</kbd> <span class="shortcut-desc">Zoom Out</span>
-                                <kbd>S</kbd> <span class="shortcut-desc">Toggle Sidebar</span>
-                                <kbd>T</kbd> <span class="shortcut-desc">Toggle Theme</span>
-                                <kbd>M</kbd> <span class="shortcut-desc">Measurement Tool</span>
-                                <kbd>H</kbd> <span class="shortcut-desc">Toggle Markers</span>
-                                <kbd>F</kbd> <span class="shortcut-desc">Toggle Filters</span>
-                                <kbd>/</kbd> <span class="shortcut-desc">Search</span>
-                                <kbd>?</kbd> <span class="shortcut-desc">Help</span>
-                                <kbd>Esc</kbd> <span class="shortcut-desc">Close / Cancel</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab: The Setting -->
-                <div id="tab-lore" class="tab-content">
-                    <div class="lore-text">
-                        <h3>The World of Hiraeth</h3>
-                        <p>
-                            Hiraeth is a realm born of imagination, nurtured through more than a decade of shared stories and dedicated world-building by its creator and founding Dungeon Master Jax SN Johnson. Its landscapes, cities, and hidden corners have echoed with the footsteps of heroes and the schemes of villains, meticulously charted and brought to life over countless campaigns.
-                        </p>
-                        <p>
-                            This interactive atlas is more than just a collection of locations; it is a living window into a world that has breathed and evolved. What began as a setting for short stories in middle school and fun campaigns in high school—full of hand-drawn sketches shared around the gaming table—has grown into this digital archive. It is born from a deep passion for this cherished setting and the collaborative magic of tabletop roleplaying.
-                        </p>
-                        <p>
-                            Here, you are invited to delve into the details of bustling port cities like Rockdrift, trace the paths of ancient roads in Icebeach, or uncover the secrets whispered in forgotten ruins in Astrousia. These maps are resources designed to spark imagination, provide context, and help you visualize the stage upon which your own Hiraeth adventures will unfold.
-                        </p>
-                        <p>
-                            Explore. Discover. The journey awaits.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Tab: Changelog -->
-                <div id="tab-changelog" class="tab-content">
-                    <div class="changelog-entry">
-                        <div class="changelog-header">
-                            <h3>Atlas Performance + Search Refinement</h3>
-                            <span class="version-pill" title="Released March 7, 2026" aria-label="Version 1.2.0, released March 7, 2026">v1.2.0</span>
-                        </div>
-                        <ul class="changelog-list">
-                            <li>Reworked startup loading around a generated atlas index so the map list and atlas metadata load faster without recursively fetching every map definition at boot.</li>
-                            <li>Added on-demand full map loading, bounded idle prefetching for likely next maps, and normalized image variant support for cleaner mobile/desktop asset selection.</li>
-                            <li>Added same-origin offline caching for the app shell, atlas data, and previously opened map assets to improve repeat visits and resilience.</li>
-                            <li>Changed ambient sound loading to lazy-load on first use instead of eagerly downloading both tracks at startup.</li>
-                            <li>Refined search with weighted result ranking, atlas-wide lookup, keyboard navigation, and more compact result rows with lighter visual hierarchy.</li>
-                            <li>Polished search highlighting and result spacing so matched text no longer widens awkwardly in the search results list.</li>
-                        </ul>
-                    </div>
-                    <div class="changelog-entry">
-                        <div class="changelog-header">
-                            <h3>Stability + UX Polish</h3>
-                            <span class="version-pill" title="Released March 4, 2026" aria-label="Version 1.1.2, released March 4, 2026">v1.1.2</span>
-                        </div>
-                        <ul class="changelog-list">
-                            <li>Safer, cleaner popups and links with improved rendering, escaping, and link sanitization to reduce broken or unsafe content.</li>
-                            <li>Added Smart Share Links in popups with native share support (when available), clipboard fallback, and attributed shared-link open tracking.</li>
-                            <li>More reliable shared links and map state, with URL/hash/history behavior that better preserves context while loading maps, toggling the sidebar, and recovering from load failures.</li>
-                            <li>Coordinate and map-load polish, including hemisphere label and coordinate display fixes plus better fallback behavior when a map cannot load right away.</li>
-                            <li>UI and control refinements, including icon and transition updates for smoother map interactions.</li>
-                            <li>GM/DM workflow visibility improvements with better support for GM-facing controls and related panel behavior.</li>
-                        </ul>
-                    </div>
-                    <div class="changelog-entry">
-                        <div class="changelog-header">
-                            <h3>Map Editor Coastline Workflow</h3>
-                            <span class="version-pill" title="Released February 20, 2026" aria-label="Version 1.1.1, released February 20, 2026">v1.1.1</span>
-                        </div>
-                        <ul class="changelog-list">
-                            <li>Added Coastline Stroke mode for region border editing in Point Finder.</li>
-                            <li>Improved coastline snapping with adaptive detection and stroke fallback behavior.</li>
-                            <li>Added keyboard undo for region geometry edits with Cmd+Z / Ctrl+Z.</li>
-                            <li>Added right-side icon toggles under the Info (<code>I</code>) button for GM View and Session Toolkit panels.</li>
-                            <li>Adjusted GM View and Session Toolkit popup positions to open beside their buttons without overlapping controls.</li>
-                        </ul>
-                    </div>
-                    <div class="changelog-entry">
-                        <div class="changelog-header">
-                            <h3>Toolkit + Routes Update</h3>
-                            <span class="version-pill" title="Released February 15, 2026" aria-label="Version 1.1.0, released February 15, 2026">v1.1.0</span>
-                        </div>
-                        <ul class="changelog-list">
-                            <li>Added Route walkthrough mode with step-by-step map focus.</li>
-                            <li>Added Session Toolkit with travel time, encounter roll, and notes.</li>
-                            <li>Added full encounter table list view in the toolkit.</li>
-                            <li>Added GM visibility mode with local auto-on and toggle controls.</li>
-                            <li>Added collapsible Route and Session Toolkit panels.</li>
-                            <li>Improved map layer reliability to prevent blank main map loads.</li>
-                        </ul>
-                    </div>
-                    <div class="changelog-entry">
-                        <div class="changelog-header">
-                            <h3>Initial Release</h3>
-                            <span class="version-pill" title="Released October 19, 2025" aria-label="Version 1.0.0, released October 19, 2025">v1.0.0</span>
-                        </div>
-                        <ul class="changelog-list">
-                            <li>Launched the interactive map viewer!</li>
-                            <li>Explore various regions of Hiraeth with seamless zooming and panning.</li>
-                            <li>Find key locations with the search and filter tools.</li>
-                            <li>Measure distances for travel planning.</li>
-                            <li>Toggle between Day and Night themes.</li>
-                        </ul>
-                    </div>
-                </div>
+                <div id="tab-guide" class="tab-content active"></div>
             </div>
         </div>
     </div>

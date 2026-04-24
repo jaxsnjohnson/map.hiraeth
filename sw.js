@@ -4,17 +4,19 @@ const DATA_CACHE = `hag-data-${VERSION}`;
 const ASSET_CACHE = `hag-assets-${VERSION}`;
 const ALL_CACHES = [SHELL_CACHE, DATA_CACHE, ASSET_CACHE];
 
-const VERSIONED_SHELL_ASSETS = [
-    `css/style.css?v=${VERSION}`,
-    `css/stars.css?v=${VERSION}`,
-    `css/Control.MiniMap.min.css?v=${VERSION}`,
-    `js/app.js?v=${VERSION}`,
-    `js/starfield.js?v=${VERSION}`,
-    `js/libs/Control.MiniMap.min.js?v=${VERSION}`,
-    `maps/atlas-index.json?v=${VERSION}`
+const DEFAULT_VERSIONED_SHELL_ASSETS = [
+    'css/style.css',
+    'css/stars.css',
+    'css/Control.MiniMap.min.css',
+    'js/app-config.js',
+    'js/app.js',
+    'js/starfield.js',
+    'js/libs/Control.MiniMap.min.js',
+    'maps/atlas-index.json',
+    'site.config.json'
 ];
 
-const STATIC_SHELL_ASSETS = [
+const DEFAULT_STATIC_SHELL_ASSETS = [
     './',
     'index.html',
     'favicon-16x16.png',
@@ -31,10 +33,38 @@ const STATIC_SHELL_ASSETS = [
     'images/poi-icons/unknown.png'
 ];
 
+function versionAsset(asset) {
+    if (!asset || asset === './') return asset;
+    return asset.includes('?') ? `${asset}&v=${VERSION}` : `${asset}?v=${VERSION}`;
+}
+
+async function loadShellAssetConfig() {
+    try {
+        const response = await fetch(`site.config.json?v=${VERSION}`, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`Config returned ${response.status}`);
+        const config = await response.json();
+        return {
+            versioned: Array.isArray(config?.assets?.serviceWorker?.versionedShellAssets)
+                ? config.assets.serviceWorker.versionedShellAssets
+                : DEFAULT_VERSIONED_SHELL_ASSETS,
+            static: Array.isArray(config?.assets?.serviceWorker?.staticShellAssets)
+                ? config.assets.serviceWorker.staticShellAssets
+                : DEFAULT_STATIC_SHELL_ASSETS
+        };
+    } catch (error) {
+        return {
+            versioned: DEFAULT_VERSIONED_SHELL_ASSETS,
+            static: DEFAULT_STATIC_SHELL_ASSETS
+        };
+    }
+}
+
 self.addEventListener('install', (event) => {
     event.waitUntil((async () => {
+        const configuredAssets = await loadShellAssetConfig();
+        const versionedShellAssets = configuredAssets.versioned.map(versionAsset);
         const cache = await caches.open(SHELL_CACHE);
-        await cache.addAll([...STATIC_SHELL_ASSETS, ...VERSIONED_SHELL_ASSETS]);
+        await cache.addAll([...configuredAssets.static, ...versionedShellAssets]);
         await self.skipWaiting();
     })());
 });

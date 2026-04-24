@@ -4,18 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
-    <title>Hiraeth Map Editor</title>
+    <title>Map Editor</title>
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
         crossorigin="">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+    <script src="js/app-config.js"></script>
     <script>
-        window.APP_ASSET_VERSION = "2026.04.19.03";
+        window.APP_ASSET_VERSION = window.AppConfig ? window.AppConfig.get("assets.version", "0") : "0";
 
         (function applyInitialTheme() {
             const root = document.documentElement;
@@ -34,18 +32,33 @@
             const effectiveTheme = preference === "system" ? systemTheme : preference;
             root.setAttribute("data-theme", effectiveTheme);
             root.style.colorScheme = effectiveTheme;
+            if (window.AppConfig) {
+                window.AppConfig.applyThemeTokens(document);
+                window.AppConfig.injectFont(document);
+            }
         })();
 
-        (function injectVersionedAssets() {
-            const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
-            [
-                "css/style.css",
-                "css/map-editor.css"
-            ].forEach((href) => {
-                const link = document.createElement("link");
-                link.rel = "stylesheet";
-                link.href = `${href}?v=${version}`;
-                document.head.appendChild(link);
+        (function loadConfigAndInjectVersionedAssets() {
+            const loadConfig = window.AppConfig ? window.AppConfig.loadConfig() : Promise.resolve();
+            loadConfig.then(() => {
+                if (window.AppConfig) {
+                    window.AppConfig.applyThemeTokens(document);
+                    window.AppConfig.injectFont(document);
+                    window.AppConfig.hydrateEditorDom(document);
+                    document.addEventListener("DOMContentLoaded", () => {
+                        window.AppConfig.hydrateEditorDom(document);
+                    }, { once: true });
+                }
+                const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
+                const editorStylesheets = window.AppConfig
+                    ? window.AppConfig.get("assets.editorStylesheets", ["css/style.css", "css/map-editor.css"])
+                    : ["css/style.css", "css/map-editor.css"];
+                editorStylesheets.forEach((href) => {
+                    const link = document.createElement("link");
+                    link.rel = "stylesheet";
+                    link.href = `${href}?v=${version}`;
+                    document.head.appendChild(link);
+                });
             });
         })();
     </script>
@@ -180,15 +193,19 @@
         crossorigin=""></script>
     <script>
         (function injectVersionedScripts() {
-            const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
-            [
-                "js/editor-shared.js",
-                "js/map-editor.js"
-            ].forEach((src) => {
+            const ready = window.AppConfig ? window.AppConfig.ready : Promise.resolve();
+            ready.then(() => {
+                if (window.AppConfig) window.AppConfig.hydrateEditorDom(document);
+                const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
+                const scripts = window.AppConfig
+                    ? window.AppConfig.get("assets.editorScripts", ["js/editor-shared.js", "js/map-editor.js"])
+                    : ["js/editor-shared.js", "js/map-editor.js"];
+                scripts.forEach((src) => {
                 const script = document.createElement("script");
                 script.src = `${src}?v=${version}`;
                 script.async = false;
                 document.body.appendChild(script);
+                });
             });
         })();
     </script>
