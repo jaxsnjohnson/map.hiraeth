@@ -41,24 +41,33 @@ const mobileVisibility = resolveControlVisibilityState({
 assert.equal(mobileVisibility.showSearchControl, true);
 assert.equal(mobileVisibility.showMarkersButton, false);
 assert.equal(mobileVisibility.showMobileSheetToggle, true);
+assert.equal(mobileVisibility.showMobileToolsToggle, true);
 assert.equal(mobileVisibility.showMobileExploreMode, true);
 assert.equal(mobileVisibility.showMobileMapMode, true);
 assert.equal(mobileVisibility.showMobileMapList, true);
-assert.equal(mobileVisibility.showMobileMoreSection, false);
+assert.equal(mobileVisibility.showMobileMoreSection, true);
 assert.equal(mobileVisibility.showMobileMarkersAction, true);
+assert.equal(mobileVisibility.showMobileFiltersAction, true);
 assert.equal(mobileVisibility.showFiltersButton, false);
 assert.equal(mobileVisibility.showSearchFilterAction, true);
 assert.equal(mobileVisibility.showRoutePanel, false);
 assert.equal(mobileVisibility.showToolkitPanel, false);
 assert.equal(mobileVisibility.showGMPill, false);
 assert.equal(mobileVisibility.showMobileShareAction, true);
-assert.equal(mobileVisibility.showMobileSoundAction, false);
+assert.equal(mobileVisibility.showMobileSoundAction, true);
 assert.equal(mobileVisibility.showMobileMeasureAction, true);
 assert.equal(mobileVisibility.showMobileCoordsAction, true);
 assert.equal(mobileVisibility.showMobileHelpAction, true);
+assert.equal(mobileVisibility.showMobileGMAction, true);
+assert.equal(mobileVisibility.showMobileRoutesAction, true);
+assert.equal(mobileVisibility.showMobileToolkitAction, true);
 assert.equal(mobileVisibility.mobileMarkersDisabled, false);
+assert.equal(mobileVisibility.mobileFiltersDisabled, false);
 assert.equal(mobileVisibility.mobileMeasureDisabled, false);
 assert.equal(mobileVisibility.mobileCoordsDisabled, false);
+assert.equal(mobileVisibility.mobileGMDisabled, false);
+assert.equal(mobileVisibility.mobileRoutesDisabled, false);
+assert.equal(mobileVisibility.mobileToolkitDisabled, false);
 assert.equal(mobileVisibility.showMobileMapBlurb, false);
 
 const mobileLimitedVisibility = resolveControlVisibilityState({
@@ -79,11 +88,13 @@ const mobileLimitedVisibility = resolveControlVisibilityState({
 });
 
 assert.equal(mobileLimitedVisibility.showMobileMarkersAction, false);
+assert.equal(mobileLimitedVisibility.showMobileFiltersAction, false);
 assert.equal(mobileLimitedVisibility.showMobileMeasureAction, false);
 assert.equal(mobileLimitedVisibility.showMobileShareAction, true);
 assert.equal(mobileLimitedVisibility.showMobileCoordsAction, false);
 assert.equal(mobileLimitedVisibility.showMobileHelpAction, true);
 assert.equal(mobileLimitedVisibility.mobileMarkersDisabled, true);
+assert.equal(mobileLimitedVisibility.mobileFiltersDisabled, true);
 assert.equal(mobileLimitedVisibility.mobileMeasureDisabled, true);
 assert.equal(mobileLimitedVisibility.mobileCoordsDisabled, true);
 assert.equal(mobileLimitedVisibility.showMobileExploreMode, true);
@@ -152,6 +163,7 @@ const embeddedVisibility = resolveControlVisibilityState({
 });
 
 assert.equal(embeddedVisibility.showMobileSheetToggle, false);
+assert.equal(embeddedVisibility.showMobileToolsToggle, false);
 assert.equal(embeddedVisibility.showMobileExploreMode, false);
 assert.equal(embeddedVisibility.showMobileMapMode, false);
 assert.equal(embeddedVisibility.showMobileShareAction, false);

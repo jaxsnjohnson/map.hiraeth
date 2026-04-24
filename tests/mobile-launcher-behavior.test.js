@@ -20,6 +20,7 @@ eval(extractFunctionRange('function syncMobileDockState(', 'function markControl
 
 global.MOBILE_SURFACE_MODE_ATLAS = 'atlas';
 global.MOBILE_SURFACE_MODE_SEARCH = 'search';
+global.MOBILE_SURFACE_MODE_TOOLS = 'tools';
 global.mobileSurfaceMode = null;
 global.isMobileSurfaceMode = (mode) => global.mobileSurfaceMode === mode;
 global.isMobileLayoutActive = true;
@@ -59,6 +60,21 @@ global.mobileSearchLauncherBtn = {
         this.attrs[name] = value;
     }
 };
+global.mobileToolsLauncherBtn = {
+    hidden: false,
+    innerHTML: '',
+    attrs: {},
+    classes: new Set(),
+    classList: {
+        toggle(name, active) {
+            if (active) global.mobileToolsLauncherBtn.classes.add(name);
+            else global.mobileToolsLauncherBtn.classes.delete(name);
+        }
+    },
+    setAttribute(name, value) {
+        this.attrs[name] = value;
+    }
+};
 global.mobileInfoHelpBtn = {
     hidden: false
 };
@@ -71,10 +87,13 @@ assert.equal(global.mobileSheetLauncherBtn.attrs['aria-label'], 'Open atlas');
 assert.equal(global.mobileSheetLauncherBtn.attrs['aria-pressed'], 'false');
 assert.equal(global.mobileSearchLauncherBtn.attrs['aria-label'], 'Open search');
 assert.equal(global.mobileSearchLauncherBtn.attrs['aria-pressed'], 'false');
+assert.equal(global.mobileToolsLauncherBtn.attrs['aria-label'], 'Open tools');
+assert.equal(global.mobileToolsLauncherBtn.attrs['aria-pressed'], 'false');
 assert.match(global.mobileSheetLauncherBtn.innerHTML, /Atlas/);
 assert.match(global.mobileSearchLauncherBtn.innerHTML, /Search/);
 assert.match(global.mobileSheetLauncherBtn.innerHTML, /chevron-right/);
 assert.match(global.mobileSearchLauncherBtn.innerHTML, /search/);
+assert.match(global.mobileToolsLauncherBtn.innerHTML, /sliders-horizontal/);
 
 global.mobileSurfaceMode = 'atlas';
 syncMobileDockState();
@@ -93,6 +112,12 @@ assert.equal(global.mobileSearchLauncherBtn.attrs['aria-pressed'], 'true');
 assert.match(global.mobileSearchLauncherBtn.innerHTML, /Search/);
 assert.doesNotMatch(global.mobileSearchLauncherBtn.innerHTML, /Close/);
 
+global.mobileSurfaceMode = 'tools';
+syncMobileDockState();
+assert.equal(global.mobileToolsLauncherBtn.attrs['aria-label'], 'Close tools');
+assert.equal(global.mobileToolsLauncherBtn.attrs['aria-pressed'], 'true');
+assert.equal(global.mobileToolsLauncherBtn.classes.has('active'), true);
+
 global.searchControlContainer.style.display = 'none';
 syncMobileDockState();
 assert.equal(global.mobileSearchLauncherBtn.hidden, true);
@@ -102,5 +127,6 @@ syncMobileDockState();
 assert.equal(global.mobileDock.hidden, true);
 assert.equal(global.mobileSheetLauncherBtn.hidden, true);
 assert.equal(global.mobileInfoHelpBtn.hidden, true);
+assert.equal(global.mobileToolsLauncherBtn.hidden, true);
 
 console.log('mobile launcher behavior regression checks passed');

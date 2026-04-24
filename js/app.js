@@ -57,6 +57,10 @@ const isFirefox = typeof navigator !== 'undefined' && /firefox|fxios/i.test(navi
 const MOBILE_LAYOUT_BREAKPOINT = 768;
 const MOBILE_SURFACE_MODE_ATLAS = 'atlas';
 const MOBILE_SURFACE_MODE_SEARCH = 'search';
+const MOBILE_SURFACE_MODE_TOOLS = 'tools';
+const MOBILE_TOOLS_PANEL_ROUTES = 'routes';
+const MOBILE_TOOLS_PANEL_TOOLKIT = 'toolkit';
+const MOBILE_TOOLS_PANEL_GM = 'gm';
 const MOBILE_LAYOUT_QUERY_PARAM = 'mobileLayout';
 const MOBILE_LAYOUT_MODE_V2 = 'v2';
 const MOBILE_LAYOUT_MODE_LEGACY = 'legacy';
@@ -669,6 +673,7 @@ const mapListElement = document.getElementById('map-list');
 const toggleBtn = document.getElementById('toggle-sidebar-btn');
 const mobileDock = document.getElementById('mobile-dock');
 const mobileInfoHelpBtn = document.getElementById('mobile-info-help-btn');
+const mobileToolsLauncherBtn = document.getElementById('mobile-tools-launcher-btn');
 const mobileSheetLauncherBtn = document.getElementById('mobile-sheet-launcher-btn');
 const mobileSearchLauncherBtn = document.getElementById('mobile-search-launcher-btn');
 const themeToggle = document.getElementById('theme-checkbox');
@@ -705,6 +710,9 @@ const mobileSearchPanel = document.getElementById('mobile-search-card');
 const mobileSearchPanelCloseBtn = document.getElementById('mobile-search-card-close-btn');
 const mobileSearchPanelTitle = document.getElementById('mobile-search-card-title');
 const mobileSearchCard = document.getElementById('mobile-search-card');
+const mobileToolsCard = document.getElementById('mobile-tools-card');
+const mobileToolsCardCloseBtn = document.getElementById('mobile-tools-card-close-btn');
+const mobileToolsPanelSlot = document.getElementById('mobile-tools-panel-slot');
 const mobileSearchActionsCard = document.getElementById('mobile-search-actions-card');
 const mobileSearchPanelSearchSlot = document.getElementById('mobile-search-card-search-slot');
 const mobileSearchResultsCard = document.getElementById('mobile-search-card-results-slot');
@@ -716,10 +724,15 @@ const mobileMapListPreviewMeta = document.getElementById('mobile-map-list-previe
 const mobileSearchPanelMapListShell = document.getElementById('mobile-search-panel-map-list-shell');
 const mobileSearchPanelMapListSlot = document.getElementById('mobile-search-panel-map-list-slot');
 const mobileMarkersBtn = document.getElementById('mobile-markers-btn');
+const mobileFiltersBtn = document.getElementById('mobile-filters-btn');
 const mobileMeasureBtn = document.getElementById('mobile-measure-btn');
+const mobileSoundBtn = document.getElementById('mobile-sound-btn');
 const mobileShareViewBtn = document.getElementById('mobile-share-view-btn');
 const mobileCoordsBtn = document.getElementById('mobile-coords-btn');
 const mobileHelpBtn = document.getElementById('mobile-help-btn');
+const mobileGmViewBtn = document.getElementById('mobile-gm-view-btn');
+const mobileRoutesBtn = document.getElementById('mobile-routes-btn');
+const mobileToolkitBtn = document.getElementById('mobile-toolkit-btn');
 const onboardingCoachmark = document.getElementById('onboarding-coachmark');
 const onboardingOpenHelpBtn = document.getElementById('onboarding-open-help-btn');
 const onboardingDismissBtn = document.getElementById('onboarding-dismiss-btn');
@@ -769,6 +782,7 @@ let currentAtmosphereConfig = null;
 let mobileLayoutV2Enabled = false;
 let isMobileLayoutActive = false;
 let mobileSurfaceMode = null;
+let mobileToolsPanelMode = null;
 let mobileFilterExpanded = false;
 let lastMobileSurfaceTriggerButton = null;
 let lastControlTouchAt = 0;
@@ -910,11 +924,14 @@ function resolveControlVisibilityState({
     const showAdvanced = advancedControls && !isEmbedded;
     const showMobileSheet = isMobileLayout && !isEmbedded;
     const showMobileCoreUtility = showMobileSheet;
+    const showMobileToolkit = showMobileSheet && allowGMToolkit;
+    const showMobileRoutes = showMobileSheet && routeCount > 0;
 
     return {
         showMarkersButton: showMarkers && !isMobileLayout,
         showSearchControl: showSearch,
         showMobileSheetToggle: showMobileSheet,
+        showMobileToolsToggle: showMobileCoreUtility,
         showFiltersButton: showFilters && !isMobileLayout,
         showSearchFilterAction: showFilters,
         showMeasureButton: showAdvanced && hasValidScale && !isMobileLayout,
@@ -930,20 +947,28 @@ function resolveControlVisibilityState({
         showMobileExploreMode: showMobileSheet,
         showMobileMapMode: showMobileSheet,
         showMobileMapList: showMobileSheet,
-        showMobileMoreSection: false,
+        showMobileMoreSection: showMobileCoreUtility,
         showMobileMarkersAction: showMobileCoreUtility && showMarkers,
+        showMobileFiltersAction: showMobileCoreUtility && showFilters,
         showMobileMeasureAction: showMobileCoreUtility && hasValidScale,
         showMobileShareAction: showMobileCoreUtility,
-        showMobileSoundAction: false,
+        showMobileSoundAction: showMobileCoreUtility,
         showMobileCoordsAction: showMobileCoreUtility && hasLatLonBounds,
         showMobileHelpAction: showMobileCoreUtility,
+        showMobileGMAction: showMobileToolkit,
+        showMobileRoutesAction: showMobileRoutes,
+        showMobileToolkitAction: showMobileToolkit,
         showMobileMapBlurb: false,
         mobileMarkersDisabled: !showMarkers,
+        mobileFiltersDisabled: !showFilters,
         mobileMeasureDisabled: !hasValidScale,
         mobileShareDisabled: false,
         mobileSoundDisabled: false,
         mobileCoordsDisabled: !hasLatLonBounds,
-        mobileHelpDisabled: false
+        mobileHelpDisabled: false,
+        mobileGMDisabled: !allowGMToolkit,
+        mobileRoutesDisabled: routeCount <= 0,
+        mobileToolkitDisabled: !allowGMToolkit
     };
 }
 
@@ -973,11 +998,78 @@ function createMobilePlacementAnchor(element) {
 const mobileSearchControlAnchor = createMobilePlacementAnchor(searchControlContainer);
 const mobileSearchResultsAnchor = createMobilePlacementAnchor(searchResultsContainer);
 const mobileFilterAnchor = createMobilePlacementAnchor(poiFilterContainer);
+const mobileRoutePanelAnchor = createMobilePlacementAnchor(routePanel);
+const mobileToolkitPanelAnchor = createMobilePlacementAnchor(sessionToolkitPanel);
+const mobileGmPillAnchor = createMobilePlacementAnchor(gmPill);
 
 function restorePlacedNode(anchor, element) {
     if (!anchor || !anchor.parentNode || !element) return;
     if (element.parentNode === anchor.parentNode && anchor.nextSibling === element) return;
     anchor.parentNode.insertBefore(element, anchor.nextSibling);
+}
+
+function restoreMobileToolPanels() {
+    restorePlacedNode(mobileRoutePanelAnchor, routePanel);
+    restorePlacedNode(mobileToolkitPanelAnchor, sessionToolkitPanel);
+    restorePlacedNode(mobileGmPillAnchor, gmPill);
+    [routePanel, sessionToolkitPanel, gmPill].forEach((panel) => {
+        if (panel) {
+            panel.classList.remove('mobile-tools-mounted');
+        }
+    });
+}
+
+function mountMobileToolPanel(panel, displayMode = 'block') {
+    if (!panel || !mobileToolsPanelSlot) return false;
+    if (panel.parentNode !== mobileToolsPanelSlot) {
+        mobileToolsPanelSlot.appendChild(panel);
+    }
+    panel.classList.add('mobile-tools-mounted');
+    panel.style.display = displayMode;
+    return true;
+}
+
+function syncMobileToolPanelButtonState() {
+    if (mobileRoutesBtn) {
+        const active = isMobileLayoutActive && mobileSurfaceMode === MOBILE_SURFACE_MODE_TOOLS && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES;
+        mobileRoutesBtn.classList.toggle('active', active);
+        mobileRoutesBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    }
+    if (mobileToolkitBtn) {
+        const active = isMobileLayoutActive && mobileSurfaceMode === MOBILE_SURFACE_MODE_TOOLS && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT;
+        mobileToolkitBtn.classList.toggle('active', active);
+        mobileToolkitBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    }
+    if (mobileGmViewBtn) {
+        const active = isMobileLayoutActive && mobileSurfaceMode === MOBILE_SURFACE_MODE_TOOLS && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM;
+        mobileGmViewBtn.classList.toggle('active', active);
+        mobileGmViewBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    }
+}
+
+function setMobileToolsPanelMode(mode = null) {
+    mobileToolsPanelMode = [MOBILE_TOOLS_PANEL_ROUTES, MOBILE_TOOLS_PANEL_TOOLKIT, MOBILE_TOOLS_PANEL_GM].includes(mode) ? mode : null;
+    if (!isMobileLayoutActive || !mobileToolsPanelSlot) {
+        restoreMobileToolPanels();
+        syncMobileToolPanelButtonState();
+        return;
+    }
+
+    [routePanel, sessionToolkitPanel, gmPill].forEach((panel) => {
+        if (panel) panel.style.display = 'none';
+    });
+
+    let mounted = false;
+    if (mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES) {
+        mounted = mountMobileToolPanel(routePanel, 'block');
+    } else if (mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT) {
+        mounted = mountMobileToolPanel(sessionToolkitPanel, 'block');
+    } else if (mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM) {
+        mounted = mountMobileToolPanel(gmPill, 'flex');
+    }
+
+    mobileToolsPanelSlot.hidden = !mounted;
+    syncMobileToolPanelButtonState();
 }
 
 function syncMobileSheetPlacement() {
@@ -992,12 +1084,15 @@ function syncMobileSheetPlacement() {
             mobileSearchPanelResultsSlot.appendChild(searchResultsContainer);
         }
         syncMobileSearchResultsCardState();
+        setMobileToolsPanelMode(mobileSurfaceMode === MOBILE_SURFACE_MODE_TOOLS ? mobileToolsPanelMode : null);
         return;
     }
 
     restorePlacedNode(mobileSearchControlAnchor, searchControlContainer);
     restorePlacedNode(mobileSearchResultsAnchor, searchResultsContainer);
     restorePlacedNode(mobileFilterAnchor, poiFilterContainer);
+    setMobileToolsPanelMode(null);
+    restoreMobileToolPanels();
     syncMobileSearchResultsCardState();
 }
 
@@ -1016,29 +1111,32 @@ function resolveSearchScope(scope, {
     isMobileLayout = isMobileLayoutActive
 } = {}) {
     const normalizedScope = scope === SEARCH_SCOPE_ATLAS ? SEARCH_SCOPE_ATLAS : SEARCH_SCOPE_MAP;
-    if (isMobileLayout) {
-        return SEARCH_SCOPE_MAP;
-    }
     return normalizedScope;
 }
 
 function hasOpenMobileSurface() {
-    return mobileSurfaceMode === MOBILE_SURFACE_MODE_ATLAS || mobileSurfaceMode === MOBILE_SURFACE_MODE_SEARCH;
+    return mobileSurfaceMode === MOBILE_SURFACE_MODE_ATLAS ||
+        mobileSurfaceMode === MOBILE_SURFACE_MODE_SEARCH ||
+        mobileSurfaceMode === MOBILE_SURFACE_MODE_TOOLS;
 }
 
 function normalizeMobileSurfaceMode(mode) {
-    return mode === MOBILE_SURFACE_MODE_ATLAS ? MOBILE_SURFACE_MODE_ATLAS : MOBILE_SURFACE_MODE_SEARCH;
+    if (mode === MOBILE_SURFACE_MODE_ATLAS) return MOBILE_SURFACE_MODE_ATLAS;
+    if (mode === MOBILE_SURFACE_MODE_TOOLS) return MOBILE_SURFACE_MODE_TOOLS;
+    return MOBILE_SURFACE_MODE_SEARCH;
 }
 
 function getMobileSurfaceModeLabel(mode = mobileSurfaceMode) {
-    return mode === MOBILE_SURFACE_MODE_ATLAS ? 'atlas' : 'search';
+    if (mode === MOBILE_SURFACE_MODE_ATLAS) return 'atlas';
+    if (mode === MOBILE_SURFACE_MODE_TOOLS) return 'tools';
+    return 'search';
 }
 
 function isMobileSurfaceMode(mode) {
     return mobileSurfaceMode === mode;
 }
 
-function openMobileSheet({ mode = MOBILE_SURFACE_MODE_SEARCH, focusSearch = false, triggerButton = null } = {}) {
+function openMobileSheet({ mode = MOBILE_SURFACE_MODE_SEARCH, focusSearch = false, triggerButton = null, toolsPanelMode = null } = {}) {
     if (!isMobileLayoutActive) return;
     const nextMode = normalizeMobileSurfaceMode(mode);
     if (nextMode === MOBILE_SURFACE_MODE_SEARCH && (!searchControlContainer || searchControlContainer.style.display === 'none')) {
@@ -1057,6 +1155,11 @@ function openMobileSheet({ mode = MOBILE_SURFACE_MODE_SEARCH, focusSearch = fals
     } else if (container && !container.classList.contains('sidebar-collapsed')) {
         setSidebarState('c', false);
     }
+    if (nextMode === MOBILE_SURFACE_MODE_TOOLS) {
+        setMobileToolsPanelMode(toolsPanelMode || mobileToolsPanelMode);
+    } else {
+        setMobileToolsPanelMode(null);
+    }
     syncMobileSearchPanelState();
     syncMobileExploreVisibility();
     syncSidebarBackdropState();
@@ -1069,6 +1172,7 @@ function closeMobileSheet({ restoreFocus = false } = {}) {
     if (!hasOpenMobileSurface()) return;
     const closingMode = mobileSurfaceMode;
     mobileSurfaceMode = null;
+    setMobileToolsPanelMode(null);
     if (closingMode === MOBILE_SURFACE_MODE_ATLAS && container && !container.classList.contains('sidebar-collapsed')) {
         setSidebarState('c', false);
     } else {
@@ -1076,7 +1180,7 @@ function closeMobileSheet({ restoreFocus = false } = {}) {
         syncSidebarBackdropState();
     }
     if (restoreFocus) {
-        const focusTarget = lastMobileSurfaceTriggerButton || mobileSheetLauncherBtn || mobileSearchLauncherBtn;
+        const focusTarget = lastMobileSurfaceTriggerButton || mobileSheetLauncherBtn || mobileSearchLauncherBtn || mobileToolsLauncherBtn;
         if (focusTarget) {
             focusTarget.focus();
         }
@@ -1089,6 +1193,14 @@ function openMobileSearchPanel({ focusSearch = false, triggerButton = null } = {
 
 function closeMobileSearchPanel({ restoreFocus = false } = {}) {
     closeMobileSheet({ restoreFocus });
+}
+
+function openMobileToolsPanel({ panelMode = null, triggerButton = null } = {}) {
+    openMobileSheet({
+        mode: MOBILE_SURFACE_MODE_TOOLS,
+        triggerButton,
+        toolsPanelMode: panelMode
+    });
 }
 
 mobileLayoutV2Enabled = resolveMobileLayoutV2Enabled();
@@ -1202,6 +1314,9 @@ function updateMobileLayoutState() {
     if (!active && hasOpenMobileSurface()) {
         mobileSurfaceMode = null;
     }
+    if (!active) {
+        setMobileToolsPanelMode(null);
+    }
     if (toggleBtn) {
         const collapsed = container.classList.contains('sidebar-collapsed');
         if (active) {
@@ -1231,16 +1346,25 @@ function updateMobileLayoutState() {
 }
 
 function syncMobileSearchPanelState() {
-    if (!mobileSearchPanel) return;
+    if (!mobileSearchPanel && !mobileToolsCard) return;
     const mode = isMobileLayoutActive ? mobileSurfaceMode : null;
     const showAtlas = mode === MOBILE_SURFACE_MODE_ATLAS;
     const showSearch = mode === MOBILE_SURFACE_MODE_SEARCH;
-    mobileSearchPanel.setAttribute('aria-hidden', showSearch ? 'false' : 'true');
-    mobileSearchPanel.dataset.mode = showSearch ? mode : '';
+    const showTools = mode === MOBILE_SURFACE_MODE_TOOLS;
+    if (mobileSearchPanel) {
+        mobileSearchPanel.setAttribute('aria-hidden', showSearch ? 'false' : 'true');
+        mobileSearchPanel.dataset.mode = showSearch ? mode : '';
+    }
+    if (mobileToolsCard) {
+        mobileToolsCard.setAttribute('aria-hidden', showTools ? 'false' : 'true');
+        mobileToolsCard.dataset.mode = showTools ? mode : '';
+    }
     container.classList.toggle('mobile-search-panel-open', false);
     container.classList.toggle('mobile-search-card-open', showSearch);
+    container.classList.toggle('mobile-tools-card-open', showTools);
     container.classList.toggle('mobile-surface-atlas', showAtlas);
     container.classList.toggle('mobile-surface-search', showSearch);
+    container.classList.toggle('mobile-surface-tools', showTools);
     if (mobileSearchPanelTitle) {
         mobileSearchPanelTitle.textContent = 'Search';
     }
@@ -1253,6 +1377,7 @@ function syncMobileSearchPanelState() {
     if (mobileMapListSection) {
         mobileMapListSection.hidden = true;
     }
+    setMobileToolsPanelMode(showTools ? mobileToolsPanelMode : null);
     syncMobileSearchResultsCardState();
     syncMobileDockState();
 }
@@ -1333,10 +1458,20 @@ function syncMobileSheetActionState(visibilityState) {
         pressed: markersVisible,
         disabled: visibilityState.mobileMarkersDisabled
     });
+    syncMobileUtilityButton(mobileFiltersBtn, {
+        visible: visibilityState.showMobileFiltersAction,
+        pressed: filtersPanelVisible,
+        disabled: visibilityState.mobileFiltersDisabled
+    });
     syncMobileUtilityButton(mobileMeasureBtn, {
         visible: visibilityState.showMobileMeasureAction,
         pressed: isMeasuringMultiPoint,
         disabled: visibilityState.mobileMeasureDisabled
+    });
+    syncMobileUtilityButton(mobileSoundBtn, {
+        visible: visibilityState.showMobileSoundAction,
+        pressed: soundEnabled,
+        disabled: visibilityState.mobileSoundDisabled
     });
     if (mobileShareViewBtn) {
         mobileShareViewBtn.hidden = !visibilityState.showMobileShareAction;
@@ -1353,11 +1488,42 @@ function syncMobileSheetActionState(visibilityState) {
         mobileHelpBtn.disabled = visibilityState.showMobileHelpAction ? !!visibilityState.mobileHelpDisabled : false;
         mobileHelpBtn.setAttribute('aria-disabled', visibilityState.showMobileHelpAction && visibilityState.mobileHelpDisabled ? 'true' : 'false');
     }
+    syncMobileUtilityButton(mobileGmViewBtn, {
+        visible: visibilityState.showMobileGMAction,
+        pressed: mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM || gmContentVisible,
+        disabled: visibilityState.mobileGMDisabled
+    });
+    syncMobileUtilityButton(mobileRoutesBtn, {
+        visible: visibilityState.showMobileRoutesAction,
+        pressed: mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES,
+        disabled: visibilityState.mobileRoutesDisabled
+    });
+    syncMobileUtilityButton(mobileToolkitBtn, {
+        visible: visibilityState.showMobileToolkitAction,
+        pressed: mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT,
+        disabled: visibilityState.mobileToolkitDisabled
+    });
     if (mobileSearchActionsCard) {
         const hasVisibleAction = [mobileMarkersBtn, mobileMeasureBtn, mobileShareViewBtn, mobileCoordsBtn, mobileHelpBtn]
             .some((button) => button && !button.hidden);
         mobileSearchActionsCard.hidden = !hasVisibleAction;
     }
+    if (mobileToolsLauncherBtn) {
+        const hasVisibleTool = [
+            mobileMarkersBtn,
+            mobileFiltersBtn,
+            mobileMeasureBtn,
+            mobileSoundBtn,
+            mobileShareViewBtn,
+            mobileCoordsBtn,
+            mobileHelpBtn,
+            mobileGmViewBtn,
+            mobileRoutesBtn,
+            mobileToolkitBtn
+        ].some((button) => button && !button.hidden);
+        mobileToolsLauncherBtn.hidden = !visibilityState.showMobileToolsToggle || !hasVisibleTool;
+    }
+    syncMobileToolPanelButtonState();
 }
 
 function syncMobileExploreVisibility() {
@@ -1398,6 +1564,15 @@ function syncMobileDockState() {
         mobileSearchLauncherBtn.setAttribute('aria-label', active ? 'Close search' : 'Open search');
         mobileSearchLauncherBtn.innerHTML = `<i class="ui-icon" data-lucide="search" aria-hidden="true"></i><span class="mobile-fab-label">Search</span>`;
     }
+    if (mobileToolsLauncherBtn) {
+        const active = isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS);
+        mobileToolsLauncherBtn.hidden = !isMobileLayoutActive || isEmbeddedView || mobileToolsLauncherBtn.hidden;
+        mobileToolsLauncherBtn.classList.toggle('active', active);
+        mobileToolsLauncherBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        mobileToolsLauncherBtn.setAttribute('aria-expanded', active ? 'true' : 'false');
+        mobileToolsLauncherBtn.setAttribute('aria-label', active ? 'Close tools' : 'Open tools');
+        mobileToolsLauncherBtn.innerHTML = `<i class="ui-icon" data-lucide="sliders-horizontal" aria-hidden="true"></i>`;
+    }
     if (mobileInfoHelpBtn) {
         mobileInfoHelpBtn.hidden = !isMobileLayoutActive || isEmbeddedView;
     }
@@ -1407,13 +1582,13 @@ function syncMobileDockState() {
 function markControlTouch(event) {
     const target = event?.target;
     if (!(target instanceof Element)) return;
-    if (!target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-info-help-btn, #mobile-dock, #mobile-search-card, #sidebar, #map-blurb, #sidebar-backdrop, .modal-overlay, .modal-content')) return;
+    if (!target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-info-help-btn, #mobile-tools-launcher-btn, #mobile-dock, #mobile-search-card, #mobile-tools-card, #sidebar, #map-blurb, #sidebar-backdrop, .modal-overlay, .modal-content')) return;
     lastControlTouchAt = Date.now();
 }
 
 function shouldIgnoreMapPointerEvent(event) {
     const target = event?.originalEvent?.target;
-    if (target instanceof Element && target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-info-help-btn, #mobile-dock, #mobile-search-card, #sidebar, #map-blurb, .modal-overlay, .modal-content')) {
+    if (target instanceof Element && target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-info-help-btn, #mobile-tools-launcher-btn, #mobile-dock, #mobile-search-card, #mobile-tools-card, #sidebar, #map-blurb, .modal-overlay, .modal-content')) {
         return true;
     }
     if (isMobileLayoutActive && (Date.now() - lastControlTouchAt) < 150) {
@@ -1636,7 +1811,8 @@ function setPanelCollapsed(panelEl, buttonEl, collapsed, storageKey) {
 function setAuxPanelVisible(panelEl, visible, displayMode = 'block') {
     if (!panelEl) return;
     if (isMobileLayoutActive && (panelEl === routePanel || panelEl === sessionToolkitPanel || panelEl === gmPill)) {
-        panelEl.style.display = 'none';
+        const mountedInMobileTools = mobileToolsPanelSlot && panelEl.parentNode === mobileToolsPanelSlot && isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS);
+        panelEl.style.display = mountedInMobileTools && visible ? displayMode : 'none';
         return;
     }
     panelEl.style.display = visible ? displayMode : 'none';
@@ -2321,9 +2497,24 @@ function updateCurrentControlVisibility(selectedMap = null) {
     if (toggleBtn) toggleBtn.hidden = isEmbeddedView || isMobileLayoutActive;
     if (searchRefineFiltersBtn) searchRefineFiltersBtn.hidden = !visibilityState.showSearchFilterAction;
     toggleCoordsBtn.setAttribute('aria-pressed', coordsDisplayEnabled ? 'true' : 'false');
-    if (routePanel) routePanel.style.display = visibilityState.showRoutePanel ? 'block' : 'none';
-    if (sessionToolkitPanel) sessionToolkitPanel.style.display = visibilityState.showToolkitPanel ? 'block' : 'none';
-    if (gmPill) gmPill.style.display = visibilityState.showGMPill ? 'flex' : 'none';
+    if (routePanel) {
+        routePanel.style.display = visibilityState.showRoutePanel ||
+            (isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES)
+            ? 'block'
+            : 'none';
+    }
+    if (sessionToolkitPanel) {
+        sessionToolkitPanel.style.display = visibilityState.showToolkitPanel ||
+            (isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT)
+            ? 'block'
+            : 'none';
+    }
+    if (gmPill) {
+        gmPill.style.display = visibilityState.showGMPill ||
+            (isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM)
+            ? 'flex'
+            : 'none';
+    }
 
     syncMobileMapMeta(mapInfo, visibilityState);
     syncMobileSheetActionState(visibilityState);
@@ -2371,9 +2562,10 @@ function updateCurrentControlVisibility(selectedMap = null) {
 
     if (isMobileLayoutActive) {
         setMapBlurbVisible(false);
-        coordinateDisplay.style.display = 'none';
-        setAuxPanelVisible(gmPill, false);
-        setAuxPanelVisible(sessionToolkitPanel, false);
+        coordinateDisplay.style.display = coordsDisplayEnabled && mapInfo.latLonBounds ? 'block' : 'none';
+        setAuxPanelVisible(routePanel, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES);
+        setAuxPanelVisible(gmPill, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM, 'flex');
+        setAuxPanelVisible(sessionToolkitPanel, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT);
         if (activeFiltersContainer) {
             activeFiltersContainer.style.display = 'none';
             activeFiltersContainer.innerHTML = '';
@@ -2974,11 +3166,11 @@ function renderRoutesPanel() {
     if (!routePanel || !routeSelect || !routeStepList) return;
     routeSelect.innerHTML = '';
     routeStepList.innerHTML = '';
-    if (isMobileLayoutActive || !currentRoutes || currentRoutes.length === 0) {
+    if (!currentRoutes || currentRoutes.length === 0) {
         routePanel.style.display = 'none';
         return;
     }
-    routePanel.style.display = 'block';
+    routePanel.style.display = isMobileLayoutActive ? 'none' : 'block';
     if (routeCountBadge) routeCountBadge.textContent = currentRoutes.length;
     currentRoutes.forEach(route => {
         const option = document.createElement('option');
@@ -4737,10 +4929,33 @@ if (mobileSearchLauncherBtn) {
     });
 }
 
+if (mobileToolsLauncherBtn) {
+    mobileToolsLauncherBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (!isMobileLayoutActive || mobileToolsLauncherBtn.hidden) return;
+        lastMobileSurfaceTriggerButton = mobileToolsLauncherBtn;
+        if (isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS)) {
+            closeMobileSheet({ restoreFocus: false });
+            return;
+        }
+        openMobileToolsPanel({
+            panelMode: mobileToolsPanelMode,
+            triggerButton: mobileToolsLauncherBtn
+        });
+    });
+}
+
 if (mobileSearchPanelCloseBtn) {
     mobileSearchPanelCloseBtn.addEventListener('click', (event) => {
         event.stopPropagation();
         closeMobileSearchPanel({ restoreFocus: true });
+    });
+}
+
+if (mobileToolsCardCloseBtn) {
+    mobileToolsCardCloseBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        closeMobileSheet({ restoreFocus: true });
     });
 }
 
@@ -5042,6 +5257,11 @@ function applySoundEnabledState(nextEnabled, {
     if (soundEnabled) {
         ensureAmbientTracksLoaded();
         soundIcon.innerHTML = `<i class="ui-icon" data-lucide="volume-2" aria-hidden="true"></i>`;
+        if (mobileSoundBtn) {
+            mobileSoundBtn.classList.add('active');
+            mobileSoundBtn.setAttribute('aria-pressed', 'true');
+            mobileSoundBtn.innerHTML = `<i class="ui-icon" data-lucide="volume-2" aria-hidden="true"></i><span>Sound</span>`;
+        }
         refreshLucideIcons();
         toggleSoundBtn.title = "Mute Sound";
         toggleSoundBtn.setAttribute('aria-label', "Mute Sound");
@@ -5055,6 +5275,11 @@ function applySoundEnabledState(nextEnabled, {
         }
     } else {
         soundIcon.innerHTML = `<i class="ui-icon" data-lucide="volume-x" aria-hidden="true"></i>`;
+        if (mobileSoundBtn) {
+            mobileSoundBtn.classList.remove('active');
+            mobileSoundBtn.setAttribute('aria-pressed', 'false');
+            mobileSoundBtn.innerHTML = `<i class="ui-icon" data-lucide="volume-x" aria-hidden="true"></i><span>Sound</span>`;
+        }
         refreshLucideIcons();
         toggleSoundBtn.title = "Unmute Sound";
         toggleSoundBtn.setAttribute('aria-label', "Unmute Sound");
@@ -5073,6 +5298,11 @@ function initializeSoundState() {
     const setSoundIcon = (enabled) => {
         if (!soundIcon) return;
         soundIcon.innerHTML = `<i class="ui-icon" data-lucide="${enabled ? 'volume-2' : 'volume-x'}" aria-hidden="true"></i>`;
+        if (mobileSoundBtn) {
+            mobileSoundBtn.classList.toggle('active', enabled);
+            mobileSoundBtn.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+            mobileSoundBtn.innerHTML = `<i class="ui-icon" data-lucide="${enabled ? 'volume-2' : 'volume-x'}" aria-hidden="true"></i><span>Sound</span>`;
+        }
         refreshLucideIcons();
     };
 
@@ -5226,11 +5456,30 @@ if (mobileMarkersBtn) {
     });
 }
 
+if (mobileFiltersBtn) {
+    mobileFiltersBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (mobileFiltersBtn.hidden || mobileFiltersBtn.disabled) return;
+        closeMobileSheet({ restoreFocus: false });
+        toggleFilterPanel();
+    });
+}
+
 if (mobileMeasureBtn) {
     mobileMeasureBtn.addEventListener('click', (event) => {
         event.stopPropagation();
         if (mobileMeasureBtn.hidden || mobileMeasureBtn.disabled) return;
+        unlockAdvancedControls('mobile_measure_toggle');
         toggleMeasurementTool();
+    });
+}
+
+if (mobileSoundBtn) {
+    mobileSoundBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (mobileSoundBtn.hidden || mobileSoundBtn.disabled) return;
+        unlockAdvancedControls('mobile_sound_toggle');
+        applySoundEnabledState(!soundEnabled);
     });
 }
 
@@ -5238,6 +5487,7 @@ if (mobileShareViewBtn) {
     mobileShareViewBtn.addEventListener('click', async (event) => {
         event.stopPropagation();
         if (mobileShareViewBtn.hidden || mobileShareViewBtn.disabled) return;
+        unlockAdvancedControls('mobile_share_view');
         await shareCurrentView(mobileShareViewBtn);
     });
 }
@@ -5246,6 +5496,7 @@ if (mobileCoordsBtn) {
     mobileCoordsBtn.addEventListener('click', (event) => {
         event.stopPropagation();
         if (mobileCoordsBtn.hidden || mobileCoordsBtn.disabled) return;
+        unlockAdvancedControls('mobile_coords_toggle');
         setCoordsDisplayVisible(!coordsDisplayEnabled);
     });
 }
@@ -5254,6 +5505,42 @@ if (mobileHelpBtn) {
     mobileHelpBtn.addEventListener('click', (event) => {
         event.stopPropagation();
         if (openAboutModal) openAboutModal('guide', 'mobile_sheet');
+    });
+}
+
+if (mobileGmViewBtn) {
+    mobileGmViewBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (mobileGmViewBtn.hidden || mobileGmViewBtn.disabled || !canAccessGMToolkit()) return;
+        unlockAdvancedControls('mobile_gm_panel');
+        openMobileToolsPanel({
+            panelMode: mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM ? null : MOBILE_TOOLS_PANEL_GM,
+            triggerButton: mobileGmViewBtn
+        });
+    });
+}
+
+if (mobileRoutesBtn) {
+    mobileRoutesBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (mobileRoutesBtn.hidden || mobileRoutesBtn.disabled) return;
+        unlockAdvancedControls('mobile_routes_panel');
+        openMobileToolsPanel({
+            panelMode: mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES ? null : MOBILE_TOOLS_PANEL_ROUTES,
+            triggerButton: mobileRoutesBtn
+        });
+    });
+}
+
+if (mobileToolkitBtn) {
+    mobileToolkitBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (mobileToolkitBtn.hidden || mobileToolkitBtn.disabled || !canAccessGMToolkit()) return;
+        unlockAdvancedControls('mobile_toolkit_panel');
+        openMobileToolsPanel({
+            panelMode: mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT ? null : MOBILE_TOOLS_PANEL_TOOLKIT,
+            triggerButton: mobileToolkitBtn
+        });
     });
 }
 

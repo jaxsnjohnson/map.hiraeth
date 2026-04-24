@@ -36,14 +36,14 @@ global.searchScopeAtlasBtn = {
 // eslint-disable-next-line no-eval
 eval(snippets);
 
-assert.equal(resolveSearchScope('atlas', { isMobileLayout: true }), 'map');
+assert.equal(resolveSearchScope('atlas', { isMobileLayout: true }), 'atlas');
 assert.equal(resolveSearchScope('map', { isMobileLayout: true }), 'map');
 assert.equal(resolveSearchScope('atlas', { isMobileLayout: false }), 'atlas');
 
 global.isMobileLayoutActive = true;
 setSearchScope('atlas');
-assert.equal(global.currentSearchScope, 'map');
-assert.equal(global.searchScopeAtlasBtn.pressed, 'false');
+assert.equal(global.currentSearchScope, 'atlas');
+assert.equal(global.searchScopeAtlasBtn.pressed, 'true');
 
 global.isMobileLayoutActive = false;
 setSearchScope('atlas');

@@ -23,8 +23,13 @@ const snippets = [
 
 global.MOBILE_SURFACE_MODE_ATLAS = 'atlas';
 global.MOBILE_SURFACE_MODE_SEARCH = 'search';
+global.MOBILE_SURFACE_MODE_TOOLS = 'tools';
+global.MOBILE_TOOLS_PANEL_ROUTES = 'routes';
+global.MOBILE_TOOLS_PANEL_TOOLKIT = 'toolkit';
+global.MOBILE_TOOLS_PANEL_GM = 'gm';
 global.isMobileLayoutActive = true;
 global.mobileSurfaceMode = null;
+global.mobileToolsPanelMode = null;
 global.lastMobileSurfaceTriggerButton = null;
 global.currentSearchScope = 'map';
 global.searchControlContainer = { style: { display: 'block' } };
@@ -43,6 +48,13 @@ global.mobileSearchPanel = {
     }
 };
 global.mobileSearchPanelTitle = { textContent: '' };
+global.mobileToolsCard = {
+    attrs: {},
+    dataset: {},
+    setAttribute(name, value) {
+        this.attrs[name] = value;
+    }
+};
 global.mobileSearchPanelCloseBtn = {
     attrs: {},
     setAttribute(name, value) {
@@ -105,6 +117,7 @@ global.container = {
 };
 global.syncMobileDockState = () => {};
 global.syncSidebarBackdropState = () => {};
+global.setMobileToolsPanelMode = (mode = null) => { global.mobileToolsPanelMode = mode; };
 global.setSidebarStateCalls = [];
 global.setSidebarState = (state) => {
     global.setSidebarStateCalls.push(state);
@@ -138,6 +151,7 @@ closeMobileSheet({ restoreFocus: true });
 assert.equal(global.mobileSurfaceMode, null);
 assert.equal(global.mobileSheetLauncherBtn.focusCalled, 1);
 assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'true');
+assert.equal(global.mobileToolsCard.attrs['aria-hidden'], 'true');
 assert.equal(global.container.classes.has('sidebar-collapsed'), true);
 assert.deepEqual(global.setSidebarStateCalls, ['o', 'c']);
 
@@ -149,6 +163,7 @@ assert.equal(global.poiSearchInput.focusCalled, 1);
 assert.equal(global.mobileSearchPanelTitle.textContent, 'Search');
 assert.equal(global.mobileSearchPanelCloseBtn.attrs['aria-label'], 'Close search');
 assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'false');
+assert.equal(global.mobileToolsCard.attrs['aria-hidden'], 'true');
 assert.equal(global.mobileSearchPanel.dataset.mode, 'search');
 assert.equal(global.mobileSearchPanelSearchSlot.hidden, false);
 assert.equal(global.mobileSearchResultsCard.hidden, false);
@@ -164,6 +179,13 @@ closeMobileSheet({ restoreFocus: true });
 assert.equal(global.mobileSurfaceMode, null);
 assert.equal(global.mobileSearchLauncherBtn.focusCalled, 1);
 assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'true');
+
+openMobileSheet({ mode: 'tools', triggerButton: global.mobileSearchLauncherBtn });
+assert.equal(global.mobileSurfaceMode, 'tools');
+assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'true');
+assert.equal(global.mobileToolsCard.attrs['aria-hidden'], 'false');
+assert.equal(global.container.classes.has('mobile-tools-card-open'), true);
+assert.equal(global.container.classes.has('mobile-surface-tools'), true);
 
 openMobileSearchPanel({ focusSearch: false, triggerButton: global.mobileSearchLauncherBtn });
 setMapBlurbVisible(true);

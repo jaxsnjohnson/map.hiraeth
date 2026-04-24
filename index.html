@@ -235,6 +235,9 @@
             <button id="mobile-info-help-btn" type="button" aria-label="Open map info and help" aria-pressed="false" aria-expanded="false">
                 <i class="ui-icon" data-lucide="info" aria-hidden="true"></i>
             </button>
+            <button id="mobile-tools-launcher-btn" type="button" aria-label="Open tools" aria-pressed="false" aria-expanded="false">
+                <i class="ui-icon" data-lucide="sliders-horizontal" aria-hidden="true"></i>
+            </button>
             <div id="mobile-dock" aria-label="Mobile navigation">
                 <button id="mobile-sheet-launcher-btn" type="button" aria-label="Open atlas" aria-pressed="false" aria-expanded="false">
                     <i class="ui-icon" data-lucide="chevron-right" aria-hidden="true"></i>
@@ -257,6 +260,61 @@
                 <div id="mobile-search-card-body">
                     <div id="mobile-search-card-search-slot"></div>
                     <div id="mobile-search-card-results-slot" hidden></div>
+                </div>
+            </div>
+            <div id="mobile-tools-card" aria-hidden="true">
+                <div id="mobile-tools-card-header">
+                    <div class="mobile-sheet-header-copy">
+                        <strong id="mobile-tools-card-title">Tools</strong>
+                    </div>
+                    <button id="mobile-tools-card-close-btn" type="button" aria-label="Close tools">
+                        <i class="ui-icon" data-lucide="x" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div id="mobile-tools-card-body">
+                    <div id="mobile-tools-actions" aria-label="Map tools">
+                        <button id="mobile-markers-btn" type="button" aria-pressed="true">
+                            <i class="ui-icon" data-lucide="map-pin" aria-hidden="true"></i>
+                            <span>Markers</span>
+                        </button>
+                        <button id="mobile-filters-btn" type="button" aria-pressed="false">
+                            <i class="ui-icon" data-lucide="funnel" aria-hidden="true"></i>
+                            <span>Filters</span>
+                        </button>
+                        <button id="mobile-measure-btn" type="button" aria-pressed="false">
+                            <i class="ui-icon" data-lucide="ruler" aria-hidden="true"></i>
+                            <span>Measure</span>
+                        </button>
+                        <button id="mobile-sound-btn" type="button" aria-pressed="false">
+                            <i class="ui-icon" data-lucide="volume-x" aria-hidden="true"></i>
+                            <span>Sound</span>
+                        </button>
+                        <button id="mobile-coords-btn" type="button" aria-pressed="false">
+                            <i class="ui-icon" data-lucide="globe" aria-hidden="true"></i>
+                            <span>Coords</span>
+                        </button>
+                        <button id="mobile-share-view-btn" type="button">
+                            <i class="ui-icon" data-lucide="share-2" aria-hidden="true"></i>
+                            <span>Share</span>
+                        </button>
+                        <button id="mobile-help-btn" type="button">
+                            <i class="ui-icon" data-lucide="circle-help" aria-hidden="true"></i>
+                            <span>Guide</span>
+                        </button>
+                        <button id="mobile-gm-view-btn" type="button" aria-pressed="false">
+                            <i class="ui-icon" data-lucide="shield" aria-hidden="true"></i>
+                            <span>GM View</span>
+                        </button>
+                        <button id="mobile-routes-btn" type="button" aria-pressed="false">
+                            <i class="ui-icon" data-lucide="route" aria-hidden="true"></i>
+                            <span>Routes</span>
+                        </button>
+                        <button id="mobile-toolkit-btn" type="button" aria-pressed="false">
+                            <i class="ui-icon" data-lucide="briefcase" aria-hidden="true"></i>
+                            <span>Toolkit</span>
+                        </button>
+                    </div>
+                    <div id="mobile-tools-panel-slot" hidden></div>
                 </div>
             </div>
             <div id="search-control-container" class="leaflet-control">
