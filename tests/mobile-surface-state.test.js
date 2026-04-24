@@ -62,7 +62,6 @@ global.mobileSearchPanelCloseBtn = {
     }
 };
 global.mobileSearchPanelSearchSlot = { hidden: false };
-global.mobileMapListSection = { hidden: false };
 global.mobileSearchResultsCard = { hidden: true };
 global.mapBlurbElement = {
     innerHTML: '',
@@ -141,7 +140,6 @@ assert.equal(global.mobileSearchPanel.dataset.mode, '');
 assert.equal(global.mobileSearchPanelTitle.textContent, 'Search');
 assert.equal(global.mobileSearchPanelCloseBtn.attrs['aria-label'], 'Close search');
 assert.equal(global.mobileSearchPanelSearchSlot.hidden, true);
-assert.equal(global.mobileMapListSection.hidden, true);
 assert.equal(global.container.classes.has('mobile-search-card-open'), false);
 assert.equal(global.container.classes.has('mobile-surface-atlas'), true);
 assert.equal(global.container.classes.has('sidebar-collapsed'), false);

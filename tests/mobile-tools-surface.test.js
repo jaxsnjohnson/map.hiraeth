@@ -8,7 +8,15 @@ const appSource = fs.readFileSync('js/app.js', 'utf8');
 const finalMobileBlockMarker = '/* Canonical mobile-layout-v2 shell. Keep this block last';
 const finalMobileBlockStart = styleSource.indexOf(finalMobileBlockMarker);
 assert.notEqual(finalMobileBlockStart, -1);
-assert.ok(finalMobileBlockStart > styleSource.lastIndexOf('#mobile-search-panel'));
+[
+    '#mobile-search-panel',
+    '#mobile-search-actions-card',
+    '#mobile-search-results-card',
+    '#mobile-map-list-section',
+    '#mobile-utility-actions'
+].forEach((selector) => {
+    assert.equal(styleSource.includes(selector), false);
+});
 
 const finalMobileBlock = styleSource.slice(finalMobileBlockStart);
 assert.match(finalMobileBlock, /#mobile-tools-launcher-btn/);
@@ -19,7 +27,8 @@ assert.match(finalMobileBlock, /#session-toolkit\.mobile-tools-mounted/);
 assert.match(finalMobileBlock, /#gm-pill\.mobile-tools-mounted/);
 assert.match(finalMobileBlock, /#sidebar \{[\s\S]*top: calc\(var\(--safe-top\) \+ var\(--mobile-shell-gap\)\) !important;[\s\S]*bottom: calc\(var\(--safe-bottom\) \+ var\(--mobile-shell-gap\)\) !important;[\s\S]*z-index: 1431 !important;[\s\S]*display: flex !important;[\s\S]*transform: translateX\(calc\(-100% - 20px\)\) !important;/m);
 assert.match(finalMobileBlock, /\.container\.mobile-surface-atlas #sidebar \{[\s\S]*transform: translateX\(0\) !important;/m);
-assert.match(finalMobileBlock, /\.container\.mobile-surface-open #sidebar-backdrop \{[\s\S]*z-index: 1430 !important;/m);
+assert.match(finalMobileBlock, /\.container\.mobile-surface-open #sidebar-backdrop \{[\s\S]*z-index: 1410 !important;/m);
+assert.match(finalMobileBlock, /\.container\.mobile-surface-atlas #sidebar-backdrop \{[\s\S]*z-index: 1430 !important;/m);
 assert.match(finalMobileBlock, /#mobile-search-card \{[\s\S]*bottom: calc\(var\(--safe-bottom\) \+ 70px\) !important;/m);
 assert.match(finalMobileBlock, /#mobile-search-card #search-scope-atlas-btn/);
 

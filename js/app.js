@@ -713,16 +713,9 @@ const mobileSearchCard = document.getElementById('mobile-search-card');
 const mobileToolsCard = document.getElementById('mobile-tools-card');
 const mobileToolsCardCloseBtn = document.getElementById('mobile-tools-card-close-btn');
 const mobileToolsPanelSlot = document.getElementById('mobile-tools-panel-slot');
-const mobileSearchActionsCard = document.getElementById('mobile-search-actions-card');
 const mobileSearchPanelSearchSlot = document.getElementById('mobile-search-card-search-slot');
 const mobileSearchResultsCard = document.getElementById('mobile-search-card-results-slot');
 const mobileSearchPanelResultsSlot = document.getElementById('mobile-search-card-results-slot');
-const mobileMapListSection = document.getElementById('mobile-map-list-section');
-const mobileMapListToggleBtn = document.getElementById('mobile-map-list-toggle-btn');
-const mobileMapListPreviewName = document.getElementById('mobile-map-list-preview-name');
-const mobileMapListPreviewMeta = document.getElementById('mobile-map-list-preview-meta');
-const mobileSearchPanelMapListShell = document.getElementById('mobile-search-panel-map-list-shell');
-const mobileSearchPanelMapListSlot = document.getElementById('mobile-search-panel-map-list-slot');
 const mobileMarkersBtn = document.getElementById('mobile-markers-btn');
 const mobileFiltersBtn = document.getElementById('mobile-filters-btn');
 const mobileMeasureBtn = document.getElementById('mobile-measure-btn');
@@ -1359,7 +1352,6 @@ function syncMobileSearchPanelState() {
         mobileToolsCard.setAttribute('aria-hidden', showTools ? 'false' : 'true');
         mobileToolsCard.dataset.mode = showTools ? mode : '';
     }
-    container.classList.toggle('mobile-search-panel-open', false);
     container.classList.toggle('mobile-search-card-open', showSearch);
     container.classList.toggle('mobile-tools-card-open', showTools);
     container.classList.toggle('mobile-surface-atlas', showAtlas);
@@ -1373,9 +1365,6 @@ function syncMobileSearchPanelState() {
     }
     if (mobileSearchPanelSearchSlot) {
         mobileSearchPanelSearchSlot.hidden = !showSearch;
-    }
-    if (mobileMapListSection) {
-        mobileMapListSection.hidden = true;
     }
     setMobileToolsPanelMode(showTools ? mobileToolsPanelMode : null);
     syncMobileSearchResultsCardState();
@@ -1503,11 +1492,6 @@ function syncMobileSheetActionState(visibilityState) {
         pressed: mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT,
         disabled: visibilityState.mobileToolkitDisabled
     });
-    if (mobileSearchActionsCard) {
-        const hasVisibleAction = [mobileMarkersBtn, mobileMeasureBtn, mobileShareViewBtn, mobileCoordsBtn, mobileHelpBtn]
-            .some((button) => button && !button.hidden);
-        mobileSearchActionsCard.hidden = !hasVisibleAction;
-    }
     if (mobileToolsLauncherBtn) {
         const hasVisibleTool = [
             mobileMarkersBtn,
