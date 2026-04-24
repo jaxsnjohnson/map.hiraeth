@@ -5137,12 +5137,12 @@ html.mobile-layout-v2.map-interacting #map-blurb {
 
     html.mobile-layout-v2.is-mobile-layout #sidebar {
         position: absolute !important;
-        top: calc(var(--safe-top) + 64px) !important;
+        top: calc(var(--safe-top) + var(--mobile-shell-gap)) !important;
         left: calc(var(--safe-left) + var(--mobile-shell-gap)) !important;
-        bottom: calc(var(--safe-bottom) + 68px) !important;
-        width: min(300px, calc(100vw - var(--safe-left) - var(--safe-right) - 20px)) !important;
+        bottom: calc(var(--safe-bottom) + var(--mobile-shell-gap)) !important;
+        width: min(320px, calc(100vw - var(--safe-left) - var(--safe-right) - 20px)) !important;
         max-width: calc(100vw - var(--safe-left) - var(--safe-right) - 20px) !important;
-        z-index: 1415 !important;
+        z-index: 1431 !important;
         display: flex !important;
         flex-direction: column !important;
         padding: 13px !important;
@@ -5157,7 +5157,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         opacity: 0 !important;
         pointer-events: none !important;
         transform: translateX(calc(-100% - 20px)) !important;
-        transition: transform 0.2s ease, opacity 0.18s ease !important;
+        transition: transform 0.24s ease, opacity 0.18s ease !important;
     }
 
     html.mobile-layout-v2.is-mobile-layout .container.mobile-surface-atlas #sidebar {
@@ -5167,7 +5167,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     }
 
     html.mobile-layout-v2.is-mobile-layout .container.sidebar-collapsed #sidebar {
-        width: min(300px, calc(100vw - var(--safe-left) - var(--safe-right) - 20px)) !important;
+        width: min(320px, calc(100vw - var(--safe-left) - var(--safe-right) - 20px)) !important;
         padding: 13px !important;
         border: 1px solid var(--mobile-card-border) !important;
     }
@@ -5510,6 +5510,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     }
 
     html.mobile-layout-v2.is-mobile-layout .container.mobile-surface-open #sidebar-backdrop {
+        z-index: 1430 !important;
         opacity: 1 !important;
         pointer-events: auto !important;
         background: rgba(15, 12, 18, 0.2) !important;

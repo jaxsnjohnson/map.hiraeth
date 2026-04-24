@@ -17,8 +17,9 @@ assert.match(finalMobileBlock, /#mobile-tools-actions/);
 assert.match(finalMobileBlock, /#route-panel\.mobile-tools-mounted/);
 assert.match(finalMobileBlock, /#session-toolkit\.mobile-tools-mounted/);
 assert.match(finalMobileBlock, /#gm-pill\.mobile-tools-mounted/);
-assert.match(finalMobileBlock, /#sidebar \{[\s\S]*display: flex !important;[\s\S]*transform: translateX\(calc\(-100% - 20px\)\) !important;/m);
+assert.match(finalMobileBlock, /#sidebar \{[\s\S]*top: calc\(var\(--safe-top\) \+ var\(--mobile-shell-gap\)\) !important;[\s\S]*bottom: calc\(var\(--safe-bottom\) \+ var\(--mobile-shell-gap\)\) !important;[\s\S]*z-index: 1431 !important;[\s\S]*display: flex !important;[\s\S]*transform: translateX\(calc\(-100% - 20px\)\) !important;/m);
 assert.match(finalMobileBlock, /\.container\.mobile-surface-atlas #sidebar \{[\s\S]*transform: translateX\(0\) !important;/m);
+assert.match(finalMobileBlock, /\.container\.mobile-surface-open #sidebar-backdrop \{[\s\S]*z-index: 1430 !important;/m);
 assert.match(finalMobileBlock, /#mobile-search-card \{[\s\S]*bottom: calc\(var\(--safe-bottom\) \+ 70px\) !important;/m);
 assert.match(finalMobileBlock, /#mobile-search-card #search-scope-atlas-btn/);
 

@@ -43,7 +43,7 @@ assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-sear
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-dock \{[\s\S]*background: transparent !important;[\s\S]*box-shadow: none !important;/m);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-sheet-launcher-btn,\s*html\.mobile-layout-v2\.is-mobile-layout #mobile-search-launcher-btn \{[\s\S]*position: absolute !important;[\s\S]*bottom: calc\(var\(--safe-bottom\) \+ 12px\) !important;/m);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #map-controls-container \{[\s\S]*left: calc\(var\(--safe-left\) \+ var\(--mobile-shell-gap\)\) !important;[\s\S]*flex-direction: column !important;[\s\S]*align-items: flex-start !important;/m);
-assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #sidebar \{[\s\S]*transform: translateX\(calc\(-100% - 20px\)\) !important;/m);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #sidebar \{[\s\S]*z-index: 1431 !important;[\s\S]*transform: translateX\(calc\(-100% - 20px\)\) !important;/m);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.container\.mobile-surface-atlas #sidebar \{[\s\S]*transform: translateX\(0\) !important;/m);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #map-blurb \{/);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #map-blurb \{[\s\S]*width: min\(300px,[\s\S]*background: var\(--mobile-card-bg\) !important;/m);
