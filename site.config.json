@@ -131,6 +131,13 @@
       { "label": "About", "href": "#", "id": "about-link" },
       { "label": "Source", "href": "https://jsnj.link/map-hiraeth-source" }
     ],
+    "share": {
+      "currentViewTitle": "Current View",
+      "currentViewText": "Explore this map view on Hiraeth Maps.",
+      "sharedViewTitle": "Shared View",
+      "sharedViewText": "Explore this shared map view on Hiraeth Maps.",
+      "featureText": "Explore {featureName} on the Hiraeth map."
+    },
     "help": {
       "tabs": [
         {

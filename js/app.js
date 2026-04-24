@@ -208,7 +208,9 @@ const DEFAULT_POI_TYPE_GROUPS = {
     "Other": ["Point of Interest", "Region", "Portal"],
     "Unknown": ["Unknown"]
 };
-const poiTypeGroups = getConfigValue('taxonomy.poiTypeGroups', DEFAULT_POI_TYPE_GROUPS);
+const poiTypeGroups = (typeof getConfigValue === 'function')
+    ? getConfigValue('taxonomy.poiTypeGroups', DEFAULT_POI_TYPE_GROUPS)
+    : DEFAULT_POI_TYPE_GROUPS;
 
 function getUrlParameters() {
     const params = {};
@@ -580,7 +582,9 @@ const DEFAULT_POI_GROUP_ICON_CONFIG = {
     "Other": "images/poi-icons/other.png",
     "Unknown": "images/poi-icons/unknown.png"
 };
-const poiGroupIconConfig = getConfigValue('assets.poiIcons', DEFAULT_POI_GROUP_ICON_CONFIG);
+const poiGroupIconConfig = (typeof getConfigValue === 'function')
+    ? getConfigValue('assets.poiIcons', DEFAULT_POI_GROUP_ICON_CONFIG)
+    : DEFAULT_POI_GROUP_ICON_CONFIG;
 
 const poiIconCache = new Map();
 
@@ -628,7 +632,9 @@ const DEFAULT_MAP_BACKGROUND_COLORS = {
     light: '#f4f0eb',
     dark: '#050510'
 };
-const configuredMapBackgroundColors = getConfigValue('theme.mapBackgroundColors', DEFAULT_MAP_BACKGROUND_COLORS);
+const configuredMapBackgroundColors = (typeof getConfigValue === 'function')
+    ? getConfigValue('theme.mapBackgroundColors', DEFAULT_MAP_BACKGROUND_COLORS)
+    : DEFAULT_MAP_BACKGROUND_COLORS;
 
 function getMapBackgroundColor(mapEntry) {
     const candidate = String(mapEntry?.backgroundColor || '').trim();
@@ -926,14 +932,16 @@ function resolveControlVisibilityState({
     toolkitVisible = false,
     gmVisible = false
 } = {}) {
+    const featureEnabled = (name, fallbackValue = true) =>
+        (typeof getFeatureFlag === 'function') ? getFeatureFlag(name, fallbackValue) : fallbackValue;
     const showMarkers = hasPOIs || hasRegions;
-    const showSearch = getFeatureFlag('atlasSearch', true) && (hasPOIs || hasRegions || hasRoads || hasRoutes || atlasSearchCount > 0);
-    const showFilters = getFeatureFlag('filters', true) && (hasPOIs || hasRegions || hasRoads);
+    const showSearch = featureEnabled('atlasSearch', true) && (hasPOIs || hasRegions || hasRoads || hasRoutes || atlasSearchCount > 0);
+    const showFilters = featureEnabled('filters', true) && (hasPOIs || hasRegions || hasRoads);
     const showAdvanced = advancedControls && !isEmbedded;
     const showMobileSheet = isMobileLayout && !isEmbedded;
     const showMobileCoreUtility = showMobileSheet;
-    const showMobileToolkit = showMobileSheet && allowGMToolkit && getFeatureFlag('sessionToolkit', true);
-    const showMobileRoutes = showMobileSheet && routeCount > 0 && getFeatureFlag('routes', true);
+    const showMobileToolkit = showMobileSheet && allowGMToolkit && featureEnabled('sessionToolkit', true);
+    const showMobileRoutes = showMobileSheet && routeCount > 0 && featureEnabled('routes', true);
 
     return {
         showMarkersButton: showMarkers && !isMobileLayout,
@@ -943,14 +951,14 @@ function resolveControlVisibilityState({
         showFiltersButton: showFilters && !isMobileLayout,
         showSearchFilterAction: showFilters,
         showMeasureButton: showAdvanced && hasValidScale && !isMobileLayout,
-        showSoundButton: getFeatureFlag('sound', true) && showAdvanced && !isMobileLayout,
+        showSoundButton: featureEnabled('sound', true) && showAdvanced && !isMobileLayout,
         showBlurbButton: showAdvanced && hasBlurb && !isMobileLayout,
-        showCoordsButton: getFeatureFlag('coordinates', true) && showAdvanced && hasLatLonBounds && !isMobileLayout,
-        showShareButton: getFeatureFlag('shareLinks', true) && showAdvanced && !isMobileLayout,
+        showCoordsButton: featureEnabled('coordinates', true) && showAdvanced && hasLatLonBounds && !isMobileLayout,
+        showShareButton: featureEnabled('shareLinks', true) && showAdvanced && !isMobileLayout,
         showGMButton: showAdvanced && allowGMToolkit && !isMobileLayout,
-        showToolkitButton: getFeatureFlag('sessionToolkit', true) && showAdvanced && allowGMToolkit && !isMobileLayout,
-        showRoutePanel: getFeatureFlag('routes', true) && routeCount > 0 && !isEmbedded && !isMobileLayout,
-        showToolkitPanel: getFeatureFlag('sessionToolkit', true) && allowGMToolkit && toolkitVisible && !isMobileLayout,
+        showToolkitButton: featureEnabled('sessionToolkit', true) && showAdvanced && allowGMToolkit && !isMobileLayout,
+        showRoutePanel: featureEnabled('routes', true) && routeCount > 0 && !isEmbedded && !isMobileLayout,
+        showToolkitPanel: featureEnabled('sessionToolkit', true) && allowGMToolkit && toolkitVisible && !isMobileLayout,
         showGMPill: allowGMToolkit && gmVisible && !isMobileLayout,
         showMobileExploreMode: showMobileSheet,
         showMobileMapMode: showMobileSheet,
@@ -959,9 +967,9 @@ function resolveControlVisibilityState({
         showMobileMarkersAction: showMobileCoreUtility && showMarkers,
         showMobileFiltersAction: showMobileCoreUtility && showFilters,
         showMobileMeasureAction: showMobileCoreUtility && hasValidScale,
-        showMobileShareAction: getFeatureFlag('shareLinks', true) && showMobileCoreUtility,
-        showMobileSoundAction: getFeatureFlag('sound', true) && showMobileCoreUtility,
-        showMobileCoordsAction: getFeatureFlag('coordinates', true) && showMobileCoreUtility && hasLatLonBounds,
+        showMobileShareAction: featureEnabled('shareLinks', true) && showMobileCoreUtility,
+        showMobileSoundAction: featureEnabled('sound', true) && showMobileCoreUtility,
+        showMobileCoordsAction: featureEnabled('coordinates', true) && showMobileCoreUtility && hasLatLonBounds,
         showMobileHelpAction: showMobileCoreUtility,
         showMobileGMAction: showMobileToolkit,
         showMobileRoutesAction: showMobileRoutes,
@@ -1250,7 +1258,8 @@ function clampFloatingPanels() {
 }
 
 function shouldShowMiniMap() {
-    return !isEmbeddedView && !isMobileLayoutActive;
+    const featureEnabled = (typeof getFeatureFlag === 'function') ? getFeatureFlag('minimap', true) : true;
+    return featureEnabled && !isEmbeddedView && !isMobileLayoutActive;
 }
 
 function removeMiniMapControl() {
@@ -1868,15 +1877,15 @@ function trackAnalytics(eventName, details = {}) {
         ...details
     };
 
-    if (!window.__HAG_ANALYTICS) {
-        window.__HAG_ANALYTICS = [];
+    if (!window.__ATLAS_ANALYTICS) {
+        window.__ATLAS_ANALYTICS = [];
     }
-    window.__HAG_ANALYTICS.push(payload);
-    if (window.__HAG_ANALYTICS.length > 300) {
-        window.__HAG_ANALYTICS.shift();
+    window.__ATLAS_ANALYTICS.push(payload);
+    if (window.__ATLAS_ANALYTICS.length > 300) {
+        window.__ATLAS_ANALYTICS.shift();
     }
 
-    const endpoint = window.HAG_ANALYTICS_ENDPOINT;
+    const endpoint = getConfigValue('security.analyticsEndpoint', '') || window.ATLAS_ANALYTICS_ENDPOINT;
     if (!endpoint) return;
 
     const body = JSON.stringify(payload);
@@ -2109,9 +2118,11 @@ async function getMapDefinition(mapId, preResolvedMap = null) {
 }
 
 function getSearchScopeLabel(scope = currentSearchScope) {
+    const configValue = (path, fallbackValue) =>
+        (typeof getConfigValue === 'function') ? getConfigValue(path, fallbackValue) : fallbackValue;
     return scope === SEARCH_SCOPE_ATLAS
-        ? getConfigValue('taxonomy.labels.atlasSearchScope', 'Atlas')
-        : getConfigValue('taxonomy.labels.mapSearchScope', 'This Map');
+        ? configValue('taxonomy.labels.atlasSearchScope', 'Atlas')
+        : configValue('taxonomy.labels.mapSearchScope', 'This Map');
 }
 
 function setSearchScope(scope) {
@@ -3642,7 +3653,11 @@ function populateFilters(pointsOfInterest, mapId) {
     updateActiveFilterChips();
 }
 const sharedLinkOpenSessionKeys = new Set();
-const SHARE_RELAY_DEFAULT_COPY = getConfigValue('copy.shareRelay.default', 'Shared with you. Pass it on to your party.');
+function getRuntimeConfigValue(path, fallbackValue) {
+    return (typeof getConfigValue === 'function') ? getConfigValue(path, fallbackValue) : fallbackValue;
+}
+
+const SHARE_RELAY_DEFAULT_COPY = getRuntimeConfigValue('copy.shareRelay.default', 'Shared with you. Pass it on to your party.');
 
 function getShareContextFromParams(params) {
     if (!(params instanceof URLSearchParams)) return null;
@@ -3727,8 +3742,8 @@ function showShareRelayPrompt(context) {
     if (shareRelayCopy) {
         const featureName = String(context.featureName || '').trim();
         shareRelayCopy.textContent = context.sharedType === 'view'
-            ? getConfigValue('copy.shareRelay.mapView', 'Shared with you. Pass this map view to your party.')
-            : getConfigValue('copy.shareRelay.feature', 'Shared with you: {featureName}. Pass it on to your party.').replace('{featureName}', featureName);
+            ? getRuntimeConfigValue('copy.shareRelay.mapView', 'Shared with you. Pass this map view to your party.')
+            : getRuntimeConfigValue('copy.shareRelay.feature', 'Shared with you: {featureName}. Pass it on to your party.').replace('{featureName}', featureName);
     }
     shareRelayCoachmark.hidden = false;
 
@@ -3870,9 +3885,10 @@ window.copyFeatureLink = async function(btn, type, name) {
     });
 
     if (nativeShareSupported) {
+        const siteShortName = getRuntimeConfigValue('brand.shortName', 'Interactive Atlas');
         const shareData = {
-            title: `Hiraeth Maps: ${featureName}`,
-            text: `Explore ${featureName} on the Hiraeth map.`,
+            title: `${siteShortName}: ${featureName}`,
+            text: getRuntimeConfigValue('copy.share.featureText', 'Explore {featureName} on this interactive atlas.').replace('{featureName}', featureName),
             url: shareUrl
         };
 
@@ -3923,9 +3939,10 @@ async function shareCurrentView(btn) {
     });
 
     if (nativeShareSupported) {
+        const siteShortName = getRuntimeConfigValue('brand.shortName', 'Interactive Atlas');
         const shareData = {
-            title: 'Hiraeth Maps: Current View',
-            text: 'Explore this map view on Hiraeth Maps.',
+            title: `${siteShortName}: ${getRuntimeConfigValue('copy.share.currentViewTitle', 'Current View')}`,
+            text: getRuntimeConfigValue('copy.share.currentViewText', 'Explore this map view.'),
             url: shareUrl
         };
 
@@ -3983,11 +4000,14 @@ async function relaySharedContext(btn) {
     });
 
     if (nativeShareSupported) {
+        const siteShortName = getRuntimeConfigValue('brand.shortName', 'Interactive Atlas');
         const shareData = {
-            title: sharedType === 'view' ? 'Hiraeth Maps: Shared View' : `Hiraeth Maps: ${featureName}`,
+            title: sharedType === 'view'
+                ? `${siteShortName}: ${getRuntimeConfigValue('copy.share.sharedViewTitle', 'Shared View')}`
+                : `${siteShortName}: ${featureName}`,
             text: sharedType === 'view'
-                ? 'Explore this shared map view on Hiraeth Maps.'
-                : `Explore ${featureName} on the Hiraeth map.`,
+                ? getRuntimeConfigValue('copy.share.sharedViewText', 'Explore this shared map view.')
+                : getRuntimeConfigValue('copy.share.featureText', 'Explore {featureName} on this interactive atlas.').replace('{featureName}', featureName),
             url: shareUrl
         };
 
