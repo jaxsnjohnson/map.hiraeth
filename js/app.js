@@ -1797,7 +1797,15 @@ function createMapChooserCard(mapInfo, index, activeMapId) {
     regions.className = 'map-chooser-meta map-chooser-regions';
     regions.textContent = 'Regions: ...';
 
+    const description = document.createElement('span');
+    description.className = 'map-chooser-meta map-chooser-description';
+    description.textContent = String(mapInfo.summary || mapInfo.description || '').trim();
+    if (!description.textContent) {
+        description.style.display = 'none';
+    }
+
     copy.appendChild(title);
+    copy.appendChild(description);
     copy.appendChild(edited);
     copy.appendChild(regions);
 
@@ -1836,13 +1844,29 @@ async function hydrateMapChooserCard(card, mapInfo) {
     }
 }
 
+function getArchiveMapChooserEntries(items, ancestors = []) {
+    const entries = [];
+    const sourceItems = Array.isArray(items) ? items : [];
+    sourceItems.forEach((item) => {
+        if (!item || typeof item !== 'object') return;
+        if (isMapChooserArchiveEntry(item, ancestors) && isRenderableMapEntry(item)) {
+            entries.push(item);
+        }
+        if (Array.isArray(item.children) && item.children.length > 0) {
+            entries.push(...getArchiveMapChooserEntries(item.children, [...ancestors, item]));
+        }
+    });
+    return entries;
+}
+
 function renderMapChooser(items = mapData) {
     if (!mapChooserGrid) return;
     const entries = getPrimaryMapChooserEntries(items);
-    const activeMapId = getMapChooserActiveMapId(entries);
+    const archiveEntries = getArchiveMapChooserEntries(items);
+    const activeMapId = getMapChooserActiveMapId([...entries, ...archiveEntries]);
     mapChooserGrid.innerHTML = '';
 
-    if (entries.length === 0) {
+    if (entries.length === 0 && archiveEntries.length === 0) {
         const empty = document.createElement('p');
         empty.className = 'map-chooser-empty';
         empty.textContent = getConfigValue('copy.loading.noMaps', 'No maps available.');
@@ -1853,6 +1877,28 @@ function renderMapChooser(items = mapData) {
     entries.forEach((entry, index) => {
         mapChooserGrid.appendChild(createMapChooserCard(entry, index, activeMapId));
     });
+
+    if (archiveEntries.length > 0) {
+        const details = document.createElement('details');
+        details.className = 'map-chooser-archive-details';
+        details.style.gridColumn = '1 / -1';
+
+        const summary = document.createElement('summary');
+        summary.className = 'map-chooser-archive-summary';
+        summary.textContent = 'Development & Archive Maps';
+        details.appendChild(summary);
+
+        const archiveGrid = document.createElement('div');
+        archiveGrid.className = 'map-chooser-grid';
+        archiveGrid.style.marginTop = '16px';
+
+        archiveEntries.forEach((entry, index) => {
+            archiveGrid.appendChild(createMapChooserCard(entry, entries.length + index, activeMapId));
+        });
+
+        details.appendChild(archiveGrid);
+        mapChooserGrid.appendChild(details);
+    }
 }
 
 function openMapFromChooser(mapInfo) {
@@ -4395,6 +4441,32 @@ function checkAndFocusFeature() {
 
 // --- Map View URL State Management ---
 let viewUpdateTimeout;
+// --- Map Chooser Back Button ---
+const sidebarBackToChooserBtn = document.getElementById('sidebar-back-to-chooser');
+if (sidebarBackToChooserBtn) {
+    sidebarBackToChooserBtn.addEventListener('click', () => {
+        if (!mapChooserElement) return;
+
+        history.pushState(
+            {
+                mapId: null,
+                sidebarState: currentSidebarState,
+                search: window.location.search,
+                hash: ''
+            },
+            '',
+            buildAppUrlWithHash('', window.location.search)
+        );
+
+        if (isMobileLayoutActive) {
+            closeMobileSheet({ restoreFocus: false });
+        }
+
+        renderMapChooser(mapData);
+        setMapChooserVisible(true);
+    });
+}
+
 function updateURLWithMapView() {
     // Don't update if map is not loaded or valid
     if (!map || !currentlyLoadedMapId) return;
