@@ -6149,14 +6149,6 @@ function handleMeasurementClick(e) {
         let kmDistance = null;   // Will store distance in the map's defined units (e.g., km)
         let tooltipContent = '';
 
-        // These lines should already be present just before this 'else' block,
-        // but ensure they are correctly fetching scale info for the current map.
-        // const currentMapInfo = findMapRecursive(mapData, currentlyLoadedMapId);
-        // const scalePx = currentMapInfo?.scalePixels;
-        // const scaleKm = currentMapInfo?.scaleKilometers; // Represents the unit value for scale, e.g., km, miles
-        // const hasValidScale = typeof scalePx === 'number' && scalePx > 0 &&
-        //                         typeof scaleKm === 'number' && scaleKm > 0;
-
         if (hasValidScale) {
             kmDistance = (pixelDistance / scalePx) * scaleKm;
             // The unit (e.g., "km") is assumed from your JSON's "scaleKilometers" field.
