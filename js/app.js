@@ -66,6 +66,7 @@ const SEARCH_RESULT_GROUP_ORDER = ['poi', 'region', 'line', 'route', 'step', 'ma
 let currentSearchScope = SEARCH_SCOPE_MAP;
 let renderedSearchResults = [];
 let activeSearchResultIndex = -1;
+let atlasGeneratedAt = null;
 const isFirefox = typeof navigator !== 'undefined' && /firefox|fxios/i.test(navigator.userAgent);
 const MOBILE_LAYOUT_BREAKPOINT = getPerformanceNumber('mobileBreakpoint', 768);
 const MOBILE_SURFACE_MODE_ATLAS = 'atlas';
@@ -693,6 +694,8 @@ const container = document.querySelector('.container');
 const sidebar = document.getElementById('sidebar');
 const mapListElement = document.getElementById('map-list');
 const toggleBtn = document.getElementById('toggle-sidebar-btn');
+const mapChooserElement = document.getElementById('map-chooser');
+const mapChooserGrid = document.getElementById('map-chooser-grid');
 const mobileDock = document.getElementById('mobile-dock');
 const mobileInfoHelpBtn = document.getElementById('mobile-info-help-btn');
 const mobileToolsLauncherBtn = document.getElementById('mobile-tools-launcher-btn');
@@ -1657,6 +1660,209 @@ function getMiniMapImageUrl(mapInfo) {
         return `${path}.mini.webp${query}${hash ? `#${hash}` : ''}`;
     }
     return `${miniPath}${query}${hash ? `#${hash}` : ''}`;
+}
+
+function hasDirectMapHash(mapId) {
+    return !!String(mapId || '').trim();
+}
+
+function shouldShowMapChooserForMapId(mapId) {
+    return !!mapChooserElement && !isEmbeddedView && !hasDirectMapHash(mapId);
+}
+
+function setMapChooserVisible(visible) {
+    if (!mapChooserElement) return;
+    mapChooserElement.hidden = !visible;
+    mapChooserElement.setAttribute('aria-hidden', visible ? 'false' : 'true');
+    mapChooserElement.classList.toggle('visible', visible);
+    if (bodyElement) {
+        bodyElement.classList.toggle('map-chooser-open', visible);
+    }
+}
+
+function getMapChooserEntryText(item) {
+    return [
+        item?.id,
+        item?.name,
+        item?.group,
+        item?.category
+    ].map(value => String(value || '').trim()).filter(Boolean).join(' ');
+}
+
+function isMapChooserArchiveEntry(item, ancestors = []) {
+    const branchText = [...ancestors, item].map(getMapChooserEntryText).join(' ');
+    if (/old dev maps|irl old maps|archive/i.test(branchText)) return true;
+    const id = String(item?.id || '').trim();
+    const name = String(item?.name || '').trim();
+    return /^(OLD-|DEV-|Archive-)/i.test(id) || /^(OLD-|DEV-|Archive-)/i.test(name);
+}
+
+function getPrimaryMapChooserEntries(items, ancestors = []) {
+    const entries = [];
+    const sourceItems = Array.isArray(items) ? items : [];
+    sourceItems.forEach((item) => {
+        if (!item || typeof item !== 'object') return;
+        if (isMapChooserArchiveEntry(item, ancestors)) return;
+        if (isRenderableMapEntry(item)) entries.push(item);
+        if (Array.isArray(item.children) && item.children.length > 0) {
+            entries.push(...getPrimaryMapChooserEntries(item.children, [...ancestors, item]));
+        }
+    });
+    return entries;
+}
+
+function formatMapChooserDate(...candidateValues) {
+    for (const candidateValue of candidateValues) {
+        if (!candidateValue) continue;
+        const date = new Date(candidateValue);
+        if (Number.isNaN(date.getTime())) continue;
+        return new Intl.DateTimeFormat('en', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        }).format(date);
+    }
+    return 'Unknown';
+}
+
+function getMapChooserImageSources(mapInfo) {
+    const fullImageUrl = String(getPreferredMapImageUrl(mapInfo) || mapInfo?.imageUrl || '').trim();
+    const miniImageUrl = String(getMiniMapImageUrl(mapInfo) || '').trim();
+    return {
+        preview: miniImageUrl || fullImageUrl,
+        fallback: fullImageUrl
+    };
+}
+
+function handleMapChooserImageError(event) {
+    const image = event.currentTarget;
+    if (!(image instanceof HTMLImageElement)) return;
+    const fallbackSrc = image.dataset.fallbackSrc;
+    if (fallbackSrc) {
+        delete image.dataset.fallbackSrc;
+        image.src = fallbackSrc;
+    }
+}
+
+function getMapChooserActiveMapId(entries) {
+    const entryIds = new Set(entries.map(entry => entry.id));
+    const candidateIds = [
+        currentlyLoadedMapId,
+        safeGetStorage(UX_STORAGE_KEYS.lastMapId),
+        entries[0]?.id
+    ];
+    return candidateIds.find(candidateId => entryIds.has(candidateId)) || '';
+}
+
+function createMapChooserCard(mapInfo, index, activeMapId) {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'map-chooser-card';
+    card.dataset.mapId = mapInfo.id;
+    card.style.setProperty('--reveal-index', String(index));
+
+    const mapName = mapInfo.name || 'Unnamed Map';
+    const isActive = mapInfo.id === activeMapId;
+    card.classList.toggle('is-active', isActive);
+    if (isActive) card.setAttribute('aria-current', 'page');
+    card.setAttribute('aria-label', `Open map: ${mapName}`);
+
+    const media = document.createElement('span');
+    media.className = 'map-chooser-card-media';
+
+    const image = document.createElement('img');
+    const imageSources = getMapChooserImageSources(mapInfo);
+    image.alt = `${mapName} map preview`;
+    image.loading = index < 3 ? 'eager' : 'lazy';
+    image.decoding = 'async';
+    if (imageSources.fallback && imageSources.fallback !== imageSources.preview) {
+        image.dataset.fallbackSrc = withAssetVersion(imageSources.fallback);
+    }
+    image.addEventListener('error', handleMapChooserImageError);
+    image.src = imageSources.preview ? withAssetVersion(imageSources.preview) : '';
+    media.appendChild(image);
+
+    const copy = document.createElement('span');
+    copy.className = 'map-chooser-card-copy';
+
+    const title = document.createElement('span');
+    title.className = 'map-chooser-card-title';
+    title.textContent = mapName;
+
+    const edited = document.createElement('span');
+    edited.className = 'map-chooser-meta map-chooser-edited';
+    edited.textContent = `Last edited: ${formatMapChooserDate(mapInfo.updatedAt, mapInfo.lastEdited, mapInfo.modifiedAt, atlasGeneratedAt)}`;
+
+    const regions = document.createElement('span');
+    regions.className = 'map-chooser-meta map-chooser-regions';
+    regions.textContent = 'Regions: ...';
+
+    copy.appendChild(title);
+    copy.appendChild(edited);
+    copy.appendChild(regions);
+
+    card.appendChild(media);
+    card.appendChild(copy);
+    card.addEventListener('click', () => {
+        openMapFromChooser(mapInfo);
+    });
+
+    hydrateMapChooserCard(card, mapInfo);
+    return card;
+}
+
+async function hydrateMapChooserCard(card, mapInfo) {
+    const edited = card.querySelector('.map-chooser-edited');
+    const regions = card.querySelector('.map-chooser-regions');
+    try {
+        const definition = await getMapDefinition(mapInfo.id, mapInfo);
+        if (regions) {
+            const regionCount = Array.isArray(definition.regions) ? definition.regions.length : 0;
+            regions.textContent = `Regions: ${regionCount}`;
+        }
+        if (edited) {
+            edited.textContent = `Last edited: ${formatMapChooserDate(
+                definition.updatedAt,
+                definition.lastEdited,
+                definition.modifiedAt,
+                mapInfo.updatedAt,
+                mapInfo.lastEdited,
+                mapInfo.modifiedAt,
+                atlasGeneratedAt
+            )}`;
+        }
+    } catch (error) {
+        if (regions) regions.textContent = 'Regions: 0';
+    }
+}
+
+function renderMapChooser(items = mapData) {
+    if (!mapChooserGrid) return;
+    const entries = getPrimaryMapChooserEntries(items);
+    const activeMapId = getMapChooserActiveMapId(entries);
+    mapChooserGrid.innerHTML = '';
+
+    if (entries.length === 0) {
+        const empty = document.createElement('p');
+        empty.className = 'map-chooser-empty';
+        empty.textContent = getConfigValue('copy.loading.noMaps', 'No maps available.');
+        mapChooserGrid.appendChild(empty);
+        return;
+    }
+
+    entries.forEach((entry, index) => {
+        mapChooserGrid.appendChild(createMapChooserCard(entry, index, activeMapId));
+    });
+}
+
+function openMapFromChooser(mapInfo) {
+    if (!isRenderableMapEntry(mapInfo)) return;
+    setMapChooserVisible(false);
+    if (!isMobileLayoutActive) {
+        unlockAdvancedControls('map_chooser_selected');
+    }
+    trackAnalytics('map_chooser_selected', { mapId: mapInfo.id, mapName: mapInfo.name || '' });
+    navigateToMap(mapInfo.id, { preResolvedMap: mapInfo });
 }
 
 function withAssetVersion(url) {
@@ -4228,6 +4434,9 @@ function updateURLWithMapView() {
 async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     hideShareRelayPrompt('map_loading');
     const requestedMapId = String(mapId || '').trim();
+    if (requestedMapId) {
+        setMapChooserVisible(false);
+    }
     const requestToken = ++loadRequestToken;
     const manifestEntry = preResolvedMap || findMapRecursive(mapData, requestedMapId);
     const loadStartedAt = performance.now();
@@ -5658,6 +5867,18 @@ window.addEventListener('popstate', (event) => {
     const targetSidebarState = getHistoryStateValue(event.state, 'sidebarState', hashSidebarState);
 
 
+    if (!hasDirectMapHash(targetMapId) && shouldShowMapChooserForMapId(targetMapId)) {
+        renderMapChooser(mapData);
+        setMapChooserVisible(true);
+        if (loadingIndicator) loadingIndicator.style.display = 'none';
+        if (targetSidebarState && targetSidebarState !== currentSidebarState) {
+            setSidebarState(targetSidebarState, false);
+        }
+        syncSidebarBackdropState();
+        return;
+    }
+
+    setMapChooserVisible(false);
     if (targetMapId !== currentlyLoadedMapId) {
         loadMap(targetMapId || '', false); // Load map without pushing new state
     } else {
@@ -6287,6 +6508,7 @@ async function loadMapData() {
 
         mapData = atlas.tree;
         atlasSearchIndex = Array.isArray(atlas.searchIndex) ? atlas.searchIndex : [];
+        atlasGeneratedAt = atlas.generatedAt || null;
 
         if (loadingIndicator && loadingIndicator.querySelector('.progress-bar')) {
             loadingIndicator.querySelector('.progress-bar').style.width = '100%';
@@ -6703,6 +6925,46 @@ function initializeApp() {
     let mapIdToLoad = initialMapIdFromHash;
     let mapToLoadData = null;
 
+    const effectiveSidebarState = (isEmbeddedView || isMobileLayoutActive) ? 'c' : initialSidebarState;
+    setSidebarState(effectiveSidebarState, false); // Set sidebar state without updating hash yet
+
+    // Hide controls initially (loadMap will show them if needed)
+    toggleMarkersBtn.style.display = 'none';
+    toggleFiltersBtn.style.display = 'none';
+    measureToolBtn.style.display = 'none';
+    // toggleSoundBtn is handled above for embed mode, otherwise shown by initializeSoundState
+    searchControlContainer.style.display = 'none';
+    closeSearchResults();
+    poiFilterContainer.classList.remove('visible');
+    setAuxPanelVisible(routePanel, false);
+    setAuxPanelVisible(sessionToolkitPanel, false);
+    setAuxPanelVisible(gmPill, false);
+
+    if (shouldShowMapChooserForMapId(mapIdToLoad)) {
+        renderMapChooser(mapData);
+        setMapChooserVisible(true);
+        setMapBlurbVisible(false);
+        setOnboardingVisibility(false);
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+            loadingIndicator.classList.remove('initial-loader');
+        }
+        initializeSoundState();
+        history.replaceState(
+            {
+                mapId: null,
+                sidebarState: currentSidebarState,
+                search: window.location.search,
+                hash: window.location.hash || ''
+            },
+            '',
+            `${window.location.pathname}${window.location.search}${window.location.hash}`
+        );
+        syncSidebarBackdropState();
+        isInitializing = false;
+        return;
+    }
+
     const storedMapId = safeGetStorage(UX_STORAGE_KEYS.lastMapId);
     if (!mapIdToLoad && storedMapId) {
         mapIdToLoad = storedMapId;
@@ -6718,19 +6980,6 @@ function initializeApp() {
         mapIdToLoad = findFirstLoadableIdRecursive(mapData);
         mapToLoadData = findMapRecursive(mapData, mapIdToLoad);
     }
-
-
-    const effectiveSidebarState = (isEmbeddedView || isMobileLayoutActive) ? 'c' : initialSidebarState;
-    setSidebarState(effectiveSidebarState, false); // Set sidebar state without updating hash yet
-
-    // Hide controls initially (loadMap will show them if needed)
-    toggleMarkersBtn.style.display = 'none';
-    toggleFiltersBtn.style.display = 'none';
-    measureToolBtn.style.display = 'none';
-    // toggleSoundBtn is handled above for embed mode, otherwise shown by initializeSoundState
-    searchControlContainer.style.display = 'none';
-    closeSearchResults();
-    poiFilterContainer.classList.remove('visible');
 
     // Load the determined map
     if (mapIdToLoad && isRenderableMapEntry(mapToLoadData)) {

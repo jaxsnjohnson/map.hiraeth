@@ -127,7 +127,18 @@
     </script>
 </head>
 <body>
-        <div class="container">
+    <section id="map-chooser" class="map-chooser" aria-labelledby="map-chooser-title" aria-describedby="map-chooser-subtitle" hidden>
+        <div class="map-chooser-frame" aria-hidden="true"></div>
+        <div class="map-chooser-inner">
+            <header class="map-chooser-header">
+                <h1 id="map-chooser-title">YOUR CHRONICLES</h1>
+                <p id="map-chooser-subtitle">MAPS OF HIRAETH</p>
+            </header>
+            <div id="map-chooser-grid" class="map-chooser-grid" aria-live="polite"></div>
+        </div>
+    </section>
+
+    <div class="container">
         <div id="sidebar">
             <div class="sidebar-header">
                 <h2>Select Map</h2>
