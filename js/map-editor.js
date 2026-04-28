@@ -203,12 +203,17 @@
         );
     }
 
+    function getMapPresetGroupLabel(item) {
+        return String(item?.group || item?.category || '').trim();
+    }
+
     function readMapSettingsForm() {
         return {
             name: document.getElementById('map-name-input').value,
             type: document.getElementById('map-type-input').value,
             status: document.getElementById('map-status-input').value,
             visibility: document.getElementById('map-visibility-input').value,
+            group: document.getElementById('map-group-input').value,
             dataUrl: document.getElementById('map-data-url-input').value,
             imageUrl: document.getElementById('map-image-url-input').value,
             mobileImageUrl: document.getElementById('map-mobile-image-url-input').value,
@@ -388,8 +393,10 @@
         function renderNodes(items) {
             const list = document.createElement('ul');
             list.className = 'map-editor-tree-list';
+            const sourceItems = Array.isArray(items) ? items : [];
+            const hasGroupedItems = sourceItems.some((item) => getMapPresetGroupLabel(item));
 
-            items.forEach((item) => {
+            function createTreeNode(item) {
                 if (!item || typeof item !== 'object') return;
                 const row = document.createElement('li');
                 const header = document.createElement('div');
@@ -427,7 +434,47 @@
                     row.appendChild(renderNodes(item.children));
                 }
 
-                list.appendChild(row);
+                return row;
+            }
+
+            if (!hasGroupedItems) {
+                sourceItems.forEach((item) => {
+                    const row = createTreeNode(item);
+                    if (row) list.appendChild(row);
+                });
+                return list;
+            }
+
+            const renderedGroups = new Set();
+            sourceItems.forEach((item) => {
+                const groupLabel = getMapPresetGroupLabel(item);
+                if (!groupLabel) {
+                    const row = createTreeNode(item);
+                    if (row) list.appendChild(row);
+                    return;
+                }
+                if (renderedGroups.has(groupLabel)) return;
+                renderedGroups.add(groupLabel);
+
+                const groupRow = document.createElement('li');
+                groupRow.className = 'map-editor-tree-group';
+
+                const groupHeader = document.createElement('div');
+                groupHeader.className = 'map-editor-tree-group-header';
+                groupHeader.textContent = groupLabel;
+                groupRow.appendChild(groupHeader);
+
+                const groupList = document.createElement('ul');
+                groupList.className = 'map-editor-tree-list map-editor-tree-group-list';
+                sourceItems
+                    .filter((candidate) => getMapPresetGroupLabel(candidate) === groupLabel)
+                    .forEach((candidate) => {
+                        const row = createTreeNode(candidate);
+                        if (row) groupList.appendChild(row);
+                    });
+
+                groupRow.appendChild(groupList);
+                list.appendChild(groupRow);
             });
 
             return list;
@@ -679,6 +726,7 @@
             'map-type-input': currentMap?.type || '',
             'map-status-input': currentMap?.status || '',
             'map-visibility-input': currentMap?.visibility || '',
+            'map-group-input': currentMap?.group || currentMap?.category || '',
             'map-data-url-input': currentMap?.dataUrl || '',
             'map-order-input': currentLocation ? currentLocation.index : 0,
             'map-image-url-input': currentMap?.imageUrl || '',

@@ -28,6 +28,7 @@ const manifest = [
             {
                 id: 'main-map',
                 name: 'Main Map',
+                category: 'Legacy Regions',
                 imageUrl: 'maps/main.webp',
                 width: 100,
                 height: 100,
@@ -77,6 +78,11 @@ const filtered = filterMapTree(clonedManifest, 'main');
 assert.equal(filtered.length, 1);
 assert.equal(filtered[0].children.length, 1);
 assert.equal(filtered[0].children[0].id, 'main-map');
+
+const filteredByCategory = filterMapTree(clonedManifest, 'legacy regions');
+assert.equal(filteredByCategory.length, 1);
+assert.equal(filteredByCategory[0].children.length, 1);
+assert.equal(filteredByCategory[0].children[0].id, 'main-map');
 
 const normalizedPoint = normalizePoint({
     name: 'Round Trip',
@@ -139,6 +145,7 @@ const serializedManifest = serializeEditorState({
     ],
     mapSettings: {
         name: 'Main Map',
+        group: 'Countries',
         scalePixels: 5,
         scaleKilometers: 2.5,
         blurb: 'Updated blurb'
@@ -150,6 +157,8 @@ const serializedMap = findMapRecursive(serializedManifest, 'main-map');
 assert.equal(serializedMap.scalePixels, 5);
 assert.equal(serializedMap.scaleKilometers, 2.5);
 assert.equal(serializedMap.blurb, 'Updated blurb');
+assert.equal(serializedMap.group, 'Countries');
+assert.equal(serializedMap.category, undefined);
 assert.equal(serializedMap.pointsOfInterest.find((point) => point.name === 'Old Dock').customFlag, true);
 assert.equal(serializedMap.pointsOfInterest.find((point) => point.name === 'Old Dock').linkedMapId, 'harbor-map');
 assert.equal(serializedMap.pointsOfInterest.find((point) => point.name === 'New Plaza').linkedMapId, 'plaza-map');
@@ -180,6 +189,7 @@ const slimManifest = [
     {
         id: 'main-map',
         name: 'Main Map',
+        category: 'Legacy Regions',
         children: ['child-map']
     }
 ];
@@ -191,12 +201,15 @@ const updatedSlimManifest = serializeManifestState({
         name: 'Updated Main Map',
         scalePixels: 9,
         scaleKilometers: 4,
+        group: 'Geographic Regions',
         blurb: 'Slim manifest blurb'
     }
 });
 assert.equal(updatedSlimManifest[0].name, 'Updated Main Map');
 assert.equal(updatedSlimManifest[0].scalePixels, 9);
 assert.equal(updatedSlimManifest[0].scaleKilometers, 4);
+assert.equal(updatedSlimManifest[0].group, 'Geographic Regions');
+assert.equal(updatedSlimManifest[0].category, undefined);
 assert.equal(updatedSlimManifest[0].blurb, 'Slim manifest blurb');
 
 const flattenedManifest = buildFlatManifestEntries([
@@ -204,10 +217,12 @@ const flattenedManifest = buildFlatManifestEntries([
         id: 'root-folder',
         name: 'Root Folder',
         type: 'folder',
+        category: 'Countries',
         children: [
             {
                 id: 'child-map',
                 name: 'Child Map',
+                group: 'Geographic Regions',
                 dataUrl: 'maps/child-map.json'
             }
         ]
@@ -218,11 +233,13 @@ assert.deepEqual(flattenedManifest, [
         id: 'root-folder',
         name: 'Root Folder',
         type: 'folder',
+        category: 'Countries',
         order: 0
     },
     {
         id: 'child-map',
         name: 'Child Map',
+        group: 'Geographic Regions',
         dataUrl: 'maps/child-map.json',
         order: 0,
         parentId: 'root-folder'
@@ -288,11 +305,13 @@ assert.equal(serializedMapDocument.imageUrl, 'maps/serialized-main-map.webp');
 assert.equal(serializedMapDocument.dataUrl, undefined);
 
 const mapSettingsTarget = {};
+mapSettingsTarget.category = 'Legacy Regions';
 applyMapSettings(mapSettingsTarget, {
     name: 'Settings Map',
     type: 'folder',
     status: 'draft',
     visibility: 'private',
+    group: 'Countries',
     imageUrl: 'maps/settings-map.webp',
     mobileImageUrl: 'maps/settings-map-mobile.webp',
     smallImageUrl: 'maps/settings-map-small.webp',
@@ -313,6 +332,8 @@ applyMapSettings(mapSettingsTarget, {
 });
 assert.equal(mapSettingsTarget.name, 'Settings Map');
 assert.equal(mapSettingsTarget.type, 'folder');
+assert.equal(mapSettingsTarget.group, 'Countries');
+assert.equal(mapSettingsTarget.category, undefined);
 assert.equal(mapSettingsTarget.mobileImageUrl, 'maps/settings-map-mobile.webp');
 assert.equal(mapSettingsTarget.width, 800);
 assert.equal(mapSettingsTarget.scaleKilometers, 1.5);

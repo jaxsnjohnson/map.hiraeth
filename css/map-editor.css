@@ -161,6 +161,23 @@ details[open] .map-editor-section-header h2::before {
     margin-top: 4px;
 }
 
+.map-editor-tree-group {
+    margin: 10px 0 8px;
+}
+
+.map-editor-tree-group-header {
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    margin: 0 0 6px 40px;
+    text-transform: uppercase;
+}
+
+.map-editor-tree-list.map-editor-tree-group-list {
+    margin-left: 0;
+}
+
 .map-editor-tree-row {
     display: flex;
     align-items: center;

@@ -14,12 +14,14 @@ fs.writeFileSync(path.join(mapsDir, 'maps.json'), `${JSON.stringify([
     {
         id: 'continent-map',
         order: 0,
+        group: 'Countries',
         dataUrl: 'maps/continent-map.json'
     },
     {
         id: 'harbor-map',
         parentId: 'continent-map',
         order: 0,
+        category: 'Geographic Regions',
         dataUrl: 'maps/harbor-map.json'
     }
 ], null, 2)}\n`);
@@ -63,12 +65,14 @@ const atlas = result.atlasIndex;
 const continent = atlas.tree.find((item) => item.id === 'continent-map');
 assert.ok(continent);
 assert.equal(continent.dataUrl, 'maps/continent-map.json');
+assert.equal(continent.group, 'Countries');
 assert.ok(Array.isArray(continent.children));
 assert.equal(continent.children.length, 1);
 
 const harbor = continent.children.find((item) => item.id === 'harbor-map');
 assert.ok(harbor);
 assert.equal(harbor.dataUrl, 'maps/harbor-map.json');
+assert.equal(harbor.category, 'Geographic Regions');
 
 const continentPoi = atlas.searchIndex.find((entry) => entry.kind === 'poi' && entry.mapId === 'continent-map');
 assert.ok(continentPoi);

@@ -4753,9 +4753,16 @@ function syncFolderExpandedAria(folderListItem) {
     if (mainAction) mainAction.setAttribute('aria-expanded', expandedText);
 }
 
+function getMapPresetGroupLabel(item) {
+    return String(item?.group || item?.category || '').trim();
+}
+
 function populateSidebar(parentElement, items) {
     parentElement.innerHTML = '';
-    items.forEach(item => {
+    const sourceItems = Array.isArray(items) ? items : [];
+    const hasGroupedItems = sourceItems.some((item) => getMapPresetGroupLabel(item));
+
+    function createSidebarListItem(item) {
         const listItem = document.createElement('li');
 
         if (item.type === 'folder') {
@@ -4919,7 +4926,44 @@ function populateSidebar(parentElement, items) {
                 });
             }
         }
-        parentElement.appendChild(listItem);
+        return listItem;
+    }
+
+    if (!hasGroupedItems) {
+        sourceItems.forEach((item) => {
+            parentElement.appendChild(createSidebarListItem(item));
+        });
+        refreshLucideIcons();
+        return;
+    }
+
+    const renderedGroups = new Set();
+    sourceItems.forEach((item) => {
+        const groupLabel = getMapPresetGroupLabel(item);
+        if (!groupLabel) {
+            parentElement.appendChild(createSidebarListItem(item));
+            return;
+        }
+        if (renderedGroups.has(groupLabel)) return;
+        renderedGroups.add(groupLabel);
+
+        const groupItem = document.createElement('li');
+        groupItem.className = 'map-preset-group';
+
+        const groupHeader = document.createElement('div');
+        groupHeader.className = 'map-preset-group-header';
+        groupHeader.textContent = groupLabel;
+        groupItem.appendChild(groupHeader);
+
+        const groupList = document.createElement('ul');
+        groupList.className = 'map-preset-group-list';
+        sourceItems
+            .filter((candidate) => getMapPresetGroupLabel(candidate) === groupLabel)
+            .forEach((candidate) => {
+                groupList.appendChild(createSidebarListItem(candidate));
+            });
+        groupItem.appendChild(groupList);
+        parentElement.appendChild(groupItem);
     });
     refreshLucideIcons();
 }

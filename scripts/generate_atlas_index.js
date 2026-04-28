@@ -277,6 +277,8 @@ function mergeMapDefinitions(indexItem, sourceItem) {
         'backgroundColor',
         'atmosphere',
         'visibility',
+        'group',
+        'category',
         'blurb',
         'children'
     ];
@@ -366,7 +368,9 @@ function toManifestItem(context, item, origin) {
         'scaleUnitName',
         'backgroundColor',
         'atmosphere',
-        'visibility'
+        'visibility',
+        'group',
+        'category'
     ];
 
     keysToCopy.forEach((key) => {

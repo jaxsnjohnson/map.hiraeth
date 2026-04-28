@@ -8,6 +8,7 @@ const jsSource = fs.readFileSync('js/map-editor.js', 'utf8');
 assert.match(htmlSource, /id="editor-atlas-tree"/);
 assert.match(htmlSource, /id="editor-map"/);
 assert.match(htmlSource, /id="map-settings-form"/);
+assert.match(htmlSource, /id="map-group-input"/);
 assert.match(htmlSource, /id="editor-feature-form"/);
 assert.match(htmlSource, /id="export-current-map-btn"/);
 assert.match(htmlSource, /id="export-atlas-structure-btn"/);
@@ -22,6 +23,7 @@ assert.match(cssSource, /\.map-editor-shell\s*\{/);
 assert.match(cssSource, /\.map-editor-map-frame\s*\{[\s\S]*display: flex;/m);
 assert.match(cssSource, /#editor-map\s*\{[\s\S]*min-height: 480px;[\s\S]*position: relative;[\s\S]*overflow: hidden;/m);
 assert.match(cssSource, /\.map-editor-tree-list \.map-editor-tree-list\s*\{[\s\S]*margin-left: 14px;/m);
+assert.match(cssSource, /\.map-editor-tree-group-header\s*\{/);
 assert.match(cssSource, /#editor-map \.leaflet-map-pane \{ z-index: 100; \}/);
 assert.match(cssSource, /#editor-map \.leaflet-image-layer \{[\s\S]*opacity: 1 !important;[\s\S]*visibility: visible !important;/m);
 assert.match(cssSource, /\.map-editor-empty-detail\s*\{/);
@@ -38,6 +40,7 @@ assert.match(jsSource, /state\.map\.setView\(\[0, 0\], 0, \{ animate: false \}\)
 assert.match(jsSource, /moveNodeInTree/);
 assert.match(jsSource, /renderFeatureInspector/);
 assert.match(jsSource, /setMapEmptyState/);
+assert.match(jsSource, /getMapPresetGroupLabel/);
 assert.match(jsSource, /imageLayer\.once\('load'/);
 assert.match(jsSource, /imageLayer\.once\('error'/);
 

@@ -4,6 +4,8 @@ const path = require('node:path');
 
 const snapshotPath = path.join('tests', 'fixtures', 'active-map-inline-snapshot.json');
 const snapshot = JSON.parse(fs.readFileSync(snapshotPath, 'utf8'));
+const manifest = JSON.parse(fs.readFileSync(path.join('maps', 'maps.json'), 'utf8'));
+const dataUrlById = new Map(manifest.map((entry) => [entry.id, entry.dataUrl]));
 
 function normalizeFileBackedMap(mapData) {
     const normalized = JSON.parse(JSON.stringify(mapData));
@@ -12,7 +14,9 @@ function normalizeFileBackedMap(mapData) {
 }
 
 for (const [mapId, expectedMap] of Object.entries(snapshot)) {
-    const actualPath = path.join('maps', `${mapId}.json`);
+    const actualPath = dataUrlById.has(mapId)
+        ? dataUrlById.get(mapId)
+        : path.join('maps', `${mapId}.json`);
     assert.ok(fs.existsSync(actualPath), `${actualPath} should exist`);
     const actualMap = JSON.parse(fs.readFileSync(actualPath, 'utf8'));
     assert.deepEqual(

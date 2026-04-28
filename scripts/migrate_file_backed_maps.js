@@ -143,6 +143,8 @@ function buildSlimManifestEntry(item) {
         'scaleUnitName',
         'backgroundColor',
         'atmosphere',
+        'group',
+        'category',
         'blurb'
     ];
 

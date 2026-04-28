@@ -95,6 +95,8 @@
                 'type',
                 'status',
                 'visibility',
+                'group',
+                'category',
                 'dataUrl'
             ];
         const flattenedEntries = [];
@@ -146,9 +148,10 @@
         function filterRecursive(item) {
             if (!item || typeof item !== 'object') return null;
             const name = String(item.name || item.id || '').toLowerCase();
+            const group = String(item.group || item.category || '').toLowerCase();
             const children = Array.isArray(item.children) ? item.children : [];
             const filteredChildren = children.map(filterRecursive).filter(Boolean);
-            if (name.includes(q) || filteredChildren.length > 0) {
+            if (name.includes(q) || group.includes(q) || filteredChildren.length > 0) {
                 return { ...item, children: filteredChildren };
             }
             return null;
@@ -642,6 +645,10 @@
         assignStringField(mapToUpdate, 'backgroundColor', mapSettings.backgroundColor);
         assignStringField(mapToUpdate, 'atmosphere', mapSettings.atmosphere);
         assignStringField(mapToUpdate, 'dataUrl', mapSettings.dataUrl);
+        if (mapSettings.group !== undefined) {
+            assignStringField(mapToUpdate, 'group', mapSettings.group);
+            delete mapToUpdate.category;
+        }
 
         assignNumberField(mapToUpdate, 'width', mapSettings.width, { integer: true });
         assignNumberField(mapToUpdate, 'height', mapSettings.height, { integer: true });

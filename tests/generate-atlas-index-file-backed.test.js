@@ -23,6 +23,7 @@ fs.writeFileSync(path.join(mapsDir, 'maps.json'), `${JSON.stringify([
         parentId: 'folder-root',
         order: 0,
         dataUrl: 'maps/file-backed-map.json',
+        group: 'Countries',
         name: 'File Backed'
     },
     {
@@ -30,6 +31,7 @@ fs.writeFileSync(path.join(mapsDir, 'maps.json'), `${JSON.stringify([
         parentId: 'folder-root',
         order: 1,
         name: 'Inline Map',
+        category: 'Geographic Regions',
         width: 100,
         height: 100,
         imageUrl: 'maps/inline-map.webp',
@@ -82,10 +84,12 @@ assert.ok(folder);
 const fileBacked = folder.children.find((item) => item.id === 'file-backed-map');
 assert.ok(fileBacked);
 assert.equal(fileBacked.dataUrl, 'maps/file-backed-map.json');
+assert.equal(fileBacked.group, 'Countries');
 
 const inlineMap = folder.children.find((item) => item.id === 'inline-map');
 assert.ok(inlineMap);
 assert.equal(inlineMap.dataUrl, 'maps/generated/inline-map.json');
+assert.equal(inlineMap.category, 'Geographic Regions');
 assert.ok(fs.existsSync(path.join(mapsDir, 'generated', 'inline-map.json')));
 
 const filePoi = atlas.searchIndex.find((entry) => entry.kind === 'poi' && entry.mapId === 'file-backed-map');
