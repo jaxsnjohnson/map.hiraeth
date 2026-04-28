@@ -20,6 +20,7 @@ let currentRoadGroup = null; // Holds currently displayed road layers (and lines
 // let regionFiltersPanelVisible = false; // No longer needed as separate panel
 
 let miniMapControl = null; // Global MiniMap control instance
+let miniMapControlMode = null;
 const sessionStartedAt = Date.now();
 const UX_STORAGE_KEYS = {
     theme: 'theme',
@@ -1259,13 +1260,14 @@ function clampFloatingPanels() {
 
 function shouldShowMiniMap() {
     const featureEnabled = (typeof getFeatureFlag === 'function') ? getFeatureFlag('minimap', true) : true;
-    return featureEnabled && !isEmbeddedView && !isMobileLayoutActive;
+    return featureEnabled && !isEmbeddedView;
 }
 
 function removeMiniMapControl() {
     if (!miniMapControl) return;
     miniMapControl.remove();
     miniMapControl = null;
+    miniMapControlMode = null;
 }
 
 function syncMiniMapControl() {
@@ -1273,16 +1275,23 @@ function syncMiniMapControl() {
         removeMiniMapControl();
         return;
     }
+    const nextMode = isMobileLayoutActive ? 'mobile' : 'desktop';
+    if (miniMapControl && miniMapControlMode !== nextMode) {
+        removeMiniMapControl();
+    }
     if (miniMapControl) return;
     if (!currentMapData || !currentBounds) return;
 
     const mapHeight = Number(currentMapData.height);
     const mapWidth = Number(currentMapData.width);
-    const mapImageUrl = getPreferredMapImageUrl(currentMapData);
-    if (!mapHeight || !mapWidth || !mapImageUrl) return;
+    const miniMapImageUrl = getMiniMapImageUrl(currentMapData);
+    if (!mapHeight || !mapWidth || !miniMapImageUrl) return;
 
-    const miniMapLayer = L.imageOverlay(mapImageUrl, currentBounds);
-    const maxMiniMapSize = 200;
+    const viewportLimit = typeof window !== 'undefined'
+        ? Math.max(96, Math.min(window.innerWidth || 0, window.innerHeight || 0) * 0.26)
+        : 132;
+    const maxMiniMapSize = isMobileLayoutActive ? Math.min(132, viewportLimit) : 200;
+    const miniMapLayer = L.imageOverlay(miniMapImageUrl, currentBounds);
     let miniMapWidth;
     let miniMapHeight;
 
@@ -1308,6 +1317,7 @@ function syncMiniMapControl() {
         shadowRectOptions: { color: '#000000', weight: 1, clickable: false, opacity: 0, fillOpacity: 0 },
         mapOptions: { minZoom: -100, crs: L.CRS.Simple, zoomSnap: 0, zoomDelta: 0 }
     }).addTo(map);
+    miniMapControlMode = nextMode;
 }
 
 function updateMobileLayoutState() {
@@ -1632,6 +1642,21 @@ function getPreferredMapImageUrl(mapInfo) {
         }
     }
     return defaultUrl;
+}
+
+function getMiniMapImageUrl(mapInfo) {
+    const mapImageUrl = getPreferredMapImageUrl(mapInfo);
+    if (!mapImageUrl) return '';
+
+    const [pathAndQuery, hash = ''] = String(mapImageUrl).split('#');
+    const queryIndex = pathAndQuery.indexOf('?');
+    const path = queryIndex >= 0 ? pathAndQuery.slice(0, queryIndex) : pathAndQuery;
+    const query = queryIndex >= 0 ? pathAndQuery.slice(queryIndex) : '';
+    const miniPath = path.replace(/(\.[^./?#]+)$/, '.mini.webp');
+    if (miniPath === path) {
+        return `${path}.mini.webp${query}${hash ? `#${hash}` : ''}`;
+    }
+    return `${miniPath}${query}${hash ? `#${hash}` : ''}`;
 }
 
 function withAssetVersion(url) {

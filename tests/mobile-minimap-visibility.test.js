@@ -29,6 +29,7 @@ function extractFunctionSource(name) {
 
 const snippets = [
     extractFunctionSource('getPreferredMapImageUrl'),
+    extractFunctionSource('getMiniMapImageUrl'),
     extractFunctionSource('shouldShowMiniMap'),
     extractFunctionSource('removeMiniMapControl'),
     extractFunctionSource('syncMiniMapControl')
@@ -79,32 +80,42 @@ global.L = {
 };
 global.map = {};
 global.miniMapControl = null;
+global.miniMapControlMode = null;
 
 // eslint-disable-next-line no-eval
 eval(snippets);
 
-assert.equal(shouldShowMiniMap(), false);
+assert.equal(getMiniMapImageUrl({ imageUrl: 'maps/default.webp' }), 'maps/default.mini.webp');
+assert.equal(getMiniMapImageUrl({ imageUrl: 'maps/Old-Lin Map.jpeg' }), 'maps/Old-Lin Map.mini.webp');
+assert.equal(getMiniMapImageUrl({ imageUrl: 'maps/default.webp?asset=1#view' }), 'maps/default.mini.webp?asset=1#view');
+assert.equal(getMiniMapImageUrl({ imageUrl: '' }), '');
+
+assert.equal(shouldShowMiniMap(), true);
 syncMiniMapControl();
-assert.equal(global.miniMapControl, null);
-assert.equal(global.createdControls, 0);
+assert.ok(global.miniMapControl);
+assert.equal(global.createdControls, 1);
+assert.equal(global.miniMapControl.layer.url, 'maps/default.mini.webp');
+assert.equal(global.miniMapControl.options.width, 132);
 
 global.isMobileLayoutActive = false;
 assert.equal(shouldShowMiniMap(), true);
 syncMiniMapControl();
 assert.ok(global.miniMapControl);
-assert.equal(global.createdControls, 1);
+assert.equal(global.createdControls, 2);
 assert.equal(global.miniMapControl.options.width, 200);
 
 const createdControl = global.miniMapControl;
 global.isMobileLayoutActive = true;
 syncMiniMapControl();
 assert.equal(createdControl.removed, true);
-assert.equal(global.miniMapControl, null);
+assert.ok(global.miniMapControl);
+assert.equal(global.createdControls, 3);
+assert.equal(global.miniMapControl.options.width, 132);
 
 global.isMobileLayoutActive = false;
 syncMiniMapControl();
 assert.ok(global.miniMapControl);
-assert.equal(global.createdControls, 2);
+assert.equal(global.createdControls, 4);
 
 global.isEmbeddedView = true;
 syncMiniMapControl();

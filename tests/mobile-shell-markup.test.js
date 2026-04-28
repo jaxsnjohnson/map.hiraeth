@@ -57,6 +57,8 @@ assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-sear
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-card-results-slot\[hidden\],/);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.mobile-map-blurb-card \{/);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-card #search-control-container,/);
-assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.leaflet-control-minimap \{\s*display: none !important;\s*\}/m);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.leaflet-control-minimap \{[\s\S]*display: block !important;[\s\S]*margin-bottom: calc\(var\(--safe-bottom\) \+ 78px\) !important;/m);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.container\.mobile-search-card-open \.leaflet-control-minimap,/);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.container\.mobile-surface-atlas \.leaflet-control-minimap \{[\s\S]*opacity: 0 !important;[\s\S]*pointer-events: none !important;/m);
 
 console.log('mobile shell markup checks passed');
