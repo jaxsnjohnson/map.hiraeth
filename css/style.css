@@ -3361,3 +3361,79 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         transform: translateY(8px) scale(0.96) !important;
     }
 }
+
+.sidebar-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: var(--text-primary);
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    transition: color 180ms ease;
+}
+
+.sidebar-back-btn:hover,
+.sidebar-back-btn:focus-visible {
+    color: var(--active-bg);
+    outline: none;
+}
+
+.sidebar-back-btn .sidebar-back-title {
+    margin: 0;
+    font-size: 1.5em; /* Inherit original h2 sizing roughly */
+}
+
+.map-chooser-description {
+    font-size: clamp(0.9rem, 1.1vw, 1.25rem);
+    font-weight: 400;
+    line-height: 1.4;
+    color: rgba(232, 230, 242, 0.9);
+    margin: 4px 0 8px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.map-chooser-archive-details {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(172, 177, 214, 0.2);
+}
+
+.map-chooser-archive-summary {
+    cursor: pointer;
+    font-family: Optima, "Avenir Next", "Trebuchet MS", sans-serif;
+    font-size: clamp(1.2rem, 1.5vw, 1.8rem);
+    font-weight: 600;
+    color: #c9c6e7;
+    margin-bottom: 12px;
+    list-style: none; /* Hide default triangle in some browsers */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+}
+
+.map-chooser-archive-summary::before {
+    content: "▶";
+    font-size: 0.8em;
+    transition: transform 0.2s ease;
+}
+
+.map-chooser-archive-details[open] .map-chooser-archive-summary::before {
+    transform: rotate(90deg);
+}
+
+.map-chooser-archive-summary::-webkit-details-marker {
+    display: none; /* Hide default triangle in WebKit */
+}
+
+.map-chooser-archive-details[open] .map-chooser-archive-summary {
+    color: #f6f3ff;
+}
