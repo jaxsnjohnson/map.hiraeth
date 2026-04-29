@@ -73,6 +73,7 @@
                     'favicon-32x32.png',
                     'favicon.png',
                     'apple-touch-icon.png',
+                    'images/sky-background.webp',
                     'images/clouds.webp',
                     'images/toggle.svg',
                     'images/hiraeth-maps-preview.png',
