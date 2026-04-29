@@ -15,7 +15,7 @@ let mapData = []; // Will be populated by loadMapData
 let loadingProgressInterval = null;
 let loadingProgress = 0;
 let currentRegionGroup = null;
-let regionsVisible = false; // Overall region visibility toggle
+let regionsVisible = true; // Overall region visibility toggle
 let currentRoadGroup = null; // Holds currently displayed road layers (and lines)
 // let regionFiltersPanelVisible = false; // No longer needed as separate panel
 
