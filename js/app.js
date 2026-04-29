@@ -5023,10 +5023,12 @@ function updateVisibleRegions() {
 
     currentRegionGroup.eachLayer(layer => {
         const region = layer.regionData;
-        if (!region || !region.type || !region.value) return;
+        if (!region) return;
+
+        const regionFilterValue = region.value || region.name;
 
         // A region is visible if the master toggle is checked OR its specific value is in the checked set.
-        const typeMatch = allTypesChecked || valueFilterValues.has(region.value);
+        const typeMatch = allTypesChecked || valueFilterValues.has(regionFilterValue);
 
         // Apply visibility and interactivity based on *both* the overall toggle AND the type filter match
         if (regionsVisible && typeMatch) { // regionsVisible is synced with markersVisible
