@@ -74,6 +74,15 @@
         return [roundCoordinate(latlng.lat), roundCoordinate(latlng.lng)];
     }
 
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            const context = this;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(context, args), wait);
+        };
+    }
+
     function escapeHtml(value) {
         return String(value ?? '')
             .replace(/&/g, '&amp;')
@@ -1194,9 +1203,13 @@
     }
 
     function registerEventListeners() {
-        dom.treeSearch.addEventListener('input', (event) => {
-            state.treeSearch = String(event.target.value || '').trim();
+        const debouncedRenderAtlasTree = debounce((value) => {
+            state.treeSearch = String(value || '').trim();
             renderAtlasTree();
+        }, 300);
+
+        dom.treeSearch.addEventListener('input', (event) => {
+            debouncedRenderAtlasTree(event.target.value);
         });
 
         dom.reloadButton.addEventListener('click', () => {
@@ -1226,10 +1239,14 @@
             renderFeatureLists();
         });
 
-        dom.featureSearchInput.addEventListener('input', (event) => {
-            state.featureListState.searchQuery = event.target.value;
+        const debouncedRenderFeatureLists = debounce((value) => {
+            state.featureListState.searchQuery = value;
             state.featureListState.expanded = false;
             renderFeatureLists();
+        }, 300);
+
+        dom.featureSearchInput.addEventListener('input', (event) => {
+            debouncedRenderFeatureLists(event.target.value);
         });
 
         dom.featureShowMoreButton.addEventListener('click', () => {
