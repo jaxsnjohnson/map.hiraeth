@@ -1780,7 +1780,8 @@ function createMapChooserCard(mapInfo, index, activeMapId) {
 
     const image = document.createElement('img');
     const imageSources = getMapChooserImageSources(mapInfo);
-    image.alt = `${mapName} map preview`;
+    image.alt = '';
+    image.setAttribute('aria-hidden', 'true');
     image.loading = index < 3 ? 'eager' : 'lazy';
     image.decoding = 'async';
     if (imageSources.fallback && imageSources.fallback !== imageSources.preview) {
