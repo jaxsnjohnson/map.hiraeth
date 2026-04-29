@@ -6,7 +6,8 @@
     "imageUrl": "maps/OLD-Collage-Side.webp",
     "scalePixels": 1,
     "scaleKilometers": 1,
-    "blurb": "This map was made in 2019 for Wolgari and Zavi.",
+  "blurb": "This map was made in 2019 for Wolgari and Zavi.",
+  "selectorDescription": "A 2019 collage map for Wolgari and Zavi.",
     "pointsOfInterest": [],
     "regions": []
 }

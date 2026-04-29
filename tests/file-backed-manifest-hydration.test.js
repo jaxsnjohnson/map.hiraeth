@@ -28,6 +28,10 @@ const {
         IceBeach: {
             id: 'IceBeach',
             name: 'IceBeach',
+            blurb: 'IceBeach blurb',
+            selectorDescription: 'IceBeach selector description',
+            summary: 'IceBeach summary',
+            description: 'IceBeach description',
             imageUrl: 'maps/IceBeach.webp',
             width: 1000,
             height: 1000,
@@ -67,6 +71,10 @@ const {
     const iceBeach = findMapRecursive(hydrated, 'IceBeach');
     assert.ok(iceBeach);
     assert.equal(iceBeach.dataUrl, 'maps/IceBeach.json');
+    assert.equal(iceBeach.blurb, 'IceBeach blurb');
+    assert.equal(iceBeach.selectorDescription, 'IceBeach selector description');
+    assert.equal(iceBeach.summary, 'IceBeach summary');
+    assert.equal(iceBeach.description, 'IceBeach description');
 
     const castgate = findMapRecursive(hydrated, 'castgate');
     assert.ok(castgate);

@@ -234,6 +234,7 @@
             scaleUnitName: document.getElementById('map-scale-unit-input').value,
             backgroundColor: document.getElementById('map-background-color-input').value,
             atmosphere: document.getElementById('map-atmosphere-input').value,
+            selectorDescription: document.getElementById('map-selector-description-input').value,
             latLonBounds: {
                 north: document.getElementById('map-lat-north-input').value,
                 south: document.getElementById('map-lat-south-input').value,
@@ -752,7 +753,8 @@
             'map-lat-south-input': currentMap?.latLonBounds?.south ?? '',
             'map-lat-east-input': currentMap?.latLonBounds?.east ?? '',
             'map-lat-west-input': currentMap?.latLonBounds?.west ?? '',
-            'map-blurb-input': currentMap?.blurb || ''
+            'map-blurb-input': currentMap?.blurb || '',
+            'map-selector-description-input': currentMap?.selectorDescription || ''
         };
 
         Object.entries(fields).forEach(([id, value]) => {

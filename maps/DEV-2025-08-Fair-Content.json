@@ -6,7 +6,8 @@
     "imageUrl": "maps/DEV-2025-08-Fair-Content.webp",
     "scalePixels": 1,
     "scaleKilometers": 1,
-    "blurb": "TEST",
+  "blurb": "TEST",
+  "selectorDescription": "A development-era Fair test map used for internal checks.",
     "pointsOfInterest": [],
     "regions": []
 }

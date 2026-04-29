@@ -233,7 +233,7 @@ html {
 }
 .container { display: flex; height: 100%; width: 100%; }
 
-/* --- Your Chronicles map chooser --- */
+/* --- Map Atlas chooser --- */
 .map-chooser {
     position: fixed;
     inset: 0;

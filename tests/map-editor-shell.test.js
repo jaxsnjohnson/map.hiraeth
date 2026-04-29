@@ -9,6 +9,7 @@ assert.match(htmlSource, /id="editor-atlas-tree"/);
 assert.match(htmlSource, /id="editor-map"/);
 assert.match(htmlSource, /id="map-settings-form"/);
 assert.match(htmlSource, /id="map-group-input"/);
+assert.match(htmlSource, /id="map-selector-description-input"/);
 assert.match(htmlSource, /id="editor-feature-form"/);
 assert.match(htmlSource, /id="export-current-map-btn"/);
 assert.match(htmlSource, /id="export-atlas-structure-btn"/);

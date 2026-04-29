@@ -61,6 +61,7 @@
     "id": "IRL Old Maps",
     "order": 1,
     "name": "Old Dev Maps",
+    "selectorDescription": "Archive of older development maps and early Hiraeth drafts.",
     "type": "folder"
   },
   {

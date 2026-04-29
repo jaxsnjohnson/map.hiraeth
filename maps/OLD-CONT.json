@@ -6,7 +6,8 @@
     "imageUrl": "maps/OLD-CONT.webp",
     "scalePixels": 1,
     "scaleKilometers": 1,
-    "blurb": "This map was made in 2015, and would be to the left of the old Fair Map.",
+  "blurb": "This map was made in 2015, and would be to the left of the old Fair Map.",
+  "selectorDescription": "An older companion map west of the original Fair layout.",
     "pointsOfInterest": [],
     "regions": []
 }

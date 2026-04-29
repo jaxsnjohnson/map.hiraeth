@@ -34,6 +34,7 @@ fs.writeFileSync(path.join(mapsDir, 'continent-map.json'), `${JSON.stringify({
     height: 400,
     imageUrl: 'maps/continent-map.webp',
     blurb: 'A broad overview of the continent.',
+    selectorDescription: 'A broad overview of the continent.',
     pointsOfInterest: [
         {
             name: 'Stone Circle',
@@ -66,6 +67,7 @@ const continent = atlas.tree.find((item) => item.id === 'continent-map');
 assert.ok(continent);
 assert.equal(continent.dataUrl, 'maps/continent-map.json');
 assert.equal(continent.group, 'Countries');
+assert.equal(continent.selectorDescription, 'A broad overview of the continent.');
 assert.ok(Array.isArray(continent.children));
 assert.equal(continent.children.length, 1);
 

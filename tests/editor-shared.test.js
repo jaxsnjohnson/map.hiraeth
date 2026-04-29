@@ -202,7 +202,8 @@ const updatedSlimManifest = serializeManifestState({
         scalePixels: 9,
         scaleKilometers: 4,
         group: 'Geographic Regions',
-        blurb: 'Slim manifest blurb'
+        blurb: 'Slim manifest blurb',
+        selectorDescription: 'Slim selector description'
     }
 });
 assert.equal(updatedSlimManifest[0].name, 'Updated Main Map');
@@ -211,17 +212,23 @@ assert.equal(updatedSlimManifest[0].scaleKilometers, 4);
 assert.equal(updatedSlimManifest[0].group, 'Geographic Regions');
 assert.equal(updatedSlimManifest[0].category, undefined);
 assert.equal(updatedSlimManifest[0].blurb, 'Slim manifest blurb');
+assert.equal(updatedSlimManifest[0].selectorDescription, 'Slim selector description');
 
 const flattenedManifest = buildFlatManifestEntries([
     {
         id: 'root-folder',
         name: 'Root Folder',
         type: 'folder',
+        summary: 'Folder summary',
+        description: 'Folder description',
+        selectorDescription: 'Folder selector description',
         category: 'Countries',
         children: [
             {
                 id: 'child-map',
                 name: 'Child Map',
+                blurb: 'Child blurb',
+                selectorDescription: 'Child selector description',
                 group: 'Geographic Regions',
                 dataUrl: 'maps/child-map.json'
             }
@@ -233,12 +240,17 @@ assert.deepEqual(flattenedManifest, [
         id: 'root-folder',
         name: 'Root Folder',
         type: 'folder',
+        summary: 'Folder summary',
+        description: 'Folder description',
+        selectorDescription: 'Folder selector description',
         category: 'Countries',
         order: 0
     },
     {
         id: 'child-map',
         name: 'Child Map',
+        blurb: 'Child blurb',
+        selectorDescription: 'Child selector description',
         group: 'Geographic Regions',
         dataUrl: 'maps/child-map.json',
         order: 0,
@@ -295,13 +307,15 @@ const serializedMapDocument = serializeMapDocumentState({
     mapSettings: {
         name: 'Serialized Main Map',
         width: 640,
-        imageUrl: 'maps/serialized-main-map.webp'
+        imageUrl: 'maps/serialized-main-map.webp',
+        selectorDescription: 'Serialized selector description'
     },
     lineCollectionKey: 'roads'
 });
 assert.equal(serializedMapDocument.name, 'Serialized Main Map');
 assert.equal(serializedMapDocument.width, 640);
 assert.equal(serializedMapDocument.imageUrl, 'maps/serialized-main-map.webp');
+assert.equal(serializedMapDocument.selectorDescription, 'Serialized selector description');
 assert.equal(serializedMapDocument.dataUrl, undefined);
 
 const mapSettingsTarget = {};
@@ -323,6 +337,7 @@ applyMapSettings(mapSettingsTarget, {
     backgroundColor: '#111827',
     atmosphere: 'night',
     dataUrl: 'maps/settings-map.json',
+    selectorDescription: 'Settings selector description',
     latLonBounds: {
         north: '10.5',
         south: '1.5',
@@ -337,6 +352,7 @@ assert.equal(mapSettingsTarget.category, undefined);
 assert.equal(mapSettingsTarget.mobileImageUrl, 'maps/settings-map-mobile.webp');
 assert.equal(mapSettingsTarget.width, 800);
 assert.equal(mapSettingsTarget.scaleKilometers, 1.5);
+assert.equal(mapSettingsTarget.selectorDescription, 'Settings selector description');
 assert.deepEqual(mapSettingsTarget.latLonBounds, {
     north: 10.5,
     south: 1.5,
@@ -391,6 +407,49 @@ assert.equal(
     );
     assert.equal(inlineResolved.pointsOfInterest.length, 1);
     assert.equal(inlineLoadCount, 0);
+
+    let blurbLoadCount = 0;
+    const blurbResolved = await resolveFileBackedMapDocument(
+        {
+            id: 'blurb-map',
+            name: 'Blurb Map',
+            imageUrl: 'maps/blurb-map.webp',
+            blurb: 'Short chooser copy'
+        },
+        {
+            loadJsonByPath: async () => {
+                blurbLoadCount += 1;
+                return {
+                    id: 'blurb-map',
+                    pointsOfInterest: [{ name: 'Gate', coords: [9, 10], type: 'City' }]
+                };
+            }
+        }
+    );
+    assert.equal(blurbResolved.pointsOfInterest[0].name, 'Gate');
+    assert.equal(blurbLoadCount, 1);
+
+    let selectorLoadCount = 0;
+    const selectorResolved = await resolveFileBackedMapDocument(
+        {
+            id: 'selector-map',
+            name: 'Selector Map',
+            imageUrl: 'maps/selector-map.webp',
+            selectorDescription: 'Selector copy only'
+        },
+        {
+            loadJsonByPath: async () => {
+                selectorLoadCount += 1;
+                return {
+                    id: 'selector-map',
+                    pointsOfInterest: [{ name: 'Plaza', coords: [7, 8], type: 'City' }]
+                };
+            }
+        }
+    );
+    assert.equal(selectorResolved.pointsOfInterest[0].name, 'Plaza');
+    assert.equal(selectorResolved.selectorDescription, 'Selector copy only');
+    assert.equal(selectorLoadCount, 1);
 
     const dataUrlResolved = await resolveFileBackedMapDocument(
         {

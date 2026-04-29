@@ -145,8 +145,8 @@ function buildSearchEntriesForMap(context, item) {
         mapId: item.id,
         mapName: item.name,
         name: item.name,
-        summary: stripHtml(item.blurb || ''),
-        description: '',
+        summary: stripHtml(item.selectorDescription || item.summary || item.description || item.blurb || ''),
+        description: stripHtml(item.description || ''),
         typeLabel: 'Map',
         visibility: String(item.visibility || 'public').toLowerCase()
     });
@@ -280,6 +280,9 @@ function mergeMapDefinitions(indexItem, sourceItem) {
         'group',
         'category',
         'blurb',
+        'selectorDescription',
+        'summary',
+        'description',
         'children'
     ];
 
@@ -370,7 +373,11 @@ function toManifestItem(context, item, origin) {
         'atmosphere',
         'visibility',
         'group',
-        'category'
+        'category',
+        'blurb',
+        'selectorDescription',
+        'summary',
+        'description'
     ];
 
     keysToCopy.forEach((key) => {

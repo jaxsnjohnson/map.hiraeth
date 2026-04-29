@@ -6,7 +6,8 @@
     "imageUrl": "maps/OLD-Icebeach-Drawn-Map-POI.webp",
     "scalePixels": 1,
     "scaleKilometers": 1,
-    "blurb": "This map was made in 2020, it served as the map for the Icebeach games.",
+  "blurb": "This map was made in 2020, it served as the map for the Icebeach games.",
+  "selectorDescription": "A hand-drawn Icebeach map from the campaign era.",
     "pointsOfInterest": [],
     "regions": []
 }

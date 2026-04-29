@@ -1811,7 +1811,7 @@ function createMapChooserCard(mapInfo, index, activeMapId) {
     const description = document.createElement('span');
     description.id = descId;
     description.className = 'map-chooser-meta map-chooser-description';
-    description.textContent = String(mapInfo.summary || mapInfo.description || '').trim();
+    description.textContent = getMapChooserDescriptionText(mapInfo);
     if (!description.textContent) {
         description.style.display = 'none';
     }
@@ -1829,6 +1829,21 @@ function createMapChooserCard(mapInfo, index, activeMapId) {
 
     hydrateMapChooserCard(card, mapInfo);
     return card;
+}
+
+function getMapChooserDescriptionText(mapInfo) {
+    const rawText = String(
+        mapInfo?.selectorDescription ||
+        mapInfo?.summary ||
+        mapInfo?.description ||
+        mapInfo?.blurb ||
+        ''
+    ).trim();
+    if (!rawText) return '';
+
+    const sandbox = document.createElement('div');
+    sandbox.innerHTML = rawText;
+    return String(sandbox.textContent || sandbox.innerText || '').trim();
 }
 
 async function hydrateMapChooserCard(card, mapInfo) {

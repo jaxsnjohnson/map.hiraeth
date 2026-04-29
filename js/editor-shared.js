@@ -97,6 +97,10 @@
                 'visibility',
                 'group',
                 'category',
+                'blurb',
+                'selectorDescription',
+                'summary',
+                'description',
                 'dataUrl'
             ];
         const flattenedEntries = [];
@@ -271,7 +275,6 @@
             Array.isArray(mapData.regions) ||
             Array.isArray(mapData.lines) ||
             Array.isArray(mapData.roads) ||
-            typeof mapData.blurb === 'string' ||
             (mapData.filterGroups && typeof mapData.filterGroups === 'object');
     }
 
@@ -323,6 +326,9 @@
                     ...fallbackMap,
                     ...cloneJson(loadedMap)
                 };
+                if (resolvedMap.selectorDescription === undefined && fallbackMap.selectorDescription !== undefined) {
+                    resolvedMap.selectorDescription = fallbackMap.selectorDescription;
+                }
                 delete resolvedMap.dataUrl;
                 return resolvedMap;
             } catch (error) {
@@ -633,6 +639,7 @@
 
         assignStringField(mapToUpdate, 'name', mapSettings.name, { allowEmpty: true });
         assignStringField(mapToUpdate, 'blurb', mapSettings.blurb, { allowEmpty: true });
+        assignStringField(mapToUpdate, 'selectorDescription', mapSettings.selectorDescription, { allowEmpty: true });
         assignStringField(mapToUpdate, 'type', mapSettings.type);
         assignStringField(mapToUpdate, 'status', mapSettings.status);
         assignStringField(mapToUpdate, 'visibility', mapSettings.visibility);

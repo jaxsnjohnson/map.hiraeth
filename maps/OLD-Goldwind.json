@@ -6,7 +6,8 @@
     "imageUrl": "maps/OLD-Goldwind.webp",
     "scalePixels": 1,
     "scaleKilometers": 1,
-    "blurb": "This map was made in 2020s, it was the base for a hex crawl that ended with the party just flying to the Platnium Spire.",
+  "blurb": "This map was made in 2020s, it was the base for a hex crawl that ended with the party just flying to the Platnium Spire.",
+  "selectorDescription": "A 2020s hex-crawl map that ends in a flight to the Spire.",
     "pointsOfInterest": [],
     "regions": []
 }

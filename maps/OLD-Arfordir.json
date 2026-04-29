@@ -6,7 +6,8 @@
     "imageUrl": "maps/OLD-Arfordir.webp",
     "scalePixels": 1,
     "scaleKilometers": 1,
-    "blurb": "This map was made in 2021 for the adventures of the Ruby Hand.",
+  "blurb": "This map was made in 2021 for the adventures of the Ruby Hand.",
+  "selectorDescription": "A 2021 Arfordir map for the Ruby Hand adventures.",
     "pointsOfInterest": [],
     "regions": []
 }
