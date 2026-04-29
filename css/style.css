@@ -531,7 +531,8 @@ input:focus-visible,
 .map-item:focus-visible,
 .folder-toggle-btn:focus-visible,
 .folder-main-action:focus-visible,
-.search-result-item:focus-visible {
+.search-result-item:focus-visible,
+.map-chooser-archive-summary:focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: 2px;
 }
@@ -3418,6 +3419,12 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     align-items: center;
     gap: 8px;
     user-select: none;
+    border-radius: 4px;
+    transition: color 0.2s ease;
+}
+
+.map-chooser-archive-summary:hover {
+    color: #f6f3ff;
 }
 
 .map-chooser-archive-summary::before {

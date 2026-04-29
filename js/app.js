@@ -1765,7 +1765,15 @@ function createMapChooserCard(mapInfo, index, activeMapId) {
     const isActive = mapInfo.id === activeMapId;
     card.classList.toggle('is-active', isActive);
     if (isActive) card.setAttribute('aria-current', 'page');
-    card.setAttribute('aria-label', `Open map: ${mapName}`);
+
+    const baseId = `map-card-${mapInfo.id.replace(/\W/g, '-')}-${index}`;
+    const titleId = `${baseId}-title`;
+    const descId = `${baseId}-desc`;
+    const editedId = `${baseId}-edited`;
+    const regionsId = `${baseId}-regions`;
+
+    card.setAttribute('aria-labelledby', titleId);
+    card.setAttribute('aria-describedby', `${descId} ${editedId} ${regionsId}`);
 
     const media = document.createElement('span');
     media.className = 'map-chooser-card-media';
@@ -1786,18 +1794,22 @@ function createMapChooserCard(mapInfo, index, activeMapId) {
     copy.className = 'map-chooser-card-copy';
 
     const title = document.createElement('span');
+    title.id = titleId;
     title.className = 'map-chooser-card-title';
     title.textContent = mapName;
 
     const edited = document.createElement('span');
+    edited.id = editedId;
     edited.className = 'map-chooser-meta map-chooser-edited';
     edited.textContent = `Last edited: ${formatMapChooserDate(mapInfo.updatedAt, mapInfo.lastEdited, mapInfo.modifiedAt, atlasGeneratedAt)}`;
 
     const regions = document.createElement('span');
+    regions.id = regionsId;
     regions.className = 'map-chooser-meta map-chooser-regions';
     regions.textContent = 'Regions: ...';
 
     const description = document.createElement('span');
+    description.id = descId;
     description.className = 'map-chooser-meta map-chooser-description';
     description.textContent = String(mapInfo.summary || mapInfo.description || '').trim();
     if (!description.textContent) {
