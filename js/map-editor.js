@@ -1229,10 +1229,16 @@
         });
 
         dom.featureForm.addEventListener('change', updateSelectedFeatureFromForm);
+
+        // ⚡ Bolt: Debounce input handling to prevent UI lag on every keystroke
+        const debouncedUpdateSelectedFeatureFromForm = debounce((event) => {
+            updateSelectedFeatureFromForm(event);
+        }, 300);
+
         dom.featureForm.addEventListener('input', (event) => {
             const field = event.target.dataset.field;
             if (!field || field === 'description' || field === 'summary') return;
-            updateSelectedFeatureFromForm(event);
+            debouncedUpdateSelectedFeatureFromForm(event);
         });
 
         dom.featureTypeSelect.addEventListener('change', (event) => {
