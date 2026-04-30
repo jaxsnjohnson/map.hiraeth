@@ -9,3 +9,7 @@
 ## 2024-05-25 - Debouncing Search Input In Map Editor
 **Learning:** Similar to the search bar in the main application (`app.js`), the map editor (`map-editor.js`) had DOM-heavy render functions (`renderAtlasTree` and `renderFeatureLists`) running on every keystroke in search inputs. This creates severe UI lag when interacting with complex maps.
 **Action:** Always identify search and text input fields that trigger render or filtering functions, and proactively apply a `debounce` wrapper (e.g., 300ms) to their event handlers to batch execution.
+
+## 2024-05-26 - Skipping Redundant Calculations in Filter Loops
+**Learning:** During filter state changes, the `updateVisibleMarkersAndSearch` function iterated over all markers, regions, and lines to re-evaluate their visibility. For every item, it performed expensive operations like string concatenation (e.g., `${poi.summary || ''} ${poi.description || ''}`) and fuzzy matching (`computeSearchMatch`) even when the search term was empty. On complex maps with hundreds of features, this resulted in significant UI lag when checking/unchecking a simple category filter.
+**Action:** When a combined filter/search loop operates, always check if the search term exists or if search is active *before* executing expensive string processing or matching logic. Implement an early return or conditional bypass for the search aspect when only filtering is required.

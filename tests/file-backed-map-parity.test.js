@@ -10,6 +10,7 @@ const dataUrlById = new Map(manifest.map((entry) => [entry.id, entry.dataUrl]));
 function normalizeFileBackedMap(mapData) {
     const normalized = JSON.parse(JSON.stringify(mapData));
     delete normalized.children;
+    delete normalized.selectorDescription;
     return normalized;
 }
 
