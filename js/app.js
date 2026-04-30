@@ -3344,7 +3344,11 @@ function updateVisibleMarkersAndSearch() {
 
         const poiGroup = getPoiGroup(poi.type);
         const groupMatch = allPoiGroupsChecked || activeSpecificGroupFilters.has(poiGroup);
-        const match = computeSearchMatch(searchTerm, poi.name, `${poi.summary || ''} ${poi.description || ''}`);
+        let match = { matched: false, score: -1, matchedByContent: false };
+        // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty).
+        if (searchFiltersCurrentMap) {
+            match = computeSearchMatch(searchTerm, poi.name, `${poi.summary || ''} ${poi.description || ''}`);
+        }
         const isSearchMatch = !searchTerm || match.matched;
 
         if (markersVisible && groupMatch && (!searchFiltersCurrentMap || isSearchMatch)) {
@@ -3381,20 +3385,24 @@ function updateVisibleMarkersAndSearch() {
 
             const regionFilterValue = region.value || region.name;
             const typeMatch = allRegionTypesChecked || activeRegionTypeFilters.has(regionFilterValue);
-            const match = computeSearchMatch(searchTerm, region.name, `${region.summary || ''} ${region.description || ''}`);
 
-            if (searchFiltersCurrentMap && typeMatch && match.matched) {
-                results.push({
-                    group: 'region',
-                    badge: 'Region',
-                    title: region.name,
-                    subtitle: match.matchedByContent ? `Matched in ${region.type || 'region'} description` : (region.value || region.type || 'Region'),
-                    score: match.score,
-                    onSelect: () => {
-                        map.fitBounds(layer.getBounds(), { maxZoom: Math.max(map.getZoom(), 1) });
-                        layer.openPopup();
-                    }
-                });
+            // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty).
+            if (searchFiltersCurrentMap && typeMatch) {
+                const match = computeSearchMatch(searchTerm, region.name, `${region.summary || ''} ${region.description || ''}`);
+
+                if (match.matched) {
+                    results.push({
+                        group: 'region',
+                        badge: 'Region',
+                        title: region.name,
+                        subtitle: match.matchedByContent ? `Matched in ${region.type || 'region'} description` : (region.value || region.type || 'Region'),
+                        score: match.score,
+                        onSelect: () => {
+                            map.fitBounds(layer.getBounds(), { maxZoom: Math.max(map.getZoom(), 1) });
+                            layer.openPopup();
+                        }
+                    });
+                }
             }
         });
     }
@@ -3412,20 +3420,24 @@ function updateVisibleMarkersAndSearch() {
             const lineName = line.name || line.type || 'Unnamed Line';
             const lineType = line.type || 'Unnamed Road Type';
             const typeMatch = allLineTypesChecked || activeLineTypeFilters.has(lineType);
-            const match = computeSearchMatch(searchTerm, lineName, `${lineType} ${line.summary || ''} ${line.description || ''}`);
 
-            if (searchFiltersCurrentMap && typeMatch && match.matched) {
-                results.push({
-                    group: 'line',
-                    badge: 'Line',
-                    title: lineName,
-                    subtitle: match.matchedByContent ? `Matched in ${lineType.toLowerCase()} details` : lineType,
-                    score: match.score,
-                    onSelect: () => {
-                        map.fitBounds(layer.getBounds(), { maxZoom: Math.max(map.getZoom(), 1) });
-                        if (layer.getPopup()) layer.openPopup();
-                    }
-                });
+            // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty).
+            if (searchFiltersCurrentMap && typeMatch) {
+                const match = computeSearchMatch(searchTerm, lineName, `${lineType} ${line.summary || ''} ${line.description || ''}`);
+
+                if (match.matched) {
+                    results.push({
+                        group: 'line',
+                        badge: 'Line',
+                        title: lineName,
+                        subtitle: match.matchedByContent ? `Matched in ${lineType.toLowerCase()} details` : lineType,
+                        score: match.score,
+                        onSelect: () => {
+                            map.fitBounds(layer.getBounds(), { maxZoom: Math.max(map.getZoom(), 1) });
+                            if (layer.getPopup()) layer.openPopup();
+                        }
+                    });
+                }
             }
         });
     }
