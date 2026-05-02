@@ -17,3 +17,7 @@
 ## 2025-05-27 - Debouncing Feature Form Input in Map Editor
 **Learning:** Similar to search inputs in `app.js` and `map-editor.js`, the `featureForm` in the map editor called `updateSelectedFeatureFromForm` on every keystroke (`input` event). This caused a full re-render of feature lists (`renderFeatureLists`) and map layers (`renderMapLayers(false)`) on each character typed in properties like `coordY`, `coordX`, `color`, `weight`, etc., causing noticeable UI lag on complex maps.
 **Action:** Identify forms or specific input fields that trigger synchronous DOM-heavy re-renders and proactively apply a `debounce` wrapper (e.g., 300ms) to their `input` event handlers to batch execution while maintaining the immediate `change` event for final confirmation (e.g., on blur).
+
+## 2024-05-28 - Deferring Expensive String Operations
+**Learning:** In hot loops, eagerly preparing data that might not be used is a common performance trap. The `computeSearchMatch` function normalized the `secondaryText` (which can be a large combined summary + description string) up front. But since many searches match early on the `primaryText` (e.g. name), the expensive `normalizeSearchValue` on `secondaryText` was wasted allocation and processing time.
+**Action:** Always defer expensive string manipulation (`toLowerCase()`, `trim()`, concatenations) or memory allocation until immediately before it's needed, especially in functions called within heavy iteration loops (like filtering logic). Implement fast-path early returns *before* preparing secondary data.

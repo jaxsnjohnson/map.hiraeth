@@ -2490,7 +2490,6 @@ function getFuzzyMatchScore(term, target) {
 
 function computeSearchMatch(term, primaryText, secondaryText = '') {
     const normalizedPrimary = normalizeSearchValue(primaryText);
-    const normalizedSecondary = normalizeSearchValue(secondaryText);
     if (!term || !normalizedPrimary) return { matched: false, score: -1, matchedByContent: false };
 
     if (normalizedPrimary === term) {
@@ -2509,6 +2508,9 @@ function computeSearchMatch(term, primaryText, secondaryText = '') {
         return { matched: true, score: fuzzyScore, matchedByContent: false };
     }
 
+    // ⚡ Bolt: Defer expensive string normalization on potentially large secondary text
+    // until after all primary fast-paths fail
+    const normalizedSecondary = normalizeSearchValue(secondaryText);
     if (normalizedSecondary) {
         if (normalizedSecondary.includes(term)) {
             return { matched: true, score: 180, matchedByContent: true };
