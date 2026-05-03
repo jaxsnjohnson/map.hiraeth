@@ -6974,6 +6974,79 @@ async function processMapData(maps) {
     return await Promise.all(mapPromises);
 }
 
+function applyEmbeddedViewOverrides() {
+    if (!isEmbeddedView) return;
+
+    const wipPopup = document.getElementById('wip-popup');
+    if (wipPopup) wipPopup.style.display = 'none';
+
+    const bottomLinkBar = document.getElementById('bottom-link-bar');
+    if (bottomLinkBar) bottomLinkBar.style.display = 'none';
+
+    if (toggleBlurbBtn) toggleBlurbBtn.style.display = 'none';
+    if (toggleGMPanelBtn) toggleGMPanelBtn.style.display = 'none';
+    if (toggleToolkitPanelBtn) toggleToolkitPanelBtn.style.display = 'none';
+    if (mapBlurbElement) setMapBlurbVisible(false);
+
+    // Hide the sidebar toggle button
+    const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
+    if (toggleSidebarBtn) toggleSidebarBtn.style.display = 'none';
+
+    // Hide the sound toggle button.
+    if (toggleSoundBtn) toggleSoundBtn.style.display = 'none';
+
+    // Force sidebar to be collapsed initially
+    setSidebarState('c', false);
+
+    if (window.innerWidth <= 600) { // Or your preferred mobile breakpoint
+        const wipPopup = document.getElementById('wip-popup');
+        if (wipPopup) {
+            setTimeout(() => {
+                wipPopup.classList.add('fade-out');
+            }, 7000); // 7 seconds delay
+        }
+    }
+}
+
+function hideInitialControls() {
+    toggleMarkersBtn.style.display = 'none';
+    toggleFiltersBtn.style.display = 'none';
+    measureToolBtn.style.display = 'none';
+    searchControlContainer.style.display = 'none';
+    closeSearchResults();
+    poiFilterContainer.classList.remove('visible');
+    setAuxPanelVisible(routePanel, false);
+    setAuxPanelVisible(sessionToolkitPanel, false);
+    setAuxPanelVisible(gmPill, false);
+}
+
+function initializeOnboardingState() {
+    if (!isEmbeddedView) {
+        if (advancedControlsUnlocked && safeGetStorage(UX_STORAGE_KEYS.onboardingSeen) !== 'true') {
+            safeSetStorage(UX_STORAGE_KEYS.onboardingSeen, 'true');
+        }
+        const hasSeenOnboarding = safeGetStorage(UX_STORAGE_KEYS.onboardingSeen) === 'true' || advancedControlsUnlocked;
+        if (!hasSeenOnboarding) {
+            setOnboardingVisibility(true);
+            safeSetStorage(UX_STORAGE_KEYS.onboardingSeen, 'true');
+            trackAnalytics('onboarding_shown');
+            if (shouldAutoOpenOnboardingGuide({
+                isEmbedded: isEmbeddedView,
+                isMobileLayout: isMobileLayoutActive,
+                hasSeenOnboarding
+            })) {
+                setTimeout(() => {
+                    if (openAboutModal) openAboutModal('guide', 'onboarding_auto');
+                }, 500);
+            }
+        } else {
+            setOnboardingVisibility(false);
+        }
+    } else {
+        setOnboardingVisibility(false);
+    }
+}
+
 function initializeApp() {
     isEmbeddedView = isEmbedModeFromUrl();
     if (bodyElement) bodyElement.classList.toggle('embedded-view', isEmbeddedView);
@@ -7001,39 +7074,7 @@ function initializeApp() {
     );
     updatePanelToggleButtons();
 
-    // Handle embedded view - hide UI elements
-    if (isEmbeddedView) {
-        const wipPopup = document.getElementById('wip-popup');
-        if (wipPopup) wipPopup.style.display = 'none';
-
-        const bottomLinkBar = document.getElementById('bottom-link-bar');
-        if (bottomLinkBar) bottomLinkBar.style.display = 'none';
-
-        if (toggleBlurbBtn) toggleBlurbBtn.style.display = 'none';
-        if (toggleGMPanelBtn) toggleGMPanelBtn.style.display = 'none';
-        if (toggleToolkitPanelBtn) toggleToolkitPanelBtn.style.display = 'none';
-        if (mapBlurbElement) setMapBlurbVisible(false);
-
-        // Hide the sidebar toggle button
-        const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
-        if (toggleSidebarBtn) toggleSidebarBtn.style.display = 'none';
-
-        // Hide the sound toggle button.
-        if (toggleSoundBtn) toggleSoundBtn.style.display = 'none';
-
-        // Force sidebar to be collapsed initially
-        setSidebarState('c', false);
-
-        if (window.innerWidth <= 600) { // Or your preferred mobile breakpoint
-            const wipPopup = document.getElementById('wip-popup');
-            if (wipPopup) {
-                setTimeout(() => {
-                    wipPopup.classList.add('fade-out');
-                }, 7000); // 7 seconds delay
-            }
-        }
-    }
-    // --- END: Embedding Check ---
+    applyEmbeddedViewOverrides();
 
 
     // Populate sidebar now that mapData is ready
@@ -7052,17 +7093,7 @@ function initializeApp() {
     const effectiveSidebarState = (isEmbeddedView || isMobileLayoutActive) ? 'c' : initialSidebarState;
     setSidebarState(effectiveSidebarState, false); // Set sidebar state without updating hash yet
 
-    // Hide controls initially (loadMap will show them if needed)
-    toggleMarkersBtn.style.display = 'none';
-    toggleFiltersBtn.style.display = 'none';
-    measureToolBtn.style.display = 'none';
-    // toggleSoundBtn is handled above for embed mode, otherwise shown by initializeSoundState
-    searchControlContainer.style.display = 'none';
-    closeSearchResults();
-    poiFilterContainer.classList.remove('visible');
-    setAuxPanelVisible(routePanel, false);
-    setAuxPanelVisible(sessionToolkitPanel, false);
-    setAuxPanelVisible(gmPill, false);
+    hideInitialControls();
 
     if (shouldShowMapChooserForMapId(mapIdToLoad)) {
         renderMapChooser(mapData);
@@ -7133,30 +7164,7 @@ function initializeApp() {
     const finalUrl = buildAppUrlWithHash(correctInitialHash, currentSearch);
     history.replaceState({ mapId: currentlyLoadedMapId, sidebarState: currentSidebarState }, mapToLoadData?.name || '', finalUrl);
 
-    if (!isEmbeddedView) {
-        if (advancedControlsUnlocked && safeGetStorage(UX_STORAGE_KEYS.onboardingSeen) !== 'true') {
-            safeSetStorage(UX_STORAGE_KEYS.onboardingSeen, 'true');
-        }
-        const hasSeenOnboarding = safeGetStorage(UX_STORAGE_KEYS.onboardingSeen) === 'true' || advancedControlsUnlocked;
-        if (!hasSeenOnboarding) {
-            setOnboardingVisibility(true);
-            safeSetStorage(UX_STORAGE_KEYS.onboardingSeen, 'true');
-            trackAnalytics('onboarding_shown');
-            if (shouldAutoOpenOnboardingGuide({
-                isEmbedded: isEmbeddedView,
-                isMobileLayout: isMobileLayoutActive,
-                hasSeenOnboarding
-            })) {
-                setTimeout(() => {
-                    if (openAboutModal) openAboutModal('guide', 'onboarding_auto');
-                }, 500);
-            }
-        } else {
-            setOnboardingVisibility(false);
-        }
-    } else {
-        setOnboardingVisibility(false);
-    }
+    initializeOnboardingState();
 
     syncSidebarBackdropState();
     isInitializing = false;
