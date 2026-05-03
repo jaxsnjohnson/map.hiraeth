@@ -2792,16 +2792,7 @@ function setCoordsDisplayVisible(visible) {
     trackAnalytics('coords_display_toggled', { visible: coordsDisplayEnabled });
 }
 
-function updateCurrentControlVisibility(selectedMap = null) {
-    const mapInfo = selectedMap || getMapRuntimeData(currentlyLoadedMapId);
-    if (!mapInfo) return;
-
-    if (isEmbeddedView) {
-        setAuxPanelVisible(routePanel, false);
-        setAuxPanelVisible(sessionToolkitPanel, false);
-        setAuxPanelVisible(gmPill, false);
-    }
-
+function buildControlVisibilityState(mapInfo) {
     const hasPOIs = allMapMarkers.length > 0;
     const hasRegions = (visibleRegionsCache && visibleRegionsCache.length > 0) || (Array.isArray(mapInfo.regions) && mapInfo.regions.length > 0);
     const hasRoads = (visibleLinesCache && visibleLinesCache.length > 0) ||
@@ -2811,7 +2802,7 @@ function updateCurrentControlVisibility(selectedMap = null) {
         typeof mapInfo.scaleKilometers === 'number' && mapInfo.scaleKilometers > 0;
     const allowGMToolkit = canAccessGMToolkit() && !isEmbeddedView;
 
-    const visibilityState = resolveControlVisibilityState({
+    return resolveControlVisibilityState({
         isEmbedded: isEmbeddedView,
         isMobileLayout: isMobileLayoutActive,
         advancedControls: advancedControlsUnlocked,
@@ -2828,7 +2819,9 @@ function updateCurrentControlVisibility(selectedMap = null) {
         toolkitVisible: toolkitPanelVisible,
         gmVisible: gmPanelVisible
     });
+}
 
+function applyPrimaryControlVisibility(visibilityState) {
     toggleMarkersBtn.style.display = visibilityState.showMarkersButton ? 'block' : 'none';
     searchControlContainer.style.display = visibilityState.showSearchControl ? 'block' : 'none';
     toggleFiltersBtn.style.display = visibilityState.showFiltersButton ? 'block' : 'none';
@@ -2842,6 +2835,9 @@ function updateCurrentControlVisibility(selectedMap = null) {
     if (toggleBtn) toggleBtn.hidden = isEmbeddedView || isMobileLayoutActive;
     if (searchRefineFiltersBtn) searchRefineFiltersBtn.hidden = !visibilityState.showSearchFilterAction;
     toggleCoordsBtn.setAttribute('aria-pressed', coordsDisplayEnabled ? 'true' : 'false');
+}
+
+function applyAuxiliaryPanelVisibility(visibilityState) {
     if (routePanel) {
         routePanel.style.display = visibilityState.showRoutePanel ||
             (isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES)
@@ -2860,11 +2856,9 @@ function updateCurrentControlVisibility(selectedMap = null) {
             ? 'flex'
             : 'none';
     }
+}
 
-    syncMobileMapMeta(mapInfo, visibilityState);
-    syncMobileSheetActionState(visibilityState);
-    syncMobileExploreVisibility();
-
+function handleHiddenControlCleanup(visibilityState) {
     if (!visibilityState.showSearchControl) {
         closeSearchResults();
         if (isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_SEARCH)) {
@@ -2882,39 +2876,69 @@ function updateCurrentControlVisibility(selectedMap = null) {
         }
         syncMobileFilterState();
     }
+}
+
+function applyAdvancedControlsLock() {
+    if (filtersPanelVisible) {
+        if (!isMobileLayoutActive) {
+            filtersPanelVisible = false;
+            poiFilterContainer.classList.remove('visible');
+            toggleFiltersBtn.classList.remove('active');
+            toggleFiltersBtn.setAttribute('aria-expanded', 'false');
+        }
+    }
+    syncMobileFilterState();
+    setMapBlurbVisible(false);
+    coordinateDisplay.style.display = 'none';
+    setAuxPanelVisible(gmPill, false);
+    setAuxPanelVisible(sessionToolkitPanel, false);
+    if (activeFiltersContainer) {
+        activeFiltersContainer.style.display = 'none';
+        activeFiltersContainer.innerHTML = '';
+    }
+    updatePanelToggleButtons();
+}
+
+function applyMobileLayoutVisibility(mapInfo) {
+    setMapBlurbVisible(false);
+    coordinateDisplay.style.display = coordsDisplayEnabled && mapInfo.latLonBounds ? 'block' : 'none';
+    setAuxPanelVisible(routePanel, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES);
+    setAuxPanelVisible(gmPill, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM, 'flex');
+    setAuxPanelVisible(sessionToolkitPanel, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT);
+    if (activeFiltersContainer) {
+        activeFiltersContainer.style.display = 'none';
+        activeFiltersContainer.innerHTML = '';
+    }
+}
+
+function updateCurrentControlVisibility(selectedMap = null) {
+    const mapInfo = selectedMap || getMapRuntimeData(currentlyLoadedMapId);
+    if (!mapInfo) return;
+
+    if (isEmbeddedView) {
+        setAuxPanelVisible(routePanel, false);
+        setAuxPanelVisible(sessionToolkitPanel, false);
+        setAuxPanelVisible(gmPill, false);
+    }
+
+    const visibilityState = buildControlVisibilityState(mapInfo);
+
+    applyPrimaryControlVisibility(visibilityState);
+    applyAuxiliaryPanelVisibility(visibilityState);
+
+    syncMobileMapMeta(mapInfo, visibilityState);
+    syncMobileSheetActionState(visibilityState);
+    syncMobileExploreVisibility();
+
+    handleHiddenControlCleanup(visibilityState);
 
     if (!advancedControlsUnlocked) {
-        if (filtersPanelVisible) {
-            if (!isMobileLayoutActive) {
-                filtersPanelVisible = false;
-                poiFilterContainer.classList.remove('visible');
-                toggleFiltersBtn.classList.remove('active');
-                toggleFiltersBtn.setAttribute('aria-expanded', 'false');
-            }
-        }
-        syncMobileFilterState();
-        setMapBlurbVisible(false);
-        coordinateDisplay.style.display = 'none';
-        setAuxPanelVisible(gmPill, false);
-        setAuxPanelVisible(sessionToolkitPanel, false);
-        if (activeFiltersContainer) {
-            activeFiltersContainer.style.display = 'none';
-            activeFiltersContainer.innerHTML = '';
-        }
-        updatePanelToggleButtons();
+        applyAdvancedControlsLock();
         if (!isMobileLayoutActive) return;
     }
 
     if (isMobileLayoutActive) {
-        setMapBlurbVisible(false);
-        coordinateDisplay.style.display = coordsDisplayEnabled && mapInfo.latLonBounds ? 'block' : 'none';
-        setAuxPanelVisible(routePanel, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES);
-        setAuxPanelVisible(gmPill, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM, 'flex');
-        setAuxPanelVisible(sessionToolkitPanel, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT);
-        if (activeFiltersContainer) {
-            activeFiltersContainer.style.display = 'none';
-            activeFiltersContainer.innerHTML = '';
-        }
+        applyMobileLayoutVisibility(mapInfo);
     }
 
     if (!isMobileLayoutActive && mapInfo.latLonBounds) {
