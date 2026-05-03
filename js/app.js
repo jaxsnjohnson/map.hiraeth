@@ -1850,9 +1850,11 @@ function getMapChooserDescriptionText(mapInfo) {
     ).trim();
     if (!rawText) return '';
 
-    const sandbox = document.createElement('div');
-    sandbox.innerHTML = rawText;
-    return String(sandbox.textContent || sandbox.innerText || '').trim();
+    // Security fix: Use DOMParser instead of innerHTML to prevent execution of embedded scripts
+    // or loading of external resources (like <img src=x onerror=...>) when stripping HTML.
+    const parser = new DOMParser();
+    const sandbox = parser.parseFromString(rawText, 'text/html');
+    return String(sandbox.body.textContent || sandbox.body.innerText || '').trim();
 }
 
 async function hydrateMapChooserCard(card, mapInfo) {
