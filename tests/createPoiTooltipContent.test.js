@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
 const appSource = fs.readFileSync('js/app.js', 'utf8');
-const sanitizeStart = appSource.indexOf('function sanitizeTextForHtml(value) {');
+const sanitizeStart = appSource.indexOf('function escapeHtml(value) {');
 const escapeStart = appSource.indexOf('function escapeForSingleQuotedAttribute(value) {');
 const tooltipStart = appSource.indexOf('function createPoiTooltipContent(data) {');
 const tooltipOptionsStart = appSource.indexOf('function getPoiTooltipOptions() {');
