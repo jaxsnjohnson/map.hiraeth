@@ -2508,6 +2508,8 @@ function computeSearchMatch(term, primaryText, secondaryText = '') {
         return { matched: true, score: fuzzyScore, matchedByContent: false };
     }
 
+    // ⚡ Bolt: Defer expensive string normalization on potentially large secondary text
+    // until after all primary fast-paths fail
     // ⚡ Bolt: Defer normalization of potentially large secondary text until we confirm it's needed
     const normalizedSecondary = normalizeSearchValue(secondaryText);
     if (normalizedSecondary) {

@@ -19,6 +19,8 @@
 **Action:** Identify forms or specific input fields that trigger synchronous DOM-heavy re-renders and proactively apply a `debounce` wrapper (e.g., 300ms) to their `input` event handlers to batch execution while maintaining the immediate `change` event for final confirmation (e.g., on blur).
 
 ## 2024-05-28 - Deferring Expensive String Operations
+**Learning:** In hot loops, eagerly preparing data that might not be used is a common performance trap. The `computeSearchMatch` function normalized the `secondaryText` (which can be a large combined summary + description string) up front. But since many searches match early on the `primaryText` (e.g. name), the expensive `normalizeSearchValue` on `secondaryText` was wasted allocation and processing time.
+**Action:** Always defer expensive string manipulation (`toLowerCase()`, `trim()`, concatenations) or memory allocation until immediately before it's needed, especially in functions called within heavy iteration loops (like filtering logic). Implement fast-path early returns *before* preparing secondary data.
 **Learning:** During iterative filtering across large datasets (like map features and searches), standardizing parameters upfront (e.g., calling `normalizeSearchValue` on `secondaryText`) is unnecessary if early matching logic correctly evaluates the primary criteria. Aggregating summary strings for hundreds of POIs before confirming they're required resulted in a heavy DOM string-processing overhead.
 **Action:** When working in tight application loops such as fuzzy search routines (`computeSearchMatch`), defer operations on potentially large strings (like descriptions or concatenated summaries) until initial early-returns for exact or primary-field matches are fully evaluated.
 
