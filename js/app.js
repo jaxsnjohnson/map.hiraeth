@@ -6968,18 +6968,17 @@ async function processChild(childId, level = 0) {
     }
 }
 async function processMapData(maps) {
-    const processedMaps = [];
-
-    for (let map of maps) {
+    const mapPromises = maps.map(async (map) => {
         if (map.children && Array.isArray(map.children) && map.children.length > 0 && typeof map.children[0] === 'string') {
             const childIds = map.children;
             map.children = [];
             const childPromises = childIds.map(childId => processChild(childId, 1));
             map.children = await Promise.all(childPromises);
         }
-        processedMaps.push(map);
-    }
-    return processedMaps;
+        return map;
+    });
+
+    return await Promise.all(mapPromises);
 }
 
 function initializeApp() {
