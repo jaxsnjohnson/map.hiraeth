@@ -3814,179 +3814,17 @@ function populateFilters(pointsOfInterest, mapId) {
 
     // PART 1: Add POI type filters (existing logic)
     if (hasPOIs) {
-        if (poiFilterContainer.querySelector('h3')) {
-            const poiHeader = document.createElement('h3');
-            poiHeader.textContent = getConfigValue('taxonomy.labels.poiTypes', 'POI Types:');
-            poiFilterContainer.appendChild(poiHeader);
-        }
-        const relevantGroups = new Set();
-        pointsOfInterest.forEach(poi => {
-            const group = getPoiGroup(poi.type);
-            relevantGroups.add(group);
-        });
-        const sortedGroups = Array.from(relevantGroups).sort();
-        sortedGroups.forEach(groupName => {
-            if (!groupName || (poiTypeGroups[groupName] && poiTypeGroups[groupName].length === 0)) return;
-            const filterId = `filter-group-${groupName.replace(/\s+/g, '-')}`;
-            const div = document.createElement('div');
-            div.className = 'filter-item';
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.id = filterId;
-            checkbox.value = groupName;
-            checkbox.checked = true;
-            checkbox.className = 'poi-filter-checkbox';
-            const label = document.createElement('label');
-            label.htmlFor = filterId;
-            label.textContent = groupName;
-            div.appendChild(checkbox);
-            div.appendChild(label);
-            poiFilterContainer.appendChild(div);
-        });
+        populatePOIFilters(pointsOfInterest);
     }
 
     // PART 2: Add region type filters (NEW HIERARCHICAL LOGIC)
     if (hasRegions) {
-        // Check if explicit filter groups exist, otherwise auto-generate from data
-        let regionFilterGroups = selectedMap.filterGroups && selectedMap.filterGroups.Regions;
-
-        // Auto-generation fallback
-        if (!regionFilterGroups) {
-            const tempGroups = {};
-            regions.forEach(region => {
-                // If region has type and value, group by type
-                if (region.type && region.value) {
-                    if (!tempGroups[region.type]) {
-                        tempGroups[region.type] = new Set();
-                    }
-                    tempGroups[region.type].add(region.value);
-                }
-                // Fallback: If region just has 'type' but no 'value'
-                else if (region.type && region.name) {
-                    if (!tempGroups[region.type]) {
-                        tempGroups[region.type] = new Set();
-                    }
-                    tempGroups[region.type].add(region.name);
-                    if (!region.value) region.value = region.name;
-                }
-            });
-
-            // Convert Sets to Arrays for processing
-            if (Object.keys(tempGroups).length > 0) {
-                regionFilterGroups = {};
-                for (const key in tempGroups) {
-                    regionFilterGroups[key] = Array.from(tempGroups[key]).sort();
-                }
-            }
-        }
-
-        if (regionFilterGroups && Object.keys(regionFilterGroups).length > 0) {
-            if (hasPOIs) {
-                const divider = document.createElement('hr');
-                divider.style.margin = '10px 0';
-                divider.style.borderColor = 'var(--glass-border)';
-                poiFilterContainer.appendChild(divider);
-            }
-            const regionHeader = document.createElement('h3');
-            regionHeader.textContent = "Region Types:";
-            poiFilterContainer.appendChild(regionHeader);
-
-            for (const groupName in regionFilterGroups) {
-                if (Object.hasOwnProperty.call(regionFilterGroups, groupName)) {
-                    const values = regionFilterGroups[groupName];
-                    if (!Array.isArray(values) || values.length === 0) continue;
-
-                    const groupContainer = document.createElement('div');
-                    groupContainer.className = 'filter-group closed'; // Start as closed
-
-                    const groupHeader = document.createElement('div');
-                    groupHeader.className = 'filter-group-header';
-                    groupHeader.innerHTML = `
-                        <span class="filter-chevron-icon" aria-hidden="true">
-                            <i class="ui-icon" data-lucide="chevron-right"></i>
-                        </span>
-                    `;
-
-                    const groupDiv = document.createElement('div');
-                    groupDiv.className = 'filter-item';
-                    const groupFilterId = `filter-region-group-${groupName.replace(/\s+/g, '-')}`;
-                    const groupCheckbox = document.createElement('input');
-                    groupCheckbox.type = 'checkbox';
-                    groupCheckbox.id = groupFilterId;
-                    groupCheckbox.value = groupName;
-                    groupCheckbox.checked = true;
-                    groupCheckbox.className = 'region-group-filter';
-                    const groupLabel = document.createElement('label');
-                    groupLabel.htmlFor = groupFilterId;
-                    groupLabel.textContent = groupName;
-                    groupDiv.appendChild(groupCheckbox);
-                    groupDiv.appendChild(groupLabel);
-                    groupHeader.appendChild(groupDiv);
-                    groupContainer.appendChild(groupHeader);
-
-                    const nestedList = document.createElement('div');
-                    nestedList.className = 'nested-filter-list';
-
-                    values.forEach(value => {
-                        const filterId = `filter-region-value-${value.replace(/\s+/g, '-')}`;
-                        const div = document.createElement('div');
-                        div.className = 'filter-item';
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.id = filterId;
-                        checkbox.value = value;
-                        checkbox.checked = true;
-                        checkbox.className = 'region-type-filter';
-                        checkbox.dataset.group = groupName;
-                        const label = document.createElement('label');
-                        label.htmlFor = filterId;
-                        label.textContent = value;
-                        div.appendChild(checkbox);
-                        div.appendChild(label);
-                        nestedList.appendChild(div);
-                    });
-                    groupContainer.appendChild(nestedList);
-                    poiFilterContainer.appendChild(groupContainer);
-                }
-            }
-        }
+        populateRegionFilters(regions, selectedMap, hasPOIs);
     }
 
     // PART 3: Add line type filters (New)
     if (hasRoads) {
-        if (hasPOIs || hasRegions) { // Add divider if other filters are present
-            const divider = document.createElement('hr');
-            divider.style.margin = '10px 0';
-            divider.style.borderColor = 'var(--glass-border)';
-            poiFilterContainer.appendChild(divider);
-        }
-
-        const lineHeader = document.createElement('h3');
-        lineHeader.textContent = "Line Types:";
-        poiFilterContainer.appendChild(lineHeader);
-
-        const allLines = lines;
-        const lineTypes = [...new Set(allLines.map(r => r.type || "Unnamed Road Type").filter(Boolean))].sort();
-
-        lineTypes.forEach(type => {
-            const filterId = `filter-line-${(type || "untyped").replace(/\s+/g, '-').toLowerCase()}`;
-            const div = document.createElement('div');
-            div.className = 'filter-item';
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.id = filterId;
-            checkbox.value = type;
-            checkbox.checked = true; // Default checked
-            checkbox.className = 'line-type-filter'; // Specific class for line filters
-
-            const label = document.createElement('label');
-            label.htmlFor = filterId;
-            label.textContent = type.charAt(0).toUpperCase() + type.slice(1); // Capitalize
-
-            div.appendChild(checkbox);
-            div.appendChild(label);
-            poiFilterContainer.appendChild(div);
-        });
+        populateLineFilters(lines, hasPOIs, hasRegions);
     }
 
     // Show filter button since we have filters
@@ -4009,6 +3847,181 @@ function populateFilters(pointsOfInterest, mapId) {
     updateToggleAllCheckboxState();
     updateActiveFilterChips();
 }
+
+function populatePOIFilters(pointsOfInterest) {
+    if (poiFilterContainer.querySelector('h3')) {
+        const poiHeader = document.createElement('h3');
+        poiHeader.textContent = getConfigValue('taxonomy.labels.poiTypes', 'POI Types:');
+        poiFilterContainer.appendChild(poiHeader);
+    }
+    const relevantGroups = new Set();
+    pointsOfInterest.forEach(poi => {
+        const group = getPoiGroup(poi.type);
+        relevantGroups.add(group);
+    });
+    const sortedGroups = Array.from(relevantGroups).sort();
+    sortedGroups.forEach(groupName => {
+        if (!groupName || (poiTypeGroups[groupName] && poiTypeGroups[groupName].length === 0)) return;
+        const filterId = `filter-group-${groupName.replace(/\s+/g, '-')}`;
+        const div = document.createElement('div');
+        div.className = 'filter-item';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = filterId;
+        checkbox.value = groupName;
+        checkbox.checked = true;
+        checkbox.className = 'poi-filter-checkbox';
+        const label = document.createElement('label');
+        label.htmlFor = filterId;
+        label.textContent = groupName;
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        poiFilterContainer.appendChild(div);
+    });
+}
+
+function populateRegionFilters(regions, selectedMap, hasPOIs) {
+    // Check if explicit filter groups exist, otherwise auto-generate from data
+    let regionFilterGroups = selectedMap.filterGroups && selectedMap.filterGroups.Regions;
+
+    // Auto-generation fallback
+    if (!regionFilterGroups) {
+        const tempGroups = {};
+        regions.forEach(region => {
+            // If region has type and value, group by type
+            if (region.type && region.value) {
+                if (!tempGroups[region.type]) {
+                    tempGroups[region.type] = new Set();
+                }
+                tempGroups[region.type].add(region.value);
+            }
+            // Fallback: If region just has 'type' but no 'value'
+            else if (region.type && region.name) {
+                if (!tempGroups[region.type]) {
+                    tempGroups[region.type] = new Set();
+                }
+                tempGroups[region.type].add(region.name);
+                if (!region.value) region.value = region.name;
+            }
+        });
+
+        // Convert Sets to Arrays for processing
+        if (Object.keys(tempGroups).length > 0) {
+            regionFilterGroups = {};
+            for (const key in tempGroups) {
+                regionFilterGroups[key] = Array.from(tempGroups[key]).sort();
+            }
+        }
+    }
+
+    if (regionFilterGroups && Object.keys(regionFilterGroups).length > 0) {
+        if (hasPOIs) {
+            const divider = document.createElement('hr');
+            divider.style.margin = '10px 0';
+            divider.style.borderColor = 'var(--glass-border)';
+            poiFilterContainer.appendChild(divider);
+        }
+        const regionHeader = document.createElement('h3');
+        regionHeader.textContent = "Region Types:";
+        poiFilterContainer.appendChild(regionHeader);
+
+        for (const groupName in regionFilterGroups) {
+            if (Object.hasOwnProperty.call(regionFilterGroups, groupName)) {
+                const values = regionFilterGroups[groupName];
+                if (!Array.isArray(values) || values.length === 0) continue;
+
+                const groupContainer = document.createElement('div');
+                groupContainer.className = 'filter-group closed'; // Start as closed
+
+                const groupHeader = document.createElement('div');
+                groupHeader.className = 'filter-group-header';
+                groupHeader.innerHTML = `
+                    <span class="filter-chevron-icon" aria-hidden="true">
+                        <i class="ui-icon" data-lucide="chevron-right"></i>
+                    </span>
+                `;
+
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'filter-item';
+                const groupFilterId = `filter-region-group-${groupName.replace(/\s+/g, '-')}`;
+                const groupCheckbox = document.createElement('input');
+                groupCheckbox.type = 'checkbox';
+                groupCheckbox.id = groupFilterId;
+                groupCheckbox.value = groupName;
+                groupCheckbox.checked = true;
+                groupCheckbox.className = 'region-group-filter';
+                const groupLabel = document.createElement('label');
+                groupLabel.htmlFor = groupFilterId;
+                groupLabel.textContent = groupName;
+                groupDiv.appendChild(groupCheckbox);
+                groupDiv.appendChild(groupLabel);
+                groupHeader.appendChild(groupDiv);
+                groupContainer.appendChild(groupHeader);
+
+                const nestedList = document.createElement('div');
+                nestedList.className = 'nested-filter-list';
+
+                values.forEach(value => {
+                    const filterId = `filter-region-value-${value.replace(/\s+/g, '-')}`;
+                    const div = document.createElement('div');
+                    div.className = 'filter-item';
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = filterId;
+                    checkbox.value = value;
+                    checkbox.checked = true;
+                    checkbox.className = 'region-type-filter';
+                    checkbox.dataset.group = groupName;
+                    const label = document.createElement('label');
+                    label.htmlFor = filterId;
+                    label.textContent = value;
+                    div.appendChild(checkbox);
+                    div.appendChild(label);
+                    nestedList.appendChild(div);
+                });
+                groupContainer.appendChild(nestedList);
+                poiFilterContainer.appendChild(groupContainer);
+            }
+        }
+    }
+}
+
+function populateLineFilters(lines, hasPOIs, hasRegions) {
+    if (hasPOIs || hasRegions) { // Add divider if other filters are present
+        const divider = document.createElement('hr');
+        divider.style.margin = '10px 0';
+        divider.style.borderColor = 'var(--glass-border)';
+        poiFilterContainer.appendChild(divider);
+    }
+
+    const lineHeader = document.createElement('h3');
+    lineHeader.textContent = "Line Types:";
+    poiFilterContainer.appendChild(lineHeader);
+
+    const allLines = lines;
+    const lineTypes = [...new Set(allLines.map(r => r.type || "Unnamed Road Type").filter(Boolean))].sort();
+
+    lineTypes.forEach(type => {
+        const filterId = `filter-line-${(type || "untyped").replace(/\s+/g, '-').toLowerCase()}`;
+        const div = document.createElement('div');
+        div.className = 'filter-item';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = filterId;
+        checkbox.value = type;
+        checkbox.checked = true; // Default checked
+        checkbox.className = 'line-type-filter'; // Specific class for line filters
+
+        const label = document.createElement('label');
+        label.htmlFor = filterId;
+        label.textContent = type.charAt(0).toUpperCase() + type.slice(1); // Capitalize
+
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        poiFilterContainer.appendChild(div);
+    });
+}
+
 const sharedLinkOpenSessionKeys = new Set();
 function getRuntimeConfigValue(path, fallbackValue) {
     return (typeof getConfigValue === 'function') ? getConfigValue(path, fallbackValue) : fallbackValue;

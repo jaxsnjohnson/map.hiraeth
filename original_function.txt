@@ -1,133 +1,222 @@
-  2795	function updateCurrentControlVisibility(selectedMap = null) {
-  2796	    const mapInfo = selectedMap || getMapRuntimeData(currentlyLoadedMapId);
-  2797	    if (!mapInfo) return;
-  2798
-  2799	    if (isEmbeddedView) {
-  2800	        setAuxPanelVisible(routePanel, false);
-  2801	        setAuxPanelVisible(sessionToolkitPanel, false);
-  2802	        setAuxPanelVisible(gmPill, false);
-  2803	    }
-  2804
-  2805	    const hasPOIs = allMapMarkers.length > 0;
-  2806	    const hasRegions = (visibleRegionsCache && visibleRegionsCache.length > 0) || (Array.isArray(mapInfo.regions) && mapInfo.regions.length > 0);
-  2807	    const hasRoads = (visibleLinesCache && visibleLinesCache.length > 0) ||
-  2808	        (Array.isArray(mapInfo.roads) && mapInfo.roads.length > 0) ||
-  2809	        (Array.isArray(mapInfo.lines) && mapInfo.lines.length > 0);
-  2810	    const hasValidScale = typeof mapInfo.scalePixels === 'number' && mapInfo.scalePixels > 0 &&
-  2811	        typeof mapInfo.scaleKilometers === 'number' && mapInfo.scaleKilometers > 0;
-  2812	    const allowGMToolkit = canAccessGMToolkit() && !isEmbeddedView;
-  2813
-  2814	    const visibilityState = resolveControlVisibilityState({
-  2815	        isEmbedded: isEmbeddedView,
-  2816	        isMobileLayout: isMobileLayoutActive,
-  2817	        advancedControls: advancedControlsUnlocked,
-  2818	        hasPOIs,
-  2819	        hasRegions,
-  2820	        hasRoads,
-  2821	        hasRoutes: Array.isArray(currentRoutes) && currentRoutes.length > 0,
-  2822	        hasValidScale,
-  2823	        hasBlurb: !!mapInfo.blurb,
-  2824	        hasLatLonBounds: !!mapInfo.latLonBounds,
-  2825	        allowGMToolkit,
-  2826	        atlasSearchCount: Array.isArray(atlasSearchIndex) ? atlasSearchIndex.length : 0,
-  2827	        routeCount: Array.isArray(currentRoutes) ? currentRoutes.length : 0,
-  2828	        toolkitVisible: toolkitPanelVisible,
-  2829	        gmVisible: gmPanelVisible
-  2830	    });
-  2831
-  2832	    toggleMarkersBtn.style.display = visibilityState.showMarkersButton ? 'block' : 'none';
-  2833	    searchControlContainer.style.display = visibilityState.showSearchControl ? 'block' : 'none';
-  2834	    toggleFiltersBtn.style.display = visibilityState.showFiltersButton ? 'block' : 'none';
-  2835	    measureToolBtn.style.display = visibilityState.showMeasureButton ? 'block' : 'none';
-  2836	    if (toggleSoundBtn) toggleSoundBtn.style.display = visibilityState.showSoundButton ? 'block' : 'none';
-  2837	    toggleBlurbBtn.style.display = visibilityState.showBlurbButton ? 'block' : 'none';
-  2838	    toggleCoordsBtn.style.display = visibilityState.showCoordsButton ? 'block' : 'none';
-  2839	    if (shareViewBtn) shareViewBtn.style.display = visibilityState.showShareButton ? 'block' : 'none';
-  2840	    if (toggleGMPanelBtn) toggleGMPanelBtn.style.display = visibilityState.showGMButton ? 'block' : 'none';
-  2841	    if (toggleToolkitPanelBtn) toggleToolkitPanelBtn.style.display = visibilityState.showToolkitButton ? 'block' : 'none';
-  2842	    if (toggleBtn) toggleBtn.hidden = isEmbeddedView || isMobileLayoutActive;
-  2843	    if (searchRefineFiltersBtn) searchRefineFiltersBtn.hidden = !visibilityState.showSearchFilterAction;
-  2844	    toggleCoordsBtn.setAttribute('aria-pressed', coordsDisplayEnabled ? 'true' : 'false');
-  2845	    if (routePanel) {
-  2846	        routePanel.style.display = visibilityState.showRoutePanel ||
-  2847	            (isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES)
-  2848	            ? 'block'
-  2849	            : 'none';
-  2850	    }
-  2851	    if (sessionToolkitPanel) {
-  2852	        sessionToolkitPanel.style.display = visibilityState.showToolkitPanel ||
-  2853	            (isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT)
-  2854	            ? 'block'
-  2855	            : 'none';
-  2856	    }
-  2857	    if (gmPill) {
-  2858	        gmPill.style.display = visibilityState.showGMPill ||
-  2859	            (isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM)
-  2860	            ? 'flex'
-  2861	            : 'none';
-  2862	    }
-  2863
-  2864	    syncMobileMapMeta(mapInfo, visibilityState);
-  2865	    syncMobileSheetActionState(visibilityState);
-  2866	    syncMobileExploreVisibility();
-  2867
-  2868	    if (!visibilityState.showSearchControl) {
-  2869	        closeSearchResults();
-  2870	        if (isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_SEARCH)) {
-  2871	            closeMobileSearchPanel({ restoreFocus: false });
-  2872	        }
-  2873	    }
-  2874
-  2875	    if (!visibilityState.showSearchFilterAction) {
-  2876	        if (filtersPanelVisible) {
-  2877	            filtersPanelVisible = false;
-  2878	            mobileFilterExpanded = false;
-  2879	            poiFilterContainer.classList.remove('visible');
-  2880	            toggleFiltersBtn.classList.remove('active');
-  2881	            toggleFiltersBtn.setAttribute('aria-expanded', 'false');
-  2882	        }
-  2883	        syncMobileFilterState();
-  2884	    }
-  2885
-  2886	    if (!advancedControlsUnlocked) {
-  2887	        if (filtersPanelVisible) {
-  2888	            if (!isMobileLayoutActive) {
-  2889	                filtersPanelVisible = false;
-  2890	                poiFilterContainer.classList.remove('visible');
-  2891	                toggleFiltersBtn.classList.remove('active');
-  2892	                toggleFiltersBtn.setAttribute('aria-expanded', 'false');
-  2893	            }
-  2894	        }
-  2895	        syncMobileFilterState();
-  2896	        setMapBlurbVisible(false);
-  2897	        coordinateDisplay.style.display = 'none';
-  2898	        setAuxPanelVisible(gmPill, false);
-  2899	        setAuxPanelVisible(sessionToolkitPanel, false);
-  2900	        if (activeFiltersContainer) {
-  2901	            activeFiltersContainer.style.display = 'none';
-  2902	            activeFiltersContainer.innerHTML = '';
-  2903	        }
-  2904	        updatePanelToggleButtons();
-  2905	        if (!isMobileLayoutActive) return;
-  2906	    }
-  2907
-  2908	    if (isMobileLayoutActive) {
-  2909	        setMapBlurbVisible(false);
-  2910	        coordinateDisplay.style.display = coordsDisplayEnabled && mapInfo.latLonBounds ? 'block' : 'none';
-  2911	        setAuxPanelVisible(routePanel, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES);
-  2912	        setAuxPanelVisible(gmPill, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM, 'flex');
-  2913	        setAuxPanelVisible(sessionToolkitPanel, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT);
-  2914	        if (activeFiltersContainer) {
-  2915	            activeFiltersContainer.style.display = 'none';
-  2916	            activeFiltersContainer.innerHTML = '';
-  2917	        }
-  2918	    }
-  2919
-  2920	    if (!isMobileLayoutActive && mapInfo.latLonBounds) {
-  2921	        coordinateDisplay.style.display = coordsDisplayEnabled ? 'block' : 'none';
-  2922	    } else {
-  2923	        coordinateDisplay.style.display = 'none';
-  2924	    }
-  2925	    updatePanelToggleButtons();
-  2926	    clampFloatingPanels();
-  2927	}
+function populateFilters(pointsOfInterest, mapId) {
+    // Clear existing dynamic filters (headers, dividers, specific checkboxes)
+    const dynamicElements = poiFilterContainer.querySelectorAll('h3:not(:first-of-type), hr, .filter-item:not(:first-child), .filter-group');
+    dynamicElements.forEach(el => el.remove());
+
+    const hasPOIs = pointsOfInterest && pointsOfInterest.length > 0;
+    const selectedMap = getMapRuntimeData(mapId);
+    const regions = visibleRegionsCache && visibleRegionsCache.length ? visibleRegionsCache : (selectedMap?.regions || []);
+    const hasRegions = regions.length > 0;
+    const lines = visibleLinesCache && visibleLinesCache.length ? visibleLinesCache : [...(selectedMap?.roads || []), ...(selectedMap?.lines || [])];
+    const hasRoads = lines.length > 0;
+
+    // Hide filter button if no POIs, no regions, and no roads
+    if (!hasPOIs && !hasRegions && !hasRoads) {
+        poiFilterContainer.classList.remove('visible');
+        toggleFiltersBtn.style.display = 'none';
+        filtersPanelVisible = false;
+        toggleFiltersBtn.classList.remove('active');
+        toggleFiltersBtn.setAttribute('aria-expanded', 'false');
+        filterToggleAllCheckbox.checked = true;
+        filterToggleAllCheckbox.indeterminate = false;
+        updateActiveFilterChips();
+        return;
+    }
+
+    // PART 1: Add POI type filters (existing logic)
+    if (hasPOIs) {
+        if (poiFilterContainer.querySelector('h3')) {
+            const poiHeader = document.createElement('h3');
+            poiHeader.textContent = getConfigValue('taxonomy.labels.poiTypes', 'POI Types:');
+            poiFilterContainer.appendChild(poiHeader);
+        }
+        const relevantGroups = new Set();
+        pointsOfInterest.forEach(poi => {
+            const group = getPoiGroup(poi.type);
+            relevantGroups.add(group);
+        });
+        const sortedGroups = Array.from(relevantGroups).sort();
+        sortedGroups.forEach(groupName => {
+            if (!groupName || (poiTypeGroups[groupName] && poiTypeGroups[groupName].length === 0)) return;
+            const filterId = `filter-group-${groupName.replace(/\s+/g, '-')}`;
+            const div = document.createElement('div');
+            div.className = 'filter-item';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = filterId;
+            checkbox.value = groupName;
+            checkbox.checked = true;
+            checkbox.className = 'poi-filter-checkbox';
+            const label = document.createElement('label');
+            label.htmlFor = filterId;
+            label.textContent = groupName;
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            poiFilterContainer.appendChild(div);
+        });
+    }
+
+    // PART 2: Add region type filters (NEW HIERARCHICAL LOGIC)
+    if (hasRegions) {
+        // Check if explicit filter groups exist, otherwise auto-generate from data
+        let regionFilterGroups = selectedMap.filterGroups && selectedMap.filterGroups.Regions;
+
+        // Auto-generation fallback
+        if (!regionFilterGroups) {
+            const tempGroups = {};
+            regions.forEach(region => {
+                // If region has type and value, group by type
+                if (region.type && region.value) {
+                    if (!tempGroups[region.type]) {
+                        tempGroups[region.type] = new Set();
+                    }
+                    tempGroups[region.type].add(region.value);
+                }
+                // Fallback: If region just has 'type' but no 'value'
+                else if (region.type && region.name) {
+                    if (!tempGroups[region.type]) {
+                        tempGroups[region.type] = new Set();
+                    }
+                    tempGroups[region.type].add(region.name);
+                    if (!region.value) region.value = region.name;
+                }
+            });
+
+            // Convert Sets to Arrays for processing
+            if (Object.keys(tempGroups).length > 0) {
+                regionFilterGroups = {};
+                for (const key in tempGroups) {
+                    regionFilterGroups[key] = Array.from(tempGroups[key]).sort();
+                }
+            }
+        }
+
+        if (regionFilterGroups && Object.keys(regionFilterGroups).length > 0) {
+            if (hasPOIs) {
+                const divider = document.createElement('hr');
+                divider.style.margin = '10px 0';
+                divider.style.borderColor = 'var(--glass-border)';
+                poiFilterContainer.appendChild(divider);
+            }
+            const regionHeader = document.createElement('h3');
+            regionHeader.textContent = "Region Types:";
+            poiFilterContainer.appendChild(regionHeader);
+
+            for (const groupName in regionFilterGroups) {
+                if (Object.hasOwnProperty.call(regionFilterGroups, groupName)) {
+                    const values = regionFilterGroups[groupName];
+                    if (!Array.isArray(values) || values.length === 0) continue;
+
+                    const groupContainer = document.createElement('div');
+                    groupContainer.className = 'filter-group closed'; // Start as closed
+
+                    const groupHeader = document.createElement('div');
+                    groupHeader.className = 'filter-group-header';
+                    groupHeader.innerHTML = `
+                        <span class="filter-chevron-icon" aria-hidden="true">
+                            <i class="ui-icon" data-lucide="chevron-right"></i>
+                        </span>
+                    `;
+
+                    const groupDiv = document.createElement('div');
+                    groupDiv.className = 'filter-item';
+                    const groupFilterId = `filter-region-group-${groupName.replace(/\s+/g, '-')}`;
+                    const groupCheckbox = document.createElement('input');
+                    groupCheckbox.type = 'checkbox';
+                    groupCheckbox.id = groupFilterId;
+                    groupCheckbox.value = groupName;
+                    groupCheckbox.checked = true;
+                    groupCheckbox.className = 'region-group-filter';
+                    const groupLabel = document.createElement('label');
+                    groupLabel.htmlFor = groupFilterId;
+                    groupLabel.textContent = groupName;
+                    groupDiv.appendChild(groupCheckbox);
+                    groupDiv.appendChild(groupLabel);
+                    groupHeader.appendChild(groupDiv);
+                    groupContainer.appendChild(groupHeader);
+
+                    const nestedList = document.createElement('div');
+                    nestedList.className = 'nested-filter-list';
+
+                    values.forEach(value => {
+                        const filterId = `filter-region-value-${value.replace(/\s+/g, '-')}`;
+                        const div = document.createElement('div');
+                        div.className = 'filter-item';
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.id = filterId;
+                        checkbox.value = value;
+                        checkbox.checked = true;
+                        checkbox.className = 'region-type-filter';
+                        checkbox.dataset.group = groupName;
+                        const label = document.createElement('label');
+                        label.htmlFor = filterId;
+                        label.textContent = value;
+                        div.appendChild(checkbox);
+                        div.appendChild(label);
+                        nestedList.appendChild(div);
+                    });
+                    groupContainer.appendChild(nestedList);
+                    poiFilterContainer.appendChild(groupContainer);
+                }
+            }
+        }
+    }
+
+    // PART 3: Add line type filters (New)
+    if (hasRoads) {
+        if (hasPOIs || hasRegions) { // Add divider if other filters are present
+            const divider = document.createElement('hr');
+            divider.style.margin = '10px 0';
+            divider.style.borderColor = 'var(--glass-border)';
+            poiFilterContainer.appendChild(divider);
+        }
+
+        const lineHeader = document.createElement('h3');
+        lineHeader.textContent = "Line Types:";
+        poiFilterContainer.appendChild(lineHeader);
+
+        const allLines = lines;
+        const lineTypes = [...new Set(allLines.map(r => r.type || "Unnamed Road Type").filter(Boolean))].sort();
+
+        lineTypes.forEach(type => {
+            const filterId = `filter-line-${(type || "untyped").replace(/\s+/g, '-').toLowerCase()}`;
+            const div = document.createElement('div');
+            div.className = 'filter-item';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = filterId;
+            checkbox.value = type;
+            checkbox.checked = true; // Default checked
+            checkbox.className = 'line-type-filter'; // Specific class for line filters
+
+            const label = document.createElement('label');
+            label.htmlFor = filterId;
+            label.textContent = type.charAt(0).toUpperCase() + type.slice(1); // Capitalize
+
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            poiFilterContainer.appendChild(div);
+        });
+    }
+
+    // Show filter button since we have filters
+    toggleFiltersBtn.style.display = 'block';
+
+    // Restore filter panel preference for returning users.
+    const shouldRestoreFilterPanel = safeGetStorage(UX_STORAGE_KEYS.filterPanelOpen) === 'true' &&
+        advancedControlsUnlocked &&
+        !isEmbeddedView;
+    filtersPanelVisible = shouldRestoreFilterPanel;
+    poiFilterContainer.classList.toggle('visible', filtersPanelVisible);
+    toggleFiltersBtn.classList.toggle('active', filtersPanelVisible);
+    toggleFiltersBtn.setAttribute('aria-expanded', filtersPanelVisible ? 'true' : 'false');
+    if (filtersPanelVisible) {
+        positionFilterPanel();
+    }
+    refreshLucideIcons();
+
+    // Set initial state of the master toggle
+    updateToggleAllCheckboxState();
+    updateActiveFilterChips();
+}
