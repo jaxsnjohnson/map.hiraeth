@@ -27,3 +27,6 @@
 ## 2024-05-27 - Skipping Unnecessary Layer Iteration
 **Learning:** In combined filter-and-search loops (like `updateVisibleMarkersAndSearch`), iterating over entire layer collections (like regions and lines) and extracting properties for search evaluation is extremely expensive on large maps, even if the fuzzy matching string manipulation itself is conditionally skipped.
 **Action:** When evaluating search results, hoist the conditional check for whether search is active (`if (searchFiltersCurrentMap)`) completely *outside* the `.eachLayer()` loops for map features whose visibility is handled elsewhere (like regions and lines). This turns an O(N) operation into an O(1) bypass when the user is only toggling filters.
+## 2024-05-03 - String Operation Costs in Search Loops
+**Learning:** Frequent string allocations and normalizations (like `.trim().toLowerCase()`) in functions called within dense loops (like POI filtering/searching on every keystroke) cause measurable CPU overhead and memory churn, even for tiny strings.
+**Action:** Always memoize functions mapping small, bounded inputs (like POI types to their respective groups/icons) using a `Map` to completely bypass redundant string operations during render/filter loops.

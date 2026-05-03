@@ -590,10 +590,18 @@ const poiGroupIconConfig = (typeof getConfigValue === 'function')
 
 const poiIconCache = new Map();
 
+// ⚡ Bolt: Cache POI group lookups to avoid expensive string operations
+// in the updateVisibleMarkersAndSearch loop which runs frequently.
+const poiGroupCache = new Map();
+
 function getPoiGroup(type) {
+    if (poiGroupCache.has(type)) {
+        return poiGroupCache.get(type);
+    }
     const normalizedType = String(type || '').trim().toLowerCase();
-    if (!normalizedType) return 'Unknown';
-    return typeToGroupMap[normalizedType] || 'Unknown';
+    const group = !normalizedType ? 'Unknown' : (typeToGroupMap[normalizedType] || 'Unknown');
+    poiGroupCache.set(type, group);
+    return group;
 }
 
 function getPoiIcon(groupName) {
