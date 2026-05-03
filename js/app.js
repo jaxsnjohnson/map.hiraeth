@@ -3346,34 +3346,7 @@ function sortSearchResults(results) {
         .slice(0, 40);
 }
 
-function updateVisibleMarkersAndSearch() {
-    const hasMarkers = !!currentMarkerGroup && allMapMarkers.length > 0;
-    const hasRegions = !!currentRegionGroup && currentRegionGroup.getLayers().length > 0;
-    const hasLines = !!currentRoadGroup && currentRoadGroup.getLayers().length > 0;
-    const hasRoutes = Array.isArray(currentRoutes) && currentRoutes.length > 0;
-    const hasAtlasIndex = Array.isArray(atlasSearchIndex) && atlasSearchIndex.length > 0;
-    const searchable = hasMarkers || hasRegions || hasLines || hasRoutes || hasAtlasIndex;
-
-    if (!searchable) {
-        searchControlContainer.style.display = 'none';
-        closeMobileSheet({ restoreFocus: false });
-        closeSearchResults();
-        updateActiveFilterChips();
-        syncMobileExploreVisibility();
-        return;
-    }
-
-    searchControlContainer.style.display = 'block';
-    const searchTerm = normalizeSearchValue(poiSearchInput.value);
-    const results = [];
-
-    const activeSpecificGroupFilters = new Set();
-    poiFilterContainer.querySelectorAll('.poi-filter-checkbox:not(#filter-toggle-all):checked').forEach((checkbox) => {
-        activeSpecificGroupFilters.add(checkbox.value);
-    });
-    const allPoiGroupsChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
-    const searchFiltersCurrentMap = currentSearchScope === SEARCH_SCOPE_MAP && !!searchTerm;
-
+function searchMapMarkers(searchTerm, results, allPoiGroupsChecked, activeSpecificGroupFilters, searchFiltersCurrentMap) {
     allMapMarkers.forEach((marker) => {
         const poi = marker.poiData;
         if (!poi) return;
@@ -3407,81 +3380,83 @@ function updateVisibleMarkersAndSearch() {
             });
         }
     });
+}
 
+function searchMapRegions(searchTerm, results, searchFiltersCurrentMap) {
     const activeRegionTypeFilters = new Set();
     poiFilterContainer.querySelectorAll('.region-type-filter:checked').forEach((checkbox) => {
         activeRegionTypeFilters.add(checkbox.value);
     });
     const allRegionTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
 
-    if (searchFiltersCurrentMap) {
-        if (currentRegionGroup) {
-            currentRegionGroup.eachLayer((layer) => {
-                const region = layer.regionData;
-                if (!region || !region.name) return;
+    if (searchFiltersCurrentMap && currentRegionGroup) {
+        currentRegionGroup.eachLayer((layer) => {
+            const region = layer.regionData;
+            if (!region || !region.name) return;
 
-                const regionFilterValue = region.value || region.name;
-                const typeMatch = allRegionTypesChecked || activeRegionTypeFilters.has(regionFilterValue);
+            const regionFilterValue = region.value || region.name;
+            const typeMatch = allRegionTypesChecked || activeRegionTypeFilters.has(regionFilterValue);
 
-                // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty).
-                if (typeMatch) {
-                    const match = computeSearchMatch(searchTerm, region.name, `${region.summary || ''} ${region.description || ''}`);
+            // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty).
+            if (typeMatch) {
+                const match = computeSearchMatch(searchTerm, region.name, `${region.summary || ''} ${region.description || ''}`);
 
-                    if (match.matched) {
-                        results.push({
-                            group: 'region',
-                            badge: 'Region',
-                            title: region.name,
-                            subtitle: match.matchedByContent ? `Matched in ${region.type || 'region'} description` : (region.value || region.type || 'Region'),
-                            score: match.score,
-                            onSelect: () => {
-                                map.fitBounds(layer.getBounds(), { maxZoom: Math.max(map.getZoom(), 1) });
-                                layer.openPopup();
-                            }
-                        });
-                    }
+                if (match.matched) {
+                    results.push({
+                        group: 'region',
+                        badge: 'Region',
+                        title: region.name,
+                        subtitle: match.matchedByContent ? `Matched in ${region.type || 'region'} description` : (region.value || region.type || 'Region'),
+                        score: match.score,
+                        onSelect: () => {
+                            map.fitBounds(layer.getBounds(), { maxZoom: Math.max(map.getZoom(), 1) });
+                            layer.openPopup();
+                        }
+                    });
                 }
-            });
-        }
+            }
+        });
     }
+}
 
+function searchMapLines(searchTerm, results, searchFiltersCurrentMap) {
     const activeLineTypeFilters = new Set();
     poiFilterContainer.querySelectorAll('.line-type-filter:checked').forEach((checkbox) => {
         activeLineTypeFilters.add(checkbox.value);
     });
     const allLineTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
 
-    if (searchFiltersCurrentMap) {
-        if (currentRoadGroup) {
-            currentRoadGroup.eachLayer((layer) => {
-                const line = layer.roadData;
-                if (!line) return;
-                const lineName = line.name || line.type || 'Unnamed Line';
-                const lineType = line.type || 'Unnamed Road Type';
-                const typeMatch = allLineTypesChecked || activeLineTypeFilters.has(lineType);
+    if (searchFiltersCurrentMap && currentRoadGroup) {
+        currentRoadGroup.eachLayer((layer) => {
+            const line = layer.roadData;
+            if (!line) return;
+            const lineName = line.name || line.type || 'Unnamed Line';
+            const lineType = line.type || 'Unnamed Road Type';
+            const typeMatch = allLineTypesChecked || activeLineTypeFilters.has(lineType);
 
-                // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty).
-                if (typeMatch) {
-                    const match = computeSearchMatch(searchTerm, lineName, `${lineType} ${line.summary || ''} ${line.description || ''}`);
+            // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty).
+            if (typeMatch) {
+                const match = computeSearchMatch(searchTerm, lineName, `${lineType} ${line.summary || ''} ${line.description || ''}`);
 
-                    if (match.matched) {
-                        results.push({
-                            group: 'line',
-                            badge: 'Line',
-                            title: lineName,
-                            subtitle: match.matchedByContent ? `Matched in ${lineType.toLowerCase()} details` : lineType,
-                            score: match.score,
-                            onSelect: () => {
-                                map.fitBounds(layer.getBounds(), { maxZoom: Math.max(map.getZoom(), 1) });
-                                if (layer.getPopup()) layer.openPopup();
-                            }
-                        });
-                    }
+                if (match.matched) {
+                    results.push({
+                        group: 'line',
+                        badge: 'Line',
+                        title: lineName,
+                        subtitle: match.matchedByContent ? `Matched in ${lineType.toLowerCase()} details` : lineType,
+                        score: match.score,
+                        onSelect: () => {
+                            map.fitBounds(layer.getBounds(), { maxZoom: Math.max(map.getZoom(), 1) });
+                            if (layer.getPopup()) layer.openPopup();
+                        }
+                    });
                 }
-            });
-        }
+            }
+        });
     }
+}
 
+function searchMapRoutes(searchTerm, results, searchFiltersCurrentMap) {
     if (searchFiltersCurrentMap && currentRoutes && currentRoutes.length > 0) {
         currentRoutes.forEach((route) => {
             const routeName = route.name || route.id;
@@ -3512,7 +3487,9 @@ function updateVisibleMarkersAndSearch() {
             });
         });
     }
+}
 
+function searchAtlasIndex(searchTerm, results) {
     if (currentSearchScope === SEARCH_SCOPE_ATLAS && searchTerm) {
         atlasSearchIndex.forEach((entry) => {
             if (!visibilityAllowed(entry)) return;
@@ -3534,6 +3511,41 @@ function updateVisibleMarkersAndSearch() {
             });
         });
     }
+}
+
+function updateVisibleMarkersAndSearch() {
+    const hasMarkers = !!currentMarkerGroup && allMapMarkers.length > 0;
+    const hasRegions = !!currentRegionGroup && currentRegionGroup.getLayers().length > 0;
+    const hasLines = !!currentRoadGroup && currentRoadGroup.getLayers().length > 0;
+    const hasRoutes = Array.isArray(currentRoutes) && currentRoutes.length > 0;
+    const hasAtlasIndex = Array.isArray(atlasSearchIndex) && atlasSearchIndex.length > 0;
+    const searchable = hasMarkers || hasRegions || hasLines || hasRoutes || hasAtlasIndex;
+
+    if (!searchable) {
+        searchControlContainer.style.display = 'none';
+        closeMobileSheet({ restoreFocus: false });
+        closeSearchResults();
+        updateActiveFilterChips();
+        syncMobileExploreVisibility();
+        return;
+    }
+
+    searchControlContainer.style.display = 'block';
+    const searchTerm = normalizeSearchValue(poiSearchInput.value);
+    const results = [];
+
+    const activeSpecificGroupFilters = new Set();
+    poiFilterContainer.querySelectorAll('.poi-filter-checkbox:not(#filter-toggle-all):checked').forEach((checkbox) => {
+        activeSpecificGroupFilters.add(checkbox.value);
+    });
+    const allPoiGroupsChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
+    const searchFiltersCurrentMap = currentSearchScope === SEARCH_SCOPE_MAP && !!searchTerm;
+
+    searchMapMarkers(searchTerm, results, allPoiGroupsChecked, activeSpecificGroupFilters, searchFiltersCurrentMap);
+    searchMapRegions(searchTerm, results, searchFiltersCurrentMap);
+    searchMapLines(searchTerm, results, searchFiltersCurrentMap);
+    searchMapRoutes(searchTerm, results, searchFiltersCurrentMap);
+    searchAtlasIndex(searchTerm, results);
 
     if (!searchTerm) {
         setSearchScope(SEARCH_SCOPE_MAP);
