@@ -1,0 +1,133 @@
+  2795	function updateCurrentControlVisibility(selectedMap = null) {
+  2796	    const mapInfo = selectedMap || getMapRuntimeData(currentlyLoadedMapId);
+  2797	    if (!mapInfo) return;
+  2798
+  2799	    if (isEmbeddedView) {
+  2800	        setAuxPanelVisible(routePanel, false);
+  2801	        setAuxPanelVisible(sessionToolkitPanel, false);
+  2802	        setAuxPanelVisible(gmPill, false);
+  2803	    }
+  2804
+  2805	    const hasPOIs = allMapMarkers.length > 0;
+  2806	    const hasRegions = (visibleRegionsCache && visibleRegionsCache.length > 0) || (Array.isArray(mapInfo.regions) && mapInfo.regions.length > 0);
+  2807	    const hasRoads = (visibleLinesCache && visibleLinesCache.length > 0) ||
+  2808	        (Array.isArray(mapInfo.roads) && mapInfo.roads.length > 0) ||
+  2809	        (Array.isArray(mapInfo.lines) && mapInfo.lines.length > 0);
+  2810	    const hasValidScale = typeof mapInfo.scalePixels === 'number' && mapInfo.scalePixels > 0 &&
+  2811	        typeof mapInfo.scaleKilometers === 'number' && mapInfo.scaleKilometers > 0;
+  2812	    const allowGMToolkit = canAccessGMToolkit() && !isEmbeddedView;
+  2813
+  2814	    const visibilityState = resolveControlVisibilityState({
+  2815	        isEmbedded: isEmbeddedView,
+  2816	        isMobileLayout: isMobileLayoutActive,
+  2817	        advancedControls: advancedControlsUnlocked,
+  2818	        hasPOIs,
+  2819	        hasRegions,
+  2820	        hasRoads,
+  2821	        hasRoutes: Array.isArray(currentRoutes) && currentRoutes.length > 0,
+  2822	        hasValidScale,
+  2823	        hasBlurb: !!mapInfo.blurb,
+  2824	        hasLatLonBounds: !!mapInfo.latLonBounds,
+  2825	        allowGMToolkit,
+  2826	        atlasSearchCount: Array.isArray(atlasSearchIndex) ? atlasSearchIndex.length : 0,
+  2827	        routeCount: Array.isArray(currentRoutes) ? currentRoutes.length : 0,
+  2828	        toolkitVisible: toolkitPanelVisible,
+  2829	        gmVisible: gmPanelVisible
+  2830	    });
+  2831
+  2832	    toggleMarkersBtn.style.display = visibilityState.showMarkersButton ? 'block' : 'none';
+  2833	    searchControlContainer.style.display = visibilityState.showSearchControl ? 'block' : 'none';
+  2834	    toggleFiltersBtn.style.display = visibilityState.showFiltersButton ? 'block' : 'none';
+  2835	    measureToolBtn.style.display = visibilityState.showMeasureButton ? 'block' : 'none';
+  2836	    if (toggleSoundBtn) toggleSoundBtn.style.display = visibilityState.showSoundButton ? 'block' : 'none';
+  2837	    toggleBlurbBtn.style.display = visibilityState.showBlurbButton ? 'block' : 'none';
+  2838	    toggleCoordsBtn.style.display = visibilityState.showCoordsButton ? 'block' : 'none';
+  2839	    if (shareViewBtn) shareViewBtn.style.display = visibilityState.showShareButton ? 'block' : 'none';
+  2840	    if (toggleGMPanelBtn) toggleGMPanelBtn.style.display = visibilityState.showGMButton ? 'block' : 'none';
+  2841	    if (toggleToolkitPanelBtn) toggleToolkitPanelBtn.style.display = visibilityState.showToolkitButton ? 'block' : 'none';
+  2842	    if (toggleBtn) toggleBtn.hidden = isEmbeddedView || isMobileLayoutActive;
+  2843	    if (searchRefineFiltersBtn) searchRefineFiltersBtn.hidden = !visibilityState.showSearchFilterAction;
+  2844	    toggleCoordsBtn.setAttribute('aria-pressed', coordsDisplayEnabled ? 'true' : 'false');
+  2845	    if (routePanel) {
+  2846	        routePanel.style.display = visibilityState.showRoutePanel ||
+  2847	            (isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES)
+  2848	            ? 'block'
+  2849	            : 'none';
+  2850	    }
+  2851	    if (sessionToolkitPanel) {
+  2852	        sessionToolkitPanel.style.display = visibilityState.showToolkitPanel ||
+  2853	            (isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT)
+  2854	            ? 'block'
+  2855	            : 'none';
+  2856	    }
+  2857	    if (gmPill) {
+  2858	        gmPill.style.display = visibilityState.showGMPill ||
+  2859	            (isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM)
+  2860	            ? 'flex'
+  2861	            : 'none';
+  2862	    }
+  2863
+  2864	    syncMobileMapMeta(mapInfo, visibilityState);
+  2865	    syncMobileSheetActionState(visibilityState);
+  2866	    syncMobileExploreVisibility();
+  2867
+  2868	    if (!visibilityState.showSearchControl) {
+  2869	        closeSearchResults();
+  2870	        if (isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_SEARCH)) {
+  2871	            closeMobileSearchPanel({ restoreFocus: false });
+  2872	        }
+  2873	    }
+  2874
+  2875	    if (!visibilityState.showSearchFilterAction) {
+  2876	        if (filtersPanelVisible) {
+  2877	            filtersPanelVisible = false;
+  2878	            mobileFilterExpanded = false;
+  2879	            poiFilterContainer.classList.remove('visible');
+  2880	            toggleFiltersBtn.classList.remove('active');
+  2881	            toggleFiltersBtn.setAttribute('aria-expanded', 'false');
+  2882	        }
+  2883	        syncMobileFilterState();
+  2884	    }
+  2885
+  2886	    if (!advancedControlsUnlocked) {
+  2887	        if (filtersPanelVisible) {
+  2888	            if (!isMobileLayoutActive) {
+  2889	                filtersPanelVisible = false;
+  2890	                poiFilterContainer.classList.remove('visible');
+  2891	                toggleFiltersBtn.classList.remove('active');
+  2892	                toggleFiltersBtn.setAttribute('aria-expanded', 'false');
+  2893	            }
+  2894	        }
+  2895	        syncMobileFilterState();
+  2896	        setMapBlurbVisible(false);
+  2897	        coordinateDisplay.style.display = 'none';
+  2898	        setAuxPanelVisible(gmPill, false);
+  2899	        setAuxPanelVisible(sessionToolkitPanel, false);
+  2900	        if (activeFiltersContainer) {
+  2901	            activeFiltersContainer.style.display = 'none';
+  2902	            activeFiltersContainer.innerHTML = '';
+  2903	        }
+  2904	        updatePanelToggleButtons();
+  2905	        if (!isMobileLayoutActive) return;
+  2906	    }
+  2907
+  2908	    if (isMobileLayoutActive) {
+  2909	        setMapBlurbVisible(false);
+  2910	        coordinateDisplay.style.display = coordsDisplayEnabled && mapInfo.latLonBounds ? 'block' : 'none';
+  2911	        setAuxPanelVisible(routePanel, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES);
+  2912	        setAuxPanelVisible(gmPill, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM, 'flex');
+  2913	        setAuxPanelVisible(sessionToolkitPanel, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT);
+  2914	        if (activeFiltersContainer) {
+  2915	            activeFiltersContainer.style.display = 'none';
+  2916	            activeFiltersContainer.innerHTML = '';
+  2917	        }
+  2918	    }
+  2919
+  2920	    if (!isMobileLayoutActive && mapInfo.latLonBounds) {
+  2921	        coordinateDisplay.style.display = coordsDisplayEnabled ? 'block' : 'none';
+  2922	    } else {
+  2923	        coordinateDisplay.style.display = 'none';
+  2924	    }
+  2925	    updatePanelToggleButtons();
+  2926	    clampFloatingPanels();
+  2927	}
