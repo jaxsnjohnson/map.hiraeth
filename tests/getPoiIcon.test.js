@@ -61,4 +61,16 @@ const iconUnknown = getPoiIcon('NonExistentGroup');
 assert.equal(iconUnknown.iconUrl, 'unknown-icon.png', 'Should fallback to "Unknown" iconUrl');
 assert.equal(global.poiIconCache.has('Unknown'), true, 'Should store the fallback icon under "Unknown" key in cache');
 
+
+// Test 4: Verify all L.icon configuration properties
+assert.deepEqual(icon1.iconAnchor, [18, 47], 'Should have correct iconAnchor');
+assert.deepEqual(icon1.popupAnchor, [0, -40], 'Should have correct popupAnchor');
+assert.equal(icon1.className, 'poi-custom-icon', 'Should have correct className');
+
+// Test 5: Edge cases with null and undefined
+const iconNull = getPoiIcon(null);
+assert.equal(iconNull.iconUrl, 'unknown-icon.png', 'Should fallback to "Unknown" iconUrl for null');
+
+const iconUndefined = getPoiIcon();
+assert.equal(iconUndefined.iconUrl, 'unknown-icon.png', 'Should fallback to "Unknown" iconUrl for undefined');
 console.log('getPoiIcon regression checks passed');
