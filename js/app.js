@@ -6564,6 +6564,262 @@ measureToolBtn.addEventListener('click', (e) => {
 // REMOVED: Icons are now inline SVGs.
 
 // --- NEW: Data Loading Functions ---
+function setupKeyboardAndModalLogic() {
+    // --- Keyboard Shortcut & Modal Logic ---
+    const aboutModal = document.getElementById('about-modal');
+    const closeAboutModalBtn = document.getElementById('close-about-modal-btn');
+    const helpBtn = document.getElementById('help-btn');
+    const aboutLink = document.getElementById('about-link');
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    let lastFocus = null;
+
+    function toggleAboutModal(show, tabName = 'guide', source = 'manual') {
+        if (!aboutModal) return;
+
+        if (show) {
+            lastFocus = document.activeElement; // Save focus
+            aboutModal.style.display = 'flex';
+            // Small delay to allow display:flex to apply before adding visible class for transition
+            requestAnimationFrame(() => {
+                aboutModal.classList.add('visible');
+                // Focus management: Focus the active tab or first tab
+                const focusTarget = aboutModal.querySelector('.tab-btn.active') || aboutModal.querySelector('.tab-btn') || closeAboutModalBtn;
+                if (focusTarget) focusTarget.focus();
+            });
+            if (tabName) switchTab(tabName);
+            if (source !== 'onboarding_auto') {
+                unlockAdvancedControls('help_open');
+            }
+            trackAnalytics('help_opened', { tab: tabName, source });
+        } else {
+            aboutModal.classList.remove('visible');
+            setTimeout(() => {
+                aboutModal.style.display = 'none';
+                if (lastFocus) lastFocus.focus(); // Restore focus
+            }, 300); // Match transition duration
+        }
+    }
+
+    // Trap focus inside modal
+    if (aboutModal) {
+        aboutModal.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                const focusableContent = aboutModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                const first = focusableContent[0];
+                const last = focusableContent[focusableContent.length - 1];
+
+                if (e.shiftKey) { // Shift + Tab
+                    if (document.activeElement === first) {
+                        last.focus();
+                        e.preventDefault();
+                    }
+                } else { // Tab
+                    if (document.activeElement === last) {
+                        first.focus();
+                        e.preventDefault();
+                    }
+                }
+            }
+        });
+    }
+
+    openAboutModal = (tabName = 'guide', source = 'manual') => toggleAboutModal(true, tabName, source);
+    closeAboutModal = () => toggleAboutModal(false);
+    isAboutModalVisible = () => !!aboutModal && aboutModal.classList.contains('visible');
+
+    function switchTab(tabName) {
+        tabBtns.forEach(btn => {
+            if (btn.dataset.tab === tabName) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+        tabContents.forEach(content => {
+            if (content.id === `tab-${tabName}`) content.classList.add('active');
+            else content.classList.remove('active');
+        });
+    }
+
+    // Event Listeners for Modal
+    if (closeAboutModalBtn) {
+        closeAboutModalBtn.addEventListener('click', () => toggleAboutModal(false));
+    }
+
+    if (aboutModal) {
+        aboutModal.addEventListener('click', (e) => {
+            if (e.target === aboutModal) toggleAboutModal(false);
+        });
+    }
+
+    if (helpBtn) {
+        helpBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleAboutModal(true, 'guide', 'help_button');
+        });
+    }
+
+    if (aboutLink) {
+        aboutLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleAboutModal(true, 'lore', 'about_link');
+        });
+    }
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            switchTab(btn.dataset.tab);
+        });
+    });
+
+    if (onboardingOpenHelpBtn) {
+        onboardingOpenHelpBtn.addEventListener('click', () => {
+            safeSetStorage(UX_STORAGE_KEYS.onboardingSeen, 'true');
+            unlockAdvancedControls('onboarding_open_guide');
+            setOnboardingVisibility(false);
+            if (openAboutModal) openAboutModal('guide', 'onboarding_card');
+        });
+    }
+
+    if (onboardingDismissBtn) {
+        onboardingDismissBtn.addEventListener('click', () => {
+            safeSetStorage(UX_STORAGE_KEYS.onboardingSeen, 'true');
+            setOnboardingVisibility(false);
+            trackAnalytics('onboarding_dismissed');
+        });
+    }
+
+    if (shareRelayActionBtn) {
+        shareRelayActionBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            await relaySharedContext(shareRelayActionBtn);
+        });
+    }
+
+    if (shareRelayDismissBtn) {
+        shareRelayDismissBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            hideShareRelayPrompt('dismissed');
+        });
+    }
+
+    function isInputFocused() {
+        const activeElement = document.activeElement;
+        return activeElement && (activeElement.tagName === 'INPUT' ||
+            activeElement.tagName === 'TEXTAREA' ||
+            activeElement.isContentEditable);
+    }
+
+    document.addEventListener('keydown', function (e) {
+        // Handle modal display first
+        if (e.key === '?') {
+            if (!isInputFocused()) { // Don't trigger if typing '?' in search
+                e.preventDefault();
+                if (aboutModal) {
+                    const isVisible = aboutModal.classList.contains('visible');
+                    if (isVisible) toggleAboutModal(false, 'guide', 'shortcut');
+                    else toggleAboutModal(true, 'guide', 'shortcut');
+                }
+                return;
+            }
+        }
+
+        // If help modal is open, Esc should close it
+        if (aboutModal && aboutModal.classList.contains('visible') && e.key === 'Escape') {
+            e.preventDefault();
+            toggleAboutModal(false);
+            return;
+        }
+
+        // Handle Escape for other UI elements
+        if (e.key === 'Escape') {
+            if (map.getPanes().popupPane.firstChild) { // Check if a Leaflet popup is open
+                map.closePopup();
+                e.preventDefault();
+            } else if (filtersPanelVisible) {
+                toggleFilterPanel(); // Your existing function
+                e.preventDefault();
+            } else if (searchResultsContainer.style.display === 'block') {
+                closeSearchResults();
+                if (poiSearchInput) poiSearchInput.blur();
+                e.preventDefault();
+            } else if (isMeasuringMultiPoint) { // For the new measurement tool
+                finalizeMultiPointMeasure(false); // Cancel measurement
+                e.preventDefault();
+            }
+            // Add other Escape handlers here if needed
+            return; // Processed Escape, no further checks for this key press
+        }
+
+        // For other shortcuts, don't act if an input is focused or help modal is open
+        if (isInputFocused() || (aboutModal && aboutModal.classList.contains('visible'))) {
+            return;
+        }
+
+        // Non-input-focused shortcuts
+        switch (e.key.toLowerCase()) {
+            case '+':
+            case '=':
+                if (map) map.zoomIn();
+                e.preventDefault();
+                break;
+            case '-':
+                if (map) map.zoomOut();
+                e.preventDefault();
+                break;
+            case 's':
+                if (toggleBtn) toggleBtn.click(); // Toggle Sidebar
+                e.preventDefault();
+                break;
+            case 't':
+                if (themeToggle) themeToggle.click(); // Toggle Theme
+                e.preventDefault();
+                break;
+            case 'm':
+                if (measureToolBtn && measureToolBtn.style.display !== 'none') {
+                    measureToolBtn.click();
+                    e.preventDefault();
+                }
+                break;
+            case 'h': // Toggle Markers/Regions
+                if (toggleMarkersBtn && toggleMarkersBtn.style.display !== 'none') {
+                    toggleMarkersBtn.click();
+                    e.preventDefault();
+                }
+                break;
+            case 'f': // Toggle Filters Panel
+                if (toggleFiltersBtn && toggleFiltersBtn.style.display !== 'none') {
+                    toggleFiltersBtn.click();
+                    e.preventDefault();
+                }
+                break;
+            case '/':
+                if (searchControlContainer && searchControlContainer.style.display !== 'none' && poiSearchInput) {
+                    if (isMobileLayoutActive) {
+                        openMobileSheet({ mode: MOBILE_SURFACE_MODE_SEARCH, focusSearch: true, triggerButton: mobileSearchLauncherBtn });
+                    } else {
+                        poiSearchInput.focus();
+                    }
+                    e.preventDefault();
+                }
+                break;
+        }
+
+        // Example for Ctrl/Cmd + F (if you want to override browser find for your search)
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+            if (searchControlContainer && searchControlContainer.style.display !== 'none' && poiSearchInput) {
+                if (isMobileLayoutActive) {
+                    openMobileSheet({ mode: MOBILE_SURFACE_MODE_SEARCH, focusSearch: true, triggerButton: mobileSearchLauncherBtn });
+                } else {
+                    poiSearchInput.focus();
+                }
+                e.preventDefault(); // Prevent browser's default find
+            }
+        }
+    });
+
+
+
+}
+
 async function loadMapData() {
     try {
         // Show loading indicator for data fetch
@@ -6602,257 +6858,8 @@ async function loadMapData() {
             loadingIndicator.querySelector('.progress-bar').style.width = '100%';
         }
 
-        // --- Keyboard Shortcut & Modal Logic ---
-        const aboutModal = document.getElementById('about-modal');
-        const closeAboutModalBtn = document.getElementById('close-about-modal-btn');
-        const helpBtn = document.getElementById('help-btn');
-        const aboutLink = document.getElementById('about-link');
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-        let lastFocus = null;
-
-        function toggleAboutModal(show, tabName = 'guide', source = 'manual') {
-            if (!aboutModal) return;
-
-            if (show) {
-                lastFocus = document.activeElement; // Save focus
-                aboutModal.style.display = 'flex';
-                // Small delay to allow display:flex to apply before adding visible class for transition
-                requestAnimationFrame(() => {
-                    aboutModal.classList.add('visible');
-                    // Focus management: Focus the active tab or first tab
-                    const focusTarget = aboutModal.querySelector('.tab-btn.active') || aboutModal.querySelector('.tab-btn') || closeAboutModalBtn;
-                    if (focusTarget) focusTarget.focus();
-                });
-                if (tabName) switchTab(tabName);
-                if (source !== 'onboarding_auto') {
-                    unlockAdvancedControls('help_open');
-                }
-                trackAnalytics('help_opened', { tab: tabName, source });
-            } else {
-                aboutModal.classList.remove('visible');
-                setTimeout(() => {
-                    aboutModal.style.display = 'none';
-                    if (lastFocus) lastFocus.focus(); // Restore focus
-                }, 300); // Match transition duration
-            }
-        }
-
-        // Trap focus inside modal
-        if (aboutModal) {
-            aboutModal.addEventListener('keydown', function(e) {
-                if (e.key === 'Tab') {
-                    const focusableContent = aboutModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-                    const first = focusableContent[0];
-                    const last = focusableContent[focusableContent.length - 1];
-
-                    if (e.shiftKey) { // Shift + Tab
-                        if (document.activeElement === first) {
-                            last.focus();
-                            e.preventDefault();
-                        }
-                    } else { // Tab
-                        if (document.activeElement === last) {
-                            first.focus();
-                            e.preventDefault();
-                        }
-                    }
-                }
-            });
-        }
-
-        openAboutModal = (tabName = 'guide', source = 'manual') => toggleAboutModal(true, tabName, source);
-        closeAboutModal = () => toggleAboutModal(false);
-        isAboutModalVisible = () => !!aboutModal && aboutModal.classList.contains('visible');
-
-        function switchTab(tabName) {
-            tabBtns.forEach(btn => {
-                if (btn.dataset.tab === tabName) btn.classList.add('active');
-                else btn.classList.remove('active');
-            });
-            tabContents.forEach(content => {
-                if (content.id === `tab-${tabName}`) content.classList.add('active');
-                else content.classList.remove('active');
-            });
-        }
-
-        // Event Listeners for Modal
-        if (closeAboutModalBtn) {
-            closeAboutModalBtn.addEventListener('click', () => toggleAboutModal(false));
-        }
-
-        if (aboutModal) {
-            aboutModal.addEventListener('click', (e) => {
-                if (e.target === aboutModal) toggleAboutModal(false);
-            });
-        }
-
-        if (helpBtn) {
-            helpBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleAboutModal(true, 'guide', 'help_button');
-            });
-        }
-
-        if (aboutLink) {
-            aboutLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                toggleAboutModal(true, 'lore', 'about_link');
-            });
-        }
-
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                switchTab(btn.dataset.tab);
-            });
-        });
-
-        if (onboardingOpenHelpBtn) {
-            onboardingOpenHelpBtn.addEventListener('click', () => {
-                safeSetStorage(UX_STORAGE_KEYS.onboardingSeen, 'true');
-                unlockAdvancedControls('onboarding_open_guide');
-                setOnboardingVisibility(false);
-                if (openAboutModal) openAboutModal('guide', 'onboarding_card');
-            });
-        }
-
-        if (onboardingDismissBtn) {
-            onboardingDismissBtn.addEventListener('click', () => {
-                safeSetStorage(UX_STORAGE_KEYS.onboardingSeen, 'true');
-                setOnboardingVisibility(false);
-                trackAnalytics('onboarding_dismissed');
-            });
-        }
-
-        if (shareRelayActionBtn) {
-            shareRelayActionBtn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                await relaySharedContext(shareRelayActionBtn);
-            });
-        }
-
-        if (shareRelayDismissBtn) {
-            shareRelayDismissBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                hideShareRelayPrompt('dismissed');
-            });
-        }
-
-        function isInputFocused() {
-            const activeElement = document.activeElement;
-            return activeElement && (activeElement.tagName === 'INPUT' ||
-                activeElement.tagName === 'TEXTAREA' ||
-                activeElement.isContentEditable);
-        }
-
-        document.addEventListener('keydown', function (e) {
-            // Handle modal display first
-            if (e.key === '?') {
-                if (!isInputFocused()) { // Don't trigger if typing '?' in search
-                    e.preventDefault();
-                    if (aboutModal) {
-                        const isVisible = aboutModal.classList.contains('visible');
-                        if (isVisible) toggleAboutModal(false, 'guide', 'shortcut');
-                        else toggleAboutModal(true, 'guide', 'shortcut');
-                    }
-                    return;
-                }
-            }
-
-            // If help modal is open, Esc should close it
-            if (aboutModal && aboutModal.classList.contains('visible') && e.key === 'Escape') {
-                e.preventDefault();
-                toggleAboutModal(false);
-                return;
-            }
-
-            // Handle Escape for other UI elements
-            if (e.key === 'Escape') {
-                if (map.getPanes().popupPane.firstChild) { // Check if a Leaflet popup is open
-                    map.closePopup();
-                    e.preventDefault();
-                } else if (filtersPanelVisible) {
-                    toggleFilterPanel(); // Your existing function
-                    e.preventDefault();
-                } else if (searchResultsContainer.style.display === 'block') {
-                    closeSearchResults();
-                    if (poiSearchInput) poiSearchInput.blur();
-                    e.preventDefault();
-                } else if (isMeasuringMultiPoint) { // For the new measurement tool
-                    finalizeMultiPointMeasure(false); // Cancel measurement
-                    e.preventDefault();
-                }
-                // Add other Escape handlers here if needed
-                return; // Processed Escape, no further checks for this key press
-            }
-
-            // For other shortcuts, don't act if an input is focused or help modal is open
-            if (isInputFocused() || (aboutModal && aboutModal.classList.contains('visible'))) {
-                return;
-            }
-
-            // Non-input-focused shortcuts
-            switch (e.key.toLowerCase()) {
-                case '+':
-                case '=':
-                    if (map) map.zoomIn();
-                    e.preventDefault();
-                    break;
-                case '-':
-                    if (map) map.zoomOut();
-                    e.preventDefault();
-                    break;
-                case 's':
-                    if (toggleBtn) toggleBtn.click(); // Toggle Sidebar
-                    e.preventDefault();
-                    break;
-                case 't':
-                    if (themeToggle) themeToggle.click(); // Toggle Theme
-                    e.preventDefault();
-                    break;
-                case 'm':
-                    if (measureToolBtn && measureToolBtn.style.display !== 'none') {
-                        measureToolBtn.click();
-                        e.preventDefault();
-                    }
-                    break;
-                case 'h': // Toggle Markers/Regions
-                    if (toggleMarkersBtn && toggleMarkersBtn.style.display !== 'none') {
-                        toggleMarkersBtn.click();
-                        e.preventDefault();
-                    }
-                    break;
-                case 'f': // Toggle Filters Panel
-                    if (toggleFiltersBtn && toggleFiltersBtn.style.display !== 'none') {
-                        toggleFiltersBtn.click();
-                        e.preventDefault();
-                    }
-                    break;
-                case '/':
-                    if (searchControlContainer && searchControlContainer.style.display !== 'none' && poiSearchInput) {
-                        if (isMobileLayoutActive) {
-                            openMobileSheet({ mode: MOBILE_SURFACE_MODE_SEARCH, focusSearch: true, triggerButton: mobileSearchLauncherBtn });
-                        } else {
-                            poiSearchInput.focus();
-                        }
-                        e.preventDefault();
-                    }
-                    break;
-            }
-
-            // Example for Ctrl/Cmd + F (if you want to override browser find for your search)
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
-                if (searchControlContainer && searchControlContainer.style.display !== 'none' && poiSearchInput) {
-                    if (isMobileLayoutActive) {
-                        openMobileSheet({ mode: MOBILE_SURFACE_MODE_SEARCH, focusSearch: true, triggerButton: mobileSearchLauncherBtn });
-                    } else {
-                        poiSearchInput.focus();
-                    }
-                    e.preventDefault(); // Prevent browser's default find
-                }
-            }
-        });
-
+        // Setup UI logic
+        setupKeyboardAndModalLogic();
 
         // Now that data is loaded, initialize the application
         initializeApp();
