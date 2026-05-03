@@ -17,7 +17,6 @@ let loadingProgress = 0;
 let currentRegionGroup = null;
 let regionsVisible = true; // Overall region visibility toggle
 let currentRoadGroup = null; // Holds currently displayed road layers (and lines)
-// let regionFiltersPanelVisible = false; // No longer needed as separate panel
 
 let miniMapControl = null; // Global MiniMap control instance
 let miniMapControlMode = null;
