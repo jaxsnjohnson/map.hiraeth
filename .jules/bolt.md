@@ -30,3 +30,6 @@
 ## 2024-05-03 - String Operation Costs in Search Loops
 **Learning:** Frequent string allocations and normalizations (like `.trim().toLowerCase()`) in functions called within dense loops (like POI filtering/searching on every keystroke) cause measurable CPU overhead and memory churn, even for tiny strings.
 **Action:** Always memoize functions mapping small, bounded inputs (like POI types to their respective groups/icons) using a `Map` to completely bypass redundant string operations during render/filter loops.
+## 2024-05-03 - Optimize redundant string interpolation in rendering loops
+**Learning:** Found loops for `addRegionsToMap` and `addRoadsToMap` interpolating properties and variables into a `let popupContent = ""` local variable, which was never actually used since the code fell back to a shared helper `createPopupContent` just below. This dead code was evaluated multiple times at map init and feature render time.
+**Action:** Always verify if a manually generated string layout in a tight loop is actually utilized. Dead interpolations (especially invoking string helpers) can be entirely refactored away to reduce object allocation.
