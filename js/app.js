@@ -490,7 +490,7 @@ function createPopupContent(data, type) {
         if (type) {
             // Using an SVG icon to match the site theme
             const linkIcon = `<i class="ui-icon" data-lucide="link-2" aria-hidden="true"></i>`;
-            shareButtonHtml = ` <button class="share-btn" onclick="copyFeatureLink(this, '${type}', '${escapedName}')" title="Share this location">${linkIcon}</button>`;
+            shareButtonHtml = ` <button class="share-btn" onclick="copyFeatureLink(this, '${type}', '${escapedName}')" title="Share this location" aria-label="Share this location">${linkIcon}</button>`;
         }
 
         if (safeWikiHref) {

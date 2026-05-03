@@ -426,6 +426,7 @@
                 const selectButton = document.createElement('button');
                 selectButton.type = 'button';
                 selectButton.className = 'map-editor-tree-item';
+                selectButton.setAttribute('aria-label', `Select map: ${item.name || item.id}`);
                 if (item.id === state.currentMapId) {
                     selectButton.classList.add('active');
                 }
