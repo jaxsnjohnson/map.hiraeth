@@ -274,7 +274,7 @@ function formatPropertiesForPopup(properties, hasFollowingDescription) {
     return html;
 }
 
-function sanitizeTextForHtml(value) {
+function escapeHtml(value) {
     return String(value || '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
@@ -333,11 +333,11 @@ function resolveLinkedMapData(featureData) {
 }
 
 function createPoiTooltipContent(data) {
-    const safeName = sanitizeTextForHtml(data?.name || 'Unnamed Location');
+    const safeName = escapeHtml(data?.name || 'Unnamed Location');
     const rawType = String(data?.type || '').trim();
     if (!rawType) return safeName;
 
-    return `${safeName} <span class="poi-hover-tooltip-separator">•</span> ${sanitizeTextForHtml(rawType)}`;
+    return `${safeName} <span class="poi-hover-tooltip-separator">•</span> ${escapeHtml(rawType)}`;
 }
 
 function getPoiTooltipOptions() {
@@ -475,14 +475,14 @@ function applySearchParamsToCurrentMap(params = new URLSearchParams(window.locat
 
 // --- NEW: Unified Popup Content Generator ---
 function createPopupContent(data, type) {
-    const safePronunciation = data.pronunciation ? sanitizeTextForHtml(data.pronunciation) : '';
-    const safeSummary = data.summary ? sanitizeTextForHtml(data.summary) : '';
-    const safeDescription = data.description ? sanitizeTextForHtml(data.description) : '';
+    const safePronunciation = data.pronunciation ? escapeHtml(data.pronunciation) : '';
+    const safeSummary = data.summary ? escapeHtml(data.summary) : '';
+    const safeDescription = data.description ? escapeHtml(data.description) : '';
 
     // Part 1: Build the header, which is always visible.
     let headerHtml = '';
     if (data.name) {
-        const safeName = sanitizeTextForHtml(data.name);
+        const safeName = escapeHtml(data.name);
         const escapedName = escapeForSingleQuotedAttribute(data.name);
         const safeWikiHref = sanitizeWikiLinkForHref(data.wikiLink);
         let shareButtonHtml = '';
@@ -504,7 +504,7 @@ function createPopupContent(data, type) {
     const linkedMap = resolveLinkedMapData(data);
     if (linkedMap) {
         const escapedLinkedMapId = escapeForSingleQuotedAttribute(linkedMap.id);
-        const linkedMapName = sanitizeTextForHtml(linkedMap.name);
+        const linkedMapName = escapeHtml(linkedMap.name);
         const mapJumpIcon = `<i class="ui-icon" data-lucide="map" aria-hidden="true"></i>`;
         headerHtml += `<div class="popup-map-jump"><a href="#" onclick="return openLinkedMapFromPopup(event, '${escapedLinkedMapId}')" title="Open map: ${linkedMapName}">${mapJumpIcon}<span>Open ${linkedMapName} map</span></a></div>`;
     }
@@ -2532,15 +2532,6 @@ function computeSearchMatch(term, primaryText, secondaryText = '') {
     }
 
     return { matched: false, score: -1, matchedByContent: false };
-}
-
-function escapeHtml(value) {
-    return String(value || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
 }
 
 function highlightSearchText(text, term) {

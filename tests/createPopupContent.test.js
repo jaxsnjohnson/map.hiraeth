@@ -3,7 +3,7 @@ const fs = require('node:fs');
 
 const appSource = fs.readFileSync('js/app.js', 'utf8');
 const formatStart = appSource.indexOf('function formatPropertiesForPopup(properties, hasFollowingDescription) {');
-const sanitizeStart = appSource.indexOf('function sanitizeTextForHtml(value) {');
+const sanitizeStart = appSource.indexOf('function escapeHtml(value) {');
 const escapeStart = appSource.indexOf('function escapeForSingleQuotedAttribute(value) {');
 const wikiLinkStart = appSource.indexOf('function sanitizeWikiLinkForHref(value) {');
 const resolveStart = appSource.indexOf('function resolveLinkedMapData(featureData) {');
