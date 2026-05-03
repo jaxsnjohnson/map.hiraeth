@@ -4595,6 +4595,158 @@ function updateURLWithMapView() {
     }, 500); // 500ms debounce
 }
 
+
+// --- Helper Functions for loadMap ---
+
+function pushMapHistoryState(mapId, updateHash = true, stateTitle = '') {
+    if (!updateHash) return;
+    const newHash = generateHash(mapId || '', currentSidebarState);
+    const currentSearch = window.location.search;
+    const newUrl = buildAppUrlWithHash(newHash, currentSearch);
+    history.pushState(
+        {
+            mapId: mapId,
+            sidebarState: currentSidebarState,
+            search: currentSearch,
+            hash: newHash
+        },
+        stateTitle,
+        newUrl
+    );
+}
+
+function replaceMapHistoryState(mapId, updateHash = true) {
+    if (!updateHash) return;
+    const newHash = generateHash(mapId || '', currentSidebarState);
+    const currentSearch = window.location.search;
+    const newUrl = buildAppUrlWithHash(newHash, currentSearch);
+    if (window.location.href !== new URL(newUrl, window.location.href).href) {
+        history.replaceState(
+            {
+                mapId: mapId,
+                sidebarState: currentSidebarState,
+                search: currentSearch,
+                hash: newHash
+            },
+            '',
+            newUrl
+        );
+    }
+}
+
+function resetMapState() {
+    if (isMeasuring) toggleMeasurementTool();
+    if (isMeasuringMultiPoint) finalizeMultiPointMeasure(false);
+    measurementLayerGroup.clearLayers();
+
+    searchControlContainer.style.display = 'none';
+    closeSearchResults();
+    poiFilterContainer.classList.remove('visible');
+    toggleFiltersBtn.style.display = 'none';
+    filtersPanelVisible = false;
+    toggleFiltersBtn.classList.remove('active');
+    toggleFiltersBtn.setAttribute('aria-expanded', 'false');
+    poiSearchInput.value = '';
+    setSearchMeta('');
+    updateActiveFilterChips();
+
+    const dynamicFilters = poiFilterContainer.querySelectorAll('h3:not(:first-of-type), hr, .filter-item:not(:first-child)');
+    dynamicFilters.forEach(el => el.remove());
+    filterToggleAllCheckbox.checked = true;
+    filterToggleAllCheckbox.indeterminate = false;
+
+    if (currentImageLayer) map.removeLayer(currentImageLayer);
+    if (currentMapUnderlay) map.removeLayer(currentMapUnderlay);
+    removeMiniMapControl();
+    if (currentMarkerGroup) map.removeLayer(currentMarkerGroup);
+    if (currentRegionGroup) map.removeLayer(currentRegionGroup);
+    if (currentRoadGroup) map.removeLayer(currentRoadGroup);
+
+    currentImageLayer = null;
+    currentMapUnderlay = null;
+    currentMarkerGroup = null;
+    currentRegionGroup = null;
+    currentRoadGroup = null;
+    allMapMarkers = [];
+}
+
+function populatePOIsOnMap(selectedMap) {
+    const mapHeight = selectedMap.height;
+    const mapWidth = selectedMap.width;
+    visiblePointsCache.forEach(point => {
+        try {
+            if (point.coords && point.coords.length === 2 && !isNaN(point.coords[0]) && !isNaN(point.coords[1])) {
+                if (point.coords[0] >= 0 && point.coords[0] <= mapHeight && point.coords[1] >= 0 && point.coords[1] <= mapWidth) {
+                    const marker = L.marker(point.coords, {
+                        icon: getPoiIcon(getPoiGroup(point.type))
+                    });
+                    if (marker) {
+                        marker.poiData = point;
+                        marker.bindPopup(createPopupContent(point, 'poi'), { minWidth: 250 });
+                        marker.bindTooltip(createPoiTooltipContent(point), getPoiTooltipOptions());
+                        attachPoiTooltipBehavior(marker);
+                        allMapMarkers.push(marker);
+                    } else {
+                        console.warn(`L.marker returned undefined for POI: ${point.name || 'Unnamed POI'}`);
+                    }
+                } else {
+                    console.warn(`POI coordinates out of bounds for map ${selectedMap.name}: ${point.name}`, point.coords);
+                }
+            } else {
+                console.warn(`Invalid coordinates for POI: ${point.name}`, point.coords);
+            }
+        } catch (error) {
+            console.error(`Error processing POI: ${point ? (point.name || JSON.stringify(point)) : 'Unknown POI'}`, error);
+        }
+    });
+}
+
+function finalizeMapUI(requestedMapId, selectedMap) {
+    toggleMarkersBtn.classList.toggle('markers-hidden', !markersVisible);
+    toggleMarkersBtn.title = markersVisible ? 'Hide Markers & Regions' : 'Show Markers & Regions';
+    toggleMarkersBtn.setAttribute('aria-label', toggleMarkersBtn.title);
+
+    renderMapBlurbContent(selectedMap);
+    if (!selectedMap.blurb && !isMobileLayoutActive) {
+        setMapBlurbVisible(false);
+    }
+
+    updateCurrentControlVisibility(selectedMap);
+    updateActiveFilterChips();
+
+    document.querySelectorAll('#map-list .map-item, #map-list .folder-header').forEach(item => item.classList.remove('active'));
+    const activeMapItem = document.querySelector(`#map-list .map-item[data-map-id="${requestedMapId}"]`);
+    const activeFolderHeader = document.querySelector(`#map-list .folder-header[data-map-id="${requestedMapId}"]`);
+    if (activeMapItem) {
+        activeMapItem.classList.add('active');
+        let parent = activeMapItem.closest('.nested-list');
+        while (parent) {
+            const folderLi = parent.closest('.folder');
+            if (folderLi && folderLi.classList.contains('closed')) {
+                folderLi.classList.remove('closed');
+                syncFolderExpandedAria(folderLi);
+            }
+            parent = folderLi?.parentElement.closest('.nested-list');
+        }
+    } else if (activeFolderHeader) {
+        activeFolderHeader.classList.add('active');
+        const folderLi = activeFolderHeader.closest('.folder');
+        if (folderLi && folderLi.classList.contains('closed')) {
+            folderLi.classList.remove('closed');
+            syncFolderExpandedAria(folderLi);
+        }
+    }
+
+    currentlyLoadedMapId = requestedMapId;
+    safeSetStorage(UX_STORAGE_KEYS.lastMapId, requestedMapId);
+    loadingMapId = null;
+    schedulePostLoadPrefetch(selectedMap);
+
+    if (!isEmbeddedView && window.innerWidth <= MOBILE_LAYOUT_BREAKPOINT && !container.classList.contains('sidebar-collapsed')) {
+        setSidebarState('c', false);
+    }
+}
+
 // --- Function to Load/Switch Map ---
 async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     hideShareRelayPrompt('map_loading');
@@ -4639,39 +4791,7 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         }, 150);
     }
 
-    if (isMeasuring) toggleMeasurementTool();
-    if (isMeasuringMultiPoint) finalizeMultiPointMeasure(false);
-    measurementLayerGroup.clearLayers();
-
-    searchControlContainer.style.display = 'none';
-    closeSearchResults();
-    poiFilterContainer.classList.remove('visible');
-    toggleFiltersBtn.style.display = 'none';
-    filtersPanelVisible = false;
-    toggleFiltersBtn.classList.remove('active');
-    toggleFiltersBtn.setAttribute('aria-expanded', 'false');
-    poiSearchInput.value = '';
-    setSearchMeta('');
-    updateActiveFilterChips();
-
-    const dynamicFilters = poiFilterContainer.querySelectorAll('h3:not(:first-of-type), hr, .filter-item:not(:first-child)');
-    dynamicFilters.forEach(el => el.remove());
-    filterToggleAllCheckbox.checked = true;
-    filterToggleAllCheckbox.indeterminate = false;
-
-    if (currentImageLayer) map.removeLayer(currentImageLayer);
-    if (currentMapUnderlay) map.removeLayer(currentMapUnderlay);
-    removeMiniMapControl();
-    if (currentMarkerGroup) map.removeLayer(currentMarkerGroup);
-    if (currentRegionGroup) map.removeLayer(currentRegionGroup);
-    if (currentRoadGroup) map.removeLayer(currentRoadGroup);
-
-    currentImageLayer = null;
-    currentMapUnderlay = null;
-    currentMarkerGroup = null;
-    currentRegionGroup = null;
-    currentRoadGroup = null;
-    allMapMarkers = [];
+    resetMapState();
 
     if (!manifestEntry || manifestEntry.status === 'coming-soon') {
         console.warn('Attempted to load unavailable map:', mapId);
@@ -4698,44 +4818,14 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
                 loadingIndicator.style.display = 'none';
             }, 1400);
         }
-        if (updateHash) {
-            const newHash = generateHash('', currentSidebarState);
-            const currentSearch = window.location.search;
-            const newUrl = buildAppUrlWithHash(newHash, currentSearch);
-            history.pushState(
-                {
-                    mapId: null,
-                    sidebarState: currentSidebarState,
-                    search: currentSearch,
-                    hash: newHash
-                },
-                '',
-                newUrl
-            );
-        }
+        pushMapHistoryState(null, updateHash);
         trackAnalytics('map_load_failed', { mapId: requestedMapId, reason: 'unavailable' });
         return;
     }
 
     if (requestedMapId === currentlyLoadedMapId && currentImageLayer) {
         loadingMapId = null;
-        if (updateHash) {
-            const newHash = generateHash(requestedMapId, currentSidebarState);
-            const currentSearch = window.location.search;
-            const newUrl = buildAppUrlWithHash(newHash, currentSearch);
-            if (window.location.href !== new URL(newUrl, window.location.href).href) {
-                history.replaceState(
-                    {
-                        mapId: requestedMapId,
-                        sidebarState: currentSidebarState,
-                        search: currentSearch,
-                        hash: newHash
-                    },
-                    '',
-                    newUrl
-                );
-            }
-        }
+        replaceMapHistoryState(requestedMapId, updateHash);
         if (loadingIndicator) {
             if (loadingProgressInterval) clearInterval(loadingProgressInterval);
             loadingIndicator.style.display = 'none';
@@ -4799,21 +4889,7 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
             `Could not load "${selectedMap.name}". The map data is invalid. Press Retry after fixing map dimensions.`,
             { showSpinner: false, showProgress: false, showRetry: true }
         );
-        if (updateHash) {
-            const newHash = generateHash('', currentSidebarState);
-            const currentSearch = window.location.search;
-            const newUrl = buildAppUrlWithHash(newHash, currentSearch);
-            history.pushState(
-                {
-                    mapId: null,
-                    sidebarState: currentSidebarState,
-                    search: currentSearch,
-                    hash: newHash
-                },
-                '',
-                newUrl
-            );
-        }
+        pushMapHistoryState(null, updateHash);
         trackAnalytics('map_load_failed', { mapId: requestedMapId, reason: 'invalid_data' });
         return;
     }
@@ -4895,21 +4971,7 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         measureToolBtn.style.display = 'none';
         toggleFiltersBtn.style.display = 'none';
         searchControlContainer.style.display = 'none';
-        if (updateHash) {
-            const newHash = generateHash('', currentSidebarState);
-            const currentSearch = window.location.search;
-            const newUrl = buildAppUrlWithHash(newHash, currentSearch);
-            history.pushState(
-                {
-                    mapId: null,
-                    sidebarState: currentSidebarState,
-                    search: currentSearch,
-                    hash: newHash
-                },
-                '',
-                newUrl
-            );
-        }
+        pushMapHistoryState(null, updateHash);
         trackAnalytics('map_load_failed', { mapId: requestedMapId, reason: 'image_error' });
     });
 
@@ -4933,32 +4995,7 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     updateTravelTime();
     populateFilters(visiblePointsCache, requestedMapId);
 
-    visiblePointsCache.forEach(point => {
-        try {
-            if (point.coords && point.coords.length === 2 && !isNaN(point.coords[0]) && !isNaN(point.coords[1])) {
-                if (point.coords[0] >= 0 && point.coords[0] <= mapHeight && point.coords[1] >= 0 && point.coords[1] <= mapWidth) {
-                    const marker = L.marker(point.coords, {
-                        icon: getPoiIcon(getPoiGroup(point.type))
-                    });
-                    if (marker) {
-                        marker.poiData = point;
-                        marker.bindPopup(createPopupContent(point, 'poi'), { minWidth: 250 });
-                        marker.bindTooltip(createPoiTooltipContent(point), getPoiTooltipOptions());
-                        attachPoiTooltipBehavior(marker);
-                        allMapMarkers.push(marker);
-                    } else {
-                        console.warn(`L.marker returned undefined for POI: ${point.name || 'Unnamed POI'}`);
-                    }
-                } else {
-                    console.warn(`POI coordinates out of bounds for map ${selectedMap.name}: ${point.name}`, point.coords);
-                }
-            } else {
-                console.warn(`Invalid coordinates for POI: ${point.name}`, point.coords);
-            }
-        } catch (error) {
-            console.error(`Error processing POI: ${point ? (point.name || JSON.stringify(point)) : 'Unknown POI'}`, error);
-        }
-    });
+    populatePOIsOnMap(selectedMap);
 
     currentMarkerGroup.addTo(map);
     updateVisibleMarkersAndSearch();
@@ -4984,65 +5021,9 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         coordinateDisplay.style.display = 'none';
     }
 
-    toggleMarkersBtn.classList.toggle('markers-hidden', !markersVisible);
-    toggleMarkersBtn.title = markersVisible ? 'Hide Markers & Regions' : 'Show Markers & Regions';
-    toggleMarkersBtn.setAttribute('aria-label', toggleMarkersBtn.title);
+    finalizeMapUI(requestedMapId, selectedMap);
 
-    renderMapBlurbContent(selectedMap);
-    if (!selectedMap.blurb && !isMobileLayoutActive) {
-        setMapBlurbVisible(false);
-    }
-
-    updateCurrentControlVisibility(selectedMap);
-    updateActiveFilterChips();
-
-    document.querySelectorAll('#map-list .map-item, #map-list .folder-header').forEach(item => item.classList.remove('active'));
-    const activeMapItem = document.querySelector(`#map-list .map-item[data-map-id="${requestedMapId}"]`);
-    const activeFolderHeader = document.querySelector(`#map-list .folder-header[data-map-id="${requestedMapId}"]`);
-    if (activeMapItem) {
-        activeMapItem.classList.add('active');
-        let parent = activeMapItem.closest('.nested-list');
-        while (parent) {
-            const folderLi = parent.closest('.folder');
-            if (folderLi && folderLi.classList.contains('closed')) {
-                folderLi.classList.remove('closed');
-                syncFolderExpandedAria(folderLi);
-            }
-            parent = folderLi?.parentElement.closest('.nested-list');
-        }
-    } else if (activeFolderHeader) {
-        activeFolderHeader.classList.add('active');
-        const folderLi = activeFolderHeader.closest('.folder');
-        if (folderLi && folderLi.classList.contains('closed')) {
-            folderLi.classList.remove('closed');
-            syncFolderExpandedAria(folderLi);
-        }
-    }
-
-    currentlyLoadedMapId = requestedMapId;
-    safeSetStorage(UX_STORAGE_KEYS.lastMapId, requestedMapId);
-    loadingMapId = null;
-    schedulePostLoadPrefetch(selectedMap);
-
-    if (!isEmbeddedView && window.innerWidth <= MOBILE_LAYOUT_BREAKPOINT && !container.classList.contains('sidebar-collapsed')) {
-        setSidebarState('c', false);
-    }
-
-    if (updateHash) {
-        const newHash = generateHash(requestedMapId, currentSidebarState);
-        const currentSearch = window.location.search;
-        const newUrl = buildAppUrlWithHash(newHash, currentSearch);
-        history.pushState(
-            {
-                mapId: requestedMapId,
-                sidebarState: currentSidebarState,
-                search: currentSearch,
-                hash: newHash
-            },
-            selectedMap.name,
-            newUrl
-        );
-    }
+    pushMapHistoryState(requestedMapId, updateHash, selectedMap.name);
 }
 
 // --- Function to add regions to map ---
