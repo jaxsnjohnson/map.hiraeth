@@ -17,3 +17,7 @@
 ## 2025-05-27 - Debouncing Feature Form Input in Map Editor
 **Learning:** Similar to search inputs in `app.js` and `map-editor.js`, the `featureForm` in the map editor called `updateSelectedFeatureFromForm` on every keystroke (`input` event). This caused a full re-render of feature lists (`renderFeatureLists`) and map layers (`renderMapLayers(false)`) on each character typed in properties like `coordY`, `coordX`, `color`, `weight`, etc., causing noticeable UI lag on complex maps.
 **Action:** Identify forms or specific input fields that trigger synchronous DOM-heavy re-renders and proactively apply a `debounce` wrapper (e.g., 300ms) to their `input` event handlers to batch execution while maintaining the immediate `change` event for final confirmation (e.g., on blur).
+
+## 2024-05-27 - Skipping Unnecessary Layer Iteration
+**Learning:** In combined filter-and-search loops (like `updateVisibleMarkersAndSearch`), iterating over entire layer collections (like regions and lines) and extracting properties for search evaluation is extremely expensive on large maps, even if the fuzzy matching string manipulation itself is conditionally skipped.
+**Action:** When evaluating search results, hoist the conditional check for whether search is active (`if (searchFiltersCurrentMap)`) completely *outside* the `.eachLayer()` loops for map features whose visibility is handled elsewhere (like regions and lines). This turns an O(N) operation into an O(1) bypass when the user is only toggling filters.
