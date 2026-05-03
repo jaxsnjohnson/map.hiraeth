@@ -2510,6 +2510,7 @@ function computeSearchMatch(term, primaryText, secondaryText = '') {
 
     // ⚡ Bolt: Defer expensive string normalization on potentially large secondary text
     // until after all primary fast-paths fail
+    // ⚡ Bolt: Defer normalization of potentially large secondary text until we confirm it's needed
     const normalizedSecondary = normalizeSearchValue(secondaryText);
     if (normalizedSecondary) {
         if (normalizedSecondary.includes(term)) {
@@ -3380,33 +3381,35 @@ function updateVisibleMarkersAndSearch() {
     });
     const allRegionTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
 
-    if (currentRegionGroup) {
-        currentRegionGroup.eachLayer((layer) => {
-            const region = layer.regionData;
-            if (!region || !region.name) return;
+    if (searchFiltersCurrentMap) {
+        if (currentRegionGroup) {
+            currentRegionGroup.eachLayer((layer) => {
+                const region = layer.regionData;
+                if (!region || !region.name) return;
 
-            const regionFilterValue = region.value || region.name;
-            const typeMatch = allRegionTypesChecked || activeRegionTypeFilters.has(regionFilterValue);
+                const regionFilterValue = region.value || region.name;
+                const typeMatch = allRegionTypesChecked || activeRegionTypeFilters.has(regionFilterValue);
 
-            // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty).
-            if (searchFiltersCurrentMap && typeMatch) {
-                const match = computeSearchMatch(searchTerm, region.name, `${region.summary || ''} ${region.description || ''}`);
+                // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty).
+                if (typeMatch) {
+                    const match = computeSearchMatch(searchTerm, region.name, `${region.summary || ''} ${region.description || ''}`);
 
-                if (match.matched) {
-                    results.push({
-                        group: 'region',
-                        badge: 'Region',
-                        title: region.name,
-                        subtitle: match.matchedByContent ? `Matched in ${region.type || 'region'} description` : (region.value || region.type || 'Region'),
-                        score: match.score,
-                        onSelect: () => {
-                            map.fitBounds(layer.getBounds(), { maxZoom: Math.max(map.getZoom(), 1) });
-                            layer.openPopup();
-                        }
-                    });
+                    if (match.matched) {
+                        results.push({
+                            group: 'region',
+                            badge: 'Region',
+                            title: region.name,
+                            subtitle: match.matchedByContent ? `Matched in ${region.type || 'region'} description` : (region.value || region.type || 'Region'),
+                            score: match.score,
+                            onSelect: () => {
+                                map.fitBounds(layer.getBounds(), { maxZoom: Math.max(map.getZoom(), 1) });
+                                layer.openPopup();
+                            }
+                        });
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     const activeLineTypeFilters = new Set();
@@ -3415,33 +3418,35 @@ function updateVisibleMarkersAndSearch() {
     });
     const allLineTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
 
-    if (currentRoadGroup) {
-        currentRoadGroup.eachLayer((layer) => {
-            const line = layer.roadData;
-            if (!line) return;
-            const lineName = line.name || line.type || 'Unnamed Line';
-            const lineType = line.type || 'Unnamed Road Type';
-            const typeMatch = allLineTypesChecked || activeLineTypeFilters.has(lineType);
+    if (searchFiltersCurrentMap) {
+        if (currentRoadGroup) {
+            currentRoadGroup.eachLayer((layer) => {
+                const line = layer.roadData;
+                if (!line) return;
+                const lineName = line.name || line.type || 'Unnamed Line';
+                const lineType = line.type || 'Unnamed Road Type';
+                const typeMatch = allLineTypesChecked || activeLineTypeFilters.has(lineType);
 
-            // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty).
-            if (searchFiltersCurrentMap && typeMatch) {
-                const match = computeSearchMatch(searchTerm, lineName, `${lineType} ${line.summary || ''} ${line.description || ''}`);
+                // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty).
+                if (typeMatch) {
+                    const match = computeSearchMatch(searchTerm, lineName, `${lineType} ${line.summary || ''} ${line.description || ''}`);
 
-                if (match.matched) {
-                    results.push({
-                        group: 'line',
-                        badge: 'Line',
-                        title: lineName,
-                        subtitle: match.matchedByContent ? `Matched in ${lineType.toLowerCase()} details` : lineType,
-                        score: match.score,
-                        onSelect: () => {
-                            map.fitBounds(layer.getBounds(), { maxZoom: Math.max(map.getZoom(), 1) });
-                            if (layer.getPopup()) layer.openPopup();
-                        }
-                    });
+                    if (match.matched) {
+                        results.push({
+                            group: 'line',
+                            badge: 'Line',
+                            title: lineName,
+                            subtitle: match.matchedByContent ? `Matched in ${lineType.toLowerCase()} details` : lineType,
+                            score: match.score,
+                            onSelect: () => {
+                                map.fitBounds(layer.getBounds(), { maxZoom: Math.max(map.getZoom(), 1) });
+                                if (layer.getPopup()) layer.openPopup();
+                            }
+                        });
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     if (searchFiltersCurrentMap && currentRoutes && currentRoutes.length > 0) {
