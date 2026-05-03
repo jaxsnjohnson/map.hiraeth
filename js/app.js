@@ -5039,27 +5039,12 @@ function addRegionsToMap(mapId) {
             interactive: true // Make regions clickable
         });
 
-        let popupContent = '';
-        if (region.wikiLink) {
-            popupContent += `<h3><a href="${region.wikiLink}" target="_blank" rel="noopener noreferrer" title="Visit wiki page for ${region.name}">${region.name}</a></h3>`;
-        } else {
-            popupContent += `<h3>${region.name}</h3>`;
+        const popupHtml = createPopupContent(region, 'region');
+        if (popupHtml) {
+            polygon.bindPopup(popupHtml, {
+                minWidth: 250 // Set a min-width for consistency
+            });
         }
-
-        // NEW: Display type and value in popup
-        if (region.type && region.value) {
-            popupContent += `<p><em>${region.type}: ${region.value}</em></p>`;
-        } else if (region.type) {
-            popupContent += `<p><em>Type: ${region.type}</em></p>`;
-        }
-
-        popupContent += formatPropertiesForPopup(region.properties, !!region.description);
-        if (region.description) {
-            popupContent += `<p>${region.description}</p>`;
-        }
-        polygon.bindPopup(createPopupContent(region, 'region'), {
-            minWidth: 250 // Set a min-width for consistency
-        });
 
         polygon.regionData = region; // Store data for filtering
         currentRegionGroup.addLayer(polygon);
@@ -5659,28 +5644,9 @@ function addRoadsToMap(mapId) {
         // Store original opacity for filtering
         polyline.originalOpacity = road.opacity || 0.8;
 
-        let popupContent = '';
-        if (road.name) {
-            if (road.wikiLink) {
-                popupContent += `<h3><a href="${road.wikiLink}" target="_blank" rel="noopener noreferrer" title="Visit wiki page for ${road.name}">${road.name}</a></h3>`;
-            } else {
-                popupContent += `<h3>${road.name}</h3>`;
-            }
-        }
-
-        // NEW: Display type and value in popup
-        if (road.type) {
-            const typeString = road.type.charAt(0).toUpperCase() + road.type.slice(1);
-            popupContent += `<p><em>Type: ${typeString}</em></p>`;
-        }
-
-        popupContent += formatPropertiesForPopup(road.properties, !!road.description);
-        if (road.description) {
-            popupContent += `<p>${road.description}</p>`;
-        }
-
-        if (popupContent) {
-            polyline.bindPopup(createPopupContent(road, 'line'), { // Use unified creator
+        const popupHtml = createPopupContent(road, 'line');
+        if (popupHtml) {
+            polyline.bindPopup(popupHtml, { // Use unified creator
                 minWidth: 250
             });
         }
