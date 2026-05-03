@@ -5155,177 +5155,186 @@ function getMapPresetGroupLabel(item) {
     return String(item?.group || item?.category || '').trim();
 }
 
+function createSidebarFolderItem(item) {
+    const listItem = document.createElement('li');
+    listItem.classList.add('folder', 'closed');
+    const header = document.createElement('div');
+    header.classList.add('folder-header');
+    const folderName = item.name || 'Unnamed Folder!';
+    const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+    const isComingSoon = item.status === 'coming-soon';
+    const isLoadable = isRenderableMapEntry(item);
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.type = 'button';
+    toggleBtn.className = 'folder-toggle-btn';
+    toggleBtn.setAttribute('aria-label', `Toggle folder: ${folderName}`);
+    toggleBtn.innerHTML = `
+        <span class="sidebar-chevron-icon" aria-hidden="true">
+            <i class="ui-icon" data-lucide="chevron-right"></i>
+        </span>
+    `;
+    if (!hasChildren) {
+        toggleBtn.disabled = true;
+        toggleBtn.setAttribute('aria-hidden', 'true');
+        toggleBtn.tabIndex = -1;
+    }
+
+    const mainAction = document.createElement('button');
+    mainAction.type = 'button';
+    mainAction.className = 'folder-main-action';
+    if (isLoadable) {
+        const loadIcon = document.createElement('span');
+        loadIcon.className = 'folder-load-icon';
+        loadIcon.setAttribute('aria-hidden', 'true');
+        loadIcon.innerHTML = `<i class="ui-icon" data-lucide="map-pin"></i>`;
+        mainAction.appendChild(loadIcon);
+    }
+    const mainActionLabel = document.createElement('span');
+    mainActionLabel.className = 'folder-main-action-label';
+    mainActionLabel.textContent = `${folderName}${isComingSoon ? ' (Soon)' : ''}`;
+    mainAction.appendChild(mainActionLabel);
+
+    const nestedList = document.createElement('ul');
+    nestedList.classList.add('nested-list');
+
+    if (hasChildren) {
+        populateSidebar(nestedList, item.children);
+    }
+
+    const toggleFolderOpen = (e) => {
+        e.stopPropagation();
+        if (!hasChildren) return;
+        listItem.classList.toggle('closed');
+        syncFolderExpandedAria(listItem);
+    };
+
+    toggleBtn.addEventListener('click', toggleFolderOpen);
+    toggleBtn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleFolderOpen(e);
+        }
+    });
+
+    if (isLoadable) {
+        header.dataset.mapId = item.id;
+        mainAction.title = `Load map: ${folderName}`;
+        mainAction.setAttribute('aria-label', `Load map: ${folderName}`);
+        mainAction.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!isMobileLayoutActive) {
+                unlockAdvancedControls('map_selected');
+            }
+            navigateToMap(item.id);
+        });
+        mainAction.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                mainAction.click();
+            }
+        });
+    } else if (isComingSoon) {
+        header.classList.add('coming-soon');
+        mainAction.title = `${folderName} - Coming Soon!`;
+        mainAction.setAttribute('aria-label', `${folderName} coming soon`);
+        mainAction.addEventListener('click', (e) => {
+            e.stopPropagation();
+            alert(`The map "${folderName}" is coming soon!`);
+        });
+        mainAction.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                mainAction.click();
+            }
+        });
+    } else {
+        mainAction.title = `Toggle folder: ${folderName}`;
+        mainAction.setAttribute('aria-label', `Toggle folder: ${folderName}`);
+        mainAction.addEventListener('click', toggleFolderOpen);
+        mainAction.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleFolderOpen(e);
+            }
+        });
+    }
+    syncFolderExpandedAria(listItem);
+    header.appendChild(toggleBtn);
+    header.appendChild(mainAction);
+    listItem.appendChild(header);
+    listItem.appendChild(nestedList);
+
+    return listItem;
+}
+
+function createSidebarMapItem(item) {
+    const listItem = document.createElement('li');
+    listItem.classList.add('map-item');
+    listItem.textContent = item.name || 'Unnamed Map!'; // Add fallback text
+    listItem.dataset.mapId = item.id;
+    listItem.tabIndex = 0;
+    listItem.setAttribute('role', 'button');
+
+    if (item.status === 'coming-soon') {
+        listItem.classList.add('coming-soon');
+        listItem.textContent = `${item.name || 'Unnamed Map!'} (Soon)`;
+        listItem.title = `${item.name || 'Coming Soon!'} - Coming Soon!`;
+        listItem.addEventListener('click', (e) => {
+            e.stopPropagation();
+            alert(`The map "${item.name || 'this map'}" is coming soon!`);
+        });
+        listItem.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                listItem.click();
+            }
+        });
+    } else if (!isRenderableMapEntry(item)) {
+        listItem.classList.add('coming-soon');
+        listItem.textContent = `${item.name || 'Unnamed Map!'} (Unavailable)`;
+        listItem.title = `${item.name || 'This map'} is not currently available`;
+        listItem.addEventListener('click', (e) => {
+            e.stopPropagation();
+            alert(`The map "${item.name || 'this map'}" is not currently available.`);
+        });
+        listItem.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                listItem.click();
+            }
+        });
+    } else {
+        listItem.title = `Load map: ${item.name || 'Unnamed Map!'}`;
+        listItem.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!isMobileLayoutActive) {
+                unlockAdvancedControls('map_selected');
+            }
+            navigateToMap(item.id);
+        });
+        listItem.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                listItem.click();
+            }
+        });
+    }
+    return listItem;
+}
+
+function createSidebarListItem(item) {
+    if (item.type === 'folder') {
+        return createSidebarFolderItem(item);
+    } else {
+        return createSidebarMapItem(item);
+    }
+}
+
 function populateSidebar(parentElement, items) {
     parentElement.innerHTML = '';
     const sourceItems = Array.isArray(items) ? items : [];
     const hasGroupedItems = sourceItems.some((item) => getMapPresetGroupLabel(item));
-
-    function createSidebarListItem(item) {
-        const listItem = document.createElement('li');
-
-        if (item.type === 'folder') {
-            listItem.classList.add('folder', 'closed');
-            const header = document.createElement('div');
-            header.classList.add('folder-header');
-            const folderName = item.name || 'Unnamed Folder!';
-            const hasChildren = Array.isArray(item.children) && item.children.length > 0;
-            const isComingSoon = item.status === 'coming-soon';
-            const isLoadable = isRenderableMapEntry(item);
-
-            const toggleBtn = document.createElement('button');
-            toggleBtn.type = 'button';
-            toggleBtn.className = 'folder-toggle-btn';
-            toggleBtn.setAttribute('aria-label', `Toggle folder: ${folderName}`);
-            toggleBtn.innerHTML = `
-                <span class="sidebar-chevron-icon" aria-hidden="true">
-                    <i class="ui-icon" data-lucide="chevron-right"></i>
-                </span>
-            `;
-            if (!hasChildren) {
-                toggleBtn.disabled = true;
-                toggleBtn.setAttribute('aria-hidden', 'true');
-                toggleBtn.tabIndex = -1;
-            }
-
-            const mainAction = document.createElement('button');
-            mainAction.type = 'button';
-            mainAction.className = 'folder-main-action';
-            if (isLoadable) {
-                const loadIcon = document.createElement('span');
-                loadIcon.className = 'folder-load-icon';
-                loadIcon.setAttribute('aria-hidden', 'true');
-                loadIcon.innerHTML = `<i class="ui-icon" data-lucide="map-pin"></i>`;
-                mainAction.appendChild(loadIcon);
-            }
-            const mainActionLabel = document.createElement('span');
-            mainActionLabel.className = 'folder-main-action-label';
-            mainActionLabel.textContent = `${folderName}${isComingSoon ? ' (Soon)' : ''}`;
-            mainAction.appendChild(mainActionLabel);
-
-            const nestedList = document.createElement('ul');
-            nestedList.classList.add('nested-list');
-
-            if (hasChildren) {
-                populateSidebar(nestedList, item.children);
-            }
-
-            const toggleFolderOpen = (e) => {
-                e.stopPropagation();
-                if (!hasChildren) return;
-                listItem.classList.toggle('closed');
-                syncFolderExpandedAria(listItem);
-            };
-
-            toggleBtn.addEventListener('click', toggleFolderOpen);
-            toggleBtn.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    toggleFolderOpen(e);
-                }
-            });
-
-            if (isLoadable) {
-                header.dataset.mapId = item.id;
-                mainAction.title = `Load map: ${folderName}`;
-                mainAction.setAttribute('aria-label', `Load map: ${folderName}`);
-                mainAction.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (!isMobileLayoutActive) {
-                        unlockAdvancedControls('map_selected');
-                    }
-                    navigateToMap(item.id);
-                });
-                mainAction.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        mainAction.click();
-                    }
-                });
-            } else if (isComingSoon) {
-                header.classList.add('coming-soon');
-                mainAction.title = `${folderName} - Coming Soon!`;
-                mainAction.setAttribute('aria-label', `${folderName} coming soon`);
-                mainAction.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    alert(`The map "${folderName}" is coming soon!`);
-                });
-                mainAction.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        mainAction.click();
-                    }
-                });
-            } else {
-                mainAction.title = `Toggle folder: ${folderName}`;
-                mainAction.setAttribute('aria-label', `Toggle folder: ${folderName}`);
-                mainAction.addEventListener('click', toggleFolderOpen);
-                mainAction.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        toggleFolderOpen(e);
-                    }
-                });
-            }
-            syncFolderExpandedAria(listItem);
-            header.appendChild(toggleBtn);
-            header.appendChild(mainAction);
-            listItem.appendChild(header);
-            listItem.appendChild(nestedList);
-
-        } else { // Map Item
-            listItem.classList.add('map-item');
-            listItem.textContent = item.name || 'Unnamed Map!'; // Add fallback text
-            listItem.dataset.mapId = item.id;
-            listItem.tabIndex = 0;
-            listItem.setAttribute('role', 'button');
-
-            if (item.status === 'coming-soon') {
-                listItem.classList.add('coming-soon');
-                listItem.textContent = `${item.name || 'Unnamed Map!'} (Soon)`;
-                listItem.title = `${item.name || 'Coming Soon!'} - Coming Soon!`;
-                listItem.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    alert(`The map "${item.name || 'this map'}" is coming soon!`);
-                });
-                listItem.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        listItem.click();
-                    }
-                });
-            } else if (!isRenderableMapEntry(item)) {
-                listItem.classList.add('coming-soon');
-                listItem.textContent = `${item.name || 'Unnamed Map!'} (Unavailable)`;
-                listItem.title = `${item.name || 'This map'} is not currently available`;
-                listItem.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    alert(`The map "${item.name || 'this map'}" is not currently available.`);
-                });
-                listItem.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        listItem.click();
-                    }
-                });
-            } else {
-                listItem.title = `Load map: ${item.name || 'Unnamed Map!'}`;
-                listItem.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (!isMobileLayoutActive) {
-                        unlockAdvancedControls('map_selected');
-                    }
-                    navigateToMap(item.id);
-                });
-                listItem.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        listItem.click();
-                    }
-                });
-            }
-        }
-        return listItem;
-    }
 
     if (!hasGroupedItems) {
         sourceItems.forEach((item) => {
