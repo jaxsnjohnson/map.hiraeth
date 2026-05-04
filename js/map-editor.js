@@ -677,8 +677,8 @@
         try {
             if (state.selectedFeature.mode === 'points') {
                 if (field === 'coordY' || field === 'coordX') {
-                    const nextY = document.querySelector('[data-field="coordY"]').value;
-                    const nextX = document.querySelector('[data-field="coordX"]').value;
+                    const nextY = field === 'coordY' ? event.target.value : dom.featureForm.querySelector('[data-field="coordY"]').value;
+                    const nextX = field === 'coordX' ? event.target.value : dom.featureForm.querySelector('[data-field="coordX"]').value;
                     feature.coords = [roundCoordinate(nextY), roundCoordinate(nextX)];
                 } else if (field === 'properties') {
                     feature.properties = parseJsonObject(event.target.value);
