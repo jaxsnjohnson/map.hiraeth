@@ -1442,7 +1442,13 @@ function renderMapBlurbContent(mapInfo = getMapRuntimeData(currentlyLoadedMapId)
     if (!mapBlurbElement) return;
     const safeName = escapeHtml(mapInfo?.name || 'Atlas');
     const defaultCopy = '<p>Open the guide for controls, shortcuts, and atlas help.</p>';
-    const blurbBody = mapInfo?.blurb || defaultCopy;
+
+    // Security Fix: Sanitize HTML content containing map blurbs before inserting it into the DOM
+    // to prevent Stored XSS via malicious injected tags or event handlers.
+    // If DOMPurify fails to load, we fail closed by escaping the HTML to prevent XSS.
+    const blurbBody = typeof DOMPurify !== 'undefined'
+        ? DOMPurify.sanitize(mapInfo?.blurb || defaultCopy)
+        : escapeHtml(mapInfo?.blurb || defaultCopy);
 
     if (isMobileLayoutActive) {
         mapBlurbElement.innerHTML = `
@@ -1458,7 +1464,11 @@ function renderMapBlurbContent(mapInfo = getMapRuntimeData(currentlyLoadedMapId)
         return;
     }
 
-    mapBlurbElement.innerHTML = mapInfo?.blurb || '';
+    const desktopBlurb = typeof DOMPurify !== 'undefined'
+        ? DOMPurify.sanitize(mapInfo?.blurb || '')
+        : escapeHtml(mapInfo?.blurb || '');
+
+    mapBlurbElement.innerHTML = desktopBlurb;
 }
 
 function getMobileMapListEntryCount() {
