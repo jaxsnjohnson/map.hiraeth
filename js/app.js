@@ -6168,7 +6168,7 @@ function updateVisibleLines() {
     if (!currentRoadGroup) return;
 
     const typeFilters = poiFilterContainer.querySelectorAll('.line-type-filter:checked');
-    const typeFilterValues = Array.from(typeFilters).map(cb => cb.value);
+    const typeFilterValues = new Set(Array.from(typeFilters, cb => cb.value));
     const allTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
 
     currentRoadGroup.eachLayer(layer => {
@@ -6176,7 +6176,7 @@ function updateVisibleLines() {
         if (!road) return;
 
         const roadType = road.type || "Unnamed Road Type"; // Match the logic in populateFilters
-        const typeMatch = allTypesChecked || typeFilterValues.includes(roadType);
+        const typeMatch = allTypesChecked || typeFilterValues.has(roadType);
 
         // Lines are always "visible" in terms of the master toggle (markersVisible)
         // Their appearance is solely based on type filters.
