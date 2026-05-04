@@ -3734,7 +3734,8 @@ function renderEncounterTableList(tableId) {
         const item = document.createElement('div');
         item.className = 'list-item';
         const weight = entry.weight || 1;
-        item.innerHTML = `<span class="encounter-weight">x${weight}</span> ${entry.result || `Entry ${index + 1}`}`;
+        const safeResult = escapeHtml(entry.result || `Entry ${index + 1}`);
+        item.innerHTML = `<span class="encounter-weight">x${weight}</span> ${safeResult}`;
         encounterTableList.appendChild(item);
     });
 }
