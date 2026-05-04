@@ -4,6 +4,7 @@ const {
     applyMapSettings,
     buildFeatureSelectionKey,
     buildFlatManifestEntries,
+    buildManifestTreeFromFlatEntries,
     createRepoFileBackedMapSource,
     detectLineCollectionKey,
     filterMapTree,
@@ -636,6 +637,12 @@ assert.equal(
         }),
         /Missing required file: maps\/missing-child\.webp/
     );
+
+    assert.deepEqual(buildManifestTreeFromFlatEntries(null), []);
+    assert.deepEqual(buildManifestTreeFromFlatEntries(undefined), []);
+    assert.deepEqual(buildManifestTreeFromFlatEntries({}), []);
+    assert.deepEqual(buildManifestTreeFromFlatEntries('not an array'), []);
+    assert.deepEqual(buildManifestTreeFromFlatEntries(123), []);
 
     console.log('editor shared helper regression checks passed');
 })().catch((error) => {
