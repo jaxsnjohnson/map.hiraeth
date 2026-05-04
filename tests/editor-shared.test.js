@@ -10,6 +10,7 @@ const {
     findMapRecursive,
     normalizeManifestTree,
     normalizePoint,
+    createUnavailableMapEntry,
     resolveFileBackedMapDocument,
     resolveFeatureIndexFromSelection,
     serializeEditorState,
@@ -368,6 +369,30 @@ const unchangedNestedStringManifest = serializeManifestState({
     }
 });
 assert.deepEqual(unchangedNestedStringManifest, slimManifest);
+
+const entryWithBoth = createUnavailableMapEntry('test-id', 'Test error message');
+assert.equal(entryWithBoth.id, 'test-id');
+assert.equal(entryWithBoth.name, '(Unavailable: test-id)');
+assert.equal(entryWithBoth.status, 'coming-soon');
+assert.equal(entryWithBoth.error, 'Test error message');
+assert.equal(entryWithBoth.unselectable, true);
+
+const entryWithIdOnly = createUnavailableMapEntry('only-id');
+assert.equal(entryWithIdOnly.id, 'only-id');
+assert.equal(entryWithIdOnly.name, '(Unavailable: only-id)');
+assert.equal(entryWithIdOnly.error, 'Failed to load map data.');
+
+const entryWithEmptyId = createUnavailableMapEntry('');
+assert.equal(entryWithEmptyId.id, '');
+assert.equal(entryWithEmptyId.name, '(Unavailable: Unknown ID)');
+assert.equal(entryWithEmptyId.error, 'Failed to load map data.');
+
+const entryWithNullId = createUnavailableMapEntry(null);
+assert.equal(entryWithNullId.id, '');
+assert.equal(entryWithNullId.name, '(Unavailable: Unknown ID)');
+
+const entryWithEmptyError = createUnavailableMapEntry('test-id', '');
+assert.equal(entryWithEmptyError.error, 'Failed to load map data.');
 
 const pointSelection = buildFeatureSelectionKey('points', { name: 'Old Dock' });
 assert.equal(

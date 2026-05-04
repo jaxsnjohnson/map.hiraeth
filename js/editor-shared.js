@@ -258,9 +258,10 @@
         const normalizedId = String(id || '').trim();
         return {
             id: normalizedId,
-            name: normalizedId || 'Unavailable Map',
+            name: `(Unavailable: ${normalizedId || 'Unknown ID'})`,
             status: 'coming-soon',
-            error: String(error || `Could not resolve map "${normalizedId}".`)
+            error: error || 'Failed to load map data.',
+            unselectable: true,
         };
     }
 
