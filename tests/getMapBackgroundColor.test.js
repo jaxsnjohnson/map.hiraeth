@@ -69,4 +69,16 @@ global.currentEffectiveTheme = 'dark';
 result = getMapBackgroundColor({});
 assert.equal(result, '#customDark');
 
+// Test 8: returns default colors when getConfigValue is undefined
+global.getConfigValue = undefined;
+eval(fnSource); // Re-evaluate so configuredMapBackgroundColors falls back to DEFAULT_MAP_BACKGROUND_COLORS
+
+global.currentEffectiveTheme = 'light';
+result = getMapBackgroundColor(null);
+assert.equal(result, '#f4f0eb'); // DEFAULT_MAP_BACKGROUND_COLORS.light
+
+global.currentEffectiveTheme = 'dark';
+result = getMapBackgroundColor(null);
+assert.equal(result, '#050510'); // DEFAULT_MAP_BACKGROUND_COLORS.dark
+
 console.log('getMapBackgroundColor tests passed');
