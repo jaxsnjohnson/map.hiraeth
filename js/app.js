@@ -62,6 +62,10 @@ let scheduledPrefetchIdleId = null;
 const SEARCH_SCOPE_MAP = 'map';
 const SEARCH_SCOPE_ATLAS = 'atlas';
 const SEARCH_RESULT_GROUP_ORDER = ['poi', 'region', 'line', 'route', 'step', 'map'];
+const SEARCH_RESULT_GROUP_INDEX = Object.create(null);
+SEARCH_RESULT_GROUP_ORDER.forEach((group, index) => {
+    SEARCH_RESULT_GROUP_INDEX[group] = index;
+});
 let currentSearchScope = SEARCH_SCOPE_MAP;
 let renderedSearchResults = [];
 let activeSearchResultIndex = -1;
@@ -3340,7 +3344,7 @@ function sortSearchResults(results) {
     return results
         .sort((a, b) => {
             if (b.score !== a.score) return b.score - a.score;
-            const groupDelta = SEARCH_RESULT_GROUP_ORDER.indexOf(a.group) - SEARCH_RESULT_GROUP_ORDER.indexOf(b.group);
+            const groupDelta = (SEARCH_RESULT_GROUP_INDEX[a.group] ?? -1) - (SEARCH_RESULT_GROUP_INDEX[b.group] ?? -1);
             if (groupDelta !== 0) return groupDelta;
             return a.title.localeCompare(b.title);
         })
