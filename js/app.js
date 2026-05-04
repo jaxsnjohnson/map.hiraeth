@@ -2693,7 +2693,7 @@ function setSidebarState(state, updateHash = true) {
 
             currentSidebarState = state;
             if (updateHash && currentlyLoadedMapId) {
-            // Update history with search params and new hash
+            // Synchronize browser history with the new hash and search parameters
             const newHash = generateHash(currentlyLoadedMapId, state);
             const currentSearch = window.location.search;
             const newUrl = buildAppUrlWithHash(newHash, currentSearch);
