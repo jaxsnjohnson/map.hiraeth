@@ -36,3 +36,6 @@
 ## 2024-05-29 - Bypassing DOM Operations During Search Inactive States
 **Learning:** Functions like `searchMapRegions` and `searchMapLines` were unnecessarily executing DOM queries (`querySelectorAll`) and building filter sets even when search was inactive for the current map, just because they were called from the main filter loop.
 **Action:** In search sub-routines that are part of a larger filter/render loop, always apply an immediate early return (e.g., `if (!searchActive) return;`) at the very top of the function if its only purpose is to populate search results. This prevents evaluating expensive DOM and layer-iteration logic.
+## 2025-05-04 - O(1) Map Lookups for Array Sorting
+**Learning:** Calling `Array.indexOf` inside a tight sorting loop causes an unnecessary O(n) scan per invocation, which degrades search performance significantly.
+**Action:** When sorting using an explicit static group order array, pre-compute an object map of values to indexes to enable O(1) property access during sorting.
