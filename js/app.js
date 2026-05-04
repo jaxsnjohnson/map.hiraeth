@@ -3355,8 +3355,8 @@ function searchMapMarkers(searchTerm, results, allPoiGroupsChecked, activeSpecif
         const poiGroup = getPoiGroup(poi.type);
         const groupMatch = allPoiGroupsChecked || activeSpecificGroupFilters.has(poiGroup);
         let match = { matched: false, score: -1, matchedByContent: false };
-        // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty).
-        if (searchFiltersCurrentMap) {
+        // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty) or the marker is filtered out.
+        if (searchFiltersCurrentMap && groupMatch) {
             match = computeSearchMatch(searchTerm, poi.name, `${poi.summary || ''} ${poi.description || ''}`);
         }
         const isSearchMatch = !searchTerm || match.matched;
@@ -3384,14 +3384,15 @@ function searchMapMarkers(searchTerm, results, allPoiGroupsChecked, activeSpecif
 }
 
 function searchMapRegions(searchTerm, results, searchFiltersCurrentMap) {
+    if (!searchFiltersCurrentMap || !currentRegionGroup) return;
+
     const activeRegionTypeFilters = new Set();
     poiFilterContainer.querySelectorAll('.region-type-filter:checked').forEach((checkbox) => {
         activeRegionTypeFilters.add(checkbox.value);
     });
     const allRegionTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
 
-    if (searchFiltersCurrentMap && currentRegionGroup) {
-        currentRegionGroup.eachLayer((layer) => {
+    currentRegionGroup.eachLayer((layer) => {
             const region = layer.regionData;
             if (!region || !region.name) return;
 
@@ -3417,18 +3418,18 @@ function searchMapRegions(searchTerm, results, searchFiltersCurrentMap) {
                 }
             }
         });
-    }
 }
 
 function searchMapLines(searchTerm, results, searchFiltersCurrentMap) {
+    if (!searchFiltersCurrentMap || !currentRoadGroup) return;
+
     const activeLineTypeFilters = new Set();
     poiFilterContainer.querySelectorAll('.line-type-filter:checked').forEach((checkbox) => {
         activeLineTypeFilters.add(checkbox.value);
     });
     const allLineTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
 
-    if (searchFiltersCurrentMap && currentRoadGroup) {
-        currentRoadGroup.eachLayer((layer) => {
+    currentRoadGroup.eachLayer((layer) => {
             const line = layer.roadData;
             if (!line) return;
             const lineName = line.name || line.type || 'Unnamed Line';
@@ -3454,7 +3455,6 @@ function searchMapLines(searchTerm, results, searchFiltersCurrentMap) {
                 }
             }
         });
-    }
 }
 
 function searchMapRoutes(searchTerm, results, searchFiltersCurrentMap) {

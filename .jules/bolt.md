@@ -33,3 +33,6 @@
 ## 2024-05-03 - Optimize redundant string interpolation in rendering loops
 **Learning:** Found loops for `addRegionsToMap` and `addRoadsToMap` interpolating properties and variables into a `let popupContent = ""` local variable, which was never actually used since the code fell back to a shared helper `createPopupContent` just below. This dead code was evaluated multiple times at map init and feature render time.
 **Action:** Always verify if a manually generated string layout in a tight loop is actually utilized. Dead interpolations (especially invoking string helpers) can be entirely refactored away to reduce object allocation.
+## 2024-05-29 - Bypassing DOM Operations During Search Inactive States
+**Learning:** Functions like `searchMapRegions` and `searchMapLines` were unnecessarily executing DOM queries (`querySelectorAll`) and building filter sets even when search was inactive for the current map, just because they were called from the main filter loop.
+**Action:** In search sub-routines that are part of a larger filter/render loop, always apply an immediate early return (e.g., `if (!searchActive) return;`) at the very top of the function if its only purpose is to populate search results. This prevents evaluating expensive DOM and layer-iteration logic.
