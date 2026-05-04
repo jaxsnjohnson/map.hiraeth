@@ -5,6 +5,15 @@
     }
     root.AppConfig = factory(root);
 }(typeof globalThis !== 'undefined' ? globalThis : this, function createAppConfig(root = {}) {
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     const DEFAULT_SITE_CONFIG = {
         brand: {
             siteName: 'HAG Interactive World Map Viewer',
@@ -514,7 +523,10 @@
             const content = documentRef.createElement('div');
             content.id = `tab-${id}`;
             content.className = `tab-content${index === 0 ? ' active' : ''}`;
-            content.innerHTML = tab.html || '';
+            const rawHtml = tab.html || '';
+            content.innerHTML = typeof DOMPurify !== 'undefined'
+                ? DOMPurify.sanitize(rawHtml)
+                : escapeHtml(rawHtml);
             body.appendChild(content);
         });
     }

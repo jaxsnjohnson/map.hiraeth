@@ -6,3 +6,7 @@
 **Vulnerability:** Setting `innerHTML` directly from untrusted map data (`mapInfo.blurb`) without sanitization allowed arbitrary HTML and malicious scripts to be executed, resulting in a Stored XSS vulnerability.
 **Learning:** Even intentionally formatted HTML data from external configurations or definitions must be sanitized before being injected into the DOM via `innerHTML` or template literals.
 **Prevention:** Use a mature sanitization library like `DOMPurify.sanitize()` when inserting rich text or formatted HTML that originates from user or external file input into the DOM to strip dangerous event handlers and script tags while preserving safe markup.
+## 2025-05-04 - Unsanitized Help Modal Tabs
+**Vulnerability:** DOM-based XSS via `tab.html` assignment directly to `innerHTML` in `hydrateHelpModal`.
+**Learning:** Configurable or injected HTML content was not passed through a sanitizer before rendering, allowing arbitrary script execution if configuration data is tampered with.
+**Prevention:** Always use `DOMPurify.sanitize()` when injecting untrusted or external HTML. Implement an inline `escapeHtml()` fallback when `DOMPurify` is conditionally loaded to ensure a "fail-closed" security posture.
