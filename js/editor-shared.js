@@ -636,7 +636,7 @@
     }
 
     function applyMapSettings(mapToUpdate, mapSettings = {}) {
-        if (!mapToUpdate || typeof mapToUpdate !== 'object') return;
+        if (!mapToUpdate || typeof mapToUpdate !== 'object') return mapToUpdate;
 
         assignStringField(mapToUpdate, 'name', mapSettings.name, { allowEmpty: true });
         assignStringField(mapToUpdate, 'blurb', mapSettings.blurb, { allowEmpty: true });

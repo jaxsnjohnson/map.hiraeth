@@ -361,6 +361,12 @@ assert.deepEqual(mapSettingsTarget.latLonBounds, {
     west: -5
 });
 
+// applyMapSettings edge cases
+assert.equal(applyMapSettings(null), null);
+assert.equal(applyMapSettings(undefined), undefined);
+assert.equal(applyMapSettings('string'), 'string');
+assert.equal(applyMapSettings(123), 123);
+
 const unchangedNestedStringManifest = serializeManifestState({
     masterMapData: slimManifest,
     currentMapId: 'child-map',
