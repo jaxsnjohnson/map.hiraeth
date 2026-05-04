@@ -6922,17 +6922,11 @@ async function loadMapData() {
 async function processChild(childId, level = 0) {
     // Base case for recursion depth limit or invalid ID
     if (level > 5 || !childId || typeof childId !== 'string') {
-        // console.warn(`Skipping child processing for: ${childId} at level ${level}`);
         // Return a placeholder that populateSidebar can handle as coming soon/error
         return { id: childId, name: String(childId || 'Invalid Child'), status: 'coming-soon', error: true };
     }
 
     try {
-        // Optional: Handle known 'coming-soon' IDs directly if needed
-        // if (childId === 'some-known-coming-soon-id') {
-        //     return { id: childId, name: 'Known Coming Soon Item', status: 'coming-soon' };
-        // }
-
         // Fetch the child map data
         const response = await fetch(withAssetVersion(`maps/${childId}.json`));
 
