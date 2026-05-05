@@ -1362,6 +1362,31 @@ body.embedded-view #search-control-container {
     opacity: 1;
     transform: translateY(0);
 }
+.copy-coords-btn.error .copy-coords-icon {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+.copy-coords-btn.error .copy-coords-error-msg {
+    opacity: 1;
+    transform: translateY(0);
+    color: var(--delete-color, #dc3545);
+}
+.copy-coords-btn .copy-coords-error-msg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+    pointer-events: none;
+}
+.copy-coords-btn .copy-coords-error-msg .ui-icon {
+    width: 15px;
+    height: 15px;
+}
 /* --- Map Control Container --- */
 #map-controls-container {
     position: absolute;
