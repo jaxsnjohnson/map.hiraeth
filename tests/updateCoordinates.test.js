@@ -3,11 +3,11 @@ const fs = require('node:fs');
 
 // Extract the updateCoordinates helper from production source.
 const appSource = fs.readFileSync('js/app.js', 'utf8');
-const fnStart = appSource.indexOf('function updateCoordinates(');
+const fnStart = appSource.indexOf('function getMapPixelDimensions(');
 const fnEnd = appSource.indexOf('// --- Map Click Handler ---');
 
 if (fnStart === -1 || fnEnd === -1 || fnEnd <= fnStart) {
-    throw new Error('Could not locate updateCoordinates function block in js/app.js');
+    throw new Error('Could not locate coordinate helper function block in js/app.js');
 }
 
 const fnSource = appSource.slice(fnStart, fnEnd);
@@ -50,5 +50,29 @@ assertClose(lastLatLon.lon, -48.34375);
 updateCoordinates({ latlng: { lat: 3072, lng: 4096 } });
 assertClose(lastLatLon.lat, 37.120000000000005);
 assertClose(lastLatLon.lon, 11.65625);
+
+// The pure projection helper should preserve the same interpolation semantics.
+const projected = projectMapPointToLatLon(
+    { lat: 1536, lng: 2048 },
+    currentLatLonBounds,
+    currentBounds
+);
+assertClose(projected.lat, 19.18);
+assertClose(projected.lon, 41.65625);
+
+// Locked coordinates should prevent hover updates from mutating state.
+coordsLocked = true;
+lastLatLon = null;
+lockedCoords = { lat: 37.12, lon: 11.65625 };
+updateCoordinates({ latlng: { lat: 0, lng: 0 } });
+assert.equal(lastLatLon, null);
+assert.deepEqual(lockedCoords, { lat: 37.12, lon: 11.65625 });
+
+// Missing bounds should no-op instead of throwing.
+coordsLocked = false;
+currentBounds = null;
+lastLatLon = null;
+updateCoordinates({ latlng: { lat: 0, lng: 0 } });
+assert.equal(lastLatLon, null);
 
 console.log('updateCoordinates regression checks passed');
