@@ -42,3 +42,6 @@
 ## 2025-05-04 - O(1) Map Lookups for Array Sorting
 **Learning:** Calling `Array.indexOf` inside a tight sorting loop causes an unnecessary O(n) scan per invocation, which degrades search performance significantly.
 **Action:** When sorting using an explicit static group order array, pre-compute an object map of values to indexes to enable O(1) property access during sorting.
+## 2025-05-30 - O(1) HTMLCollection Traversal vs querySelectorAll
+**Learning:** Frequent invocation of `querySelectorAll('.some-class')` inside tight search/filter loops triggers the browser's CSS parser and DOM traversal algorithms repeatedly, causing severe lag when a large number of checkboxes or DOM elements exist.
+**Action:** Always prefer caching a live `HTMLCollection` using `getElementsByTagName('input')` at the module level. Inside the iterative filter loops, replace `querySelectorAll` with a manual iteration over the cached collection, checking `.classList.contains()` to replicate the selector logic. This avoids CSS parsing entirely and provides immense performance gains.
