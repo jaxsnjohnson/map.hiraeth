@@ -193,6 +193,15 @@ if (copyCoordsBtn) {
             }, 1500); // Reset after 1.5 seconds
         }).catch(err => {
             console.error('Failed to copy coordinates: ', err);
+            copyCoordsBtn.classList.add('error');
+            copyCoordsBtn.title = "Failed to copy";
+            copyCoordsBtn.setAttribute('aria-label', "Failed to copy");
+
+            setTimeout(() => {
+                copyCoordsBtn.classList.remove('error');
+                copyCoordsBtn.title = "Copy Coordinates";
+                copyCoordsBtn.setAttribute('aria-label', "Copy Coordinates");
+            }, 1500); // Reset after 1.5 seconds
         });
     });
 }
