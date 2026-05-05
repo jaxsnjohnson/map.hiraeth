@@ -492,7 +492,22 @@ function createPopupContent(data, type) {
     const safeSummary = data.summary ? escapeHtml(data.summary) : '';
     const safeDescription = data.description ? escapeHtml(data.description) : '';
 
-    // Part 1: Build the header, which is always visible.
+    const headerHtml = buildPopupHeader(data, type, safePronunciation);
+    const fullContentInnerHtml = buildPopupFullContent(data, safeDescription);
+
+    const hasSummary = safeSummary && safeSummary.trim() !== '';
+    const hasFullContent = fullContentInnerHtml.trim() !== '';
+
+    if (!hasSummary && !hasFullContent) {
+        return headerHtml;
+    }
+
+    const { mainContent, readMoreButton } = buildPopupMainContainer(safeSummary, fullContentInnerHtml, hasSummary, hasFullContent);
+
+    return headerHtml + mainContent + readMoreButton;
+}
+
+function buildPopupHeader(data, type, safePronunciation) {
     let headerHtml = '';
     if (data.name) {
         const safeName = escapeHtml(data.name);
@@ -500,7 +515,6 @@ function createPopupContent(data, type) {
         const safeWikiHref = sanitizeWikiLinkForHref(data.wikiLink);
         let shareButtonHtml = '';
         if (type) {
-            // Using an SVG icon to match the site theme
             const linkIcon = `<i class="ui-icon" data-lucide="link-2" aria-hidden="true"></i>`;
             shareButtonHtml = ` <button class="share-btn" onclick="copyFeatureLink(this, '${type}', '${escapedName}')" title="Share this location" aria-label="Share this location">${linkIcon}</button>`;
         }
@@ -521,8 +535,10 @@ function createPopupContent(data, type) {
         const mapJumpIcon = `<i class="ui-icon" data-lucide="map" aria-hidden="true"></i>`;
         headerHtml += `<div class="popup-map-jump"><a href="#" onclick="return openLinkedMapFromPopup(event, '${escapedLinkedMapId}')" title="Open map: ${linkedMapName}">${mapJumpIcon}<span>Open ${linkedMapName} map</span></a></div>`;
     }
+    return headerHtml;
+}
 
-    // Part 2: Build the rest of the content that will be expandable.
+function buildPopupFullContent(data, safeDescription) {
     let fullContentInnerHtml = '';
     if (data.type && data.value) { // Regions
         fullContentInnerHtml += `<p><em>${data.type}: ${data.value}</em></p>`;
@@ -534,22 +550,14 @@ function createPopupContent(data, type) {
     if (safeDescription) {
         fullContentInnerHtml += `<p>${safeDescription}</p>`;
     }
+    return fullContentInnerHtml;
+}
 
-    // Part 3: Check for summary and full content presence.
-    const hasSummary = safeSummary && safeSummary.trim() !== '';
-    const hasFullContent = fullContentInnerHtml.trim() !== '';
-
-    // If there's nothing to show, just return the header.
-    if (!hasSummary && !hasFullContent) {
-        return headerHtml;
-    }
-
-    // Part 4: Construct the main container and "Read More" button based on content.
+function buildPopupMainContainer(safeSummary, fullContentInnerHtml, hasSummary, hasFullContent) {
     let mainContent = '';
     let readMoreButton = '';
 
     if (hasSummary) {
-        // If a summary exists, use the new structure with summary and full-content divs.
         mainContent = `
             <div class="popup-content-container">
                 <div class="popup-summary">
@@ -560,25 +568,20 @@ function createPopupContent(data, type) {
                 </div>
             </div>
         `;
-        // Show "Read More" button only if there's full content to expand to.
         if (hasFullContent) {
             readMoreButton = `<div class="popup-read-more" onclick="togglePopupExpand(this)">Read More</div>`;
         }
     } else {
-        // No summary, so use the old behavior. The container will be truncated by CSS.
         mainContent = `
             <div class="popup-content-container">
                 ${fullContentInnerHtml}
             </div>
         `;
-        // Show "Read More" button if there's content that might be truncated.
         if (hasFullContent) {
             readMoreButton = `<div class="popup-read-more" onclick="togglePopupExpand(this)">Read More</div>`;
         }
     }
-
-    // Combine the header, main content container, and button for the final popup HTML.
-    return headerHtml + mainContent + readMoreButton;
+    return { mainContent, readMoreButton };
 }
 
 // --- Auto-generate a reverse map for quick lookup (Type -> Group) ---
