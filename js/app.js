@@ -4310,6 +4310,56 @@ function showShareButtonErrorState(btn) {
     }, 1500);
 }
 
+async function executeShareAction({
+    btn,
+    shareUrl,
+    shareData,
+    onShareClicked,
+    onNativeCompleted,
+    onNativeCancelled,
+    onNativeFailed,
+    onCopyUnavailable,
+    onClipboardCompleted
+}) {
+    const nativeShareSupported = canUseNativeShare(shareUrl);
+
+    if (onShareClicked) {
+        onShareClicked(nativeShareSupported);
+    }
+
+    if (nativeShareSupported) {
+        try {
+            await navigator.share(shareData);
+            showShareButtonSuccessState(btn);
+            if (onNativeCompleted) onNativeCompleted();
+            return;
+        } catch (error) {
+            const errorName = error && error.name ? String(error.name) : 'unknown';
+            if (errorName === 'AbortError') {
+                if (onNativeCancelled) onNativeCancelled();
+                return;
+            }
+            console.warn('Native share failed; falling back to clipboard.', error);
+            if (onNativeFailed) onNativeFailed(errorName);
+        }
+    }
+
+    if (typeof navigator === 'undefined' || !navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
+        showShareButtonErrorState(btn);
+        if (onCopyUnavailable) onCopyUnavailable();
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(shareUrl);
+        showShareButtonSuccessState(btn);
+        if (onClipboardCompleted) onClipboardCompleted();
+    } catch (err) {
+        console.error('Failed to copy link: ', err);
+        showShareButtonErrorState(btn);
+    }
+}
+
 // Global function for onclick
 window.copyFeatureLink = async function(btn, type, name) {
     const featureType = String(type || '').trim().toLowerCase();
@@ -4318,51 +4368,24 @@ window.copyFeatureLink = async function(btn, type, name) {
 
     if (!shareUrl) return;
 
-    const nativeShareSupported = canUseNativeShare(shareUrl);
-    trackAnalytics('share_clicked', {
-        featureType,
-        featureName,
-        nativeShareSupported
+    const siteShortName = getRuntimeConfigValue('brand.shortName', 'Interactive Atlas');
+    const shareData = {
+        title: `${siteShortName}: ${featureName}`,
+        text: getRuntimeConfigValue('copy.share.featureText', 'Explore {featureName} on this interactive atlas.').replace('{featureName}', featureName),
+        url: shareUrl
+    };
+
+    await executeShareAction({
+        btn,
+        shareUrl,
+        shareData,
+        onShareClicked: (supported) => trackAnalytics('share_clicked', { featureType, featureName, nativeShareSupported: supported }),
+        onNativeCompleted: () => trackAnalytics('share_native_completed', { featureType, featureName }),
+        onNativeCancelled: () => trackAnalytics('share_native_cancelled', { featureType, featureName }),
+        onNativeFailed: (errorName) => trackAnalytics('share_native_failed', { featureType, featureName, errorName }),
+        onCopyUnavailable: () => trackAnalytics('share_copy_unavailable', { featureType, featureName }),
+        onClipboardCompleted: () => trackAnalytics('share_link_copied', { featureType, featureName })
     });
-
-    if (nativeShareSupported) {
-        const siteShortName = getRuntimeConfigValue('brand.shortName', 'Interactive Atlas');
-        const shareData = {
-            title: `${siteShortName}: ${featureName}`,
-            text: getRuntimeConfigValue('copy.share.featureText', 'Explore {featureName} on this interactive atlas.').replace('{featureName}', featureName),
-            url: shareUrl
-        };
-
-        try {
-            await navigator.share(shareData);
-            showShareButtonSuccessState(btn);
-            trackAnalytics('share_native_completed', { featureType, featureName });
-            return;
-        } catch (error) {
-            const errorName = error && error.name ? String(error.name) : 'unknown';
-            if (errorName === 'AbortError') {
-                trackAnalytics('share_native_cancelled', { featureType, featureName });
-                return;
-            }
-            console.warn('Native share failed; falling back to clipboard.', error);
-            trackAnalytics('share_native_failed', { featureType, featureName, errorName });
-        }
-    }
-
-    if (typeof navigator === 'undefined' || !navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
-        showShareButtonErrorState(btn);
-        trackAnalytics('share_copy_unavailable', { featureType, featureName });
-        return;
-    }
-
-    try {
-        await navigator.clipboard.writeText(shareUrl);
-        showShareButtonSuccessState(btn);
-        trackAnalytics('share_link_copied', { featureType, featureName });
-    } catch (err) {
-        console.error('Failed to copy link: ', err);
-        showShareButtonErrorState(btn);
-    }
 };
 
 async function shareCurrentView(btn) {
@@ -4371,52 +4394,24 @@ async function shareCurrentView(btn) {
 
     const featureType = 'view';
     const featureName = 'current_view';
-    const nativeShareSupported = canUseNativeShare(shareUrl);
-    trackAnalytics('share_clicked', {
-        featureType,
-        featureName,
-        nativeShareSupported,
-        entryPoint: 'map_controls'
+    const siteShortName = getRuntimeConfigValue('brand.shortName', 'Interactive Atlas');
+    const shareData = {
+        title: `${siteShortName}: ${getRuntimeConfigValue('copy.share.currentViewTitle', 'Current View')}`,
+        text: getRuntimeConfigValue('copy.share.currentViewText', 'Explore this map view.'),
+        url: shareUrl
+    };
+
+    await executeShareAction({
+        btn,
+        shareUrl,
+        shareData,
+        onShareClicked: (supported) => trackAnalytics('share_clicked', { featureType, featureName, nativeShareSupported: supported, entryPoint: 'map_controls' }),
+        onNativeCompleted: () => trackAnalytics('share_native_completed', { featureType, featureName }),
+        onNativeCancelled: () => trackAnalytics('share_native_cancelled', { featureType, featureName }),
+        onNativeFailed: (errorName) => trackAnalytics('share_native_failed', { featureType, featureName, errorName }),
+        onCopyUnavailable: () => trackAnalytics('share_copy_unavailable', { featureType, featureName }),
+        onClipboardCompleted: () => trackAnalytics('share_link_copied', { featureType, featureName })
     });
-
-    if (nativeShareSupported) {
-        const siteShortName = getRuntimeConfigValue('brand.shortName', 'Interactive Atlas');
-        const shareData = {
-            title: `${siteShortName}: ${getRuntimeConfigValue('copy.share.currentViewTitle', 'Current View')}`,
-            text: getRuntimeConfigValue('copy.share.currentViewText', 'Explore this map view.'),
-            url: shareUrl
-        };
-
-        try {
-            await navigator.share(shareData);
-            showShareButtonSuccessState(btn);
-            trackAnalytics('share_native_completed', { featureType, featureName });
-            return;
-        } catch (error) {
-            const errorName = error && error.name ? String(error.name) : 'unknown';
-            if (errorName === 'AbortError') {
-                trackAnalytics('share_native_cancelled', { featureType, featureName });
-                return;
-            }
-            console.warn('Native share failed; falling back to clipboard.', error);
-            trackAnalytics('share_native_failed', { featureType, featureName, errorName });
-        }
-    }
-
-    if (typeof navigator === 'undefined' || !navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
-        showShareButtonErrorState(btn);
-        trackAnalytics('share_copy_unavailable', { featureType, featureName });
-        return;
-    }
-
-    try {
-        await navigator.clipboard.writeText(shareUrl);
-        showShareButtonSuccessState(btn);
-        trackAnalytics('share_link_copied', { featureType, featureName });
-    } catch (err) {
-        console.error('Failed to copy link: ', err);
-        showShareButtonErrorState(btn);
-    }
 }
 
 async function relaySharedContext(btn) {
@@ -4432,68 +4427,34 @@ async function relaySharedContext(btn) {
 
     if (!shareUrl) return;
 
-    const nativeShareSupported = canUseNativeShare(shareUrl);
-    trackAnalytics('share_clicked', {
-        featureType,
-        featureName,
-        nativeShareSupported,
-        entryPoint: 'relay_prompt'
-    });
+    const siteShortName = getRuntimeConfigValue('brand.shortName', 'Interactive Atlas');
+    const shareData = {
+        title: sharedType === 'view'
+            ? `${siteShortName}: ${getRuntimeConfigValue('copy.share.sharedViewTitle', 'Shared View')}`
+            : `${siteShortName}: ${featureName}`,
+        text: sharedType === 'view'
+            ? getRuntimeConfigValue('copy.share.sharedViewText', 'Explore this shared map view.')
+            : getRuntimeConfigValue('copy.share.featureText', 'Explore {featureName} on this interactive atlas.').replace('{featureName}', featureName),
+        url: shareUrl
+    };
 
-    if (nativeShareSupported) {
-        const siteShortName = getRuntimeConfigValue('brand.shortName', 'Interactive Atlas');
-        const shareData = {
-            title: sharedType === 'view'
-                ? `${siteShortName}: ${getRuntimeConfigValue('copy.share.sharedViewTitle', 'Shared View')}`
-                : `${siteShortName}: ${featureName}`,
-            text: sharedType === 'view'
-                ? getRuntimeConfigValue('copy.share.sharedViewText', 'Explore this shared map view.')
-                : getRuntimeConfigValue('copy.share.featureText', 'Explore {featureName} on this interactive atlas.').replace('{featureName}', featureName),
-            url: shareUrl
-        };
-
-        try {
-            await navigator.share(shareData);
-            showShareButtonSuccessState(btn);
-            trackAnalytics('share_relay_completed', {
-                sharedType,
-                featureType,
-                featureName,
-                method: 'native'
-            });
+    await executeShareAction({
+        btn,
+        shareUrl,
+        shareData,
+        onShareClicked: (supported) => trackAnalytics('share_clicked', { featureType, featureName, nativeShareSupported: supported, entryPoint: 'relay_prompt' }),
+        onNativeCompleted: () => {
+            trackAnalytics('share_relay_completed', { sharedType, featureType, featureName, method: 'native' });
             hideShareRelayPrompt('completed');
-            return;
-        } catch (error) {
-            const errorName = error && error.name ? String(error.name) : 'unknown';
-            if (errorName === 'AbortError') {
-                trackAnalytics('share_native_cancelled', { featureType, featureName, entryPoint: 'relay_prompt' });
-                return;
-            }
-            console.warn('Native share failed; falling back to clipboard.', error);
-            trackAnalytics('share_native_failed', { featureType, featureName, errorName, entryPoint: 'relay_prompt' });
+        },
+        onNativeCancelled: () => trackAnalytics('share_native_cancelled', { featureType, featureName, entryPoint: 'relay_prompt' }),
+        onNativeFailed: (errorName) => trackAnalytics('share_native_failed', { featureType, featureName, errorName, entryPoint: 'relay_prompt' }),
+        onCopyUnavailable: () => trackAnalytics('share_copy_unavailable', { featureType, featureName, entryPoint: 'relay_prompt' }),
+        onClipboardCompleted: () => {
+            trackAnalytics('share_relay_completed', { sharedType, featureType, featureName, method: 'clipboard' });
+            hideShareRelayPrompt('completed');
         }
-    }
-
-    if (typeof navigator === 'undefined' || !navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
-        showShareButtonErrorState(btn);
-        trackAnalytics('share_copy_unavailable', { featureType, featureName, entryPoint: 'relay_prompt' });
-        return;
-    }
-
-    try {
-        await navigator.clipboard.writeText(shareUrl);
-        showShareButtonSuccessState(btn);
-        trackAnalytics('share_relay_completed', {
-            sharedType,
-            featureType,
-            featureName,
-            method: 'clipboard'
-        });
-        hideShareRelayPrompt('completed');
-    } catch (err) {
-        console.error('Failed to copy link: ', err);
-        showShareButtonErrorState(btn);
-    }
+    });
 }
 
 window.openLinkedMapFromPopup = function(event, mapId) {
