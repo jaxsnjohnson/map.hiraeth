@@ -63,7 +63,33 @@
         resetViewButton: document.getElementById('editor-reset-view-btn'),
         exportCurrentMapButton: document.getElementById('export-current-map-btn'),
         exportAtlasStructureButton: document.getElementById('export-atlas-structure-btn'),
-        chooseMapButton: document.getElementById('editor-choose-map-btn')
+        chooseMapButton: document.getElementById('editor-choose-map-btn'),
+        mapSettingsInputs: {
+            name: document.getElementById('map-name-input'),
+            type: document.getElementById('map-type-input'),
+            status: document.getElementById('map-status-input'),
+            visibility: document.getElementById('map-visibility-input'),
+            group: document.getElementById('map-group-input'),
+            dataUrl: document.getElementById('map-data-url-input'),
+            imageUrl: document.getElementById('map-image-url-input'),
+            mobileImageUrl: document.getElementById('map-mobile-image-url-input'),
+            smallImageUrl: document.getElementById('map-small-image-url-input'),
+            width: document.getElementById('map-width-input'),
+            height: document.getElementById('map-height-input'),
+            scalePixels: document.getElementById('map-scale-pixels-input'),
+            scaleKilometers: document.getElementById('map-scale-kilometers-input'),
+            scaleUnitName: document.getElementById('map-scale-unit-input'),
+            backgroundColor: document.getElementById('map-background-color-input'),
+            atmosphere: document.getElementById('map-atmosphere-input'),
+            selectorDescription: document.getElementById('map-selector-description-input'),
+            latNorth: document.getElementById('map-lat-north-input'),
+            latSouth: document.getElementById('map-lat-south-input'),
+            latEast: document.getElementById('map-lat-east-input'),
+            latWest: document.getElementById('map-lat-west-input'),
+            blurb: document.getElementById('map-blurb-input'),
+            parentIdSelect: document.getElementById('map-parent-id-select'),
+            order: document.getElementById('map-order-input')
+        }
     };
 
     function roundCoordinate(value) {
@@ -217,29 +243,30 @@
     }
 
     function readMapSettingsForm() {
+        const inputs = dom.mapSettingsInputs;
         return {
-            name: document.getElementById('map-name-input').value,
-            type: document.getElementById('map-type-input').value,
-            status: document.getElementById('map-status-input').value,
-            visibility: document.getElementById('map-visibility-input').value,
-            group: document.getElementById('map-group-input').value,
-            dataUrl: document.getElementById('map-data-url-input').value,
-            imageUrl: document.getElementById('map-image-url-input').value,
-            mobileImageUrl: document.getElementById('map-mobile-image-url-input').value,
-            smallImageUrl: document.getElementById('map-small-image-url-input').value,
-            width: document.getElementById('map-width-input').value,
-            height: document.getElementById('map-height-input').value,
-            scalePixels: document.getElementById('map-scale-pixels-input').value,
-            scaleKilometers: document.getElementById('map-scale-kilometers-input').value,
-            scaleUnitName: document.getElementById('map-scale-unit-input').value,
-            backgroundColor: document.getElementById('map-background-color-input').value,
-            atmosphere: document.getElementById('map-atmosphere-input').value,
-            selectorDescription: document.getElementById('map-selector-description-input').value,
+            name: inputs.name.value,
+            type: inputs.type.value,
+            status: inputs.status.value,
+            visibility: inputs.visibility.value,
+            group: inputs.group.value,
+            dataUrl: inputs.dataUrl.value,
+            imageUrl: inputs.imageUrl.value,
+            mobileImageUrl: inputs.mobileImageUrl.value,
+            smallImageUrl: inputs.smallImageUrl.value,
+            width: inputs.width.value,
+            height: inputs.height.value,
+            scalePixels: inputs.scalePixels.value,
+            scaleKilometers: inputs.scaleKilometers.value,
+            scaleUnitName: inputs.scaleUnitName.value,
+            backgroundColor: inputs.backgroundColor.value,
+            atmosphere: inputs.atmosphere.value,
+            selectorDescription: inputs.selectorDescription.value,
             latLonBounds: {
-                north: document.getElementById('map-lat-north-input').value,
-                south: document.getElementById('map-lat-south-input').value,
-                east: document.getElementById('map-lat-east-input').value,
-                west: document.getElementById('map-lat-west-input').value
+                north: inputs.latNorth.value,
+                south: inputs.latSouth.value,
+                east: inputs.latEast.value,
+                west: inputs.latWest.value
             }
         };
     }
@@ -677,8 +704,8 @@
         try {
             if (state.selectedFeature.mode === 'points') {
                 if (field === 'coordY' || field === 'coordX') {
-                    const nextY = document.querySelector('[data-field="coordY"]').value;
-                    const nextX = document.querySelector('[data-field="coordX"]').value;
+                    const nextY = field === 'coordY' ? event.target.value : dom.featureForm.querySelector('[data-field="coordY"]').value;
+                    const nextX = field === 'coordX' ? event.target.value : dom.featureForm.querySelector('[data-field="coordX"]').value;
                     feature.coords = [roundCoordinate(nextY), roundCoordinate(nextX)];
                 } else if (field === 'properties') {
                     feature.properties = parseJsonObject(event.target.value);
@@ -732,43 +759,40 @@
     function renderMapSettingsForm() {
         const currentMap = state.currentMap;
         const currentLocation = currentMap ? findNodeLocation(state.atlasTree, currentMap.id) : null;
-        const fields = {
-            'map-name-input': currentMap?.name || '',
-            'map-type-input': currentMap?.type || '',
-            'map-status-input': currentMap?.status || '',
-            'map-visibility-input': currentMap?.visibility || '',
-            'map-group-input': currentMap?.group || currentMap?.category || '',
-            'map-data-url-input': currentMap?.dataUrl || '',
-            'map-order-input': currentLocation ? currentLocation.index : 0,
-            'map-image-url-input': currentMap?.imageUrl || '',
-            'map-mobile-image-url-input': currentMap?.mobileImageUrl || '',
-            'map-small-image-url-input': currentMap?.smallImageUrl || '',
-            'map-width-input': currentMap?.width ?? '',
-            'map-height-input': currentMap?.height ?? '',
-            'map-scale-pixels-input': currentMap?.scalePixels ?? '',
-            'map-scale-kilometers-input': currentMap?.scaleKilometers ?? '',
-            'map-scale-unit-input': currentMap?.scaleUnitName || '',
-            'map-background-color-input': currentMap?.backgroundColor || '',
-            'map-atmosphere-input': currentMap?.atmosphere || '',
-            'map-lat-north-input': currentMap?.latLonBounds?.north ?? '',
-            'map-lat-south-input': currentMap?.latLonBounds?.south ?? '',
-            'map-lat-east-input': currentMap?.latLonBounds?.east ?? '',
-            'map-lat-west-input': currentMap?.latLonBounds?.west ?? '',
-            'map-blurb-input': currentMap?.blurb || '',
-            'map-selector-description-input': currentMap?.selectorDescription || ''
-        };
 
-        Object.entries(fields).forEach(([id, value]) => {
-            const field = document.getElementById(id);
-            if (field) field.value = value;
-        });
+        const inputs = dom.mapSettingsInputs;
+        if (inputs.name) inputs.name.value = currentMap?.name || '';
+        if (inputs.type) inputs.type.value = currentMap?.type || '';
+        if (inputs.status) inputs.status.value = currentMap?.status || '';
+        if (inputs.visibility) inputs.visibility.value = currentMap?.visibility || '';
+        if (inputs.group) inputs.group.value = currentMap?.group || currentMap?.category || '';
+        if (inputs.dataUrl) inputs.dataUrl.value = currentMap?.dataUrl || '';
+        if (inputs.order) inputs.order.value = currentLocation ? currentLocation.index : 0;
+        if (inputs.imageUrl) inputs.imageUrl.value = currentMap?.imageUrl || '';
+        if (inputs.mobileImageUrl) inputs.mobileImageUrl.value = currentMap?.mobileImageUrl || '';
+        if (inputs.smallImageUrl) inputs.smallImageUrl.value = currentMap?.smallImageUrl || '';
+        if (inputs.width) inputs.width.value = currentMap?.width ?? '';
+        if (inputs.height) inputs.height.value = currentMap?.height ?? '';
+        if (inputs.scalePixels) inputs.scalePixels.value = currentMap?.scalePixels ?? '';
+        if (inputs.scaleKilometers) inputs.scaleKilometers.value = currentMap?.scaleKilometers ?? '';
+        if (inputs.scaleUnitName) inputs.scaleUnitName.value = currentMap?.scaleUnitName || '';
+        if (inputs.backgroundColor) inputs.backgroundColor.value = currentMap?.backgroundColor || '';
+        if (inputs.atmosphere) inputs.atmosphere.value = currentMap?.atmosphere || '';
+        if (inputs.latNorth) inputs.latNorth.value = currentMap?.latLonBounds?.north ?? '';
+        if (inputs.latSouth) inputs.latSouth.value = currentMap?.latLonBounds?.south ?? '';
+        if (inputs.latEast) inputs.latEast.value = currentMap?.latLonBounds?.east ?? '';
+        if (inputs.latWest) inputs.latWest.value = currentMap?.latLonBounds?.west ?? '';
+        if (inputs.blurb) inputs.blurb.value = currentMap?.blurb || '';
+        if (inputs.selectorDescription) inputs.selectorDescription.value = currentMap?.selectorDescription || '';
 
-        const parentSelect = document.getElementById('map-parent-id-select');
+        const parentSelect = inputs.parentIdSelect;
         const options = buildParentOptions();
-        parentSelect.innerHTML = options.map((option) => {
-            const selected = option.id === (currentLocation?.parentId || '') ? ' selected' : '';
-            return `<option value="${escapeHtml(option.id)}"${selected}>${escapeHtml(option.label)}</option>`;
-        }).join('');
+        if (parentSelect) {
+            parentSelect.innerHTML = options.map((option) => {
+                const selected = option.id === (currentLocation?.parentId || '') ? ' selected' : '';
+                return `<option value="${escapeHtml(option.id)}"${selected}>${escapeHtml(option.label)}</option>`;
+            }).join('');
+        }
 
         dom.currentMapId.textContent = currentMap?.id || 'No map';
     }
@@ -779,8 +803,8 @@
         const nextSettings = readMapSettingsForm();
         utils.applyMapSettings(state.currentMap, nextSettings);
 
-        const parentId = document.getElementById('map-parent-id-select').value;
-        const orderValue = document.getElementById('map-order-input').value;
+        const parentId = dom.mapSettingsInputs.parentIdSelect.value;
+        const orderValue = dom.mapSettingsInputs.order.value;
         const currentLocation = findNodeLocation(state.atlasTree, state.currentMap.id);
         const nextOrder = Number.isFinite(Number(orderValue)) ? Number(orderValue) : currentLocation?.index || 0;
         const currentParentId = currentLocation?.parentId || '';

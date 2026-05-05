@@ -62,6 +62,10 @@ let scheduledPrefetchIdleId = null;
 const SEARCH_SCOPE_MAP = 'map';
 const SEARCH_SCOPE_ATLAS = 'atlas';
 const SEARCH_RESULT_GROUP_ORDER = ['poi', 'region', 'line', 'route', 'step', 'map'];
+const SEARCH_RESULT_GROUP_INDEX = Object.create(null);
+SEARCH_RESULT_GROUP_ORDER.forEach((group, index) => {
+    SEARCH_RESULT_GROUP_INDEX[group] = index;
+});
 let currentSearchScope = SEARCH_SCOPE_MAP;
 let renderedSearchResults = [];
 let activeSearchResultIndex = -1;
@@ -3346,7 +3350,7 @@ function sortSearchResults(results) {
     return results
         .sort((a, b) => {
             if (b.score !== a.score) return b.score - a.score;
-            const groupDelta = SEARCH_RESULT_GROUP_ORDER.indexOf(a.group) - SEARCH_RESULT_GROUP_ORDER.indexOf(b.group);
+            const groupDelta = (SEARCH_RESULT_GROUP_INDEX[a.group] ?? -1) - (SEARCH_RESULT_GROUP_INDEX[b.group] ?? -1);
             if (groupDelta !== 0) return groupDelta;
             return a.title.localeCompare(b.title);
         })
@@ -6208,12 +6212,23 @@ poiFilterContainer.addEventListener('change', (e) => {
     if (target.classList.contains('region-group-filter')) {
         const isChecked = target.checked;
         const groupName = target.value;
-        const nestedCheckboxes = target.closest('.filter-group').querySelectorAll('.region-type-filter');
-        nestedCheckboxes.forEach(checkbox => {
+
+        // Optimize querying DOM elements since they are created once per group
+        // within populateRegionFilters and not modified dynamically later.
+        // We use a query on target.closest to only find the inputs under that particular group
+        const groupContainer = target.closest('.filter-group');
+        if (groupContainer && !groupContainer._cachedNestedCheckboxes) {
+            // cache onto the groupContainer which is less likely to leak than modifying input properties
+            groupContainer._cachedNestedCheckboxes = groupContainer.querySelectorAll('.region-type-filter');
+        }
+
+        const nestedCheckboxes = groupContainer ? groupContainer._cachedNestedCheckboxes : [];
+        for (let i = 0; i < nestedCheckboxes.length; i++) {
+            const checkbox = nestedCheckboxes[i];
             if (checkbox.dataset.group === groupName) {
                 checkbox.checked = isChecked;
             }
-        });
+        }
     }
 
     // Handle master "Show All / Hide All" checkbox
