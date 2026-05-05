@@ -7030,15 +7030,18 @@ async function processChild(childId, level = 0) {
 
         } else if (response.status === 404) {
             console.warn(`Child map file not found: maps/${childId}.json - Marking as 'coming-soon'`);
+            trackAnalytics('child_map_load_failed', { childId, reason: 'not_found' });
             // File not found, treat as coming soon
             return { id: childId, name: childId, status: 'coming-soon', error: 'not found' };
         } else {
             console.warn(`Failed to load child map: ${childId} (${response.statusText}) - Marking as 'coming-soon'`);
+            trackAnalytics('child_map_load_failed', { childId, reason: `http_error_${response.status}` });
             // Other fetch error, treat as coming soon
             return { id: childId, name: childId, status: 'coming-soon', error: `Workspace failed (${response.status})` };
         }
     } catch (error) {
         console.error(`Error processing child ${childId}:`, error);
+        trackAnalytics('child_map_load_failed', { childId, reason: error?.message || 'unknown' });
         // Error during fetch/parse, treat as coming soon
         return { id: childId, name: childId, status: 'coming-soon', error: error.message };
     }
