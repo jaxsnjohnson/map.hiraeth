@@ -2750,17 +2750,57 @@ function setSidebarState(state, updateHash = true) {
 
 // --- Helper Function to Update the "Toggle All" Checkbox State ---
 function updateToggleAllCheckboxState() {
+    if (!poiFilterCheckboxesLive) return;
+
+    // Group region checkboxes
+    const regionGroupCheckboxes = [];
+    const regionTypeCheckboxes = [];
+    const allTopLevelFilters = [];
+    const checkedTopLevelFilters = [];
+    const indeterminateTopLevelFilters = [];
+
+    for (let i = 0; i < poiFilterCheckboxesLive.length; i++) {
+        const checkbox = poiFilterCheckboxesLive[i];
+        if (checkbox.type !== 'checkbox' || checkbox.id === 'filter-toggle-all') continue;
+
+        if (checkbox.classList.contains('region-group-filter')) {
+            regionGroupCheckboxes.push(checkbox);
+            allTopLevelFilters.push(checkbox);
+            if (checkbox.indeterminate) {
+                indeterminateTopLevelFilters.push(checkbox);
+            } else if (checkbox.checked) {
+                checkedTopLevelFilters.push(checkbox);
+            }
+        } else if (checkbox.classList.contains('region-type-filter')) {
+            regionTypeCheckboxes.push(checkbox);
+        } else if (checkbox.classList.contains('poi-filter-checkbox') || checkbox.classList.contains('line-type-filter')) {
+            allTopLevelFilters.push(checkbox);
+            if (checkbox.checked) {
+                checkedTopLevelFilters.push(checkbox);
+            }
+        }
+    }
+
     // Update indeterminate state for each region group parent
-    const regionGroupCheckboxes = poiFilterContainer.querySelectorAll('.region-group-filter');
     regionGroupCheckboxes.forEach(groupCheckbox => {
         const groupName = groupCheckbox.value;
-        const childCheckboxes = poiFilterContainer.querySelectorAll(`.region-type-filter[data-group="${groupName}"]`);
-        const checkedChildren = poiFilterContainer.querySelectorAll(`.region-type-filter[data-group="${groupName}"]:checked`);
+        let childCount = 0;
+        let checkedChildCount = 0;
 
-        if (checkedChildren.length === 0) {
+        for (let i = 0; i < regionTypeCheckboxes.length; i++) {
+            const childCheckbox = regionTypeCheckboxes[i];
+            if (childCheckbox.getAttribute('data-group') === groupName) {
+                childCount++;
+                if (childCheckbox.checked) {
+                    checkedChildCount++;
+                }
+            }
+        }
+
+        if (checkedChildCount === 0) {
             groupCheckbox.checked = false;
             groupCheckbox.indeterminate = false;
-        } else if (checkedChildren.length === childCheckboxes.length) {
+        } else if (checkedChildCount === childCount) {
             groupCheckbox.checked = true;
             groupCheckbox.indeterminate = false;
         } else {
@@ -2769,14 +2809,21 @@ function updateToggleAllCheckboxState() {
         }
     });
 
-    // Update master "Show All / Hide All" checkbox state
-    const allTopLevelFilters = poiFilterContainer.querySelectorAll(
-        '.poi-filter-checkbox:not(#filter-toggle-all), .region-group-filter, .line-type-filter'
-    );
-    const checkedTopLevelFilters = poiFilterContainer.querySelectorAll(
-        '.poi-filter-checkbox:not(#filter-toggle-all):checked, .region-group-filter:checked:not(:indeterminate), .line-type-filter:checked'
-    );
-    const indeterminateTopLevelFilters = poiFilterContainer.querySelectorAll('.region-group-filter:indeterminate');
+    // Re-evaluate top level filters indeterminate after updating group checkboxes
+    checkedTopLevelFilters.length = 0;
+    indeterminateTopLevelFilters.length = 0;
+    for (let i = 0; i < allTopLevelFilters.length; i++) {
+        const checkbox = allTopLevelFilters[i];
+        if (checkbox.classList.contains('region-group-filter')) {
+            if (checkbox.indeterminate) {
+                indeterminateTopLevelFilters.push(checkbox);
+            } else if (checkbox.checked) {
+                checkedTopLevelFilters.push(checkbox);
+            }
+        } else if (checkbox.checked) {
+            checkedTopLevelFilters.push(checkbox);
+        }
+    }
 
     if (allTopLevelFilters.length === 0) {
         filterToggleAllCheckbox.checked = true;
@@ -3005,9 +3052,21 @@ function getSearchFilterChips() {
 
 function getHiddenFilterChips() {
     const chips = [];
-    const hiddenFilters = Array.from(
-        poiFilterContainer.querySelectorAll('.poi-filter-checkbox:not(#filter-toggle-all), .region-type-filter, .line-type-filter')
-    ).filter(checkbox => !checkbox.checked);
+    const hiddenFilters = [];
+
+    if (poiFilterCheckboxesLive) {
+        for (let i = 0; i < poiFilterCheckboxesLive.length; i++) {
+            const checkbox = poiFilterCheckboxesLive[i];
+            if (checkbox.type === 'checkbox' && checkbox.id !== 'filter-toggle-all') {
+                if ((checkbox.classList.contains('poi-filter-checkbox') ||
+                     checkbox.classList.contains('region-type-filter') ||
+                     checkbox.classList.contains('line-type-filter')) &&
+                    !checkbox.checked) {
+                    hiddenFilters.push(checkbox);
+                }
+            }
+        }
+    }
 
     if (hiddenFilters.length > 0) {
         if (hiddenFilters.length > 6) {
@@ -3421,9 +3480,16 @@ function searchMapRegions(searchTerm, results, searchFiltersCurrentMap) {
     if (!searchFiltersCurrentMap || !currentRegionGroup) return;
 
     const activeRegionTypeFilters = new Set();
-    poiFilterContainer.querySelectorAll('.region-type-filter:checked').forEach((checkbox) => {
-        activeRegionTypeFilters.add(checkbox.value);
-    });
+    if (poiFilterCheckboxesLive) {
+        for (let i = 0; i < poiFilterCheckboxesLive.length; i++) {
+            const checkbox = poiFilterCheckboxesLive[i];
+            if (checkbox.type === 'checkbox' &&
+                checkbox.classList.contains('region-type-filter') &&
+                checkbox.checked) {
+                activeRegionTypeFilters.add(checkbox.value);
+            }
+        }
+    }
     const allRegionTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
 
     currentRegionGroup.eachLayer((layer) => {
@@ -3458,9 +3524,16 @@ function searchMapLines(searchTerm, results, searchFiltersCurrentMap) {
     if (!searchFiltersCurrentMap || !currentRoadGroup) return;
 
     const activeLineTypeFilters = new Set();
-    poiFilterContainer.querySelectorAll('.line-type-filter:checked').forEach((checkbox) => {
-        activeLineTypeFilters.add(checkbox.value);
-    });
+    if (poiFilterCheckboxesLive) {
+        for (let i = 0; i < poiFilterCheckboxesLive.length; i++) {
+            const checkbox = poiFilterCheckboxesLive[i];
+            if (checkbox.type === 'checkbox' &&
+                checkbox.classList.contains('line-type-filter') &&
+                checkbox.checked) {
+                activeLineTypeFilters.add(checkbox.value);
+            }
+        }
+    }
     const allLineTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
 
     currentRoadGroup.eachLayer((layer) => {
@@ -3570,9 +3643,17 @@ function updateVisibleMarkersAndSearch() {
     const results = [];
 
     const activeSpecificGroupFilters = new Set();
-    poiFilterContainer.querySelectorAll('.poi-filter-checkbox:not(#filter-toggle-all):checked').forEach((checkbox) => {
-        activeSpecificGroupFilters.add(checkbox.value);
-    });
+    if (poiFilterCheckboxesLive) {
+        for (let i = 0; i < poiFilterCheckboxesLive.length; i++) {
+            const checkbox = poiFilterCheckboxesLive[i];
+            if (checkbox.type === 'checkbox' &&
+                checkbox.id !== 'filter-toggle-all' &&
+                checkbox.classList.contains('poi-filter-checkbox') &&
+                checkbox.checked) {
+                activeSpecificGroupFilters.add(checkbox.value);
+            }
+        }
+    }
     const allPoiGroupsChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
     const searchFiltersCurrentMap = currentSearchScope === SEARCH_SCOPE_MAP && !!searchTerm;
 
@@ -5114,8 +5195,17 @@ function updateVisibleRegions() {
     if (!currentRegionGroup) return;
 
     // Get the currently checked region type filters (the individual values)
-    const valueFilters = poiFilterContainer.querySelectorAll('.region-type-filter:checked');
-    const valueFilterValues = new Set(Array.from(valueFilters).map(cb => cb.value));
+    const valueFilterValues = new Set();
+    if (poiFilterCheckboxesLive) {
+        for (let i = 0; i < poiFilterCheckboxesLive.length; i++) {
+            const checkbox = poiFilterCheckboxesLive[i];
+            if (checkbox.type === 'checkbox' &&
+                checkbox.classList.contains('region-type-filter') &&
+                checkbox.checked) {
+                valueFilterValues.add(checkbox.value);
+            }
+        }
+    }
 
     // Check the master toggle state
     const allTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
@@ -6211,8 +6301,17 @@ if (activeFiltersContainer) {
 function updateVisibleLines() {
     if (!currentRoadGroup) return;
 
-    const typeFilters = poiFilterContainer.querySelectorAll('.line-type-filter:checked');
-    const typeFilterValues = Array.from(typeFilters).map(cb => cb.value);
+    const typeFilterValues = [];
+    if (poiFilterCheckboxesLive) {
+        for (let i = 0; i < poiFilterCheckboxesLive.length; i++) {
+            const checkbox = poiFilterCheckboxesLive[i];
+            if (checkbox.type === 'checkbox' &&
+                checkbox.classList.contains('line-type-filter') &&
+                checkbox.checked) {
+                typeFilterValues.push(checkbox.value);
+            }
+        }
+    }
     const allTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
 
     currentRoadGroup.eachLayer(layer => {
