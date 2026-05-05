@@ -4471,6 +4471,60 @@ window.openLinkedMapFromPopup = function(event, mapId) {
     return false;
 };
 
+function focusPOI(poiName) {
+    const marker = allMapMarkers.find(m => m.poiData && m.poiData.name === poiName);
+    if (marker) {
+        // Ensure marker is visible (add to group if not)
+        if (!currentMarkerGroup.hasLayer(marker)) {
+            currentMarkerGroup.addLayer(marker);
+        }
+        // Also ensure the marker group is on the map (it should be)
+        if (!map.hasLayer(currentMarkerGroup)) {
+             currentMarkerGroup.addTo(map);
+        }
+
+        map.setView(marker.getLatLng(), Math.max(map.getZoom(), 2), { animate: false });
+        marker.openPopup();
+        return true;
+    }
+    console.warn("POI not found for focus:", poiName);
+    return false;
+}
+
+function focusRegion(regionName) {
+    let targetLayer = null;
+    currentRegionGroup.eachLayer(layer => {
+        if (layer.regionData && layer.regionData.name === regionName) {
+            targetLayer = layer;
+        }
+    });
+
+    if (targetLayer) {
+        map.fitBounds(targetLayer.getBounds(), { animate: false });
+        targetLayer.openPopup();
+        return true;
+    }
+    console.warn("Region not found for focus:", regionName);
+    return false;
+}
+
+function focusLine(lineName) {
+    let targetLayer = null;
+    currentRoadGroup.eachLayer(layer => {
+        if (layer.roadData && layer.roadData.name === lineName) {
+            targetLayer = layer;
+        }
+    });
+
+    if (targetLayer) {
+        map.fitBounds(targetLayer.getBounds(), { animate: false });
+        targetLayer.openPopup();
+        return true;
+    }
+    console.warn("Line not found for focus:", lineName);
+    return false;
+}
+
 function checkAndFocusFeature() {
     const params = new URLSearchParams(window.location.search);
     const poiName = params.get('poi');
@@ -4481,63 +4535,25 @@ function checkAndFocusFeature() {
     let focusedName = '';
 
     if (poiName) {
-        // Search allMapMarkers
-        const marker = allMapMarkers.find(m => m.poiData && m.poiData.name === poiName);
-        if (marker) {
-            // Ensure marker is visible (add to group if not)
-            if (!currentMarkerGroup.hasLayer(marker)) {
-                currentMarkerGroup.addLayer(marker);
-            }
-            // Also ensure the marker group is on the map (it should be)
-            if (!map.hasLayer(currentMarkerGroup)) {
-                 currentMarkerGroup.addTo(map);
-            }
-
-            map.setView(marker.getLatLng(), Math.max(map.getZoom(), 2), { animate: false });
-            marker.openPopup();
-            focused = true;
+        focused = focusPOI(poiName);
+        if (focused) {
             focusedType = 'poi';
             focusedName = poiName;
-        } else {
-            console.warn("POI not found for focus:", poiName);
         }
     } else if (regionName) {
-         // Search currentRegionGroup
-         let targetLayer = null;
-         currentRegionGroup.eachLayer(layer => {
-             if (layer.regionData && layer.regionData.name === regionName) {
-                 targetLayer = layer;
-             }
-         });
-
-         if (targetLayer) {
-             map.fitBounds(targetLayer.getBounds(), { animate: false });
-             targetLayer.openPopup();
-             focused = true;
-             focusedType = 'region';
-             focusedName = regionName;
-        } else {
-             console.warn("Region not found for focus:", regionName);
-         }
+        focused = focusRegion(regionName);
+        if (focused) {
+            focusedType = 'region';
+            focusedName = regionName;
+        }
     } else if (lineName) {
-        // Search currentRoadGroup
-         let targetLayer = null;
-         currentRoadGroup.eachLayer(layer => {
-             if (layer.roadData && layer.roadData.name === lineName) {
-                 targetLayer = layer;
-             }
-         });
-
-         if (targetLayer) {
-             map.fitBounds(targetLayer.getBounds(), { animate: false });
-             targetLayer.openPopup();
-             focused = true;
-             focusedType = 'line';
-             focusedName = lineName;
-         } else {
-             console.warn("Line not found for focus:", lineName);
-         }
+        focused = focusLine(lineName);
+        if (focused) {
+            focusedType = 'line';
+            focusedName = lineName;
+        }
     }
+
     if (focused) {
         trackShareLinkOpenFromParams(params, focusedType, focusedName);
         const shareContext = getShareContextFromParams(params);
