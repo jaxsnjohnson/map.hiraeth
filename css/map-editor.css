@@ -87,6 +87,19 @@
     cursor: pointer;
     user-select: none;
     list-style: none; /* remove native triangle on most browsers */
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin: -2px -4px;
+}
+
+.map-editor-section-header:hover {
+    background-color: var(--highlight-bg, rgba(212, 163, 106, 0.15));
+}
+
+.map-editor-section-header:focus-visible {
+    outline: 2px solid var(--focus-ring, #0f5fbf);
+    outline-offset: 2px;
 }
 
 .map-editor-section-header::-webkit-details-marker {
