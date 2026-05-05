@@ -3925,7 +3925,7 @@ function populatePOIFilters(pointsOfInterest) {
     });
 }
 
-function populateRegionFilters(regions, selectedMap, hasPOIs) {
+function getOrGenerateRegionFilterGroups(regions, selectedMap) {
     // Check if explicit filter groups exist, otherwise auto-generate from data
     let regionFilterGroups = selectedMap.filterGroups && selectedMap.filterGroups.Regions;
 
@@ -3959,6 +3959,67 @@ function populateRegionFilters(regions, selectedMap, hasPOIs) {
         }
     }
 
+    return regionFilterGroups;
+}
+
+function createRegionFilterGroupDOM(groupName, values) {
+    const groupContainer = document.createElement('div');
+    groupContainer.className = 'filter-group closed'; // Start as closed
+
+    const groupHeader = document.createElement('div');
+    groupHeader.className = 'filter-group-header';
+    groupHeader.innerHTML = `
+        <span class="filter-chevron-icon" aria-hidden="true">
+            <i class="ui-icon" data-lucide="chevron-right"></i>
+        </span>
+    `;
+
+    const groupDiv = document.createElement('div');
+    groupDiv.className = 'filter-item';
+    const groupFilterId = `filter-region-group-${groupName.replace(/\s+/g, '-')}`;
+    const groupCheckbox = document.createElement('input');
+    groupCheckbox.type = 'checkbox';
+    groupCheckbox.id = groupFilterId;
+    groupCheckbox.value = groupName;
+    groupCheckbox.checked = true;
+    groupCheckbox.className = 'region-group-filter';
+    const groupLabel = document.createElement('label');
+    groupLabel.htmlFor = groupFilterId;
+    groupLabel.textContent = groupName;
+    groupDiv.appendChild(groupCheckbox);
+    groupDiv.appendChild(groupLabel);
+    groupHeader.appendChild(groupDiv);
+    groupContainer.appendChild(groupHeader);
+
+    const nestedList = document.createElement('div');
+    nestedList.className = 'nested-filter-list';
+
+    values.forEach(value => {
+        const filterId = `filter-region-value-${value.replace(/\s+/g, '-')}`;
+        const div = document.createElement('div');
+        div.className = 'filter-item';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = filterId;
+        checkbox.value = value;
+        checkbox.checked = true;
+        checkbox.className = 'region-type-filter';
+        checkbox.dataset.group = groupName;
+        const label = document.createElement('label');
+        label.htmlFor = filterId;
+        label.textContent = value;
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        nestedList.appendChild(div);
+    });
+    groupContainer.appendChild(nestedList);
+
+    return groupContainer;
+}
+
+function populateRegionFilters(regions, selectedMap, hasPOIs) {
+    const regionFilterGroups = getOrGenerateRegionFilterGroups(regions, selectedMap);
+
     if (regionFilterGroups && Object.keys(regionFilterGroups).length > 0) {
         if (hasPOIs) {
             const divider = document.createElement('hr');
@@ -3975,56 +4036,7 @@ function populateRegionFilters(regions, selectedMap, hasPOIs) {
                 const values = regionFilterGroups[groupName];
                 if (!Array.isArray(values) || values.length === 0) continue;
 
-                const groupContainer = document.createElement('div');
-                groupContainer.className = 'filter-group closed'; // Start as closed
-
-                const groupHeader = document.createElement('div');
-                groupHeader.className = 'filter-group-header';
-                groupHeader.innerHTML = `
-                    <span class="filter-chevron-icon" aria-hidden="true">
-                        <i class="ui-icon" data-lucide="chevron-right"></i>
-                    </span>
-                `;
-
-                const groupDiv = document.createElement('div');
-                groupDiv.className = 'filter-item';
-                const groupFilterId = `filter-region-group-${groupName.replace(/\s+/g, '-')}`;
-                const groupCheckbox = document.createElement('input');
-                groupCheckbox.type = 'checkbox';
-                groupCheckbox.id = groupFilterId;
-                groupCheckbox.value = groupName;
-                groupCheckbox.checked = true;
-                groupCheckbox.className = 'region-group-filter';
-                const groupLabel = document.createElement('label');
-                groupLabel.htmlFor = groupFilterId;
-                groupLabel.textContent = groupName;
-                groupDiv.appendChild(groupCheckbox);
-                groupDiv.appendChild(groupLabel);
-                groupHeader.appendChild(groupDiv);
-                groupContainer.appendChild(groupHeader);
-
-                const nestedList = document.createElement('div');
-                nestedList.className = 'nested-filter-list';
-
-                values.forEach(value => {
-                    const filterId = `filter-region-value-${value.replace(/\s+/g, '-')}`;
-                    const div = document.createElement('div');
-                    div.className = 'filter-item';
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.id = filterId;
-                    checkbox.value = value;
-                    checkbox.checked = true;
-                    checkbox.className = 'region-type-filter';
-                    checkbox.dataset.group = groupName;
-                    const label = document.createElement('label');
-                    label.htmlFor = filterId;
-                    label.textContent = value;
-                    div.appendChild(checkbox);
-                    div.appendChild(label);
-                    nestedList.appendChild(div);
-                });
-                groupContainer.appendChild(nestedList);
+                const groupContainer = createRegionFilterGroupDOM(groupName, values);
                 poiFilterContainer.appendChild(groupContainer);
             }
         }
