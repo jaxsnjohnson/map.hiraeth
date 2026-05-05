@@ -6764,25 +6764,26 @@ function setupKeyboardAndModalLogic() {
             activeElement.isContentEditable);
     }
 
-    document.addEventListener('keydown', function (e) {
-        // Handle modal display first
+    function handleHelpShortcut(e) {
         if (e.key === '?') {
             if (!isInputFocused()) { // Don't trigger if typing '?' in search
                 e.preventDefault();
                 if (aboutModal) {
                     const isVisible = aboutModal.classList.contains('visible');
-                    if (isVisible) toggleAboutModal(false, 'guide', 'shortcut');
-                    else toggleAboutModal(true, 'guide', 'shortcut');
+                    toggleAboutModal(!isVisible, 'guide', 'shortcut');
                 }
-                return;
+                return true;
             }
         }
+        return false;
+    }
 
+    function handleEscapeShortcut(e) {
         // If help modal is open, Esc should close it
         if (aboutModal && aboutModal.classList.contains('visible') && e.key === 'Escape') {
             e.preventDefault();
             toggleAboutModal(false);
-            return;
+            return true;
         }
 
         // Handle Escape for other UI elements
@@ -6802,74 +6803,78 @@ function setupKeyboardAndModalLogic() {
                 e.preventDefault();
             }
             // Add other Escape handlers here if needed
-            return; // Processed Escape, no further checks for this key press
+            return true; // Processed Escape, no further checks for this key press
         }
+        return false;
+    }
 
-        // For other shortcuts, don't act if an input is focused or help modal is open
-        if (isInputFocused() || (aboutModal && aboutModal.classList.contains('visible'))) {
-            return;
-        }
-
-        // Non-input-focused shortcuts
-        switch (e.key.toLowerCase()) {
-            case '+':
-            case '=':
-                if (map) map.zoomIn();
-                e.preventDefault();
-                break;
-            case '-':
-                if (map) map.zoomOut();
-                e.preventDefault();
-                break;
-            case 's':
-                if (toggleBtn) toggleBtn.click(); // Toggle Sidebar
-                e.preventDefault();
-                break;
-            case 't':
-                if (themeToggle) themeToggle.click(); // Toggle Theme
-                e.preventDefault();
-                break;
-            case 'm':
-                if (measureToolBtn && measureToolBtn.style.display !== 'none') {
-                    measureToolBtn.click();
-                    e.preventDefault();
-                }
-                break;
-            case 'h': // Toggle Markers/Regions
-                if (toggleMarkersBtn && toggleMarkersBtn.style.display !== 'none') {
-                    toggleMarkersBtn.click();
-                    e.preventDefault();
-                }
-                break;
-            case 'f': // Toggle Filters Panel
-                if (toggleFiltersBtn && toggleFiltersBtn.style.display !== 'none') {
-                    toggleFiltersBtn.click();
-                    e.preventDefault();
-                }
-                break;
-            case '/':
-                if (searchControlContainer && searchControlContainer.style.display !== 'none' && poiSearchInput) {
-                    if (isMobileLayoutActive) {
-                        openMobileSheet({ mode: MOBILE_SURFACE_MODE_SEARCH, focusSearch: true, triggerButton: mobileSearchLauncherBtn });
-                    } else {
-                        poiSearchInput.focus();
-                    }
-                    e.preventDefault();
-                }
-                break;
-        }
-
-        // Example for Ctrl/Cmd + F (if you want to override browser find for your search)
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+    function handleSearchShortcut(e) {
+        if ((e.key === '/' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f'))) {
             if (searchControlContainer && searchControlContainer.style.display !== 'none' && poiSearchInput) {
                 if (isMobileLayoutActive) {
                     openMobileSheet({ mode: MOBILE_SURFACE_MODE_SEARCH, focusSearch: true, triggerButton: mobileSearchLauncherBtn });
                 } else {
                     poiSearchInput.focus();
                 }
-                e.preventDefault(); // Prevent browser's default find
+                e.preventDefault();
+                return true;
             }
         }
+        return false;
+    }
+
+    function handleGeneralShortcuts(e) {
+        switch (e.key.toLowerCase()) {
+            case '+':
+            case '=':
+                if (map) map.zoomIn();
+                e.preventDefault();
+                return true;
+            case '-':
+                if (map) map.zoomOut();
+                e.preventDefault();
+                return true;
+            case 's':
+                if (toggleBtn) toggleBtn.click(); // Toggle Sidebar
+                e.preventDefault();
+                return true;
+            case 't':
+                if (themeToggle) themeToggle.click(); // Toggle Theme
+                e.preventDefault();
+                return true;
+            case 'm':
+                if (measureToolBtn && measureToolBtn.style.display !== 'none') {
+                    measureToolBtn.click();
+                    e.preventDefault();
+                }
+                return true;
+            case 'h': // Toggle Markers/Regions
+                if (toggleMarkersBtn && toggleMarkersBtn.style.display !== 'none') {
+                    toggleMarkersBtn.click();
+                    e.preventDefault();
+                }
+                return true;
+            case 'f': // Toggle Filters Panel
+                if (toggleFiltersBtn && toggleFiltersBtn.style.display !== 'none') {
+                    toggleFiltersBtn.click();
+                    e.preventDefault();
+                }
+                return true;
+        }
+        return false;
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (handleHelpShortcut(e)) return;
+        if (handleEscapeShortcut(e)) return;
+
+        // For other shortcuts, don't act if an input is focused or help modal is open
+        if (isInputFocused() || (aboutModal && aboutModal.classList.contains('visible'))) {
+            return;
+        }
+
+        if (handleSearchShortcut(e)) return;
+        if (handleGeneralShortcuts(e)) return;
     });
 
 
