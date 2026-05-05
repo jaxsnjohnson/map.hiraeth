@@ -7,7 +7,7 @@ const buildUrlStart = appSource.indexOf('function buildFeatureShareUrl(type, nam
 const buildUrlEnd = appSource.indexOf('function canUseNativeShare(shareUrl) {');
 const shareTrackingStart = appSource.indexOf('const sharedLinkOpenSessionKeys = new Set();');
 const shareTrackingEnd = appSource.indexOf('function buildFeatureShareUrl(type, name) {');
-const relaySourceStart = appSource.indexOf('async function relaySharedContext(btn) {');
+const relaySourceStart = appSource.indexOf('async function executeShareAction({');
 const relaySourceEnd = appSource.indexOf('window.openLinkedMapFromPopup = function(event, mapId) {');
 
 if (
