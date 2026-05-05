@@ -9,3 +9,7 @@
 ## 2026-04-29 - Map Chooser Image Accessibility
 **Learning:** Images inside interactive components like buttons that already provide rich text context via `aria-labelledby` cause redundant and noisy screen reader announcements if they retain their descriptive `alt` text.
 **Action:** Set the image `alt` attribute to an empty string (`alt=''`) and add `aria-hidden='true'` to explicitly hide decorative or redundant images from the accessibility tree when the parent component already provides the necessary context.
+
+## 2026-05-01 - Hidden Input Keyboard Accessibility
+**Learning:** Custom UI components (like toggles) that use a visually hidden `<input>` element with `opacity: 0` alongside a custom surrogate element (like a `.slider` div) lose default browser focus rings. The invisible input still receives focus via Tab navigation, but no visual indicator is shown to the user.
+**Action:** When hiding native inputs for custom styling, always apply a `:focus-visible` ring on the custom surrogate element using the adjacent sibling combinator (e.g., `input:focus-visible + .slider`).
