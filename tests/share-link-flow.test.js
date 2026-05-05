@@ -202,6 +202,7 @@ function canUseNativeShare() {
     return false;
 }
 function showShareButtonSuccessState() {}
+function showShareButtonErrorState() {}
 function hideShareRelayPrompt() {}
 
 // eslint-disable-next-line no-eval

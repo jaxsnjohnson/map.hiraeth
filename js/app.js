@@ -4257,6 +4257,20 @@ function showShareButtonSuccessState(btn) {
     }, 1500);
 }
 
+function showShareButtonErrorState(btn) {
+    if (!btn) return;
+    if (!btn.dataset.originalInnerHtml) {
+        btn.dataset.originalInnerHtml = btn.innerHTML;
+    }
+    btn.innerHTML = '❌';
+    if (btn.__shareResetTimeoutId) {
+        clearTimeout(btn.__shareResetTimeoutId);
+    }
+    btn.__shareResetTimeoutId = setTimeout(() => {
+        btn.innerHTML = btn.dataset.originalInnerHtml;
+    }, 1500);
+}
+
 // Global function for onclick
 window.copyFeatureLink = async function(btn, type, name) {
     const featureType = String(type || '').trim().toLowerCase();
@@ -4297,7 +4311,7 @@ window.copyFeatureLink = async function(btn, type, name) {
     }
 
     if (typeof navigator === 'undefined' || !navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
-        alert("Sharing is not supported in this browser.");
+        showShareButtonErrorState(btn);
         trackAnalytics('share_copy_unavailable', { featureType, featureName });
         return;
     }
@@ -4308,7 +4322,7 @@ window.copyFeatureLink = async function(btn, type, name) {
         trackAnalytics('share_link_copied', { featureType, featureName });
     } catch (err) {
         console.error('Failed to copy link: ', err);
-        alert("Failed to copy link to clipboard.");
+        showShareButtonErrorState(btn);
     }
 };
 
@@ -4351,7 +4365,7 @@ async function shareCurrentView(btn) {
     }
 
     if (typeof navigator === 'undefined' || !navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
-        alert("Sharing is not supported in this browser.");
+        showShareButtonErrorState(btn);
         trackAnalytics('share_copy_unavailable', { featureType, featureName });
         return;
     }
@@ -4362,7 +4376,7 @@ async function shareCurrentView(btn) {
         trackAnalytics('share_link_copied', { featureType, featureName });
     } catch (err) {
         console.error('Failed to copy link: ', err);
-        alert("Failed to copy link to clipboard.");
+        showShareButtonErrorState(btn);
     }
 }
 
@@ -4422,7 +4436,7 @@ async function relaySharedContext(btn) {
     }
 
     if (typeof navigator === 'undefined' || !navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
-        alert('Sharing is not supported in this browser.');
+        showShareButtonErrorState(btn);
         trackAnalytics('share_copy_unavailable', { featureType, featureName, entryPoint: 'relay_prompt' });
         return;
     }
@@ -4439,7 +4453,7 @@ async function relaySharedContext(btn) {
         hideShareRelayPrompt('completed');
     } catch (err) {
         console.error('Failed to copy link: ', err);
-        alert('Failed to copy link to clipboard.');
+        showShareButtonErrorState(btn);
     }
 }
 
