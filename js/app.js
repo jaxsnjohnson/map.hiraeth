@@ -6206,12 +6206,23 @@ poiFilterContainer.addEventListener('change', (e) => {
     if (target.classList.contains('region-group-filter')) {
         const isChecked = target.checked;
         const groupName = target.value;
-        const nestedCheckboxes = target.closest('.filter-group').querySelectorAll('.region-type-filter');
-        nestedCheckboxes.forEach(checkbox => {
+
+        // Optimize querying DOM elements since they are created once per group
+        // within populateRegionFilters and not modified dynamically later.
+        // We use a query on target.closest to only find the inputs under that particular group
+        const groupContainer = target.closest('.filter-group');
+        if (groupContainer && !groupContainer._cachedNestedCheckboxes) {
+            // cache onto the groupContainer which is less likely to leak than modifying input properties
+            groupContainer._cachedNestedCheckboxes = groupContainer.querySelectorAll('.region-type-filter');
+        }
+
+        const nestedCheckboxes = groupContainer ? groupContainer._cachedNestedCheckboxes : [];
+        for (let i = 0; i < nestedCheckboxes.length; i++) {
+            const checkbox = nestedCheckboxes[i];
             if (checkbox.dataset.group === groupName) {
                 checkbox.checked = isChecked;
             }
-        });
+        }
     }
 
     // Handle master "Show All / Hide All" checkbox
