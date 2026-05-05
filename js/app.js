@@ -4813,6 +4813,100 @@ function finalizeMapUI(requestedMapId, selectedMap) {
     }
 }
 
+function abortMapLoad(reason, requestedMapId, message, updateHash = true, isUnavailable = false, showRetry = true) {
+    if (loadingProgressInterval) clearInterval(loadingProgressInterval);
+    loadingProgressInterval = null;
+    currentlyLoadedMapId = null;
+    currentMapData = null;
+    setMapAtmosphere(null);
+    toggleMarkersBtn.style.display = 'none';
+    measureToolBtn.style.display = 'none';
+    toggleFiltersBtn.style.display = 'none';
+    searchControlContainer.style.display = 'none';
+
+    if (isUnavailable) {
+        loadingMapId = null;
+        setMapBlurbVisible(false);
+        setLoadingMessage(message, { showSpinner: false, showProgress: false, showRetry: false });
+        if (loadingIndicator) {
+            setTimeout(() => {
+                loadingIndicator.style.display = 'none';
+            }, 1400);
+        }
+    } else {
+        setLoadingMessage(message, { showSpinner: false, showProgress: false, showRetry: showRetry });
+    }
+
+    if (isUnavailable || reason === 'invalid_data' || reason === 'image_error') {
+        pushMapHistoryState(null, updateHash);
+    }
+
+    trackAnalytics('map_load_failed', { mapId: requestedMapId, reason: reason });
+}
+
+function renderMapFeatures(selectedMap, requestedMapId) {
+    visiblePointsCache = getVisiblePoints(selectedMap);
+    visibleRegionsCache = getVisibleRegions(selectedMap);
+    visibleLinesCache = getVisibleLines(selectedMap);
+    visibleRoutes = getVisibleRoutes(selectedMap);
+    currentRoutes = visibleRoutes;
+    currentEncounterTables = getVisibleEncounterTables(selectedMap);
+    renderRoutesPanel();
+    updateEncounterSelect();
+    updateTravelTime();
+    populateFilters(visiblePointsCache, requestedMapId);
+
+    populatePOIsOnMap(selectedMap);
+
+    currentMarkerGroup.addTo(map);
+    updateVisibleMarkersAndSearch();
+
+    addRegionsToMap(requestedMapId);
+    addRoadsToMap(requestedMapId);
+    updateVisibleRegions();
+    if (typeof updateVisibleLines === 'function') {
+        updateVisibleLines();
+    }
+
+    if (currentRegionGroup && typeof currentRegionGroup.bringToBack === 'function') {
+        currentRegionGroup.bringToBack();
+    }
+
+    map.off('mousemove', updateCoordinates);
+    if (selectedMap.latLonBounds) {
+        currentLatLonBounds = selectedMap.latLonBounds;
+        map.on('mousemove', updateCoordinates);
+    } else {
+        currentLatLonBounds = null;
+        map.off('mousemove', updateCoordinates);
+        coordinateDisplay.style.display = 'none';
+    }
+}
+
+function startMapLoadingProgress(manifestEntry) {
+    if (!loadingIndicator) return;
+    loadingIndicator.style.display = 'flex';
+    const progressBar = loadingIndicator.querySelector('.progress-bar');
+    loadingProgress = 0;
+    if (progressBar) progressBar.style.width = '0%';
+    setLoadingMessage(
+        manifestEntry ? `Loading "${manifestEntry.name}"...` : 'Loading map...',
+        { showSpinner: true, showProgress: true, showRetry: false }
+    );
+
+    if (loadingProgressInterval) clearInterval(loadingProgressInterval);
+    loadingProgressInterval = setInterval(() => {
+        if (loadingProgress < 90) {
+            loadingProgress += 2 + Math.random() * 3;
+            loadingProgress = Math.min(loadingProgress, 90);
+            if (progressBar) progressBar.style.width = `${loadingProgress}%`;
+        } else {
+            clearInterval(loadingProgressInterval);
+            loadingProgressInterval = null;
+        }
+    }, 150);
+}
+
 // --- Function to Load/Switch Map ---
 async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     hideShareRelayPrompt('map_loading');
@@ -4834,58 +4928,14 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         });
     }
 
-    if (loadingIndicator) {
-        loadingIndicator.style.display = 'flex';
-        const progressBar = loadingIndicator.querySelector('.progress-bar');
-        loadingProgress = 0;
-        if (progressBar) progressBar.style.width = '0%';
-        setLoadingMessage(
-            manifestEntry ? `Loading "${manifestEntry.name}"...` : 'Loading map...',
-            { showSpinner: true, showProgress: true, showRetry: false }
-        );
-
-        if (loadingProgressInterval) clearInterval(loadingProgressInterval);
-        loadingProgressInterval = setInterval(() => {
-            if (loadingProgress < 90) {
-                loadingProgress += 2 + Math.random() * 3;
-                loadingProgress = Math.min(loadingProgress, 90);
-                if (progressBar) progressBar.style.width = `${loadingProgress}%`;
-            } else {
-                clearInterval(loadingProgressInterval);
-                loadingProgressInterval = null;
-            }
-        }, 150);
-    }
+    startMapLoadingProgress(manifestEntry);
 
     resetMapState();
 
     if (!manifestEntry || manifestEntry.status === 'coming-soon') {
         console.warn('Attempted to load unavailable map:', mapId);
         if (manifestEntry) alert(`The map "${manifestEntry.name}" is coming soon.`);
-        if (loadingProgressInterval) clearInterval(loadingProgressInterval);
-        loadingProgressInterval = null;
-        loadingMapId = null;
-        currentMapData = null;
-        currentlyLoadedMapId = null;
-        setMapAtmosphere(null);
-        setMapBlurbVisible(false);
-        toggleMarkersBtn.style.display = 'none';
-        measureToolBtn.style.display = 'none';
-        toggleFiltersBtn.style.display = 'none';
-        searchControlContainer.style.display = 'none';
-        setLoadingMessage('This map is not available yet.', {
-            showSpinner: false,
-            showProgress: false,
-            showRetry: false
-        });
-        if (loadingIndicator) {
-            if (loadingProgressInterval) clearInterval(loadingProgressInterval);
-            setTimeout(() => {
-                loadingIndicator.style.display = 'none';
-            }, 1400);
-        }
-        pushMapHistoryState(null, updateHash);
-        trackAnalytics('map_load_failed', { mapId: requestedMapId, reason: 'unavailable' });
+        abortMapLoad('unavailable', requestedMapId, 'This map is not available yet.', updateHash, true);
         return;
     }
 
@@ -4906,20 +4956,7 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     } catch (error) {
         if (requestToken !== loadRequestToken) return;
         console.error(`Failed to load map definition for ${requestedMapId}:`, error);
-        if (loadingProgressInterval) clearInterval(loadingProgressInterval);
-        loadingProgressInterval = null;
-        currentlyLoadedMapId = null;
-        currentMapData = null;
-        setMapAtmosphere(null);
-        toggleMarkersBtn.style.display = 'none';
-        measureToolBtn.style.display = 'none';
-        toggleFiltersBtn.style.display = 'none';
-        searchControlContainer.style.display = 'none';
-        setLoadingMessage(
-            `Could not load "${manifestEntry.name || requestedMapId}" data. Check the map definition and press Retry.`,
-            { showSpinner: false, showProgress: false, showRetry: true }
-        );
-        trackAnalytics('map_load_failed', { mapId: requestedMapId, reason: 'definition_error' });
+        abortMapLoad('definition_error', requestedMapId, `Could not load "${manifestEntry.name || requestedMapId}" data. Check the map definition and press Retry.`, updateHash, false, true);
         return;
     }
 
@@ -4942,21 +4979,7 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     const usingAlternateMobileImage = !!defaultImageUrl && mapImageUrl !== defaultImageUrl;
     if (isNaN(mapHeight) || isNaN(mapWidth) || !mapImageUrl) {
         console.error(`Invalid dimensions or missing imageUrl for map ID ${requestedMapId}`);
-        if (loadingProgressInterval) clearInterval(loadingProgressInterval);
-        loadingProgressInterval = null;
-        currentlyLoadedMapId = null;
-        currentMapData = null;
-        setMapAtmosphere(null);
-        toggleMarkersBtn.style.display = 'none';
-        measureToolBtn.style.display = 'none';
-        toggleFiltersBtn.style.display = 'none';
-        searchControlContainer.style.display = 'none';
-        setLoadingMessage(
-            `Could not load "${selectedMap.name}". The map data is invalid. Press Retry after fixing map dimensions.`,
-            { showSpinner: false, showProgress: false, showRetry: true }
-        );
-        pushMapHistoryState(null, updateHash);
-        trackAnalytics('map_load_failed', { mapId: requestedMapId, reason: 'invalid_data' });
+        abortMapLoad('invalid_data', requestedMapId, `Could not load "${selectedMap.name}". The map data is invalid. Press Retry after fixing map dimensions.`, updateHash, false, true);
         return;
     }
 
@@ -5020,25 +5043,11 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         loadingComplete = true;
         clearTimeout(loadingTimeout);
         console.error('Image overlay failed to load:', mapImageUrl);
-        if (loadingProgressInterval) clearInterval(loadingProgressInterval);
-        loadingProgressInterval = null;
-        setLoadingMessage(
-            `Could not load "${selectedMap.name}" image. Check the image path and press Retry.`,
-            { showSpinner: false, showProgress: false, showRetry: true }
-        );
         if (currentImageLayer) map.removeLayer(currentImageLayer);
         if (currentMapUnderlay) map.removeLayer(currentMapUnderlay);
         currentImageLayer = null;
         currentMapUnderlay = null;
-        currentlyLoadedMapId = null;
-        currentMapData = null;
-        setMapAtmosphere(null);
-        toggleMarkersBtn.style.display = 'none';
-        measureToolBtn.style.display = 'none';
-        toggleFiltersBtn.style.display = 'none';
-        searchControlContainer.style.display = 'none';
-        pushMapHistoryState(null, updateHash);
-        trackAnalytics('map_load_failed', { mapId: requestedMapId, reason: 'image_error' });
+        abortMapLoad('image_error', requestedMapId, `Could not load "${selectedMap.name}" image. Check the image path and press Retry.`, updateHash, false, true);
     });
 
     loadingTimeout = setTimeout(() => {
@@ -5050,42 +5059,7 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     preloadImg.src = mapImageUrl;
     currentImageLayer.addTo(map);
 
-    visiblePointsCache = getVisiblePoints(selectedMap);
-    visibleRegionsCache = getVisibleRegions(selectedMap);
-    visibleLinesCache = getVisibleLines(selectedMap);
-    visibleRoutes = getVisibleRoutes(selectedMap);
-    currentRoutes = visibleRoutes;
-    currentEncounterTables = getVisibleEncounterTables(selectedMap);
-    renderRoutesPanel();
-    updateEncounterSelect();
-    updateTravelTime();
-    populateFilters(visiblePointsCache, requestedMapId);
-
-    populatePOIsOnMap(selectedMap);
-
-    currentMarkerGroup.addTo(map);
-    updateVisibleMarkersAndSearch();
-
-    addRegionsToMap(requestedMapId);
-    addRoadsToMap(requestedMapId);
-    updateVisibleRegions();
-    if (typeof updateVisibleLines === 'function') {
-        updateVisibleLines();
-    }
-
-    if (currentRegionGroup && typeof currentRegionGroup.bringToBack === 'function') {
-        currentRegionGroup.bringToBack();
-    }
-
-    map.off('mousemove', updateCoordinates);
-    if (selectedMap.latLonBounds) {
-        currentLatLonBounds = selectedMap.latLonBounds;
-        map.on('mousemove', updateCoordinates);
-    } else {
-        currentLatLonBounds = null;
-        map.off('mousemove', updateCoordinates);
-        coordinateDisplay.style.display = 'none';
-    }
+    renderMapFeatures(selectedMap, requestedMapId);
 
     finalizeMapUI(requestedMapId, selectedMap);
 
