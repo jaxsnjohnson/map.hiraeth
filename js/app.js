@@ -5340,6 +5340,27 @@ function createSidebarListItem(item) {
     }
 }
 
+function createSidebarGroupItem(groupLabel, sourceItems) {
+    const groupItem = document.createElement('li');
+    groupItem.className = 'map-preset-group';
+
+    const groupHeader = document.createElement('div');
+    groupHeader.className = 'map-preset-group-header';
+    groupHeader.textContent = groupLabel;
+    groupItem.appendChild(groupHeader);
+
+    const groupList = document.createElement('ul');
+    groupList.className = 'map-preset-group-list';
+    sourceItems
+        .filter((candidate) => getMapPresetGroupLabel(candidate) === groupLabel)
+        .forEach((candidate) => {
+            groupList.appendChild(createSidebarListItem(candidate));
+        });
+    groupItem.appendChild(groupList);
+
+    return groupItem;
+}
+
 function populateSidebar(parentElement, items) {
     parentElement.innerHTML = '';
     const sourceItems = Array.isArray(items) ? items : [];
@@ -5363,23 +5384,7 @@ function populateSidebar(parentElement, items) {
         if (renderedGroups.has(groupLabel)) return;
         renderedGroups.add(groupLabel);
 
-        const groupItem = document.createElement('li');
-        groupItem.className = 'map-preset-group';
-
-        const groupHeader = document.createElement('div');
-        groupHeader.className = 'map-preset-group-header';
-        groupHeader.textContent = groupLabel;
-        groupItem.appendChild(groupHeader);
-
-        const groupList = document.createElement('ul');
-        groupList.className = 'map-preset-group-list';
-        sourceItems
-            .filter((candidate) => getMapPresetGroupLabel(candidate) === groupLabel)
-            .forEach((candidate) => {
-                groupList.appendChild(createSidebarListItem(candidate));
-            });
-        groupItem.appendChild(groupList);
-        parentElement.appendChild(groupItem);
+        parentElement.appendChild(createSidebarGroupItem(groupLabel, sourceItems));
     });
     refreshLucideIcons();
 }
