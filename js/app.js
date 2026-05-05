@@ -7133,7 +7133,7 @@ function initializeOnboardingState() {
     }
 }
 
-function initializeApp() {
+function initializeAppGlobalUIState() {
     isEmbeddedView = isEmbedModeFromUrl();
     if (bodyElement) bodyElement.classList.toggle('embedded-view', isEmbeddedView);
     if (typeof document !== 'undefined') {
@@ -7162,49 +7162,44 @@ function initializeApp() {
 
     applyEmbeddedViewOverrides();
 
-
     // Populate sidebar now that mapData is ready
     populateSidebar(mapListElement, mapData);
     initializeGMPillDrag();
+}
 
-    // Determine initial map and sidebar state
-    const { mapId: initialMapIdFromHash, sidebarState: hashSidebarState } = parseHash();
+function determineInitialSidebarState(hashSidebarState) {
     const sidebarFromStorage = safeGetStorage(UX_STORAGE_KEYS.sidebarState);
     const hasSidebarInHash = window.location.hash.includes('-s=');
-    const initialSidebarState = hasSidebarInHash ? hashSidebarState : (sidebarFromStorage || hashSidebarState);
+    return hasSidebarInHash ? hashSidebarState : (sidebarFromStorage || hashSidebarState);
+}
 
+function handleMapChooserInitialization() {
+    renderMapChooser(mapData);
+    setMapChooserVisible(true);
+    setMapBlurbVisible(false);
+    setOnboardingVisibility(false);
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'none';
+        loadingIndicator.classList.remove('initial-loader');
+    }
+    initializeSoundState();
+    history.replaceState(
+        {
+            mapId: null,
+            sidebarState: currentSidebarState,
+            search: window.location.search,
+            hash: window.location.hash || ''
+        },
+        '',
+        `${window.location.pathname}${window.location.search}${window.location.hash}`
+    );
+    syncSidebarBackdropState();
+    isInitializing = false;
+}
+
+function determineMapToLoad(initialMapIdFromHash) {
     let mapIdToLoad = initialMapIdFromHash;
     let mapToLoadData = null;
-
-    const effectiveSidebarState = (isEmbeddedView || isMobileLayoutActive) ? 'c' : initialSidebarState;
-    setSidebarState(effectiveSidebarState, false); // Set sidebar state without updating hash yet
-
-    hideInitialControls();
-
-    if (shouldShowMapChooserForMapId(mapIdToLoad)) {
-        renderMapChooser(mapData);
-        setMapChooserVisible(true);
-        setMapBlurbVisible(false);
-        setOnboardingVisibility(false);
-        if (loadingIndicator) {
-            loadingIndicator.style.display = 'none';
-            loadingIndicator.classList.remove('initial-loader');
-        }
-        initializeSoundState();
-        history.replaceState(
-            {
-                mapId: null,
-                sidebarState: currentSidebarState,
-                search: window.location.search,
-                hash: window.location.hash || ''
-            },
-            '',
-            `${window.location.pathname}${window.location.search}${window.location.hash}`
-        );
-        syncSidebarBackdropState();
-        isInitializing = false;
-        return;
-    }
 
     const storedMapId = safeGetStorage(UX_STORAGE_KEYS.lastMapId);
     if (!mapIdToLoad && storedMapId) {
@@ -7222,26 +7217,24 @@ function initializeApp() {
         mapToLoadData = findMapRecursive(mapData, mapIdToLoad);
     }
 
-    // Load the determined map
-    if (mapIdToLoad && isRenderableMapEntry(mapToLoadData)) {
-        markersVisible = true; // Default to visible
-        regionsVisible = true;
-        loadMap(mapIdToLoad, false); // Load map, don't update hash yet
-    } else {
-        console.error("No loadable map data found for initialization.");
-        if (sidebar) {
-            sidebar.innerHTML = `<h2>${escapeHtml(getConfigValue('copy.sidebarTitle', 'Select Map'))}</h2><p>${escapeHtml(getConfigValue('copy.loading.noMaps', 'No maps available.'))}</p>`;
-        }
-        setMapBlurbVisible(false);
-        // Ensure loading indicator is hidden if it somehow wasn't
-        if (loadingIndicator) loadingIndicator.style.display = 'none';
-        // Set a clean hash state
-        const fallbackHash = generateHash('', effectiveSidebarState);
-        history.replaceState(null, '', buildAppUrlWithHash(fallbackHash, window.location.search));
-        isInitializing = false;
-        return; // Stop initialization
-    }
+    return { mapIdToLoad, mapToLoadData };
+}
 
+function handleNoMapFallback(effectiveSidebarState) {
+    console.error("No loadable map data found for initialization.");
+    if (sidebar) {
+        sidebar.innerHTML = `<h2>${escapeHtml(getConfigValue('copy.sidebarTitle', 'Select Map'))}</h2><p>${escapeHtml(getConfigValue('copy.loading.noMaps', 'No maps available.'))}</p>`;
+    }
+    setMapBlurbVisible(false);
+    // Ensure loading indicator is hidden if it somehow wasn't
+    if (loadingIndicator) loadingIndicator.style.display = 'none';
+    // Set a clean hash state
+    const fallbackHash = generateHash('', effectiveSidebarState);
+    history.replaceState(null, '', buildAppUrlWithHash(fallbackHash, window.location.search));
+    isInitializing = false;
+}
+
+function finalizeAppInitialization(mapToLoadData) {
     // Initialize sound state (after theme is applied)
     // This will now check for embed mode internally
     initializeSoundState();
@@ -7256,6 +7249,41 @@ function initializeApp() {
 
     syncSidebarBackdropState();
     isInitializing = false;
+}
+
+function initializeApp() {
+    initializeAppGlobalUIState();
+
+    // Determine initial map and sidebar state
+    const { mapId: initialMapIdFromHash, sidebarState: hashSidebarState } = parseHash();
+    const initialSidebarState = determineInitialSidebarState(hashSidebarState);
+
+    const effectiveSidebarState = (isEmbeddedView || isMobileLayoutActive) ? 'c' : initialSidebarState;
+    setSidebarState(effectiveSidebarState, false); // Set sidebar state without updating hash yet
+
+    hideInitialControls();
+
+    let mapIdToLoad = initialMapIdFromHash;
+    if (shouldShowMapChooserForMapId(mapIdToLoad)) {
+        handleMapChooserInitialization();
+        return;
+    }
+
+    const mapLoadData = determineMapToLoad(initialMapIdFromHash);
+    mapIdToLoad = mapLoadData.mapIdToLoad;
+    let mapToLoadData = mapLoadData.mapToLoadData;
+
+    // Load the determined map
+    if (mapIdToLoad && isRenderableMapEntry(mapToLoadData)) {
+        markersVisible = true; // Default to visible
+        regionsVisible = true;
+        loadMap(mapIdToLoad, false); // Load map, don't update hash yet
+    } else {
+        handleNoMapFallback(effectiveSidebarState);
+        return; // Stop initialization
+    }
+
+    finalizeAppInitialization(mapToLoadData);
 }
 
 // --- Start the application by loading data ---
