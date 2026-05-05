@@ -10,3 +10,7 @@
 **Vulnerability:** DOM-based XSS via `tab.html` assignment directly to `innerHTML` in `hydrateHelpModal`.
 **Learning:** Configurable or injected HTML content was not passed through a sanitizer before rendering, allowing arbitrary script execution if configuration data is tampered with.
 **Prevention:** Always use `DOMPurify.sanitize()` when injecting untrusted or external HTML. Implement an inline `escapeHtml()` fallback when `DOMPurify` is conditionally loaded to ensure a "fail-closed" security posture.
+## 2025-05-04 - Unsanitized WIP Notice Popup
+**Vulnerability:** DOM-based XSS via `wipPopup.innerHTML` where configurable strings from `copy.wipNotice` are directly injected without escaping.
+**Learning:** Configurable HTML elements or strings that bypass rendering methods using innerHTML directly are prone to script injections, particularly when they map from arrays.
+**Prevention:** Always use `DOMPurify.sanitize()` or an explicit `escapeHtml` fallback before rendering arrays of configured strings or content into `.innerHTML`.

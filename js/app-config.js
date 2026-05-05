@@ -551,7 +551,11 @@
         const wipPopup = documentRef.getElementById('wip-popup');
         const notices = get('copy.wipNotice', []);
         if (wipPopup && Array.isArray(notices)) {
-            wipPopup.innerHTML = notices.map((line) => `<p>${String(line)}</p>`).join('');
+            const safeNotices = notices.map((line) => {
+                const strLine = String(line);
+                return `<p>${typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(strLine) : escapeHtml(strLine)}</p>`;
+            }).join('');
+            wipPopup.innerHTML = safeNotices;
             wipPopup.hidden = !get('features.wipNotice', true);
         }
 
