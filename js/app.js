@@ -5862,18 +5862,30 @@ function togglePopupExpand(button) {
     }
 }
 
+function getMapPixelDimensions(bounds) {
+    return {
+        width: bounds[1][1],
+        height: bounds[1][0]
+    };
+}
+
+function projectMapPointToLatLon(point, latLonBounds, imageBounds) {
+    const { width, height } = getMapPixelDimensions(imageBounds);
+    const { north, south, east, west } = latLonBounds;
+
+    const lon = west + (point.lng / width) * (east - west);
+    // In Leaflet CRS.Simple, lat=0 is the bottom and lat=mapHeight is the top.
+    // Interpolate from south (bottom) to north (top).
+    const lat = south + (point.lat / height) * (north - south);
+
+    return { lat, lon };
+}
+
 function updateCoordinates(e) {
     if (coordsLocked) return;
     if (!currentLatLonBounds || !currentBounds) return;
 
-    const mapWidth = currentBounds[1][1];
-    const mapHeight = currentBounds[1][0];
-    const { north, south, east, west } = currentLatLonBounds;
-
-    const lon = west + (e.latlng.lng / mapWidth) * (east - west);
-    // In Leaflet CRS.Simple, lat=0 is the bottom and lat=mapHeight is the top.
-    // Interpolate from south (bottom) to north (top).
-    const lat = south + (e.latlng.lat / mapHeight) * (north - south);
+    const { lat, lon } = projectMapPointToLatLon(e.latlng, currentLatLonBounds, currentBounds);
     lockedCoords = { lat, lon };
     updateCoordinateDisplay(lat, lon);
 }
