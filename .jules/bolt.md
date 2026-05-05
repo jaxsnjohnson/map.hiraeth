@@ -1,8 +1,3 @@
-<<<<<<< jules-13741835531201083773-07750370
-## 2024-05-19 - Optimize feature coordinate update
-**Learning:** In highly frequent event callbacks like form `input` or `change` events, querying the global `document` using `document.querySelector` can cause significant UI thread blockage.
-**Action:** Always prefer using `event.target` to retrieve the changed value immediately. For related sibling inputs, scope the search to the nearest cached parent form container (e.g., `form.querySelector`) instead of the global document.
-=======
 ## 2024-05-23 - Debouncing Search Input
 **Learning:** The search input triggered a DOM-heavy filter function on every single keystroke. This causes UI lag, especially with large datasets (many markers).
 **Action:** Always debounce input handlers that trigger expensive operations (DOM manipulation, network requests, or heavy filtering). A 300ms delay is usually a sweet spot for user responsiveness vs. performance.
@@ -44,4 +39,3 @@
 ## 2025-05-04 - O(1) Map Lookups for Array Sorting
 **Learning:** Calling `Array.indexOf` inside a tight sorting loop causes an unnecessary O(n) scan per invocation, which degrades search performance significantly.
 **Action:** When sorting using an explicit static group order array, pre-compute an object map of values to indexes to enable O(1) property access during sorting.
->>>>>>> main
