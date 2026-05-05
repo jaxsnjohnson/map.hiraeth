@@ -2974,16 +2974,7 @@ function unlockAdvancedControls(reason = 'interaction') {
     trackAnalytics('advanced_controls_unlocked', { reason });
 }
 
-function updateActiveFilterChips() {
-    if (!activeFiltersContainer || isEmbeddedView || isMobileLayoutActive) {
-        if (activeFiltersContainer) {
-            activeFiltersContainer.style.display = 'none';
-            activeFiltersContainer.innerHTML = '';
-        }
-        return;
-    }
-
-    activeFiltersContainer.innerHTML = '';
+function getSearchFilterChips() {
     const chips = [];
     const searchTerm = poiSearchInput.value.trim();
     if (searchTerm) {
@@ -2997,7 +2988,11 @@ function updateActiveFilterChips() {
             }
         });
     }
+    return chips;
+}
 
+function getHiddenFilterChips() {
+    const chips = [];
     const hiddenFilters = Array.from(
         poiFilterContainer.querySelectorAll('.poi-filter-checkbox:not(#filter-toggle-all), .region-type-filter, .line-type-filter')
     ).filter(checkbox => !checkbox.checked);
@@ -3024,7 +3019,11 @@ function updateActiveFilterChips() {
             });
         }
     }
+    return chips;
+}
 
+function renderFilterChips(chips) {
+    activeFiltersContainer.innerHTML = '';
     if (chips.length === 0) {
         activeFiltersContainer.style.display = 'none';
         return;
@@ -3049,6 +3048,19 @@ function updateActiveFilterChips() {
     });
 
     activeFiltersContainer.style.display = 'flex';
+}
+
+function updateActiveFilterChips() {
+    if (!activeFiltersContainer || isEmbeddedView || isMobileLayoutActive) {
+        if (activeFiltersContainer) {
+            activeFiltersContainer.style.display = 'none';
+            activeFiltersContainer.innerHTML = '';
+        }
+        return;
+    }
+
+    const chips = [...getSearchFilterChips(), ...getHiddenFilterChips()];
+    renderFilterChips(chips);
 }
 
 if (searchRefineFiltersBtn) {
