@@ -4748,6 +4748,8 @@ function resetMapState() {
 function populatePOIsOnMap(selectedMap) {
     const mapHeight = selectedMap.height;
     const mapWidth = selectedMap.width;
+    let errorCount = 0;
+
     visiblePointsCache.forEach(point => {
         try {
             if (point.coords && point.coords.length === 2 && !isNaN(point.coords[0]) && !isNaN(point.coords[1])) {
@@ -4771,9 +4773,19 @@ function populatePOIsOnMap(selectedMap) {
                 console.warn(`Invalid coordinates for POI: ${point.name}`, point.coords);
             }
         } catch (error) {
-            console.error(`Error processing POI: ${point ? (point.name || JSON.stringify(point)) : 'Unknown POI'}`, error);
+            errorCount++;
+            const poiName = point ? (point.name || JSON.stringify(point)) : 'Unknown POI';
+            console.error(`Error processing POI: ${poiName}`, error);
+            trackAnalytics('poi_processing_error', {
+                poiName: poiName,
+                errorMessage: error && error.message ? error.message : 'Unknown error'
+            });
         }
     });
+
+    if (errorCount > 0) {
+        console.warn(`Encountered ${errorCount} errors while processing POIs for map ${selectedMap.name || 'Unknown'}.`);
+    }
 }
 
 function finalizeMapUI(requestedMapId, selectedMap) {
