@@ -1,3 +1,6 @@
+## 2023-10-27 - Optimized Filter Checkbox Toggle Iteration
+**Learning:** Frequent invocation of `querySelectorAll` with complex CSS selectors inside `change` event listeners causes a severe performance hit due to CSS parsing and DOM traversal overhead, especially when checking many elements.
+**Action:** Instead of `querySelectorAll` repeatedly querying dynamically updated DOM elements inside event listeners, cache a live `HTMLCollection` using `container.getElementsByTagName('input')` at the module level. Iterating over this live collection is incredibly fast and safely keeps track of new inputs added dynamically via scripts.
 ## 2024-05-23 - Debouncing Search Input
 **Learning:** The search input triggered a DOM-heavy filter function on every single keystroke. This causes UI lag, especially with large datasets (many markers).
 **Action:** Always debounce input handlers that trigger expensive operations (DOM manipulation, network requests, or heavy filtering). A 300ms delay is usually a sweet spot for user responsiveness vs. performance.

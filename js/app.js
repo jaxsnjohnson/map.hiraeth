@@ -733,6 +733,8 @@ const poiSearchInput = document.getElementById('poi-search-input');
 const searchScopeAtlasBtn = document.getElementById('search-scope-atlas-btn');
 const searchResultsContainer = document.getElementById('search-results-container');
 const poiFilterContainer = document.getElementById('poi-filter-container');
+// Cached live collection of all filter checkboxes for performance
+const poiFilterCheckboxesLive = poiFilterContainer ? poiFilterContainer.getElementsByTagName('input') : null;
 const filterToggleAllCheckbox = document.getElementById('filter-toggle-all');
 const toggleFiltersBtn = document.getElementById('toggle-filters-btn');
 const measureToolBtn = document.getElementById('measure-tool-btn');
@@ -3066,9 +3068,13 @@ if (searchRefineClearBtn) {
 
         filterToggleAllCheckbox.checked = true;
         filterToggleAllCheckbox.indeterminate = false;
-        poiFilterContainer.querySelectorAll('.poi-filter-checkbox, .region-group-filter, .region-type-filter, .line-type-filter').forEach(checkbox => {
-            if (checkbox.id !== 'filter-toggle-all') checkbox.checked = true;
-        });
+        if (poiFilterCheckboxesLive) {
+            for (let i = 0; i < poiFilterCheckboxesLive.length; i++) {
+                if (poiFilterCheckboxesLive[i].type === 'checkbox' && poiFilterCheckboxesLive[i].id !== 'filter-toggle-all') {
+                    poiFilterCheckboxesLive[i].checked = true;
+                }
+            }
+        }
 
         updateToggleAllCheckboxState();
         updateVisibleMarkersAndSearch();
@@ -6228,11 +6234,13 @@ poiFilterContainer.addEventListener('change', (e) => {
     // Handle master "Show All / Hide All" checkbox
     if (target.id === 'filter-toggle-all') {
         const isChecked = target.checked;
-        poiFilterContainer.querySelectorAll('.poi-filter-checkbox, .region-group-filter, .region-type-filter, .line-type-filter').forEach(checkbox => {
-            if (checkbox.id !== 'filter-toggle-all') {
-                checkbox.checked = isChecked;
+        if (poiFilterCheckboxesLive) {
+            for (let i = 0; i < poiFilterCheckboxesLive.length; i++) {
+                if (poiFilterCheckboxesLive[i].type === 'checkbox' && poiFilterCheckboxesLive[i].id !== 'filter-toggle-all') {
+                    poiFilterCheckboxesLive[i].checked = isChecked;
+                }
             }
-        });
+        }
         filterToggleAllCheckbox.indeterminate = false;
     }
 
