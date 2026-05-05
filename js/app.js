@@ -4928,6 +4928,39 @@ function startMapLoadingProgress(manifestEntry) {
     }, 150);
 }
 
+function finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileImage, loadStartedAt) {
+    // Defensive: if layers got detached during async startup, attach them again.
+    if (currentMapUnderlay && !map.hasLayer(currentMapUnderlay)) {
+        currentMapUnderlay.addTo(map);
+    }
+    if (currentImageLayer && !map.hasLayer(currentImageLayer)) {
+        currentImageLayer.addTo(map);
+    }
+
+    if (loadingIndicator) {
+        const progressBarEl = loadingIndicator.querySelector('.progress-bar');
+        if (progressBarEl) progressBarEl.style.width = '100%';
+        setTimeout(() => {
+            if (loadingProgressInterval) clearInterval(loadingProgressInterval);
+            loadingProgressInterval = null;
+            loadingIndicator.style.display = 'none';
+            loadingIndicator.classList.remove('initial-loader');
+        }, 300);
+    }
+
+    applySearchParamsToCurrentMap(new URLSearchParams(window.location.search));
+
+    syncMiniMapControl();
+
+    trackAnalytics('map_load_success', {
+        mapId: requestedMapId,
+        mapName: selectedMap.name,
+        imageVariant: usingAlternateMobileImage ? 'mobile' : 'default',
+        durationMs: Math.round(performance.now() - loadStartedAt)
+    });
+    clampFloatingPanels();
+}
+
 // --- Function to Load/Switch Map ---
 async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     hideShareRelayPrompt('map_loading');
@@ -5024,41 +5057,11 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         if (loadingComplete) return;
         loadingComplete = true;
         clearTimeout(loadingTimeout);
-
-        // Defensive: if layers got detached during async startup, attach them again.
-        if (currentMapUnderlay && !map.hasLayer(currentMapUnderlay)) {
-            currentMapUnderlay.addTo(map);
-        }
-        if (currentImageLayer && !map.hasLayer(currentImageLayer)) {
-            currentImageLayer.addTo(map);
-        }
-
-        if (loadingIndicator) {
-            const progressBarEl = loadingIndicator.querySelector('.progress-bar');
-            if (progressBarEl) progressBarEl.style.width = '100%';
-            setTimeout(() => {
-                if (loadingProgressInterval) clearInterval(loadingProgressInterval);
-                loadingProgressInterval = null;
-                loadingIndicator.style.display = 'none';
-                loadingIndicator.classList.remove('initial-loader');
-            }, 300);
-        }
-
-        applySearchParamsToCurrentMap(new URLSearchParams(window.location.search));
-
-        syncMiniMapControl();
-
-        trackAnalytics('map_load_success', {
-            mapId: requestedMapId,
-            mapName: selectedMap.name,
-            imageVariant: usingAlternateMobileImage ? 'mobile' : 'default',
-            durationMs: Math.round(performance.now() - loadStartedAt)
-        });
-        clampFloatingPanels();
+        finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileImage, loadStartedAt);
     }
 
-    preloadImg.onload = function () { finishLoading(); };
-    currentImageLayer.on('load', function () { finishLoading(); });
+    preloadImg.onload = finishLoading;
+    currentImageLayer.on('load', finishLoading);
     currentImageLayer.on('error', function () {
         if (loadingComplete) return;
         loadingComplete = true;
