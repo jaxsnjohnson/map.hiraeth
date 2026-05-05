@@ -6988,14 +6988,34 @@ async function loadMapData() {
     }
 }
 
+function cloneProcessedMapData(value) {
+    if (!value || typeof value !== 'object') return value;
+    return JSON.parse(JSON.stringify(value));
+}
+
 // --- NEW Recursive Helper Function ---
-async function processChild(childId, level = 0) {
+async function processChild(childId, level = 0, childCache = null) {
     // Base case for recursion depth limit or invalid ID
     if (level > 5 || !childId || typeof childId !== 'string') {
         // Return a placeholder that populateSidebar can handle as coming soon/error
         return { id: childId, name: String(childId || 'Invalid Child'), status: 'coming-soon', error: true };
     }
 
+    const useChildCache = childCache instanceof Map;
+    const cacheKey = `${level}:${childId}`;
+    if (useChildCache && childCache.has(cacheKey)) {
+        return cloneProcessedMapData(await childCache.get(cacheKey));
+    }
+
+    const childPromise = loadChildMapData(childId, level, useChildCache ? childCache : null);
+    if (useChildCache) {
+        childCache.set(cacheKey, childPromise);
+    }
+
+    return cloneProcessedMapData(await childPromise);
+}
+
+async function loadChildMapData(childId, level, childCache = null) {
     try {
         // Fetch the child map data
         const response = await fetch(withAssetVersion(`maps/${childId}.json`));
@@ -7008,7 +7028,7 @@ async function processChild(childId, level = 0) {
             if (childData.children && Array.isArray(childData.children) && childData.children.length > 0 && typeof childData.children[0] === 'string') {
                 const subChildIds = childData.children;
                 childData.children = []; // Prepare for processed sub-children
-                const subChildPromises = subChildIds.map(subId => processChild(subId, level + 1)); // Recursive call
+                const subChildPromises = subChildIds.map(subId => processChild(subId, level + 1, childCache)); // Recursive call
                 childData.children = await Promise.all(subChildPromises);
             }
             // *** END RECURSIVE STEP ***
@@ -7038,11 +7058,12 @@ async function processChild(childId, level = 0) {
     }
 }
 async function processMapData(maps) {
+    const childCache = new Map();
     const mapPromises = maps.map(async (map) => {
         if (map.children && Array.isArray(map.children) && map.children.length > 0 && typeof map.children[0] === 'string') {
             const childIds = map.children;
             map.children = [];
-            const childPromises = childIds.map(childId => processChild(childId, 1));
+            const childPromises = childIds.map(childId => processChild(childId, 1, childCache));
             map.children = await Promise.all(childPromises);
         }
         return map;
