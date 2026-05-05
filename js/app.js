@@ -6972,7 +6972,15 @@ async function loadMapData() {
             );
         }
         // Optionally display an error message to the user in the UI
-        sidebar.innerHTML = `<h2>Error</h2><p>${escapeHtml(getConfigValue('copy.loading.mapIndexError', 'Could not load map data. Please try refreshing the page or check the console for details.'))}</p>`;
+        if (sidebar) {
+            sidebar.innerHTML = `<h2>Error</h2><p>${escapeHtml(getConfigValue('copy.loading.mapIndexError', 'Could not load map data. Please try refreshing the page or check the console for details.'))}</p>`;
+        } else if (!loadingIndicator) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'fallback-error-notification';
+            errorDiv.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#ff4444;color:#fff;padding:15px;border-radius:4px;z-index:9999;box-shadow:0 4px 6px rgba(0,0,0,0.1);';
+            errorDiv.innerHTML = `<strong>Error</strong>: ${escapeHtml(getConfigValue('copy.loading.mapIndexError', 'Could not load map data. Please try refreshing the page or check the console for details.'))}`;
+            document.body.appendChild(errorDiv);
+        }
         trackAnalytics('map_index_load_failed', { reason: error?.message || 'unknown' });
     }
 }
@@ -7206,7 +7214,9 @@ function initializeApp() {
         loadMap(mapIdToLoad, false); // Load map, don't update hash yet
     } else {
         console.error("No loadable map data found for initialization.");
-        sidebar.innerHTML = `<h2>${escapeHtml(getConfigValue('copy.sidebarTitle', 'Select Map'))}</h2><p>${escapeHtml(getConfigValue('copy.loading.noMaps', 'No maps available.'))}</p>`;
+        if (sidebar) {
+            sidebar.innerHTML = `<h2>${escapeHtml(getConfigValue('copy.sidebarTitle', 'Select Map'))}</h2><p>${escapeHtml(getConfigValue('copy.loading.noMaps', 'No maps available.'))}</p>`;
+        }
         setMapBlurbVisible(false);
         // Ensure loading indicator is hidden if it somehow wasn't
         if (loadingIndicator) loadingIndicator.style.display = 'none';
