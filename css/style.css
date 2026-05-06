@@ -1666,6 +1666,17 @@ body.embedded-view #share-relay-coachmark {
     display: flex;
     align-items: center;
     font-weight: bold; /* Make the group name stand out */
+    padding: 2px 4px;
+    margin: -2px -4px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+.filter-group-header:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+.filter-group-header:hover {
+    background-color: var(--highlight-bg, rgba(212, 163, 106, 0.15));
 }
 .filter-chevron-icon {
     display: inline-flex;

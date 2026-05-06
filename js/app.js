@@ -4052,6 +4052,9 @@ function createRegionFilterGroupDOM(groupName, values) {
 
     const groupHeader = document.createElement('div');
     groupHeader.className = 'filter-group-header';
+    groupHeader.setAttribute('role', 'button');
+    groupHeader.setAttribute('tabindex', '0');
+    groupHeader.setAttribute('aria-expanded', 'false');
     groupHeader.innerHTML = `
         <span class="filter-chevron-icon" aria-hidden="true">
             <i class="ui-icon" data-lucide="chevron-right"></i>
@@ -6402,12 +6405,27 @@ poiFilterContainer.addEventListener('click', (e) => {
     if (header) {
         const group = header.closest('.filter-group');
         if (group) {
-            group.classList.toggle('closed');
+            const isClosed = group.classList.toggle('closed');
+            header.setAttribute('aria-expanded', !isClosed);
         }
     }
     e.stopPropagation();
 });
 
+// Allow keyboard toggling of filter groups
+poiFilterContainer.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        const header = e.target.closest('.filter-group-header');
+        if (header) {
+            e.preventDefault();
+            const group = header.closest('.filter-group');
+            if (group) {
+                const isClosed = group.classList.toggle('closed');
+                header.setAttribute('aria-expanded', !isClosed);
+            }
+        }
+    }
+});
 
 // --- Measurement Tool Logic ---
 function handleMeasurementClick(e) {
