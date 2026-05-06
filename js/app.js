@@ -5685,25 +5685,35 @@ if (systemThemeMediaQuery) {
     }
 }
 
-themeToggle.addEventListener('change', () => {
-    unlockAdvancedControls('theme_toggle');
-    const newThemePreference = themeToggle.checked ? 'dark' : 'light';
-    setThemePreference(newThemePreference);
-    const effectiveTheme = resolveEffectiveTheme(newThemePreference);
-    trackAnalytics('theme_changed', { theme: effectiveTheme, preference: newThemePreference });
+if (themeToggle) {
+    themeToggle.addEventListener('change', () => {
+        unlockAdvancedControls('theme_toggle');
+        const newThemePreference = themeToggle.checked ? 'dark' : 'light';
+        setThemePreference(newThemePreference);
+        const effectiveTheme = resolveEffectiveTheme(newThemePreference);
+        trackAnalytics('theme_changed', { theme: effectiveTheme, preference: newThemePreference });
 
-    // Update audio track if sound is enabled
-    if (soundEnabled) {
-        ensureAmbientTracksLoaded();
-        if (effectiveTheme === 'dark') {
-            fadeAudio(lightAmbient, 0);
-            fadeAudio(darkAmbient, 0.3);
-        } else {
-            fadeAudio(darkAmbient, 0);
-            fadeAudio(lightAmbient, 0.3);
+        // Update audio track if sound is enabled
+        if (soundEnabled) {
+            ensureAmbientTracksLoaded();
+            if (effectiveTheme === 'dark') {
+                fadeAudio(lightAmbient, 0);
+                fadeAudio(darkAmbient, 0.3);
+            } else {
+                fadeAudio(darkAmbient, 0);
+                fadeAudio(lightAmbient, 0.3);
+            }
         }
-    }
-});
+    });
+
+    themeToggle.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            themeToggle.checked = !themeToggle.checked;
+            themeToggle.dispatchEvent(new Event('change'));
+        }
+    });
+}
 
 // --- Sound Control Logic ---
 function ensureAmbientAudioLoaded(audioElement) {
