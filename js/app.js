@@ -2548,7 +2548,8 @@ function computeSearchMatch(term, primaryText, secondaryText = '') {
     // ⚡ Bolt: Defer expensive string normalization on potentially large secondary text
     // until after all primary fast-paths fail
     // ⚡ Bolt: Defer normalization of potentially large secondary text until we confirm it's needed
-    const normalizedSecondary = normalizeSearchValue(secondaryText);
+    const actualSecondaryText = typeof secondaryText === 'function' ? secondaryText() : secondaryText;
+    const normalizedSecondary = normalizeSearchValue(actualSecondaryText);
     if (normalizedSecondary) {
         if (normalizedSecondary.includes(term)) {
             return { matched: true, score: 180, matchedByContent: true };
@@ -3450,7 +3451,7 @@ function searchMapMarkers(searchTerm, results, allPoiGroupsChecked, activeSpecif
         let match = { matched: false, score: -1, matchedByContent: false };
         // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty) or the marker is filtered out.
         if (searchFiltersCurrentMap && groupMatch) {
-            match = computeSearchMatch(searchTerm, poi.name, `${poi.summary || ''} ${poi.description || ''}`);
+            match = computeSearchMatch(searchTerm, poi.name, () => `${poi.summary || ''} ${poi.description || ''}`);
         }
         const isSearchMatch = !searchTerm || match.matched;
 
@@ -3501,7 +3502,7 @@ function searchMapRegions(searchTerm, results, searchFiltersCurrentMap) {
 
             // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty).
             if (typeMatch) {
-                const match = computeSearchMatch(searchTerm, region.name, `${region.summary || ''} ${region.description || ''}`);
+                const match = computeSearchMatch(searchTerm, region.name, () => `${region.summary || ''} ${region.description || ''}`);
 
                 if (match.matched) {
                     results.push({
@@ -3545,7 +3546,7 @@ function searchMapLines(searchTerm, results, searchFiltersCurrentMap) {
 
             // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty).
             if (typeMatch) {
-                const match = computeSearchMatch(searchTerm, lineName, `${lineType} ${line.summary || ''} ${line.description || ''}`);
+                const match = computeSearchMatch(searchTerm, lineName, () => `${lineType} ${line.summary || ''} ${line.description || ''}`);
 
                 if (match.matched) {
                     results.push({
@@ -3568,7 +3569,7 @@ function searchMapRoutes(searchTerm, results, searchFiltersCurrentMap) {
     if (searchFiltersCurrentMap && currentRoutes && currentRoutes.length > 0) {
         currentRoutes.forEach((route) => {
             const routeName = route.name || route.id;
-            const routeMatch = computeSearchMatch(searchTerm, routeName, route.summary || '');
+            const routeMatch = computeSearchMatch(searchTerm, routeName, () => route.summary || '');
             if (routeMatch.matched) {
                 results.push({
                     group: 'route',
@@ -3582,7 +3583,7 @@ function searchMapRoutes(searchTerm, results, searchFiltersCurrentMap) {
 
             route.steps.forEach((step) => {
                 const stepTitle = step.title || step.id;
-                const stepMatch = computeSearchMatch(searchTerm, stepTitle, step.body || '');
+                const stepMatch = computeSearchMatch(searchTerm, stepTitle, () => step.body || '');
                 if (!stepMatch.matched) return;
                 results.push({
                     group: 'step',
@@ -3604,7 +3605,7 @@ function searchAtlasIndex(searchTerm, results) {
             const match = computeSearchMatch(
                 searchTerm,
                 entry.name,
-                `${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''}`
+                () => `${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''}`
             );
             if (!match.matched) return;
             results.push({
