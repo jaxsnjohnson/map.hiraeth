@@ -45,3 +45,6 @@
 ## 2025-05-30 - O(1) HTMLCollection Traversal vs querySelectorAll
 **Learning:** Frequent invocation of `querySelectorAll('.some-class')` inside tight search/filter loops triggers the browser's CSS parser and DOM traversal algorithms repeatedly, causing severe lag when a large number of checkboxes or DOM elements exist.
 **Action:** Always prefer caching a live `HTMLCollection` using `getElementsByTagName('input')` at the module level. Inside the iterative filter loops, replace `querySelectorAll` with a manual iteration over the cached collection, checking `.classList.contains()` to replicate the selector logic. This avoids CSS parsing entirely and provides immense performance gains.
+## 2025-05-31 - Deferring String Operations via Closures
+**Learning:** Even when `computeSearchMatch` deferred the normalization of `secondaryText` to be evaluated lazily, the caller was still passing `\`${poi.summary || ''} ${poi.description || ''}\``. This meant string concatenation was still eagerly evaluated for thousands of markers every time a filter changed.
+**Action:** Always accept a closure/function in the matching API `computeSearchMatch(term, text, secondaryTextFn)` to prevent evaluating expensive string templates at the callsite.
