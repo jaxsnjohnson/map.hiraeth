@@ -16,3 +16,6 @@
 ## 2023-10-24 - Make filter group headers keyboard accessible
 **Learning:** Adding `tabindex="0"` and `role="button"` makes custom group headers keyboard focusable, but requires an explicit `keydown` listener for 'Enter' and 'Space'. The default 'Space' behavior scrolls the page, requiring `e.preventDefault()`. Custom focus outlines via `:focus-visible` can cause layout shifts if not balanced with equal positive padding and negative margin (e.g., `padding: 2px 4px; margin: -2px -4px;`).
 **Action:** When implementing custom toggle elements, always add the `keydown` event listener, suppress default spacebar scrolling, and use the padding/margin trick to safely add focus rings without breaking the layout.
+## 2026-05-06 - Programmatic Checkbox Toggling
+**Learning:** When programmatically toggling the `checked` property of a native `<input type="checkbox">` in a custom `keydown` event listener (e.g., to handle 'Space' or 'Enter'), the browser does not automatically fire a 'change' event like it does for a physical click. This breaks any downstream logic relying on 'change' listeners.
+**Action:** Always explicitly dispatch a new 'change' event (e.g., `element.dispatchEvent(new Event('change'))`) immediately after programmatically mutating the `checked` state to ensure complete functionality parity with native clicks.
