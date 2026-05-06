@@ -5685,6 +5685,15 @@ if (systemThemeMediaQuery) {
     }
 }
 
+themeToggle.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault(); // Prevent page scroll on Space
+        themeToggle.checked = !themeToggle.checked;
+        // Manually dispatch change event since we are changing the property programmatically
+        themeToggle.dispatchEvent(new Event('change'));
+    }
+});
+
 themeToggle.addEventListener('change', () => {
     unlockAdvancedControls('theme_toggle');
     const newThemePreference = themeToggle.checked ? 'dark' : 'light';
