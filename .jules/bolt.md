@@ -48,3 +48,6 @@
 ## 2025-05-31 - Deferring String Operations via Closures
 **Learning:** Even when `computeSearchMatch` deferred the normalization of `secondaryText` to be evaluated lazily, the caller was still passing `\`${poi.summary || ''} ${poi.description || ''}\``. This meant string concatenation was still eagerly evaluated for thousands of markers every time a filter changed.
 **Action:** Always accept a closure/function in the matching API `computeSearchMatch(term, text, secondaryTextFn)` to prevent evaluating expensive string templates at the callsite.
+## 2025-06-01 - O(1) Set Lookups in Layer Filters
+**Learning:** Using `Array.includes` inside iterative map layer loops (like `updateVisibleLines`) creates an $O(m \times n)$ overhead when matching features against many active filter options.
+**Action:** Always collect user filter selections into a `Set` instead of an `Array` prior to iterating over map elements so checking visibility stays at $O(1)$ per layer.

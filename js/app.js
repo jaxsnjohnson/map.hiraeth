@@ -6314,14 +6314,15 @@ if (activeFiltersContainer) {
 function updateVisibleLines() {
     if (!currentRoadGroup) return;
 
-    const typeFilterValues = [];
+    // ⚡ Bolt: Use a Set for O(1) lookups inside the layer iteration loop below
+    const typeFilterValues = new Set();
     if (poiFilterCheckboxesLive) {
         for (let i = 0; i < poiFilterCheckboxesLive.length; i++) {
             const checkbox = poiFilterCheckboxesLive[i];
             if (checkbox.type === 'checkbox' &&
                 checkbox.classList.contains('line-type-filter') &&
                 checkbox.checked) {
-                typeFilterValues.push(checkbox.value);
+                typeFilterValues.add(checkbox.value);
             }
         }
     }
@@ -6332,7 +6333,7 @@ function updateVisibleLines() {
         if (!road) return;
 
         const roadType = road.type || "Unnamed Road Type"; // Match the logic in populateFilters
-        const typeMatch = allTypesChecked || typeFilterValues.includes(roadType);
+        const typeMatch = allTypesChecked || typeFilterValues.has(roadType);
 
         // Lines are always "visible" in terms of the master toggle (markersVisible)
         // Their appearance is solely based on type filters.
