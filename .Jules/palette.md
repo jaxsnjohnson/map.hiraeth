@@ -19,3 +19,7 @@
 ## 2026-05-06 - Programmatic Checkbox Toggling
 **Learning:** When programmatically toggling the `checked` property of a native `<input type="checkbox">` in a custom `keydown` event listener (e.g., to handle 'Space' or 'Enter'), the browser does not automatically fire a 'change' event like it does for a physical click. This breaks any downstream logic relying on 'change' listeners.
 **Action:** Always explicitly dispatch a new 'change' event (e.g., `element.dispatchEvent(new Event('change'))`) immediately after programmatically mutating the `checked` state to ensure complete functionality parity with native clicks.
+
+## 2026-05-15 - Destructive Actions and Confirmation
+**Learning:** Destructive actions without confirmation dialogs can easily lead to accidental data loss and frustration. Users often click quickly and don't realize the consequences of their action until it's too late.
+**Action:** Always wrap destructive actions, such as deleting a feature in a map editor, with a confirmation dialog (e.g., `window.confirm`) to explicitly require user consent and prevent accidental data loss.
