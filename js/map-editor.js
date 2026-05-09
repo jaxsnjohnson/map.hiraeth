@@ -1092,6 +1092,7 @@
 
     function deleteSelectedFeature() {
         if (!state.selectedFeature) return;
+        if (!window.confirm('Are you sure you want to delete this feature?')) return;
         const collection = getCurrentFeatureCollection(state.selectedFeature.mode);
         collection.splice(state.selectedFeature.index, 1);
         deselectFeature();
