@@ -146,6 +146,7 @@
     }
 
     function filterMapTree(items, query) {
+        if (!Array.isArray(items) || !query) return items;
         const q = String(query || '').trim().toLowerCase();
         if (!q) return items;
 
