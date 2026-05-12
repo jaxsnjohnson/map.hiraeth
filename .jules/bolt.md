@@ -51,3 +51,6 @@
 ## 2025-06-01 - O(1) Set Lookups in Layer Filters
 **Learning:** Using `Array.includes` inside iterative map layer loops (like `updateVisibleLines`) creates an $O(m \times n)$ overhead when matching features against many active filter options.
 **Action:** Always collect user filter selections into a `Set` instead of an `Array` prior to iterating over map elements so checking visibility stays at $O(1)$ per layer.
+## 2023-11-15 - O(1) Bypassing of Filter Collection Iteration
+**Learning:** Even with a pre-cached live `HTMLCollection`, iterating over all filter checkboxes to build an active `Set` is an $O(n)$ operation. When a "Toggle All" or "Master" checkbox state implicitly overrides all individual filter selections (acting as a wildcard), this iteration is wasted CPU time during frequent filtering operations.
+**Action:** In frontend filtering logic, when a "Toggle All" overriding state exists, compute the `allChecked` boolean *before* iterating over the individual filters. Bypass the entire DOM iteration and `Set` allocation using `if (!allChecked) { ... }` to achieve an O(1) early return and avoid redundant calculations.

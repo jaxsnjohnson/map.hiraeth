@@ -3480,8 +3480,9 @@ function searchMapMarkers(searchTerm, results, allPoiGroupsChecked, activeSpecif
 function searchMapRegions(searchTerm, results, searchFiltersCurrentMap) {
     if (!searchFiltersCurrentMap || !currentRegionGroup) return;
 
+    const allRegionTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
     const activeRegionTypeFilters = new Set();
-    if (poiFilterCheckboxesLive) {
+    if (!allRegionTypesChecked && poiFilterCheckboxesLive) {
         for (let i = 0; i < poiFilterCheckboxesLive.length; i++) {
             const checkbox = poiFilterCheckboxesLive[i];
             if (checkbox.type === 'checkbox' &&
@@ -3491,7 +3492,6 @@ function searchMapRegions(searchTerm, results, searchFiltersCurrentMap) {
             }
         }
     }
-    const allRegionTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
 
     currentRegionGroup.eachLayer((layer) => {
             const region = layer.regionData;
@@ -3524,8 +3524,9 @@ function searchMapRegions(searchTerm, results, searchFiltersCurrentMap) {
 function searchMapLines(searchTerm, results, searchFiltersCurrentMap) {
     if (!searchFiltersCurrentMap || !currentRoadGroup) return;
 
+    const allLineTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
     const activeLineTypeFilters = new Set();
-    if (poiFilterCheckboxesLive) {
+    if (!allLineTypesChecked && poiFilterCheckboxesLive) {
         for (let i = 0; i < poiFilterCheckboxesLive.length; i++) {
             const checkbox = poiFilterCheckboxesLive[i];
             if (checkbox.type === 'checkbox' &&
@@ -3535,7 +3536,6 @@ function searchMapLines(searchTerm, results, searchFiltersCurrentMap) {
             }
         }
     }
-    const allLineTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
 
     currentRoadGroup.eachLayer((layer) => {
             const line = layer.roadData;
@@ -3643,8 +3643,9 @@ function updateVisibleMarkersAndSearch() {
     const searchTerm = normalizeSearchValue(poiSearchInput.value);
     const results = [];
 
+    const allPoiGroupsChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
     const activeSpecificGroupFilters = new Set();
-    if (poiFilterCheckboxesLive) {
+    if (!allPoiGroupsChecked && poiFilterCheckboxesLive) {
         for (let i = 0; i < poiFilterCheckboxesLive.length; i++) {
             const checkbox = poiFilterCheckboxesLive[i];
             if (checkbox.type === 'checkbox' &&
@@ -3655,7 +3656,6 @@ function updateVisibleMarkersAndSearch() {
             }
         }
     }
-    const allPoiGroupsChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
     const searchFiltersCurrentMap = currentSearchScope === SEARCH_SCOPE_MAP && !!searchTerm;
 
     searchMapMarkers(searchTerm, results, allPoiGroupsChecked, activeSpecificGroupFilters, searchFiltersCurrentMap);
@@ -5198,9 +5198,12 @@ function addRegionsToMap(mapId) {
 function updateVisibleRegions() {
     if (!currentRegionGroup) return;
 
+    // Check the master toggle state
+    const allTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
+
     // Get the currently checked region type filters (the individual values)
     const valueFilterValues = new Set();
-    if (poiFilterCheckboxesLive) {
+    if (!allTypesChecked && poiFilterCheckboxesLive) {
         for (let i = 0; i < poiFilterCheckboxesLive.length; i++) {
             const checkbox = poiFilterCheckboxesLive[i];
             if (checkbox.type === 'checkbox' &&
@@ -5210,9 +5213,6 @@ function updateVisibleRegions() {
             }
         }
     }
-
-    // Check the master toggle state
-    const allTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
 
     currentRegionGroup.eachLayer(layer => {
         const region = layer.regionData;
@@ -6314,9 +6314,11 @@ if (activeFiltersContainer) {
 function updateVisibleLines() {
     if (!currentRoadGroup) return;
 
+    const allTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
+
     // ⚡ Bolt: Use a Set for O(1) lookups inside the layer iteration loop below
     const typeFilterValues = new Set();
-    if (poiFilterCheckboxesLive) {
+    if (!allTypesChecked && poiFilterCheckboxesLive) {
         for (let i = 0; i < poiFilterCheckboxesLive.length; i++) {
             const checkbox = poiFilterCheckboxesLive[i];
             if (checkbox.type === 'checkbox' &&
@@ -6326,7 +6328,6 @@ function updateVisibleLines() {
             }
         }
     }
-    const allTypesChecked = filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
 
     currentRoadGroup.eachLayer(layer => {
         const road = layer.roadData;
