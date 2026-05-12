@@ -86,6 +86,13 @@ assert.equal(filteredByCategory.length, 1);
 assert.equal(filteredByCategory[0].children.length, 1);
 assert.equal(filteredByCategory[0].children[0].id, 'main-map');
 
+// Edge cases for filterMapTree
+assert.equal(filterMapTree(null, 'query'), null);
+assert.equal(filterMapTree(undefined, 'query'), undefined);
+assert.equal(filterMapTree('string', 'query'), 'string');
+assert.equal(filterMapTree(123, 'query'), 123);
+assert.deepEqual(filterMapTree({ a: 1 }, 'query'), { a: 1 });
+
 const normalizedPoint = normalizePoint({
     name: 'Round Trip',
     coords: ['11.7', '9.2'],
