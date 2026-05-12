@@ -62,7 +62,7 @@ assert.ok(
 );
 
 assert.ok(
-    popupHtml.includes(`onclick="copyFeatureLink(this, 'poi', 'Old <Lin> \"Watch\" O\\\\Brien')"`),
+    popupHtml.includes(`onclick="copyFeatureLink(this, 'poi', 'Old &lt;Lin&gt; &quot;Watch&quot; O\\\\Brien')"`),
     'share link handler argument should preserve backslashes safely'
 );
 

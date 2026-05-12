@@ -14,3 +14,7 @@
 **Vulnerability:** DOM-based XSS via `wipPopup.innerHTML` where configurable strings from `copy.wipNotice` are directly injected without escaping.
 **Learning:** Configurable HTML elements or strings that bypass rendering methods using innerHTML directly are prone to script injections, particularly when they map from arrays.
 **Prevention:** Always use `DOMPurify.sanitize()` or an explicit `escapeHtml` fallback before rendering arrays of configured strings or content into `.innerHTML`.
+## 2025-05-24 - [DOM-based XSS in Single-Quoted Event Handlers]
+**Vulnerability:** XSS via `escapeForSingleQuotedAttribute` when the output is rendered using `innerHTML`. The function escaped backslashes and single quotes correctly for a JavaScript string context, but failed to escape HTML entities (like `&apos;`). When assigned to `innerHTML`, the browser decodes `&apos;` to `'` *before* evaluating the `onclick` attribute, breaking out of the single quotes and executing arbitrary code.
+**Learning:** When sanitizing strings that will be placed inside inline event handlers (like `onclick='...'`) and injected via `innerHTML`, the escaping must handle both JavaScript string boundaries *and* HTML entity decoding.
+**Prevention:** Always escape ampersands (`&`) to `&amp;` alongside quotes and backslashes to prevent HTML parsers from decoding entities prematurely when injecting attributes into the DOM via strings.
