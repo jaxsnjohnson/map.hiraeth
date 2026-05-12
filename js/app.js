@@ -5456,12 +5456,12 @@ function createSidebarGroupItem(groupLabel, sourceItems) {
 }
 
 function populateSidebar(parentElement, items) {
+    if (!parentElement || !Array.isArray(items)) return;
     parentElement.innerHTML = '';
-    const sourceItems = Array.isArray(items) ? items : [];
-    const hasGroupedItems = sourceItems.some((item) => getMapPresetGroupLabel(item));
+    const hasGroupedItems = items.some((item) => getMapPresetGroupLabel(item));
 
     if (!hasGroupedItems) {
-        sourceItems.forEach((item) => {
+        items.forEach((item) => {
             parentElement.appendChild(createSidebarListItem(item));
         });
         refreshLucideIcons();
@@ -5469,7 +5469,7 @@ function populateSidebar(parentElement, items) {
     }
 
     const renderedGroups = new Set();
-    sourceItems.forEach((item) => {
+    items.forEach((item) => {
         const groupLabel = getMapPresetGroupLabel(item);
         if (!groupLabel) {
             parentElement.appendChild(createSidebarListItem(item));
@@ -5478,7 +5478,7 @@ function populateSidebar(parentElement, items) {
         if (renderedGroups.has(groupLabel)) return;
         renderedGroups.add(groupLabel);
 
-        parentElement.appendChild(createSidebarGroupItem(groupLabel, sourceItems));
+        parentElement.appendChild(createSidebarGroupItem(groupLabel, items));
     });
     refreshLucideIcons();
 }
