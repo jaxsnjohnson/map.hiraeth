@@ -153,6 +153,15 @@ details[open] .map-editor-section-header h2::before {
     font: inherit;
 }
 
+#editor-tree-search:focus-visible,
+.map-editor-form input:focus-visible,
+.map-editor-form select:focus-visible,
+.map-editor-form textarea:focus-visible,
+#editor-feature-search:focus-visible {
+    outline: 2px solid var(--focus-ring, #0f5fbf);
+    outline-offset: 2px;
+}
+
 #editor-tree-search {
     margin-bottom: 16px;
 }
@@ -209,6 +218,16 @@ details[open] .map-editor-section-header h2::before {
     color: inherit;
     border-radius: 10px;
     font: inherit;
+}
+
+.map-editor-tree-toggle:focus-visible,
+.map-editor-tree-item:focus-visible,
+.map-editor-toolbar button:focus-visible,
+.map-editor-export-bar button:focus-visible,
+.map-editor-panel-header button:focus-visible,
+.map-editor-feature-entry:focus-visible {
+    outline: 2px solid var(--focus-ring, #0f5fbf);
+    outline-offset: 2px;
 }
 
 .map-editor-tree-toggle,
