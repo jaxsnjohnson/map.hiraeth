@@ -1275,10 +1275,6 @@ function syncBottomBarHeightVariable() {
     rootElement.style.setProperty('--bottom-link-bar-height', `${bottomBarHeight}px`);
 }
 
-function getViewportHeight() {
-    return window.visualViewport ? window.visualViewport.height : window.innerHeight;
-}
-
 function clampFloatingPanels() {
     if (!mobileLayoutV2Enabled || isMobileLayoutActive) return;
     [routePanel, sessionToolkitPanel, gmPill].forEach((panel) => {
