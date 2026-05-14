@@ -3587,14 +3587,23 @@ function searchMapRoutes(searchTerm, results, searchFiltersCurrentMap) {
 
 function searchAtlasIndex(searchTerm, results) {
     if (currentSearchScope === SEARCH_SCOPE_ATLAS && searchTerm) {
-        atlasSearchIndex.forEach((entry) => {
-            if (!visibilityAllowed(entry)) return;
+        let currentAtlasEntry = null;
+        const getAtlasSecondaryText = () => `${currentAtlasEntry.mapName || ''} ${currentAtlasEntry.typeLabel || ''} ${currentAtlasEntry.summary || ''} ${currentAtlasEntry.description || ''}`;
+
+        for (let i = 0; i < atlasSearchIndex.length; i++) {
+            const entry = atlasSearchIndex[i];
+            if (!visibilityAllowed(entry)) continue;
+
+            currentAtlasEntry = entry;
+            // ⚡ Bolt: Use pre-normalized name if available, and use a shared function context to avoid closure allocation
             const match = computeSearchMatch(
                 searchTerm,
-                entry.name,
-                () => `${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''}`
+                entry._normalizedName || entry.name,
+                getAtlasSecondaryText
             );
-            if (!match.matched) return;
+
+            if (!match.matched) continue;
+
             results.push({
                 group: entry.kind,
                 badge: entry.kind === 'map' ? 'Map' : (entry.typeLabel || entry.kind),
@@ -3605,7 +3614,7 @@ function searchAtlasIndex(searchTerm, results) {
                 score: match.score + (entry.kind === 'map' ? 10 : 0),
                 onSelect: () => openAtlasSearchResult(entry)
             });
-        });
+        }
     }
 }
 
@@ -7030,6 +7039,11 @@ async function loadMapData() {
         mapData = atlas.tree;
         atlasSearchIndex = Array.isArray(atlas.searchIndex) ? atlas.searchIndex : [];
         atlasGeneratedAt = atlas.generatedAt || null;
+
+        // ⚡ Bolt: Pre-normalize atlas search index names to accelerate computeSearchMatch during searches
+        for (let i = 0; i < atlasSearchIndex.length; i++) {
+            atlasSearchIndex[i]._normalizedName = normalizeSearchValue(atlasSearchIndex[i].name);
+        }
 
         if (loadingIndicator && loadingIndicator.querySelector('.progress-bar')) {
             loadingIndicator.querySelector('.progress-bar').style.width = '100%';
