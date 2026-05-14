@@ -3431,19 +3431,63 @@ function sortSearchResults(results) {
         .slice(0, 40);
 }
 
+function computePrecomputedSearchMatch(term, normalizedPrimary, normalizedSecondary) {
+    if (!term || !normalizedPrimary) return { matched: false, score: -1, matchedByContent: false };
+
+    if (normalizedPrimary === term) {
+        return { matched: true, score: 520, matchedByContent: false };
+    }
+    if (normalizedPrimary.startsWith(term)) {
+        return { matched: true, score: 430, matchedByContent: false };
+    }
+    const primaryIndex = normalizedPrimary.indexOf(term);
+    if (primaryIndex >= 0) {
+        return { matched: true, score: 320 - Math.min(primaryIndex, 120), matchedByContent: false };
+    }
+
+    const fuzzyScore = getFuzzyMatchScore(term, normalizedPrimary);
+    if (fuzzyScore >= 0) {
+        return { matched: true, score: fuzzyScore, matchedByContent: false };
+    }
+
+    if (normalizedSecondary) {
+        if (normalizedSecondary.includes(term)) {
+            return { matched: true, score: 180, matchedByContent: true };
+        }
+        const fuzzySecondaryScore = getFuzzyMatchScore(term, normalizedSecondary);
+        if (fuzzySecondaryScore >= 0) {
+            return { matched: true, score: Math.max(80, fuzzySecondaryScore - 40), matchedByContent: true };
+        }
+    }
+
+    return { matched: false, score: -1, matchedByContent: false };
+}
+
 function searchMapMarkers(searchTerm, results, allPoiGroupsChecked, activeSpecificGroupFilters, searchFiltersCurrentMap) {
+    const hasSearchTerm = !!searchTerm;
+
     allMapMarkers.forEach((marker) => {
         const poi = marker.poiData;
         if (!poi) return;
 
-        const poiGroup = getPoiGroup(poi.type);
+        let searchContext = marker._searchContext;
+        if (!searchContext) {
+            searchContext = {
+                poiGroup: getPoiGroup(poi.type),
+                normalizedPrimary: normalizeSearchValue(poi.name),
+                normalizedSecondary: normalizeSearchValue(`${poi.summary || ''} ${poi.description || ''}`)
+            };
+            marker._searchContext = searchContext;
+        }
+
+        const poiGroup = searchContext.poiGroup;
         const groupMatch = allPoiGroupsChecked || activeSpecificGroupFilters.has(poiGroup);
         let match = { matched: false, score: -1, matchedByContent: false };
         // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty) or the marker is filtered out.
-        if (searchFiltersCurrentMap && groupMatch) {
-            match = computeSearchMatch(searchTerm, poi.name, () => `${poi.summary || ''} ${poi.description || ''}`);
+        if (searchFiltersCurrentMap && groupMatch && hasSearchTerm) {
+            match = computePrecomputedSearchMatch(searchTerm, searchContext.normalizedPrimary, searchContext.normalizedSecondary);
         }
-        const isSearchMatch = !searchTerm || match.matched;
+        const isSearchMatch = !hasSearchTerm || match.matched;
 
         if (markersVisible && groupMatch && (!searchFiltersCurrentMap || isSearchMatch)) {
             if (!currentMarkerGroup.hasLayer(marker)) currentMarkerGroup.addLayer(marker);
@@ -3451,7 +3495,7 @@ function searchMapMarkers(searchTerm, results, allPoiGroupsChecked, activeSpecif
             currentMarkerGroup.removeLayer(marker);
         }
 
-        if (searchFiltersCurrentMap && groupMatch && match.matched) {
+        if (searchFiltersCurrentMap && groupMatch && match.matched && hasSearchTerm) {
             results.push({
                 group: 'poi',
                 badge: 'POI',
