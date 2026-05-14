@@ -12,7 +12,7 @@ global.SEARCH_RESULT_GROUP_ORDER.forEach((group, index) => {
 });
 
 const functionStart = code.indexOf('function sortSearchResults(results)');
-const functionEnd = code.indexOf('function searchMapMarkers', functionStart);
+const functionEnd = code.indexOf('function computePrecomputedSearchMatch', functionStart);
 
 if (functionStart === -1 || functionEnd === -1) {
     throw new Error('Could not extract sortSearchResults function block');
