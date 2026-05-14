@@ -15,7 +15,7 @@ const appSource = fs.readFileSync('js/app.js', 'utf8');
 const escapeHtmlStart = appSource.indexOf('function escapeHtml(value) {');
 const escapeHtmlEnd = appSource.indexOf('function escapeForSingleQuotedAttribute(value) {');
 const renderStart = appSource.indexOf('function renderMapBlurbContent');
-const renderEnd = appSource.indexOf('function getMobileMapListEntryCount');
+const renderEnd = appSource.indexOf('function syncMobileMapMeta');
 
 if (escapeHtmlStart === -1 || escapeHtmlEnd === -1 || renderStart === -1 || renderEnd === -1) {
     throw new Error('Could not locate required functions in js/app.js');
