@@ -5027,7 +5027,7 @@ function finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileI
 }
 
 // --- Function to Load/Switch Map ---
-async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
+function initMapLoadContext(mapId, preResolvedMap) {
     hideShareRelayPrompt('map_loading');
     const requestedMapId = String(mapId || '').trim();
     if (requestedMapId) {
@@ -5035,7 +5035,7 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     }
     const requestToken = ++loadRequestToken;
     const manifestEntry = preResolvedMap || findMapRecursive(mapData, requestedMapId);
-    const loadStartedAt = performance.now();
+
     loadingMapId = requestedMapId;
     trackAnalytics('map_load_started', { mapId: requestedMapId });
     setMapAtmosphere(manifestEntry?.atmosphere || null);
@@ -5047,17 +5047,20 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         });
     }
 
-    startMapLoadingProgress(manifestEntry);
+    return { requestedMapId, manifestEntry, requestToken };
+}
 
-    resetMapState();
-
+function handleMapUnavailable(manifestEntry, requestedMapId, mapId, updateHash) {
     if (!manifestEntry || manifestEntry.status === 'coming-soon') {
         console.warn('Attempted to load unavailable map:', mapId);
         if (manifestEntry) alert(`The map "${manifestEntry.name}" is coming soon.`);
         abortMapLoad('unavailable', requestedMapId, 'This map is not available yet.', updateHash, true);
-        return;
+        return true;
     }
+    return false;
+}
 
+function handleRedundantLoad(requestedMapId, updateHash) {
     if (requestedMapId === currentlyLoadedMapId && currentImageLayer) {
         loadingMapId = null;
         replaceMapHistoryState(requestedMapId, updateHash);
@@ -5066,40 +5069,36 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
             loadingIndicator.style.display = 'none';
         }
         applySearchParamsToCurrentMap(new URLSearchParams(window.location.search));
-        return;
+        return true;
     }
+    return false;
+}
 
-    let selectedMap = manifestEntry;
+async function fetchMapDefinitionOrAbort(requestedMapId, manifestEntry, requestToken, updateHash) {
     try {
-        selectedMap = await getMapDefinition(requestedMapId, manifestEntry);
+        return await getMapDefinition(requestedMapId, manifestEntry);
     } catch (error) {
-        if (requestToken !== loadRequestToken) return;
-        console.error(`Failed to load map definition for ${requestedMapId}:`, error);
-        abortMapLoad('definition_error', requestedMapId, `Could not load "${manifestEntry.name || requestedMapId}" data. Check the map definition and press Retry.`, updateHash, false, true);
-        return;
+        if (requestToken === loadRequestToken) {
+            console.error(`Failed to load map definition for ${requestedMapId}:`, error);
+            abortMapLoad('definition_error', requestedMapId, `Could not load "${manifestEntry.name || requestedMapId}" data. Check the map definition and press Retry.`, updateHash, false, true);
+        }
+        return null;
     }
+}
 
-    if (requestToken !== loadRequestToken) {
-        return;
-    }
-
-    currentMapData = selectedMap;
-    setMapAtmosphere(selectedMap?.atmosphere || manifestEntry?.atmosphere || null);
-
+function setupMapLayers(selectedMap, requestedMapId, mapImageUrl, updateHash) {
     currentMarkerGroup = L.layerGroup();
     currentRegionGroup = L.layerGroup().addTo(map);
     currentRoadGroup = L.layerGroup().addTo(map);
 
     const mapHeight = selectedMap.height;
     const mapWidth = selectedMap.width;
-    const mapImageUrl = getPreferredMapImageUrl(selectedMap);
     prefetchedImageUrls.add(withAssetVersion(mapImageUrl));
-    const defaultImageUrl = String(selectedMap.imageUrl || '').trim();
-    const usingAlternateMobileImage = !!defaultImageUrl && mapImageUrl !== defaultImageUrl;
+
     if (isNaN(mapHeight) || isNaN(mapWidth) || !mapImageUrl) {
         console.error(`Invalid dimensions or missing imageUrl for map ID ${requestedMapId}`);
         abortMapLoad('invalid_data', requestedMapId, `Could not load "${selectedMap.name}". The map data is invalid. Press Retry after fixing map dimensions.`, updateHash, false, true);
-        return;
+        return false;
     }
 
     currentBounds = [[0, 0], [mapHeight, mapWidth]];
@@ -5113,7 +5112,10 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
         pane: 'tilePane'
     });
     currentImageLayer = L.imageOverlay(mapImageUrl, currentBounds);
+    return true;
+}
 
+function setupMapImageLoading(requestedMapId, selectedMap, mapImageUrl, usingAlternateMobileImage, loadStartedAt, updateHash) {
     const preloadImg = new Image();
     let loadingComplete = false;
     let loadingTimeout = null;
@@ -5147,11 +5149,34 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
     currentMapUnderlay.addTo(map);
     preloadImg.src = mapImageUrl;
     currentImageLayer.addTo(map);
+}
+
+async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
+    const loadStartedAt = performance.now();
+    const { requestedMapId, manifestEntry, requestToken } = initMapLoadContext(mapId, preResolvedMap);
+
+    startMapLoadingProgress(manifestEntry);
+    resetMapState();
+
+    if (handleMapUnavailable(manifestEntry, requestedMapId, mapId, updateHash)) return;
+    if (handleRedundantLoad(requestedMapId, updateHash)) return;
+
+    let selectedMap = await fetchMapDefinitionOrAbort(requestedMapId, manifestEntry, requestToken, updateHash);
+    if (!selectedMap || requestToken !== loadRequestToken) return;
+
+    currentMapData = selectedMap;
+    setMapAtmosphere(selectedMap?.atmosphere || manifestEntry?.atmosphere || null);
+
+    const mapImageUrl = getPreferredMapImageUrl(selectedMap);
+    const defaultImageUrl = String(selectedMap.imageUrl || '').trim();
+    const usingAlternateMobileImage = !!defaultImageUrl && mapImageUrl !== defaultImageUrl;
+
+    if (!setupMapLayers(selectedMap, requestedMapId, mapImageUrl, updateHash)) return;
+
+    setupMapImageLoading(requestedMapId, selectedMap, mapImageUrl, usingAlternateMobileImage, loadStartedAt, updateHash);
 
     renderMapFeatures(selectedMap, requestedMapId);
-
     finalizeMapUI(requestedMapId, selectedMap);
-
     pushMapHistoryState(requestedMapId, updateHash, selectedMap.name);
 }
 
