@@ -1,10 +1,270 @@
 (function initAppConfig(root, factory) {
+    const DEFAULT_SITE_CONFIG = {
+            brand: {
+                siteName: 'HAG Interactive World Map Viewer',
+                shortName: 'Hiraeth Maps',
+                description: 'Explore interactive maps, discover points of interest, and measure distances in Hiraeth!',
+                publicUrl: 'https://maps.hiraeth.wiki/',
+                author: 'Jax SN Johnson',
+                sourceUrl: 'https://jsnj.link/map-hiraeth-source',
+                socialPreviewImage: 'https://maps.hiraeth.wiki/images/hiraeth-maps-preview.png',
+                icons: {
+                    favicon16: 'favicon-16x16.png',
+                    favicon32: 'favicon-32x32.png',
+                    favicon: 'favicon.png',
+                    appleTouchIcon: 'apple-touch-icon.png'
+                }
+            },
+            assets: {
+                version: '2026.04.19.04',
+                stylesheets: [
+                    'css/style.css',
+                    'css/stars.css',
+                    'css/Control.MiniMap.min.css'
+                ],
+                editorStylesheets: [
+                    'css/style.css',
+                    'css/map-editor.css'
+                ],
+                scripts: [
+                    'js/libs/Control.MiniMap.min.js',
+                    'js/starfield.js',
+                    'js/app.js'
+                ],
+                editorScripts: [
+                    'js/editor-shared.js',
+                    'js/map-editor.js'
+                ],
+                cloudTexture: 'images/clouds.webp',
+                previewImage: 'images/hiraeth-maps-preview.png',
+                poiIcons: {
+                    Settlements: 'images/poi-icons/settlements.png',
+                    Structures: 'images/poi-icons/structures.png',
+                    'Natural Features': 'images/poi-icons/natural-features.png',
+                    Other: 'images/poi-icons/other.png',
+                    Unknown: 'images/poi-icons/unknown.png'
+                },
+                audio: {
+                    light: 'sounds/gentle-winds.mp3',
+                    dark: 'sounds/night-ambient.mp3'
+                },
+                serviceWorker: {
+                    versionedShellAssets: [
+                        'css/style.css',
+                        'css/stars.css',
+                        'css/Control.MiniMap.min.css',
+                        'js/app-config.js',
+                        'js/app.js',
+                        'js/starfield.js',
+                        'js/libs/Control.MiniMap.min.js',
+                        'maps/atlas-index.json',
+                        'site.config.json'
+                    ],
+                    staticShellAssets: [
+                        './',
+                        'index.html',
+                        'favicon-16x16.png',
+                        'favicon-32x32.png',
+                        'favicon.png',
+                        'apple-touch-icon.png',
+                        'images/sky-background.webp',
+                        'images/clouds.webp',
+                        'images/toggle.svg',
+                        'images/hiraeth-maps-preview.png',
+                        'images/poi-icons/settlements.png',
+                        'images/poi-icons/structures.png',
+                        'images/poi-icons/natural-features.png',
+                        'images/poi-icons/other.png',
+                        'images/poi-icons/unknown.png'
+                    ]
+                }
+            },
+            theme: {
+                preset: 'parchment',
+                fontImportUrl: 'https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap',
+                fontFamilyMain: "'EB Garamond', serif",
+                baseTextScale: 1,
+                tokens: {
+                    light: {
+                        '--bg-primary': '#fdfaf6',
+                        '--bg-secondary': '#f4f0eb',
+                        '--text-primary': '#6b2c25',
+                        '--text-secondary': '#8f5a2f',
+                        '--border-color': '#dcd3c8',
+                        '--highlight-bg': 'rgba(212, 163, 106, 0.3)',
+                        '--active-bg': 'rgba(189, 137, 77, 0.5)',
+                        '--shadow-color': 'rgba(107, 44, 37, 0.15)',
+                        '--slider-bg': '#d4a36a',
+                        '--slider-color': 'white',
+                        '--slider-checked-bg': '#1f70c9',
+                        '--glass-bg-light': 'rgba(253, 250, 246, 0.75)',
+                        '--glass-border-light': 'rgba(160, 82, 45, 0.3)',
+                        '--popup-bg-light': '#f7f1e7',
+                        '--popup-border-light': 'rgba(132, 92, 62, 0.42)',
+                        '--popup-shadow-light': '0 2px 8px rgba(107, 44, 37, 0.1)',
+                        '--scrollbar-track': 'rgba(0, 0, 0, 0.05)',
+                        '--scrollbar-thumb': 'rgba(160, 82, 45, 0.5)',
+                        '--scrollbar-thumb-hover': 'rgba(160, 82, 45, 0.7)',
+                        '--focus-ring': '#0f5fbf'
+                    },
+                    dark: {
+                        '--bg-primary': '#222034',
+                        '--bg-secondary': '#1b1830',
+                        '--text-primary': '#e8e6f2',
+                        '--text-secondary': '#d4d3ff',
+                        '--border-color': '#524f6c',
+                        '--highlight-bg': 'rgba(237, 174, 73, 0.3)',
+                        '--active-bg': 'rgba(66, 159, 227, 0.4)',
+                        '--shadow-color': 'rgba(0, 0, 0, 0.3)',
+                        '--slider-bg': '#555',
+                        '--slider-color': '#429fe3',
+                        '--slider-checked-bg': '#429fe3',
+                        '--glass-bg-dark': 'rgba(34, 33, 50, 0.7)',
+                        '--glass-border-dark': 'rgba(245, 67, 91, 0.3)',
+                        '--popup-bg-dark': '#2c2933',
+                        '--popup-border-dark': 'rgba(100, 91, 108, 0.62)',
+                        '--popup-shadow-dark': '0 2px 10px rgba(0, 0, 0, 0.2)',
+                        '--scrollbar-track': 'rgba(255, 255, 255, 0.05)',
+                        '--scrollbar-thumb': 'rgba(114, 111, 150, 0.6)',
+                        '--scrollbar-thumb-hover': 'rgba(114, 111, 150, 0.8)',
+                        '--focus-ring': '#8dc4ff'
+                    }
+                },
+                mapBackgroundColors: {
+                    light: '#f4f0eb',
+                    dark: '#050510'
+                }
+            },
+            features: {
+                sound: true,
+                stars: true,
+                atmosphere: true,
+                minimap: true,
+                shareLinks: true,
+                serviceWorker: true,
+                atlasSearch: true,
+                filters: true,
+                coordinates: true,
+                routes: true,
+                sessionToolkit: true,
+                gmMode: true,
+                editor: true,
+                onboarding: true,
+                wipNotice: true,
+                embeddedMode: true
+            },
+            performance: {
+                lowQualityMode: false,
+                mobileBreakpoint: 768,
+                starCount: 450,
+                starFps: 30,
+                linkedMapPrefetchLimit: 3,
+                prefetchImages: true,
+                prefetchJson: true,
+                serviceWorker: true
+            },
+            taxonomy: {
+                poiTypeGroups: {
+                    Settlements: ['City', 'Town', 'Village', 'Hamlet', 'Settlement', 'Capital'],
+                    Structures: ['Castle', 'Fortress', 'Fort', 'Tower', 'Ruin', 'Temple', 'Shrine', 'Mine', 'Lighthouse', 'Bridge', 'Dungeon', 'Lair', 'Camp', 'Asylum', 'Landmark'],
+                    'Natural Features': ['Mountain', 'Peak', 'Forest', 'Wood', 'River', 'Lake', 'Cave', 'Cavern', 'Coast', 'Bay', 'Cove', 'Swamp', 'Marsh', 'Desert', 'Natural Landmark'],
+                    Other: ['Point of Interest', 'Region', 'Portal'],
+                    Unknown: ['Unknown']
+                },
+                labels: {
+                    filterHeading: 'Filter by Type:',
+                    showAll: 'Show All / Hide All',
+                    atlasSearchScope: 'Atlas',
+                    mapSearchScope: 'This Map'
+                },
+                defaultRegionStyle: {
+                    color: '#3388ff',
+                    fillColor: '#3388ff',
+                    fillOpacity: 0.2
+                },
+                defaultLineStyle: {
+                    color: '#ffffff',
+                    weight: 3
+                }
+            },
+            copy: {
+                sidebarTitle: 'Select Map',
+                themeLabel: 'Theme',
+                loading: {
+                    mapData: 'Loading Map Data...',
+                    mapIndex: 'Loading map index...',
+                    processing: 'Processing map data...',
+                    retry: 'Retry',
+                    mapIndexError: 'Error loading map index. Check your connection and press Retry.',
+                    noMaps: 'No maps available.'
+                },
+                onboarding: {
+                    text: "New here? Open the Traveler's Guide for controls and shortcuts.",
+                    openGuide: 'Open Guide',
+                    dismiss: 'Dismiss'
+                },
+                shareRelay: {
+                    default: 'Shared with you. Pass it on to your party.',
+                    mapView: 'Shared with you. Pass this map view to your party.',
+                    feature: 'Shared with you: {featureName}. Pass it on to your party.',
+                    action: 'Share This',
+                    dismiss: 'Dismiss'
+                },
+                wipNotice: [
+                    'This atlas is still being refined.',
+                    'Some markers, names, and boundaries may be inaccurate.'
+                ],
+                bottomLinks: [
+                    { label: 'Wiki', href: 'https://jsnj.link/maps-to-wiki' },
+                    { label: 'Blog', href: 'https://jsnj.link/maps-blog-post' },
+                    { label: 'About', href: '#', id: 'about-link' },
+                    { label: 'Source', href: 'https://jsnj.link/map-hiraeth-source' }
+                ],
+                help: {
+                    tabs: [
+                        {
+                            id: 'guide',
+                            label: "Traveler's Guide",
+                            html: '<div class="guide-grid"><div class="guide-section"><h3>Navigation & Interaction</h3><p>Move freely through the map by clicking and dragging. Use your mouse wheel or trackpad to zoom in for detail or out for an overview.</p><ul><li><strong>Single Click:</strong> Identify a location or select a point for measurement.</li><li><strong>Double Click:</strong> Lock the coordinate display to a specific point.</li><li><strong>Click Links:</strong> Shareable links to specific locations can be shared or copied from popups.</li></ul><h3>Toolbar Controls</h3><ul><li><strong>Sidebar:</strong> Toggle the map list on the left.</li><li><strong>Markers:</strong> Show or hide all map markers and regions.</li><li><strong>Filters:</strong> Toggle specific categories of locations.</li><li><strong>Ruler:</strong> Measure a path with multiple points.</li><li><strong>Sound:</strong> Toggle ambient background audio.</li></ul></div><div class="guide-section"><h3>Keyboard Shortcuts</h3><p>Master these keys to navigate the realm swiftly.</p><div class="shortcut-grid"><kbd>+</kbd> <span class="shortcut-desc">Zoom In</span><kbd>-</kbd> <span class="shortcut-desc">Zoom Out</span><kbd>S</kbd> <span class="shortcut-desc">Toggle Sidebar</span><kbd>T</kbd> <span class="shortcut-desc">Toggle Theme</span><kbd>M</kbd> <span class="shortcut-desc">Measurement Tool</span><kbd>H</kbd> <span class="shortcut-desc">Toggle Markers</span><kbd>F</kbd> <span class="shortcut-desc">Toggle Filters</span><kbd>/</kbd> <span class="shortcut-desc">Search</span><kbd>?</kbd> <span class="shortcut-desc">Help</span><kbd>Esc</kbd> <span class="shortcut-desc">Close / Cancel</span></div></div></div>'
+                        },
+                        {
+                            id: 'lore',
+                            label: 'The Setting',
+                            html: '<div class="lore-text"><h3>The World of Hiraeth</h3><p>Hiraeth is a realm born of imagination, nurtured through more than a decade of shared stories and dedicated world-building.</p><p>This interactive atlas is a living window into a world that has grown through tabletop roleplaying, stories, and hand-drawn maps.</p><p>Explore. Discover. The journey awaits.</p></div>'
+                        },
+                        {
+                            id: 'changelog',
+                            label: 'Changelog',
+                            html: '<div class="changelog-entry"><div class="changelog-header"><h3>Template Configuration</h3><span class="version-pill">v1.3.0</span></div><ul class="changelog-list"><li>Added a central site configuration layer for branding, copy, theme tokens, feature flags, and performance knobs.</li></ul></div>'
+                        }
+                    ]
+                },
+                editor: {
+                    title: 'Map Editor',
+                    eyebrow: 'Internal Tool',
+                    reload: 'Reload Data',
+                    searchLabel: 'Atlas Search',
+                    searchPlaceholder: 'Find a map or folder',
+                    loading: 'Loading atlas data...',
+                    toolbarHint: 'Click a feature to select it. Drag POI markers to move them, and drag orange vertex handles to reshape regions and lines.',
+                    emptyTitle: 'No Renderable Map Selected',
+                    emptyCopy: 'Select a map with image data to edit points, regions, and lines.'
+                }
+            },
+            security: {
+                analyticsEndpoint: '',
+                gmToolkitPolicy: 'local-only',
+                externalLinksNewTab: true,
+                allowedVisibilityValues: ['public', 'gm', 'private']
+            }
+        };
+
     if (typeof module === 'object' && module.exports) {
-        module.exports = factory();
+        module.exports = factory(root, DEFAULT_SITE_CONFIG);
         return;
     }
-    root.AppConfig = factory(root);
-}(typeof globalThis !== 'undefined' ? globalThis : this, function createAppConfig(root = {}) {
+    root.AppConfig = factory(root, DEFAULT_SITE_CONFIG);
+}(typeof globalThis !== 'undefined' ? globalThis : this, function createAppConfig(root = {}, DEFAULT_SITE_CONFIG = {}) {
     function escapeHtml(value) {
         return String(value || '')
             .replace(/&/g, '&amp;')
@@ -14,267 +274,7 @@
             .replace(/'/g, '&#39;');
     }
 
-    const DEFAULT_SITE_CONFIG = {
-        brand: {
-            siteName: 'HAG Interactive World Map Viewer',
-            shortName: 'Hiraeth Maps',
-            description: 'Explore interactive maps, discover points of interest, and measure distances in Hiraeth!',
-            publicUrl: 'https://maps.hiraeth.wiki/',
-            author: 'Jax SN Johnson',
-            sourceUrl: 'https://jsnj.link/map-hiraeth-source',
-            socialPreviewImage: 'https://maps.hiraeth.wiki/images/hiraeth-maps-preview.png',
-            icons: {
-                favicon16: 'favicon-16x16.png',
-                favicon32: 'favicon-32x32.png',
-                favicon: 'favicon.png',
-                appleTouchIcon: 'apple-touch-icon.png'
-            }
-        },
-        assets: {
-            version: '2026.04.19.04',
-            stylesheets: [
-                'css/style.css',
-                'css/stars.css',
-                'css/Control.MiniMap.min.css'
-            ],
-            editorStylesheets: [
-                'css/style.css',
-                'css/map-editor.css'
-            ],
-            scripts: [
-                'js/libs/Control.MiniMap.min.js',
-                'js/starfield.js',
-                'js/app.js'
-            ],
-            editorScripts: [
-                'js/editor-shared.js',
-                'js/map-editor.js'
-            ],
-            cloudTexture: 'images/clouds.webp',
-            previewImage: 'images/hiraeth-maps-preview.png',
-            poiIcons: {
-                Settlements: 'images/poi-icons/settlements.png',
-                Structures: 'images/poi-icons/structures.png',
-                'Natural Features': 'images/poi-icons/natural-features.png',
-                Other: 'images/poi-icons/other.png',
-                Unknown: 'images/poi-icons/unknown.png'
-            },
-            audio: {
-                light: 'sounds/gentle-winds.mp3',
-                dark: 'sounds/night-ambient.mp3'
-            },
-            serviceWorker: {
-                versionedShellAssets: [
-                    'css/style.css',
-                    'css/stars.css',
-                    'css/Control.MiniMap.min.css',
-                    'js/app-config.js',
-                    'js/app.js',
-                    'js/starfield.js',
-                    'js/libs/Control.MiniMap.min.js',
-                    'maps/atlas-index.json',
-                    'site.config.json'
-                ],
-                staticShellAssets: [
-                    './',
-                    'index.html',
-                    'favicon-16x16.png',
-                    'favicon-32x32.png',
-                    'favicon.png',
-                    'apple-touch-icon.png',
-                    'images/sky-background.webp',
-                    'images/clouds.webp',
-                    'images/toggle.svg',
-                    'images/hiraeth-maps-preview.png',
-                    'images/poi-icons/settlements.png',
-                    'images/poi-icons/structures.png',
-                    'images/poi-icons/natural-features.png',
-                    'images/poi-icons/other.png',
-                    'images/poi-icons/unknown.png'
-                ]
-            }
-        },
-        theme: {
-            preset: 'parchment',
-            fontImportUrl: 'https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap',
-            fontFamilyMain: "'EB Garamond', serif",
-            baseTextScale: 1,
-            tokens: {
-                light: {
-                    '--bg-primary': '#fdfaf6',
-                    '--bg-secondary': '#f4f0eb',
-                    '--text-primary': '#6b2c25',
-                    '--text-secondary': '#8f5a2f',
-                    '--border-color': '#dcd3c8',
-                    '--highlight-bg': 'rgba(212, 163, 106, 0.3)',
-                    '--active-bg': 'rgba(189, 137, 77, 0.5)',
-                    '--shadow-color': 'rgba(107, 44, 37, 0.15)',
-                    '--slider-bg': '#d4a36a',
-                    '--slider-color': 'white',
-                    '--slider-checked-bg': '#1f70c9',
-                    '--glass-bg-light': 'rgba(253, 250, 246, 0.75)',
-                    '--glass-border-light': 'rgba(160, 82, 45, 0.3)',
-                    '--popup-bg-light': '#f7f1e7',
-                    '--popup-border-light': 'rgba(132, 92, 62, 0.42)',
-                    '--popup-shadow-light': '0 2px 8px rgba(107, 44, 37, 0.1)',
-                    '--scrollbar-track': 'rgba(0, 0, 0, 0.05)',
-                    '--scrollbar-thumb': 'rgba(160, 82, 45, 0.5)',
-                    '--scrollbar-thumb-hover': 'rgba(160, 82, 45, 0.7)',
-                    '--focus-ring': '#0f5fbf'
-                },
-                dark: {
-                    '--bg-primary': '#222034',
-                    '--bg-secondary': '#1b1830',
-                    '--text-primary': '#e8e6f2',
-                    '--text-secondary': '#d4d3ff',
-                    '--border-color': '#524f6c',
-                    '--highlight-bg': 'rgba(237, 174, 73, 0.3)',
-                    '--active-bg': 'rgba(66, 159, 227, 0.4)',
-                    '--shadow-color': 'rgba(0, 0, 0, 0.3)',
-                    '--slider-bg': '#555',
-                    '--slider-color': '#429fe3',
-                    '--slider-checked-bg': '#429fe3',
-                    '--glass-bg-dark': 'rgba(34, 33, 50, 0.7)',
-                    '--glass-border-dark': 'rgba(245, 67, 91, 0.3)',
-                    '--popup-bg-dark': '#2c2933',
-                    '--popup-border-dark': 'rgba(100, 91, 108, 0.62)',
-                    '--popup-shadow-dark': '0 2px 10px rgba(0, 0, 0, 0.2)',
-                    '--scrollbar-track': 'rgba(255, 255, 255, 0.05)',
-                    '--scrollbar-thumb': 'rgba(114, 111, 150, 0.6)',
-                    '--scrollbar-thumb-hover': 'rgba(114, 111, 150, 0.8)',
-                    '--focus-ring': '#8dc4ff'
-                }
-            },
-            mapBackgroundColors: {
-                light: '#f4f0eb',
-                dark: '#050510'
-            }
-        },
-        features: {
-            sound: true,
-            stars: true,
-            atmosphere: true,
-            minimap: true,
-            shareLinks: true,
-            serviceWorker: true,
-            atlasSearch: true,
-            filters: true,
-            coordinates: true,
-            routes: true,
-            sessionToolkit: true,
-            gmMode: true,
-            editor: true,
-            onboarding: true,
-            wipNotice: true,
-            embeddedMode: true
-        },
-        performance: {
-            lowQualityMode: false,
-            mobileBreakpoint: 768,
-            starCount: 450,
-            starFps: 30,
-            linkedMapPrefetchLimit: 3,
-            prefetchImages: true,
-            prefetchJson: true,
-            serviceWorker: true
-        },
-        taxonomy: {
-            poiTypeGroups: {
-                Settlements: ['City', 'Town', 'Village', 'Hamlet', 'Settlement', 'Capital'],
-                Structures: ['Castle', 'Fortress', 'Fort', 'Tower', 'Ruin', 'Temple', 'Shrine', 'Mine', 'Lighthouse', 'Bridge', 'Dungeon', 'Lair', 'Camp', 'Asylum', 'Landmark'],
-                'Natural Features': ['Mountain', 'Peak', 'Forest', 'Wood', 'River', 'Lake', 'Cave', 'Cavern', 'Coast', 'Bay', 'Cove', 'Swamp', 'Marsh', 'Desert', 'Natural Landmark'],
-                Other: ['Point of Interest', 'Region', 'Portal'],
-                Unknown: ['Unknown']
-            },
-            labels: {
-                filterHeading: 'Filter by Type:',
-                showAll: 'Show All / Hide All',
-                atlasSearchScope: 'Atlas',
-                mapSearchScope: 'This Map'
-            },
-            defaultRegionStyle: {
-                color: '#3388ff',
-                fillColor: '#3388ff',
-                fillOpacity: 0.2
-            },
-            defaultLineStyle: {
-                color: '#ffffff',
-                weight: 3
-            }
-        },
-        copy: {
-            sidebarTitle: 'Select Map',
-            themeLabel: 'Theme',
-            loading: {
-                mapData: 'Loading Map Data...',
-                mapIndex: 'Loading map index...',
-                processing: 'Processing map data...',
-                retry: 'Retry',
-                mapIndexError: 'Error loading map index. Check your connection and press Retry.',
-                noMaps: 'No maps available.'
-            },
-            onboarding: {
-                text: "New here? Open the Traveler's Guide for controls and shortcuts.",
-                openGuide: 'Open Guide',
-                dismiss: 'Dismiss'
-            },
-            shareRelay: {
-                default: 'Shared with you. Pass it on to your party.',
-                mapView: 'Shared with you. Pass this map view to your party.',
-                feature: 'Shared with you: {featureName}. Pass it on to your party.',
-                action: 'Share This',
-                dismiss: 'Dismiss'
-            },
-            wipNotice: [
-                'This atlas is still being refined.',
-                'Some markers, names, and boundaries may be inaccurate.'
-            ],
-            bottomLinks: [
-                { label: 'Wiki', href: 'https://jsnj.link/maps-to-wiki' },
-                { label: 'Blog', href: 'https://jsnj.link/maps-blog-post' },
-                { label: 'About', href: '#', id: 'about-link' },
-                { label: 'Source', href: 'https://jsnj.link/map-hiraeth-source' }
-            ],
-            help: {
-                tabs: [
-                    {
-                        id: 'guide',
-                        label: "Traveler's Guide",
-                        html: '<div class="guide-grid"><div class="guide-section"><h3>Navigation & Interaction</h3><p>Move freely through the map by clicking and dragging. Use your mouse wheel or trackpad to zoom in for detail or out for an overview.</p><ul><li><strong>Single Click:</strong> Identify a location or select a point for measurement.</li><li><strong>Double Click:</strong> Lock the coordinate display to a specific point.</li><li><strong>Click Links:</strong> Shareable links to specific locations can be shared or copied from popups.</li></ul><h3>Toolbar Controls</h3><ul><li><strong>Sidebar:</strong> Toggle the map list on the left.</li><li><strong>Markers:</strong> Show or hide all map markers and regions.</li><li><strong>Filters:</strong> Toggle specific categories of locations.</li><li><strong>Ruler:</strong> Measure a path with multiple points.</li><li><strong>Sound:</strong> Toggle ambient background audio.</li></ul></div><div class="guide-section"><h3>Keyboard Shortcuts</h3><p>Master these keys to navigate the realm swiftly.</p><div class="shortcut-grid"><kbd>+</kbd> <span class="shortcut-desc">Zoom In</span><kbd>-</kbd> <span class="shortcut-desc">Zoom Out</span><kbd>S</kbd> <span class="shortcut-desc">Toggle Sidebar</span><kbd>T</kbd> <span class="shortcut-desc">Toggle Theme</span><kbd>M</kbd> <span class="shortcut-desc">Measurement Tool</span><kbd>H</kbd> <span class="shortcut-desc">Toggle Markers</span><kbd>F</kbd> <span class="shortcut-desc">Toggle Filters</span><kbd>/</kbd> <span class="shortcut-desc">Search</span><kbd>?</kbd> <span class="shortcut-desc">Help</span><kbd>Esc</kbd> <span class="shortcut-desc">Close / Cancel</span></div></div></div>'
-                    },
-                    {
-                        id: 'lore',
-                        label: 'The Setting',
-                        html: '<div class="lore-text"><h3>The World of Hiraeth</h3><p>Hiraeth is a realm born of imagination, nurtured through more than a decade of shared stories and dedicated world-building.</p><p>This interactive atlas is a living window into a world that has grown through tabletop roleplaying, stories, and hand-drawn maps.</p><p>Explore. Discover. The journey awaits.</p></div>'
-                    },
-                    {
-                        id: 'changelog',
-                        label: 'Changelog',
-                        html: '<div class="changelog-entry"><div class="changelog-header"><h3>Template Configuration</h3><span class="version-pill">v1.3.0</span></div><ul class="changelog-list"><li>Added a central site configuration layer for branding, copy, theme tokens, feature flags, and performance knobs.</li></ul></div>'
-                    }
-                ]
-            },
-            editor: {
-                title: 'Map Editor',
-                eyebrow: 'Internal Tool',
-                reload: 'Reload Data',
-                searchLabel: 'Atlas Search',
-                searchPlaceholder: 'Find a map or folder',
-                loading: 'Loading atlas data...',
-                toolbarHint: 'Click a feature to select it. Drag POI markers to move them, and drag orange vertex handles to reshape regions and lines.',
-                emptyTitle: 'No Renderable Map Selected',
-                emptyCopy: 'Select a map with image data to edit points, regions, and lines.'
-            }
-        },
-        security: {
-            analyticsEndpoint: '',
-            gmToolkitPolicy: 'local-only',
-            externalLinksNewTab: true,
-            allowedVisibilityValues: ['public', 'gm', 'private']
-        }
-    };
-
-    const COLOR_LIKE_PATTERN = /^(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|[a-z]+|var\(--[a-z0-9_-]+\)|transparent|white|black)$/i;
+const COLOR_LIKE_PATTERN = /^(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|[a-z]+|var\(--[a-z0-9_-]+\)|transparent|white|black)$/i;
 
     function isPlainObject(value) {
         return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
