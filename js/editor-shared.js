@@ -490,9 +490,17 @@
         if (!Array.isArray(items) || typeof loadMapById !== 'function') return [];
 
         const cache = options.cache instanceof Map ? options.cache : new Map();
+        const loadPromiseCache = new Map();
         const resolveDataUrl = typeof options.resolveDataUrl === 'function'
             ? options.resolveDataUrl
             : null;
+
+        function fetchMap(id, nodeContext) {
+            if (!loadPromiseCache.has(id)) {
+                loadPromiseCache.set(id, Promise.resolve().then(() => loadMapById(id, nodeContext)));
+            }
+            return loadPromiseCache.get(id);
+        }
 
         async function hydrateFromId(id) {
             const normalizedId = String(id || '').trim();
@@ -500,7 +508,7 @@
 
             if (!cache.has(normalizedId)) {
                 cache.set(normalizedId, Promise.resolve()
-                    .then(() => loadMapById(normalizedId))
+                    .then(() => fetchMap(normalizedId, undefined))
                     .then((loadedMap) => {
                         if (!loadedMap || typeof loadedMap !== 'object') {
                             return createUnavailableMapEntry(normalizedId, `Map "${normalizedId}" returned no data.`);
@@ -526,7 +534,7 @@
                 !hasInlineEditableMapPayload(hydrated)
             ) {
                 try {
-                    const loadedMap = await loadMapById(normalizedId, hydrated);
+                    const loadedMap = await fetchMap(normalizedId, hydrated);
                     if (loadedMap && typeof loadedMap === 'object') {
                         hydrated = {
                             ...cloneJson(loadedMap),
