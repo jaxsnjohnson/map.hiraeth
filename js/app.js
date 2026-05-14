@@ -2285,12 +2285,6 @@ function positionFilterPanel() {
     poiFilterContainer.style.top = `${panelTop}px`;
 }
 
-function getSavedMapView(mapId) {
-    if (!mapId) return null;
-    const viewsByMap = safeGetJSON(UX_STORAGE_KEYS.mapViews, {});
-    return viewsByMap && typeof viewsByMap[mapId] === 'string' ? viewsByMap[mapId] : null;
-}
-
 function saveMapView(mapId, viewValue) {
     if (!mapId || !viewValue) return;
     const viewsByMap = safeGetJSON(UX_STORAGE_KEYS.mapViews, {});
