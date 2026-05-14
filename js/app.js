@@ -1489,11 +1489,6 @@ function renderMapBlurbContent(mapInfo = getMapRuntimeData(currentlyLoadedMapId)
     mapBlurbElement.innerHTML = desktopBlurb;
 }
 
-function getMobileMapListEntryCount() {
-    if (!mapListElement) return 0;
-    return mapListElement.querySelectorAll('.map-item[data-map-id], .folder-header[data-map-id]').length;
-}
-
 function syncMobileMapMeta(mapInfo, visibilityState) {
     renderMapBlurbContent(mapInfo);
     if (!mobileSearchPanelTitle) return;
