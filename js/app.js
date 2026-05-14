@@ -94,8 +94,6 @@ function refreshLucideIcons() {
 }
 
 // --- Measurement Tool State ---
-let isMeasuring = false; // Existing
-let measurementStartPoint = null; // Existing
 let measurementLayerGroup; // Declare it here
 
 // --- Initialize Leaflet Map ---
@@ -4775,7 +4773,6 @@ function replaceMapHistoryState(mapId, updateHash = true) {
 }
 
 function resetMapState() {
-    if (isMeasuring) toggleMeasurementTool();
     if (isMeasuringMultiPoint) finalizeMultiPointMeasure(false);
     measurementLayerGroup.clearLayers();
 
@@ -6002,7 +5999,7 @@ map.on('click', function (e) {
     if (shouldIgnoreMapPointerEvent(e)) return;
     closeMobileSearchPanel({ restoreFocus: false });
     setMapBlurbVisible(false);
-    if (!isMeasuring && currentBounds) {
+    if (currentBounds) {
         unlockAdvancedControls('map_click');
     }
 });
@@ -6444,71 +6441,6 @@ poiFilterContainer.addEventListener('keydown', (e) => {
 });
 
 // --- Measurement Tool Logic ---
-function handleMeasurementClick(e) {
-    if (!isMeasuring || !currentlyLoadedMapId) return;
-    if (shouldIgnoreMapPointerEvent(e)) return; // Ignore clicks on controls
-
-    const clickPoint = e.latlng;
-    const currentMapInfo = getMapRuntimeData(currentlyLoadedMapId);
-    const scalePx = currentMapInfo?.scalePixels;
-    const scaleKm = currentMapInfo?.scaleKilometers;
-    const hasValidScale = typeof scalePx === 'number' && scalePx > 0 &&
-        typeof scaleKm === 'number' && scaleKm > 0;
-
-    measurementLayerGroup.eachLayer(layer => {
-        if (layer instanceof L.Polyline || (layer.options && layer.options.isEndPoint)) {
-            measurementLayerGroup.removeLayer(layer);
-        }
-    });
-
-    if (!measurementStartPoint) {
-        measurementStartPoint = clickPoint;
-        L.circleMarker(measurementStartPoint, {
-            radius: 5, color: 'red', fillColor: '#f03', fillOpacity: 0.8, interactive: false
-        }).addTo(measurementLayerGroup)
-            .bindTooltip("Start point. Click second point.", { permanent: false, direction: 'top', className: 'measure-tooltip', offset: L.point(0, -5) })
-            .openTooltip();
-    } else {
-        const endPoint = clickPoint;
-        const pixelDistance = map.distance(measurementStartPoint, endPoint);
-        let distanceString = ""; // Will be constructed based on scale availability
-        let kmDistance = null;   // Will store distance in the map's defined units (e.g., km)
-        let tooltipContent = '';
-
-        if (hasValidScale) {
-            kmDistance = (pixelDistance / scalePx) * scaleKm;
-            // The unit (e.g., "km") is assumed from your JSON's "scaleKilometers" field.
-            // If your "scaleKilometers" field actually represents miles, you can change "km" to "miles" here.
-            distanceString = `${kmDistance.toFixed(2)} ${currentMapInfo.scaleUnitName || 'units'}`; // Assuming you might add a 'scaleUnitName' to your map JSON, otherwise defaults to 'units'
-
-            // --- ADJUST THESE PACE VALUES FOR YOUR GAME ---
-            const normalPaceUnitsPerDay = 25; // e.g., 25 km per day or 25 miles per day
-            const fastPaceUnitsPerDay = 40;   // e.g., 40 km per day or 40 miles per day
-            // ---
-
-            let daysNormalPace = (kmDistance / normalPaceUnitsPerDay).toFixed(1);
-            let daysFastPace = (kmDistance / fastPaceUnitsPerDay).toFixed(1);
-
-            tooltipContent = `Distance: ${distanceString}<br>Normal Pace: ${daysNormalPace} Day(s)<br>Fast Pace: ${daysFastPace}Day(s)`;
-        } else {
-            // If no valid scale, distance is in pixels.
-            distanceString = `${pixelDistance.toFixed(0)} pixels (Scale unknown)`;
-            tooltipContent = `Distance: ${distanceString}<br>Days at Normal Pace: N/A (scale unknown)<br>Days at Fast Pace: N/A (scale unknown)`;
-        }
-
-        L.circleMarker(endPoint, {
-            radius: 5, color: 'blue', fillColor: '#30f', fillOpacity: 0.8, interactive: false, isEndPoint: true
-        }).addTo(measurementLayerGroup);
-
-        L.polyline([measurementStartPoint, endPoint], {
-            color: 'yellow', weight: 2, dashArray: '5, 5', interactive: false
-        }).addTo(measurementLayerGroup)
-            .bindTooltip(tooltipContent, { permanent: true, direction: 'center', className: 'measure-tooltip' })
-            .openTooltip();
-
-        measurementStartPoint = null; // Reset
-    }
-}
 
 function toggleMeasurementTool() {
     isMeasuringMultiPoint = !isMeasuringMultiPoint; // Use the new state variable
