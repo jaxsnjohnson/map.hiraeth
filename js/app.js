@@ -3042,7 +3042,10 @@ function getHiddenFilterChips() {
     const chips = [];
     const hiddenFilters = [];
 
-    if (poiFilterCheckboxesLive) {
+    // ⚡ Bolt: Early return for hidden filters check if all items are already toggled visible
+    const allChecked = filterToggleAllCheckbox && filterToggleAllCheckbox.checked && !filterToggleAllCheckbox.indeterminate;
+
+    if (!allChecked && poiFilterCheckboxesLive) {
         for (let i = 0; i < poiFilterCheckboxesLive.length; i++) {
             const checkbox = poiFilterCheckboxesLive[i];
             if (checkbox.type === 'checkbox' && checkbox.id !== 'filter-toggle-all') {

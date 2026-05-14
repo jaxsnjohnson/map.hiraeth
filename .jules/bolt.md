@@ -54,3 +54,7 @@
 ## 2023-11-15 - O(1) Bypassing of Filter Collection Iteration
 **Learning:** Even with a pre-cached live `HTMLCollection`, iterating over all filter checkboxes to build an active `Set` is an $O(n)$ operation. When a "Toggle All" or "Master" checkbox state implicitly overrides all individual filter selections (acting as a wildcard), this iteration is wasted CPU time during frequent filtering operations.
 **Action:** In frontend filtering logic, when a "Toggle All" overriding state exists, compute the `allChecked` boolean *before* iterating over the individual filters. Bypass the entire DOM iteration and `Set` allocation using `if (!allChecked) { ... }` to achieve an O(1) early return and avoid redundant calculations.
+
+## 2024-05-30 - O(1) Bypassing of Hidden Filter Validation Iteration
+**Learning:** Checking for hidden or unchecked filter states by iterating over the live `HTMLCollection` of all filter checkboxes is an unnecessary $O(N)$ hit during UI updates when the "Toggle All" state already confirms nothing is hidden.
+**Action:** When evaluating secondary UI states derived from filters (like "Hidden Filter Chips"), explicitly check the master "Toggle All" validation first and return early, bypassing completely any redundant DOM list iteration.
