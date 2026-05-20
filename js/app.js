@@ -3878,7 +3878,7 @@ function renderEncounterTableList(tableId) {
         item.className = 'list-item';
         const weight = entry.weight || 1;
         const safeResult = escapeHtml(entry.result || `Entry ${index + 1}`);
-        item.innerHTML = `<span class="encounter-weight">x${weight}</span> ${safeResult}`;
+        item.innerHTML = `<span class="encounter-weight">x${escapeHtml(weight)}</span> ${safeResult}`;
         encounterTableList.appendChild(item);
     });
 }
