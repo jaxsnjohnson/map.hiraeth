@@ -458,7 +458,9 @@
                 if (item.id === state.currentMapId) {
                     selectButton.classList.add('active');
                 }
-                selectButton.innerHTML = `<strong>${escapeHtml(item.name || item.id)}</strong>`;
+                const strongTag = document.createElement('strong');
+                strongTag.textContent = item.name || item.id;
+                selectButton.appendChild(strongTag);
                 selectButton.addEventListener('click', () => {
                     selectMap(item.id).catch((error) => {
                         console.error(error);
