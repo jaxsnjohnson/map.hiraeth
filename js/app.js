@@ -2545,11 +2545,10 @@ function computeSearchMatch(term, primaryText, secondaryText = '') {
     return { matched: false, score: -1, matchedByContent: false };
 }
 
-function highlightSearchText(text, term) {
+function highlightSearchText(text, searchRegex) {
     const safeText = escapeHtml(text);
-    if (!term) return safeText;
-    const escapedTerm = escapeRegExp(term);
-    return safeText.replace(new RegExp(escapedTerm, 'gi'), '<span class="search-result-highlight">$&</span>');
+    if (!searchRegex) return safeText;
+    return safeText.replace(searchRegex, '<span class="search-result-highlight">$&</span>');
 }
 
 function scheduleIdleTask(callback, timeout = 900) {
@@ -3356,6 +3355,8 @@ function renderSearchResults(term, results) {
         summary.textContent = `${results.length} result${results.length === 1 ? '' : 's'} in ${getSearchScopeLabel()}`;
         searchResultsContainer.appendChild(summary);
 
+        const searchRegex = term ? new RegExp(escapeRegExp(term), 'gi') : null;
+
         results.forEach((result, index) => {
             const resultItem = document.createElement('div');
             resultItem.className = 'search-result-item';
@@ -3368,7 +3369,7 @@ function renderSearchResults(term, results) {
             titleRow.className = 'search-result-title';
             const titleLabel = document.createElement('span');
             titleLabel.className = 'search-result-label';
-            titleLabel.innerHTML = highlightSearchText(result.title, term);
+            titleLabel.innerHTML = highlightSearchText(result.title, searchRegex);
 
             const badge = document.createElement('span');
             badge.className = 'badge-kind';
