@@ -1,3 +1,6 @@
+## 2024-05-20 - [Cache live HTMLCollection for O(1) iteration]
+**Learning:** Live `HTMLCollection`s (like those returned by `getElementsByTagName`) trigger an O(N) recalculation of the collection every time their `.length` or elements are accessed. When iterated over in performance-sensitive logic (such as UI filtering loops in `app.js`), this causes significant performance degradation.
+**Action:** When iterating over a live `HTMLCollection`, cache the collection into a static array using `Array.from()` immediately before the loop. This changes element access inside the loop from O(N) to O(1) and removes the live recalculation penalty.
 ## 2023-10-27 - Optimized Filter Checkbox Toggle Iteration
 **Learning:** Frequent invocation of `querySelectorAll` with complex CSS selectors inside `change` event listeners causes a severe performance hit due to CSS parsing and DOM traversal overhead, especially when checking many elements.
 **Action:** Instead of `querySelectorAll` repeatedly querying dynamically updated DOM elements inside event listeners, cache a live `HTMLCollection` using `container.getElementsByTagName('input')` at the module level. Iterating over this live collection is incredibly fast and safely keeps track of new inputs added dynamically via scripts.
