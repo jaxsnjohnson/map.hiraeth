@@ -1865,7 +1865,7 @@ function getMapChooserDescriptionText(mapInfo) {
     ).trim();
     if (!rawText) return '';
 
-    // Security fix: Uses DOMParser instead of innerHTML to prevent execution of embedded scripts
+    // Uses DOMParser instead of innerHTML to prevent execution of embedded scripts
     // or loading of external resources (like <img src=x onerror=...>) when stripping HTML.
     const parser = new DOMParser();
     const sandbox = parser.parseFromString(rawText, 'text/html');
