@@ -7111,13 +7111,18 @@ async function loadMapData() {
             );
         }
         // Optionally display an error message to the user in the UI
+        const rawErrorMessage = getConfigValue('copy.loading.mapIndexError', 'Could not load map data. Please try refreshing the page or check the console for details.');
+        const safeErrorMessage = typeof DOMPurify !== 'undefined'
+            ? DOMPurify.sanitize(rawErrorMessage)
+            : escapeHtml(rawErrorMessage);
+
         if (sidebar) {
-            sidebar.innerHTML = `<h2>Error</h2><p>${escapeHtml(getConfigValue('copy.loading.mapIndexError', 'Could not load map data. Please try refreshing the page or check the console for details.'))}</p>`;
+            sidebar.innerHTML = `<h2>Error</h2><p>${safeErrorMessage}</p>`;
         } else if (!loadingIndicator) {
             const errorDiv = document.createElement('div');
             errorDiv.className = 'fallback-error-notification';
             errorDiv.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#ff4444;color:#fff;padding:15px;border-radius:4px;z-index:9999;box-shadow:0 4px 6px rgba(0,0,0,0.1);';
-            errorDiv.innerHTML = `<strong>Error</strong>: ${escapeHtml(getConfigValue('copy.loading.mapIndexError', 'Could not load map data. Please try refreshing the page or check the console for details.'))}`;
+            errorDiv.innerHTML = `<strong>Error</strong>: ${safeErrorMessage}`;
             document.body.appendChild(errorDiv);
         }
         trackAnalytics('map_index_load_failed', { reason: error?.message || 'unknown' });
