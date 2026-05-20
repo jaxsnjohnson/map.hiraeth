@@ -48,10 +48,11 @@ const fs = require('node:fs');
     assert.equal(escapeHtml('>'), '&gt;');
     assert.equal(escapeHtml('"'), '&quot;');
     assert.equal(escapeHtml("'"), '&#39;');
+    assert.equal(escapeHtml('`'), '&#96;');
 
     // Test combinations
     assert.equal(escapeHtml('<script>alert("XSS & hacks")</script>'), '&lt;script&gt;alert(&quot;XSS &amp; hacks&quot;)&lt;/script&gt;');
-    assert.equal(escapeHtml('user\'s "data" & info < >'), 'user&#39;s &quot;data&quot; &amp; info &lt; &gt;');
+    assert.equal(escapeHtml('user\'s "data" & info < > `template`'), 'user&#39;s &quot;data&quot; &amp; info &lt; &gt; &#96;template&#96;');
 
     console.log('escapeHtml regression checks passed');
 })();
