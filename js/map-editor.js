@@ -1,7 +1,8 @@
 (function () {
     const utils = window.MapEditorUtils;
+    const sharedUtils = window.SharedUtils;
 
-    if (!utils || typeof L === 'undefined') {
+    if (!utils || !sharedUtils || typeof L === 'undefined') {
         console.error('Map editor prerequisites are missing.');
         return;
     }
@@ -142,14 +143,7 @@
         return state.currentMap[state.lineCollectionKey];
     }
 
-    function fetchJsonAsset(url) {
-        return fetch(url).then((response) => {
-            if (!response.ok) {
-                throw new Error(`Failed to load ${url}: ${response.status} ${response.statusText}`);
-            }
-            return response.json();
-        });
-    }
+    const fetchJsonAsset = sharedUtils.fetchJsonAsset;
 
     function findNodeLocation(items, id, parentId = '') {
         if (!Array.isArray(items)) return null;

@@ -455,8 +455,8 @@
                     }, { once: true });
                 }
                 const scripts = window.AppConfig
-                    ? window.AppConfig.get("assets.scripts", ["js/libs/Control.MiniMap.min.js", "js/starfield.js", "js/app.js"])
-                    : ["js/libs/Control.MiniMap.min.js", "js/starfield.js", "js/app.js"];
+                    ? window.AppConfig.get("assets.scripts", ["js/libs/Control.MiniMap.min.js", "js/starfield.js", "js/shared-utils.js", "js/app.js"])
+                    : ["js/libs/Control.MiniMap.min.js", "js/starfield.js", "js/shared-utils.js", "js/app.js"];
                 const appendNext = (index) => {
                     if (index >= scripts.length) return;
                     appendScript(scripts[index], () => appendNext(index + 1));

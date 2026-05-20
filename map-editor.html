@@ -202,8 +202,8 @@
                 if (window.AppConfig) window.AppConfig.hydrateEditorDom(document);
                 const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
                 const scripts = window.AppConfig
-                    ? window.AppConfig.get("assets.editorScripts", ["js/editor-shared.js", "js/map-editor.js"])
-                    : ["js/editor-shared.js", "js/map-editor.js"];
+                    ? window.AppConfig.get("assets.editorScripts", ["js/editor-shared.js", "js/shared-utils.js", "js/map-editor.js"])
+                    : ["js/editor-shared.js", "js/shared-utils.js", "js/map-editor.js"];
                 scripts.forEach((src) => {
                 const script = document.createElement("script");
                 script.src = `${src}?v=${version}`;
