@@ -165,11 +165,6 @@ let visibleLinesCache = [];
 let gmPanelVisible = safeGetStorage(UX_STORAGE_KEYS.gmPanelVisible) !== 'false';
 let toolkitPanelVisible = safeGetStorage(UX_STORAGE_KEYS.toolkitPanelVisible) !== 'false';
 
-
-// --- Initialize Leaflet Map ---
-// Add styled zoom control
-// L.control.zoom({ position: 'topleft' }).addTo(map); // Removed in favor of custom buttons
-
 // --- Coordinate Display Logic ---
 const coordinateDisplay = document.getElementById('coordinate-display');
 const copyCoordsBtn = coordinateDisplay.querySelector('.copy-coords-btn');
