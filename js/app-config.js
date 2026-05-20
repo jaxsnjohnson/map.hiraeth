@@ -555,11 +555,12 @@ const COLOR_LIKE_PATTERN = /^(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|[a-z]
         const wipPopup = documentRef.getElementById('wip-popup');
         const notices = get('copy.wipNotice', []);
         if (wipPopup && Array.isArray(notices)) {
-            const safeNotices = notices.map((line) => {
-                const strLine = String(line);
-                return `<p>${typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(strLine) : escapeHtml(strLine)}</p>`;
-            }).join('');
-            wipPopup.innerHTML = safeNotices;
+            wipPopup.innerHTML = '';
+            notices.forEach((line) => {
+                const p = documentRef.createElement('p');
+                p.textContent = String(line);
+                wipPopup.appendChild(p);
+            });
             wipPopup.hidden = !get('features.wipNotice', true);
         }
 
