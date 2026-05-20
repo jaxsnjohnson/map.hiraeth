@@ -528,9 +528,11 @@ const COLOR_LIKE_PATTERN = /^(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|[a-z]
             content.id = `tab-${id}`;
             content.className = `tab-content${index === 0 ? ' active' : ''}`;
             const rawHtml = tab.html || '';
-            content.innerHTML = typeof DOMPurify !== 'undefined'
-                ? DOMPurify.sanitize(rawHtml)
-                : escapeHtml(rawHtml);
+            if (typeof DOMPurify !== 'undefined') {
+                content.innerHTML = DOMPurify.sanitize(rawHtml);
+            } else {
+                content.textContent = rawHtml;
+            }
             body.appendChild(content);
         });
     }
