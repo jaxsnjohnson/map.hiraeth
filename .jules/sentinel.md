@@ -18,3 +18,7 @@
 **Vulnerability:** XSS via `escapeForSingleQuotedAttribute` when the output is rendered using `innerHTML`. The function escaped backslashes and single quotes correctly for a JavaScript string context, but failed to escape HTML entities (like `&apos;`). When assigned to `innerHTML`, the browser decodes `&apos;` to `'` *before* evaluating the `onclick` attribute, breaking out of the single quotes and executing arbitrary code.
 **Learning:** When sanitizing strings that will be placed inside inline event handlers (like `onclick='...'`) and injected via `innerHTML`, the escaping must handle both JavaScript string boundaries *and* HTML entity decoding.
 **Prevention:** Always escape ampersands (`&`) to `&amp;` alongside quotes and backslashes to prevent HTML parsers from decoding entities prematurely when injecting attributes into the DOM via strings.
+## 2025-02-28 - Sanitize InnerHTML in configuration module
+**Vulnerability:** XSS vulnerability in `setHtml` within `js/app-config.js` due to blind assignment of `element.innerHTML = value`.
+**Learning:** Utilities that assign dynamic values to `innerHTML` must validate and sanitize the input, even if the data is assumed to come from a safe configuration source, to maintain defense-in-depth and prevent DOM-based XSS.
+**Prevention:** Always use `DOMPurify.sanitize()` when injecting untrusted or external HTML. Implement an inline `escapeHtml()` fallback when `DOMPurify` is conditionally loaded to ensure a "fail-closed" security posture.
