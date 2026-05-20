@@ -113,6 +113,7 @@ global.window = {
     setTimeout: (cb) => cb()
 };
 global.requestAnimationFrame = global.window.requestAnimationFrame;
+const origSetTimeout = global.setTimeout;
 global.setTimeout = global.window.setTimeout;
 
 // Evaluate the block
@@ -183,3 +184,4 @@ assert.ok(!evt.isPrevented());
 assert.ok(!global.themeToggled);
 
 console.log('All shortcut tests passed!');
+global.setTimeout = origSetTimeout;
