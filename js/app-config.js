@@ -29,10 +29,12 @@
                 scripts: [
                     'js/libs/Control.MiniMap.min.js',
                     'js/starfield.js',
+                    'js/shared-utils.js',
                     'js/app.js'
                 ],
                 editorScripts: [
                     'js/editor-shared.js',
+                    'js/shared-utils.js',
                     'js/map-editor.js'
                 ],
                 cloudTexture: 'images/clouds.webp',

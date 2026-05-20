@@ -1,5 +1,6 @@
 // --- Global Variables ---
 const APP_CONFIG = typeof window !== 'undefined' && window.AppConfig ? window.AppConfig : null;
+const { withAssetVersion, fetchJsonAsset } = typeof window !== 'undefined' && window.SharedUtils ? window.SharedUtils : {};
 const getConfigValue = (path, fallbackValue) => APP_CONFIG ? APP_CONFIG.get(path, fallbackValue) : fallbackValue;
 const getFeatureFlag = (name, fallbackValue = true) => getConfigValue(`features.${name}`, fallbackValue) !== false;
 const getPerformanceNumber = (name, fallbackValue) => {
@@ -1965,12 +1966,6 @@ function openMapFromChooser(mapInfo) {
     navigateToMap(mapInfo.id, { preResolvedMap: mapInfo });
 }
 
-function withAssetVersion(url) {
-    const version = encodeURIComponent(window.APP_ASSET_VERSION || '0');
-    const separator = String(url).includes('?') ? '&' : '?';
-    return `${url}${separator}v=${version}`;
-}
-
 function isValidThemePreference(value) {
     return value === 'light' || value === 'dark' || value === 'system';
 }
@@ -2397,14 +2392,6 @@ function getMapDataUrl(mapEntry) {
     if (explicitUrl) return explicitUrl;
     const mapId = String(mapEntry?.id || '').trim();
     return mapId ? `maps/${mapId}.json` : '';
-}
-
-async function fetchJsonAsset(url) {
-    const response = await fetch(withAssetVersion(url));
-    if (!response.ok) {
-        throw new Error(`Failed to load ${url}: ${response.status} ${response.statusText}`);
-    }
-    return response.json();
 }
 
 async function getMapDefinition(mapId, preResolvedMap = null) {
