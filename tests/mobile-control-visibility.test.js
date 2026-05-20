@@ -175,4 +175,70 @@ assert.equal(shouldAutoOpenOnboardingGuide({ isMobileLayout: false, hasSeenOnboa
 assert.equal(shouldAutoOpenOnboardingGuide({ isEmbedded: true, hasSeenOnboarding: false }), false);
 assert.equal(shouldAutoOpenOnboardingGuide({ isMobileLayout: false, hasSeenOnboarding: true }), false);
 
+
+
+
+// Test 1: Desktop with basic markers
+const desktopBasic = resolveControlVisibilityState({
+    hasPOIs: true,
+    hasRegions: false,
+    isMobileLayout: false
+});
+assert.equal(desktopBasic.showMarkersButton, true);
+assert.equal(desktopBasic.showFiltersButton, true);
+assert.equal(desktopBasic.showSearchControl, true);
+assert.equal(desktopBasic.showMobileSheetToggle, false);
+
+// Test 2: Mobile with advanced controls enabled (should still hide desktop advanced features)
+const mobileAdvanced = resolveControlVisibilityState({
+    isMobileLayout: true,
+    advancedControls: true,
+    hasPOIs: true,
+    hasRegions: true,
+    hasRoads: true,
+    hasRoutes: true,
+    hasValidScale: true,
+    hasBlurb: true,
+    hasLatLonBounds: true,
+    allowGMToolkit: true,
+    atlasSearchCount: 1,
+    routeCount: 1,
+    toolkitVisible: true,
+    gmVisible: true
+});
+assert.equal(mobileAdvanced.showMarkersButton, false);
+assert.equal(mobileAdvanced.showFiltersButton, false);
+assert.equal(mobileAdvanced.showMeasureButton, false);
+assert.equal(mobileAdvanced.showSoundButton, false);
+assert.equal(mobileAdvanced.showShareButton, false);
+assert.equal(mobileAdvanced.showGMButton, false);
+assert.equal(mobileAdvanced.showToolkitButton, false);
+assert.equal(mobileAdvanced.showRoutePanel, false);
+assert.equal(mobileAdvanced.showToolkitPanel, false);
+assert.equal(mobileAdvanced.showGMPill, false);
+
+// Test 3: Embedded mode (should suppress floating tool panels and mobile elements)
+const embeddedDesktop = resolveControlVisibilityState({
+    isEmbedded: true,
+    isMobileLayout: false,
+    advancedControls: true,
+    hasPOIs: true,
+    routeCount: 1,
+    allowGMToolkit: true,
+    gmVisible: true
+});
+assert.equal(embeddedDesktop.showRoutePanel, false);
+assert.equal(embeddedDesktop.showMobileSheetToggle, false);
+
+
+// Test 4: Default fallback overrides
+const defaultsOnlyVisibility = resolveControlVisibilityState({});
+assert.equal(defaultsOnlyVisibility.showSearchControl, false);
+assert.equal(defaultsOnlyVisibility.showMarkersButton, false);
+assert.equal(defaultsOnlyVisibility.showFiltersButton, false);
+assert.equal(defaultsOnlyVisibility.showMobileSheetToggle, false);
+
+
+
+
 console.log('mobile control visibility checks passed');
