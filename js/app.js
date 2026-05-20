@@ -1454,7 +1454,7 @@ function renderMapBlurbContent(mapInfo = getMapRuntimeData(currentlyLoadedMapId)
     const safeName = escapeHtml(mapInfo?.name || 'Atlas');
     const defaultCopy = '<p>Open the guide for controls, shortcuts, and atlas help.</p>';
 
-    // Security Fix: Sanitize HTML content containing map blurbs before inserting it into the DOM
+    // Sanitize HTML content containing map blurbs before inserting it into the DOM
     // to prevent Stored XSS via malicious injected tags or event handlers.
     // If DOMPurify fails to load, we fail closed by escaping the HTML to prevent XSS.
     const blurbBody = typeof DOMPurify !== 'undefined'
