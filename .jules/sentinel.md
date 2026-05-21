@@ -22,3 +22,7 @@
 **Vulnerability:** XSS vulnerability in `setHtml` within `js/app-config.js` due to blind assignment of `element.innerHTML = value`.
 **Learning:** Utilities that assign dynamic values to `innerHTML` must validate and sanitize the input, even if the data is assumed to come from a safe configuration source, to maintain defense-in-depth and prevent DOM-based XSS.
 **Prevention:** Always use `DOMPurify.sanitize()` when injecting untrusted or external HTML. Implement an inline `escapeHtml()` fallback when `DOMPurify` is conditionally loaded to ensure a "fail-closed" security posture.
+## 2025-02-28 - Sanitize InnerHTML in configuration module
+**Vulnerability:** XSS vulnerability in `setHtml` within `js/app-config.js` due to blind assignment of `element.innerHTML = value`.
+**Learning:** Utilities that assign dynamic values to `innerHTML` must validate and sanitize the input, even if the data is assumed to come from a safe configuration source, to maintain defense-in-depth and prevent DOM-based XSS.
+**Prevention:** Always use `DOMPurify.sanitize()` when injecting untrusted or external HTML. Implement an inline fallback using `.textContent = value` instead of `.innerHTML = escapeHtml(value)` when `DOMPurify` is unavailable to eliminate HTML injection vectors entirely.
