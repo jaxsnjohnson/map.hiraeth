@@ -487,9 +487,11 @@ const COLOR_LIKE_PATTERN = /^(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|[a-z]
     function setHtml(documentRef, selector, value) {
         const element = documentRef && documentRef.querySelector(selector);
         if (element && value !== undefined) {
-            element.innerHTML = typeof DOMPurify !== 'undefined'
-                ? DOMPurify.sanitize(value)
-                : escapeHtml(value);
+            if (typeof DOMPurify !== 'undefined') {
+                element.innerHTML = DOMPurify.sanitize(value);
+            } else {
+                element.textContent = value;
+            }
         }
     }
 
