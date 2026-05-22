@@ -522,6 +522,8 @@ body.map-chooser-open #share-relay-coachmark {
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
 .map-item:focus-visible,
 .folder-toggle-btn:focus-visible,
 .folder-main-action:focus-visible,

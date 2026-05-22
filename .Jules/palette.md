@@ -23,3 +23,6 @@
 ## 2026-05-15 - Destructive Actions and Confirmation
 **Learning:** Destructive actions without confirmation dialogs can easily lead to accidental data loss and frustration. Users often click quickly and don't realize the consequences of their action until it's too late.
 **Action:** Always wrap destructive actions, such as deleting a feature in a map editor, with a confirmation dialog (e.g., `window.confirm`) to explicitly require user consent and prevent accidental data loss.
+## 2023-10-27 - Form Element Focus States
+**Learning:** By default, standard form elements like `<select>` and `<textarea>` might not automatically inherit the custom `:focus-visible` styling applied to `<input>` elements in global CSS resets, leaving them without clear visual indicators during keyboard navigation.
+**Action:** Always verify that all interactive form elements (`input`, `select`, `textarea`, `button`) are explicitly included in the comma-separated CSS selectors for `:focus-visible` styling to maintain consistent keyboard accessibility.
