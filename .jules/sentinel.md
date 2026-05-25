@@ -26,3 +26,7 @@
 **Vulnerability:** XSS vulnerability in `setHtml` within `js/app-config.js` due to blind assignment of `element.innerHTML = value`.
 **Learning:** Utilities that assign dynamic values to `innerHTML` must validate and sanitize the input, even if the data is assumed to come from a safe configuration source, to maintain defense-in-depth and prevent DOM-based XSS.
 **Prevention:** Always use `DOMPurify.sanitize()` when injecting untrusted or external HTML. Implement an inline fallback using `.textContent = value` instead of `.innerHTML = escapeHtml(value)` when `DOMPurify` is unavailable to eliminate HTML injection vectors entirely.
+## 2026-05-25 - [Fix XSS in Popup Content]
+**Vulnerability:** User-provided or external data (`data.type`, `data.value`, and `typeString`) in map popups were concatenated into HTML strings via `buildPopupFullContent` and `formatPropertiesForPopup` without proper escaping, leading to Cross-Site Scripting (XSS).
+**Learning:** Even within secondary configuration or display helpers like popup formatters, all dynamically injected strings must be properly HTML-escaped. In environments where utility functions like `escapeHtml` exist, they should be used universally over partial manual escaping (e.g., just replacing `&`, `<`, `>`) to avoid overlooking vectors like quotes and backticks.
+**Prevention:** Standardize HTML injection pathways across the application to always use a centralized, comprehensive `escapeHtml()` function or native `.textContent` assignments, rather than re-implementing partial sanitization locally.

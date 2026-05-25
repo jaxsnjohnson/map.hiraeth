@@ -264,9 +264,8 @@ function formatPropertiesForPopup(properties, hasFollowingDescription) {
             value !== ''
         ) {
             hasContent = true;
-            // Sanitize key and value to prevent basic HTML injection
-            const sanKey = key.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            const sanValue = String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const sanKey = escapeHtml(key);
+            const sanValue = escapeHtml(String(value));
             listItems += `<li><strong>${sanKey}:</strong> ${sanValue}</li>`;
         }
     }
@@ -540,10 +539,10 @@ function buildPopupHeader(data, type, safePronunciation) {
 function buildPopupFullContent(data, safeDescription) {
     let fullContentInnerHtml = '';
     if (data.type && data.value) { // Regions
-        fullContentInnerHtml += `<p><em>${data.type}: ${data.value}</em></p>`;
+        fullContentInnerHtml += `<p><em>${escapeHtml(data.type)}: ${escapeHtml(data.value)}</em></p>`;
     } else if (data.type) { // POIs, Roads
         const typeString = data.type.charAt(0).toUpperCase() + data.type.slice(1);
-        fullContentInnerHtml += `<p><em>Type: ${typeString}</em></p>`;
+        fullContentInnerHtml += `<p><em>Type: ${escapeHtml(typeString)}</em></p>`;
     }
     fullContentInnerHtml += formatPropertiesForPopup(data.properties, !!safeDescription);
     if (safeDescription) {

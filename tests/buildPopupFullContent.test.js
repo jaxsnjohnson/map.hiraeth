@@ -3,6 +3,13 @@ import * as fs from 'node:fs';
 
 const appSource = fs.readFileSync('js/app.js', 'utf8');
 
+const escapeStart = appSource.indexOf('function escapeHtml(value) {');
+const escapeEnd = appSource.indexOf('function escapeForSingleQuotedAttribute(value) {');
+
+if (escapeStart === -1 || escapeEnd === -1) {
+    throw new Error('Could not locate escapeHtml in js/app.js');
+}
+
 const formatStart = appSource.indexOf('function formatPropertiesForPopup(properties, hasFollowingDescription) {');
 const formatEnd = appSource.indexOf('function escapeHtml(value) {');
 
@@ -17,8 +24,12 @@ if (buildStart === -1 || buildEnd === -1) {
     throw new Error('Could not locate buildPopupFullContent in js/app.js');
 }
 
+const escapeSource = appSource.slice(escapeStart, escapeEnd);
 const formatSource = appSource.slice(formatStart, formatEnd);
 const buildSource = appSource.slice(buildStart, buildEnd);
+
+let escapeHtml;
+eval(`escapeHtml = ${escapeSource}`);
 
 let formatPropertiesForPopup;
 eval(`formatPropertiesForPopup = ${formatSource}`);
@@ -27,6 +38,11 @@ let buildPopupFullContent;
 eval(`buildPopupFullContent = ${buildSource}`);
 
 describe('buildPopupFullContent', () => {
+    it('should safely escape malicious HTML in type and value', () => {
+        const result = buildPopupFullContent({ type: '<script>alert(1)</script>', value: '<b>Oops</b>' }, 'Safe description');
+        expect(result).toContain('<p><em>&lt;script&gt;alert(1)&lt;/script&gt;: &lt;b&gt;Oops&lt;/b&gt;</em></p>');
+    });
+
     it('should include region info and safe description for regions', () => {
         const result = buildPopupFullContent({ type: 'Region', value: 'North' }, 'Safe description');
         expect(result).toContain('<p><em>Region: North</em></p>');

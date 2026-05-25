@@ -9,9 +9,19 @@ if (fnStart === -1 || fnEnd === -1 || fnEnd <= fnStart) {
     throw new Error('Could not locate formatPropertiesForPopup function in js/app.js');
 }
 
+const escapeStart = appSource.indexOf('function escapeHtml(value) {');
+const escapeEnd = appSource.indexOf('function escapeForSingleQuotedAttribute(value) {');
+
+if (escapeStart === -1 || escapeEnd === -1) {
+    throw new Error('Could not locate escapeHtml function in js/app.js');
+}
+
+const escapeSource = appSource.slice(escapeStart, escapeEnd);
 const fnSource = appSource.slice(fnStart, fnEnd);
+
 // Evaluate the real function source to keep the test tightly coupled to production code.
 // eslint-disable-next-line no-eval
+eval(escapeSource);
 eval(fnSource);
 
 assert.doesNotThrow(() => {
