@@ -3627,19 +3627,16 @@ function searchMapRoutes(searchTerm, results, searchFiltersCurrentMap) {
 
 function searchAtlasIndex(searchTerm, results) {
     if (currentSearchScope === SEARCH_SCOPE_ATLAS && searchTerm) {
-        let currentAtlasEntry = null;
-        const getAtlasSecondaryText = () => `${currentAtlasEntry.mapName || ''} ${currentAtlasEntry.typeLabel || ''} ${currentAtlasEntry.summary || ''} ${currentAtlasEntry.description || ''}`;
-
         for (let i = 0; i < atlasSearchIndex.length; i++) {
             const entry = atlasSearchIndex[i];
             if (!visibilityAllowed(entry)) continue;
 
-            currentAtlasEntry = entry;
-            // ⚡ Bolt: Use pre-normalized name if available, and use a shared function context to avoid closure allocation
-            const match = computeSearchMatch(
+            // Bolt: Atlas load precomputes these normalized strings so searches avoid
+            // rebuilding and lowercasing secondary details for every atlas entry.
+            const match = computePrecomputedSearchMatch(
                 searchTerm,
-                entry._normalizedName || entry.name,
-                getAtlasSecondaryText
+                entry._normalizedName ?? normalizeSearchValue(entry.name),
+                entry._normalizedSearchContent ?? normalizeSearchValue(`${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''}`)
             );
 
             if (!match.matched) continue;
@@ -7088,9 +7085,12 @@ async function loadMapData() {
         atlasSearchIndex = Array.isArray(atlas.searchIndex) ? atlas.searchIndex : [];
         atlasGeneratedAt = atlas.generatedAt || null;
 
-        // ⚡ Bolt: Pre-normalize atlas search index names to accelerate computeSearchMatch during searches
+        // Bolt: Pre-normalize atlas search fields once so atlas search can use
+        // computePrecomputedSearchMatch without per-entry string concatenation.
         for (let i = 0; i < atlasSearchIndex.length; i++) {
-            atlasSearchIndex[i]._normalizedName = normalizeSearchValue(atlasSearchIndex[i].name);
+            const entry = atlasSearchIndex[i];
+            entry._normalizedName = normalizeSearchValue(entry.name);
+            entry._normalizedSearchContent = normalizeSearchValue(`${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''}`);
         }
 
         if (loadingIndicator && loadingIndicator.querySelector('.progress-bar')) {
