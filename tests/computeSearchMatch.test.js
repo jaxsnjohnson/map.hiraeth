@@ -30,7 +30,8 @@ function extractFunctionSource(name) {
 const snippets = [
     extractFunctionSource('normalizeSearchValue'),
     extractFunctionSource('getFuzzyMatchScore'),
-    extractFunctionSource('computeSearchMatch')
+    extractFunctionSource('computeSearchMatch'),
+    extractFunctionSource('computePrecomputedSearchMatch')
 ].join('\n');
 
 // eslint-disable-next-line no-eval
@@ -51,5 +52,21 @@ assert.ok(prefix.score > fuzzy.score);
 assert.ok(fuzzy.score > 0);
 assert.ok(content.score > 0);
 assert.equal(computeSearchMatch('zzz', 'Icebeach', '').matched, false);
+
+const precomputedPrimary = normalizeSearchValue('Icebeach');
+const precomputedSecondary = normalizeSearchValue('A cold harbor city');
+
+assert.deepEqual(
+    computePrecomputedSearchMatch('ice', precomputedPrimary, precomputedSecondary),
+    computeSearchMatch('ice', 'Icebeach', 'A cold harbor city')
+);
+assert.deepEqual(
+    computePrecomputedSearchMatch('harbor', precomputedPrimary, precomputedSecondary),
+    computeSearchMatch('harbor', 'Icebeach', 'A cold harbor city')
+);
+assert.deepEqual(
+    computePrecomputedSearchMatch('zzz', precomputedPrimary, precomputedSecondary),
+    computeSearchMatch('zzz', 'Icebeach', 'A cold harbor city')
+);
 
 console.log('computeSearchMatch regression checks passed');

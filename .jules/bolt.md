@@ -1,3 +1,7 @@
+## 2026-05-26 - Precompute Atlas Search Content
+**Learning:** The atlas index loader already normalized names, but atlas search still routed entries through generic matching that rebuilt and normalized secondary text (`mapName`, `typeLabel`, `summary`, `description`) for every visible entry on each query. On the current 300-entry atlas index, precomputed content matching was about 47% faster in repeated search benchmarks with about 162 KB of extra normalized text.
+**Action:** When atlas/search-index data is immutable after load, precompute both primary and secondary normalized fields during hydration and use `computePrecomputedSearchMatch` in hot search loops; keep `computeSearchMatch` for dynamic or unprepared data.
+
 ## 2024-05-20 - [Cache live HTMLCollection for O(1) iteration]
 **Learning:** Live `HTMLCollection`s (like those returned by `getElementsByTagName`) trigger an O(N) recalculation of the collection every time their `.length` or elements are accessed. When iterated over in performance-sensitive logic (such as UI filtering loops in `app.js`), this causes significant performance degradation.
 **Action:** When iterating over a live `HTMLCollection`, cache the collection into a static array using `Array.from()` immediately before the loop. This changes element access inside the loop from O(N) to O(1) and removes the live recalculation penalty.
