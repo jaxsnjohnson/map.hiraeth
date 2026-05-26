@@ -16,6 +16,9 @@
         drawMode: '',
         draftCoordinates: [],
         selectedFeature: null,
+        dirtyMap: false,
+        dirtyAtlas: false,
+        atlasPanelOpen: false,
         featureListState: {
             type: 'points',
             searchQuery: '',
@@ -44,10 +47,19 @@
         mapEmptyTitle: document.getElementById('editor-map-empty-title'),
         mapEmptyCopy: document.getElementById('editor-map-empty-copy'),
         mapEmptyDetail: document.getElementById('editor-map-empty-detail'),
+        drawOverlay: document.getElementById('editor-draw-overlay'),
+        drawTitle: document.getElementById('editor-draw-title'),
+        drawCopy: document.getElementById('editor-draw-copy'),
         exportStatus: document.getElementById('editor-export-status'),
+        changeStatus: document.getElementById('editor-change-status'),
+        currentMapTitle: document.getElementById('editor-current-map-title'),
+        currentMapCounts: document.getElementById('editor-current-map-counts'),
         currentMapId: document.getElementById('editor-current-map-id'),
         featureSummary: document.getElementById('editor-feature-summary'),
         selectedFeatureChip: document.getElementById('editor-selected-feature-chip'),
+        mapMetadataSection: document.getElementById('editor-map-metadata-section'),
+        featuresSection: document.getElementById('editor-features-section'),
+        selectedFeatureSection: document.getElementById('editor-selected-feature-section'),
         mapSettingsForm: document.getElementById('map-settings-form'),
         featureForm: document.getElementById('editor-feature-form'),
         featureFormEmpty: document.getElementById('editor-feature-inspector-empty'),
@@ -275,6 +287,37 @@
         dom.exportStatus.style.color = isError ? '#dc2626' : '';
     }
 
+    function updateDirtyState(nextState = {}) {
+        if (Object.prototype.hasOwnProperty.call(nextState, 'map')) {
+            state.dirtyMap = Boolean(nextState.map);
+        }
+        if (Object.prototype.hasOwnProperty.call(nextState, 'atlas')) {
+            state.dirtyAtlas = Boolean(nextState.atlas);
+        }
+
+        const hasDirtyState = state.dirtyMap || state.dirtyAtlas;
+        dom.appShell.setAttribute('data-dirty', hasDirtyState ? 'true' : 'false');
+
+        if (!dom.changeStatus) return;
+        if (state.dirtyMap && state.dirtyAtlas) {
+            dom.changeStatus.textContent = 'Needs map + atlas export';
+        } else if (state.dirtyMap) {
+            dom.changeStatus.textContent = 'Needs current map export';
+        } else if (state.dirtyAtlas) {
+            dom.changeStatus.textContent = 'Needs atlas export';
+        } else {
+            dom.changeStatus.textContent = 'No local edits';
+        }
+    }
+
+    function markMapDirty() {
+        updateDirtyState({ map: true });
+    }
+
+    function markAtlasDirty() {
+        updateDirtyState({ atlas: true });
+    }
+
     function setMapEmptyState({ hidden, title = '', copy = '', detail = '' }) {
         dom.mapEmptyState.hidden = hidden;
 
@@ -355,18 +398,33 @@
     }
 
     function clearDrawMode() {
+        const hadDrawMode = Boolean(state.drawMode);
         state.drawMode = '';
         state.draftCoordinates = [];
-        renderDraftGeometry();
-        syncToolbarState();
+        if (hadDrawMode) {
+            renderMapLayers(false);
+        } else {
+            renderDraftGeometry();
+            syncToolbarState();
+        }
     }
 
     function selectFeature(mode, index) {
+        if (state.drawMode) {
+            clearDrawMode();
+        }
+
         const collection = getCurrentFeatureCollection(mode);
         if (!collection[index]) {
             state.selectedFeature = null;
         } else {
+            state.featureListState.type = mode;
+            if (index >= state.featureListState.defaultLimit) {
+                state.featureListState.expanded = true;
+            }
             state.selectedFeature = { mode, index };
+            if (dom.featuresSection) dom.featuresSection.open = false;
+            if (dom.selectedFeatureSection) dom.selectedFeatureSection.open = true;
             if (mode === 'points') {
                 setSelectionStatus('POI selected. Drag the marker on the map to move it.');
             } else {
@@ -381,6 +439,7 @@
 
     function deselectFeature() {
         state.selectedFeature = null;
+        if (dom.featuresSection) dom.featuresSection.open = true;
         renderFeatureLists();
         renderFeatureInspector();
         renderMapLayers(false);
@@ -389,14 +448,46 @@
 
     function syncToolbarState() {
         const canEditGeometry = canRenderMap(state.currentMap);
+        const isDraftingGeometry = state.drawMode === 'region' || state.drawMode === 'line';
+        const canFinishDraft = state.drawMode === 'region'
+            ? state.draftCoordinates.length >= 3
+            : state.drawMode === 'line' && state.draftCoordinates.length >= 2;
+
+        dom.appShell.setAttribute('data-draw-mode', state.drawMode || 'none');
         dom.addPoiButton.disabled = !canEditGeometry;
         dom.addRegionButton.disabled = !canEditGeometry;
         dom.addLineButton.disabled = !canEditGeometry;
         dom.resetViewButton.disabled = !canEditGeometry;
         dom.deleteSelectionButton.disabled = !state.selectedFeature;
-        dom.finishDrawButton.hidden = !state.drawMode;
+        dom.deleteSelectionButton.hidden = !state.selectedFeature;
+        dom.finishDrawButton.hidden = !isDraftingGeometry;
+        dom.finishDrawButton.disabled = !canFinishDraft;
         dom.cancelDrawButton.hidden = !state.drawMode;
         dom.exportCurrentMapButton.disabled = !canRenderMap(state.currentMap);
+        dom.addPoiButton.setAttribute('aria-pressed', state.drawMode === 'point' ? 'true' : 'false');
+        dom.addRegionButton.setAttribute('aria-pressed', state.drawMode === 'region' ? 'true' : 'false');
+        dom.addLineButton.setAttribute('aria-pressed', state.drawMode === 'line' ? 'true' : 'false');
+
+        if (!dom.drawOverlay) return;
+
+        dom.drawOverlay.hidden = !state.drawMode;
+        if (!state.drawMode) return;
+
+        if (state.drawMode === 'point') {
+            dom.drawTitle.textContent = 'Place POI';
+            dom.drawCopy.textContent = 'Click the map once to place it.';
+            return;
+        }
+
+        const count = state.draftCoordinates.length;
+        const minimumPoints = state.drawMode === 'region' ? 3 : 2;
+        const remainingPoints = Math.max(0, minimumPoints - count);
+        const featureLabel = state.drawMode === 'region' ? 'region' : 'line';
+        dom.drawTitle.textContent = state.drawMode === 'region' ? 'Draw Region' : 'Draw Line';
+        dom.finishDrawButton.textContent = state.drawMode === 'region' ? 'Finish Region' : 'Finish Line';
+        dom.drawCopy.textContent = remainingPoints > 0
+            ? `${count} point${count === 1 ? '' : 's'} placed. Add ${remainingPoints} more to finish this ${featureLabel}.`
+            : `${count} points placed. Finish or keep adding points.`;
     }
 
     function buildTreeSearchItems() {
@@ -525,11 +616,35 @@
         return `${points} POIs, ${regions} regions, ${lines} lines`;
     }
 
+    function renderMapContext() {
+        if (dom.currentMapTitle) {
+            dom.currentMapTitle.textContent = state.currentMap?.name || state.currentMap?.id || 'No map selected';
+        }
+        if (dom.currentMapCounts) {
+            dom.currentMapCounts.textContent = getFeatureSummaryLabel();
+        }
+    }
+
+    function syncAtlasPanelState() {
+        const panelState = state.atlasPanelOpen ? 'open' : 'collapsed';
+        dom.appShell.setAttribute('data-atlas-panel', panelState);
+
+        if (dom.chooseMapButton) {
+            dom.chooseMapButton.textContent = state.atlasPanelOpen ? 'Close Maps' : 'Choose Map';
+            dom.chooseMapButton.setAttribute('aria-expanded', state.atlasPanelOpen ? 'true' : 'false');
+        }
+
+        if (state.map) {
+            queueMapViewportReset();
+        }
+    }
+
     function renderFeatureLists() {
         const { type, searchQuery, expanded, defaultLimit } = state.featureListState;
         dom.featureTypeSelect.value = type;
         dom.unifiedFeatureList.innerHTML = '';
         dom.featureShowMoreButton.hidden = true;
+        renderMapContext();
 
         let items = [];
         if (type === 'points') items = getCurrentPoints();
@@ -629,64 +744,101 @@
             dom.featureForm.hidden = true;
             dom.featureFormEmpty.hidden = false;
             dom.selectedFeatureChip.textContent = 'None';
+            if (dom.selectedFeatureSection) dom.selectedFeatureSection.open = false;
             return;
         }
 
         dom.featureForm.hidden = false;
         dom.featureFormEmpty.hidden = true;
+        if (dom.selectedFeatureSection) dom.selectedFeatureSection.open = true;
+
+        const linkFields = `
+            <fieldset class="map-editor-field-group">
+                <legend class="map-editor-field-group-title">Links</legend>
+                <label>Wiki Link<input data-field="wikiLink" type="text" value="${escapeHtml(feature.wikiLink || '')}"></label>
+                <label>Linked Map ID<input data-field="linkedMapId" type="text" value="${escapeHtml(feature.linkedMapId || '')}"></label>
+            </fieldset>
+        `;
 
         if (state.selectedFeature.mode === 'points') {
             dom.selectedFeatureChip.textContent = 'POI';
             dom.featureForm.innerHTML = `
-                <label>Name<input data-field="name" type="text" value="${escapeHtml(feature.name || '')}"></label>
-                <label>Pronunciation<input data-field="pronunciation" type="text" value="${escapeHtml(feature.pronunciation || '')}"></label>
-                <label>Type<input data-field="type" type="text" value="${escapeHtml(feature.type || '')}"></label>
-                <label>Summary<textarea data-field="summary" rows="3">${escapeHtml(feature.summary || '')}</textarea></label>
-                <label>Description<textarea data-field="description" rows="4">${escapeHtml(feature.description || '')}</textarea></label>
-                <label>Wiki Link<input data-field="wikiLink" type="text" value="${escapeHtml(feature.wikiLink || '')}"></label>
-                <label>Linked Map ID<input data-field="linkedMapId" type="text" value="${escapeHtml(feature.linkedMapId || '')}"></label>
-                <div class="map-editor-form-grid">
-                    <label>Y<input data-field="coordY" type="number" value="${escapeHtml(feature.coords?.[0] ?? '')}"></label>
-                    <label>X<input data-field="coordX" type="number" value="${escapeHtml(feature.coords?.[1] ?? '')}"></label>
-                </div>
-                <label>Properties JSON<textarea data-field="properties" rows="5">${escapeHtml(JSON.stringify(feature.properties || {}, null, 2))}</textarea></label>
+                <fieldset class="map-editor-field-group">
+                    <legend class="map-editor-field-group-title">Details</legend>
+                    <label>Name<input data-field="name" type="text" value="${escapeHtml(feature.name || '')}"></label>
+                    <label>Type<input data-field="type" type="text" value="${escapeHtml(feature.type || '')}"></label>
+                    <div class="map-editor-form-grid">
+                        <label>Y<input data-field="coordY" type="number" value="${escapeHtml(feature.coords?.[0] ?? '')}"></label>
+                        <label>X<input data-field="coordX" type="number" value="${escapeHtml(feature.coords?.[1] ?? '')}"></label>
+                    </div>
+                    <label>Summary<textarea data-field="summary" rows="2">${escapeHtml(feature.summary || '')}</textarea></label>
+                    <label>Description<textarea data-field="description" rows="4">${escapeHtml(feature.description || '')}</textarea></label>
+                </fieldset>
+                ${linkFields}
+                <details class="map-editor-advanced-fields">
+                    <summary>Advanced Fields</summary>
+                    <label>Pronunciation<input data-field="pronunciation" type="text" value="${escapeHtml(feature.pronunciation || '')}"></label>
+                    <label>Properties JSON<textarea data-field="properties" rows="5">${escapeHtml(JSON.stringify(feature.properties || {}, null, 2))}</textarea></label>
+                </details>
             `;
         } else if (state.selectedFeature.mode === 'regions') {
             dom.selectedFeatureChip.textContent = 'Region';
+            const vertexCount = Array.isArray(feature.coordinates) ? feature.coordinates.length : 0;
             dom.featureForm.innerHTML = `
-                <label>ID<input data-field="id" type="text" value="${escapeHtml(feature.id || '')}"></label>
-                <label>Name<input data-field="name" type="text" value="${escapeHtml(feature.name || '')}"></label>
-                <label>Type<input data-field="type" type="text" value="${escapeHtml(feature.type || '')}"></label>
-                <label>Value<input data-field="value" type="text" value="${escapeHtml(feature.value || '')}"></label>
-                <label>Summary<textarea data-field="summary" rows="3">${escapeHtml(feature.summary || '')}</textarea></label>
-                <label>Description<textarea data-field="description" rows="4">${escapeHtml(feature.description || '')}</textarea></label>
-                <label>Wiki Link<input data-field="wikiLink" type="text" value="${escapeHtml(feature.wikiLink || '')}"></label>
-                <label>Linked Map ID<input data-field="linkedMapId" type="text" value="${escapeHtml(feature.linkedMapId || '')}"></label>
-                <div class="map-editor-form-grid">
-                    <label>Stroke Color<input data-field="color" type="text" value="${escapeHtml(feature.color || '')}"></label>
-                    <label>Fill Color<input data-field="fillColor" type="text" value="${escapeHtml(feature.fillColor || '')}"></label>
-                    <label>Fill Opacity<input data-field="fillOpacity" type="number" step="0.05" value="${escapeHtml(feature.fillOpacity ?? '')}"></label>
-                </div>
-                <label>Coordinates<textarea class="map-editor-coordinates" data-field="coordinates" rows="7">${escapeHtml(stringifyCoordinates(feature.coordinates || []))}</textarea></label>
-                <label>Properties JSON<textarea data-field="properties" rows="5">${escapeHtml(JSON.stringify(feature.properties || {}, null, 2))}</textarea></label>
+                <fieldset class="map-editor-field-group">
+                    <legend class="map-editor-field-group-title">Details</legend>
+                    <label>Name<input data-field="name" type="text" value="${escapeHtml(feature.name || '')}"></label>
+                    <div class="map-editor-form-grid">
+                        <label>Type<input data-field="type" type="text" value="${escapeHtml(feature.type || '')}"></label>
+                        <label>Value<input data-field="value" type="text" value="${escapeHtml(feature.value || '')}"></label>
+                    </div>
+                    <div class="map-editor-coordinate-summary">
+                        <span>Coordinates</span>
+                        <strong>${vertexCount} vertices</strong>
+                    </div>
+                    <label>Summary<textarea data-field="summary" rows="2">${escapeHtml(feature.summary || '')}</textarea></label>
+                    <label>Description<textarea data-field="description" rows="4">${escapeHtml(feature.description || '')}</textarea></label>
+                </fieldset>
+                ${linkFields}
+                <details class="map-editor-advanced-fields">
+                    <summary>Advanced Fields</summary>
+                    <label>ID<input data-field="id" type="text" value="${escapeHtml(feature.id || '')}"></label>
+                    <div class="map-editor-form-grid">
+                        <label>Stroke Color<input data-field="color" type="text" value="${escapeHtml(feature.color || '')}"></label>
+                        <label>Fill Color<input data-field="fillColor" type="text" value="${escapeHtml(feature.fillColor || '')}"></label>
+                        <label>Fill Opacity<input data-field="fillOpacity" type="number" step="0.05" value="${escapeHtml(feature.fillOpacity ?? '')}"></label>
+                    </div>
+                    <label>Raw Coordinates<textarea class="map-editor-coordinates" data-field="coordinates" rows="7">${escapeHtml(stringifyCoordinates(feature.coordinates || []))}</textarea></label>
+                    <label>Properties JSON<textarea data-field="properties" rows="5">${escapeHtml(JSON.stringify(feature.properties || {}, null, 2))}</textarea></label>
+                </details>
             `;
         } else {
             dom.selectedFeatureChip.textContent = 'Line';
+            const vertexCount = Array.isArray(feature.coordinates) ? feature.coordinates.length : 0;
             dom.featureForm.innerHTML = `
-                <label>ID<input data-field="id" type="text" value="${escapeHtml(feature.id || '')}"></label>
-                <label>Name<input data-field="name" type="text" value="${escapeHtml(feature.name || '')}"></label>
-                <label>Type<input data-field="type" type="text" value="${escapeHtml(feature.type || '')}"></label>
-                <label>Summary<textarea data-field="summary" rows="3">${escapeHtml(feature.summary || '')}</textarea></label>
-                <label>Description<textarea data-field="description" rows="4">${escapeHtml(feature.description || '')}</textarea></label>
-                <label>Wiki Link<input data-field="wikiLink" type="text" value="${escapeHtml(feature.wikiLink || '')}"></label>
-                <label>Linked Map ID<input data-field="linkedMapId" type="text" value="${escapeHtml(feature.linkedMapId || '')}"></label>
-                <div class="map-editor-form-grid">
-                    <label>Color<input data-field="color" type="text" value="${escapeHtml(feature.color || '')}"></label>
-                    <label>Weight<input data-field="weight" type="number" step="1" min="1" value="${escapeHtml(feature.weight ?? '')}"></label>
-                    <label>Dash Array<input data-field="dashArray" type="text" value="${escapeHtml(feature.dashArray || '')}"></label>
-                </div>
-                <label>Coordinates<textarea class="map-editor-coordinates" data-field="coordinates" rows="7">${escapeHtml(stringifyCoordinates(feature.coordinates || []))}</textarea></label>
-                <label>Properties JSON<textarea data-field="properties" rows="5">${escapeHtml(JSON.stringify(feature.properties || {}, null, 2))}</textarea></label>
+                <fieldset class="map-editor-field-group">
+                    <legend class="map-editor-field-group-title">Details</legend>
+                    <label>Name<input data-field="name" type="text" value="${escapeHtml(feature.name || '')}"></label>
+                    <label>Type<input data-field="type" type="text" value="${escapeHtml(feature.type || '')}"></label>
+                    <div class="map-editor-coordinate-summary">
+                        <span>Coordinates</span>
+                        <strong>${vertexCount} vertices</strong>
+                    </div>
+                    <label>Summary<textarea data-field="summary" rows="2">${escapeHtml(feature.summary || '')}</textarea></label>
+                    <label>Description<textarea data-field="description" rows="4">${escapeHtml(feature.description || '')}</textarea></label>
+                </fieldset>
+                ${linkFields}
+                <details class="map-editor-advanced-fields">
+                    <summary>Advanced Fields</summary>
+                    <label>ID<input data-field="id" type="text" value="${escapeHtml(feature.id || '')}"></label>
+                    <div class="map-editor-form-grid">
+                        <label>Color<input data-field="color" type="text" value="${escapeHtml(feature.color || '')}"></label>
+                        <label>Weight<input data-field="weight" type="number" step="1" min="1" value="${escapeHtml(feature.weight ?? '')}"></label>
+                        <label>Dash Array<input data-field="dashArray" type="text" value="${escapeHtml(feature.dashArray || '')}"></label>
+                    </div>
+                    <label>Raw Coordinates<textarea class="map-editor-coordinates" data-field="coordinates" rows="7">${escapeHtml(stringifyCoordinates(feature.coordinates || []))}</textarea></label>
+                    <label>Properties JSON<textarea data-field="properties" rows="5">${escapeHtml(JSON.stringify(feature.properties || {}, null, 2))}</textarea></label>
+                </details>
             `;
         }
     }
@@ -721,6 +873,7 @@
             }
 
             setSelectionStatus(`Updated ${state.selectedFeature.mode.slice(0, -1)} fields.`);
+            markMapDirty();
             renderFeatureLists();
             renderMapLayers(false);
         } catch (error) {
@@ -815,7 +968,10 @@
 
         renderAtlasTree();
         renderMapSettingsForm();
+        renderMapContext();
         renderMapLayers(true);
+        markMapDirty();
+        markAtlasDirty();
         setSelectionStatus(`Updated map settings for "${state.currentMap.name || state.currentMap.id}".`);
     }
 
@@ -830,7 +986,10 @@
 
     function renderDraftGeometry() {
         state.draftLayer.clearLayers();
-        if (!state.drawMode || state.draftCoordinates.length === 0) return;
+        if (!state.drawMode || state.draftCoordinates.length === 0) {
+            syncToolbarState();
+            return;
+        }
 
         const options = {
             color: '#f97316',
@@ -845,6 +1004,7 @@
         } else {
             state.draftLayer.addLayer(L.polyline(state.draftCoordinates, options));
         }
+        syncToolbarState();
     }
 
     function renderVertexHandles() {
@@ -866,6 +1026,7 @@
                 renderMapLayers(false);
                 renderFeatureInspector();
                 renderFeatureLists();
+                markMapDirty();
                 setSelectionStatus('Updated geometry vertex.');
             });
             state.vertexLayer.addLayer(handle);
@@ -954,10 +1115,13 @@
             setMapEmptyState({ hidden: true });
         }
 
+        const featuresAreInteractive = !state.drawMode;
+
         getCurrentPoints().forEach((point, index) => {
             if (!Array.isArray(point.coords) || point.coords.length !== 2) return;
             const marker = L.marker(point.coords, {
-                draggable: true
+                draggable: featuresAreInteractive,
+                interactive: featuresAreInteractive
             });
             marker.on('click', () => selectFeature('points', index));
             marker.on('drag', (event) => {
@@ -966,6 +1130,7 @@
             marker.on('dragend', () => {
                 renderFeatureInspector();
                 renderFeatureLists();
+                markMapDirty();
                 setSelectionStatus(`Moved POI "${point.name || `POI ${index + 1}`}".`);
             });
             state.pointLayer.addLayer(marker);
@@ -977,7 +1142,8 @@
                 color: region.color || '#2563eb',
                 fillColor: region.fillColor || region.color || '#2563eb',
                 fillOpacity: Number(region.fillOpacity ?? 0.2),
-                weight: state.selectedFeature?.mode === 'regions' && state.selectedFeature.index === index ? 3 : 2
+                weight: state.selectedFeature?.mode === 'regions' && state.selectedFeature.index === index ? 3 : 2,
+                interactive: featuresAreInteractive
             });
             layer.on('click', () => selectFeature('regions', index));
             state.regionLayer.addLayer(layer);
@@ -988,7 +1154,8 @@
             const layer = L.polyline(line.coordinates, {
                 color: line.color || '#0f766e',
                 weight: Number(line.weight || 3),
-                dashArray: line.dashArray || ''
+                dashArray: line.dashArray || '',
+                interactive: featuresAreInteractive
             });
             layer.on('click', () => selectFeature('lines', index));
             state.lineLayer.addLayer(layer);
@@ -1030,6 +1197,7 @@
             clearDrawMode();
             state.featureListState.type = 'regions';
             selectFeature('regions', getCurrentRegions().length - 1);
+            markMapDirty();
             setSelectionStatus('Created a new region.');
             return;
         }
@@ -1055,6 +1223,7 @@
         clearDrawMode();
         state.featureListState.type = 'lines';
         selectFeature('lines', getCurrentLines().length - 1);
+        markMapDirty();
         setSelectionStatus('Created a new line.');
     }
 
@@ -1076,6 +1245,7 @@
             clearDrawMode();
             state.featureListState.type = 'points';
             selectFeature('points', getCurrentPoints().length - 1);
+            markMapDirty();
             setSelectionStatus('Added a new POI.');
             return;
         }
@@ -1097,6 +1267,7 @@
         deselectFeature();
         renderFeatureLists();
         renderMapLayers(false);
+        markMapDirty();
         setSelectionStatus('Deleted the selected feature.');
     }
 
@@ -1147,6 +1318,7 @@
             });
             const fileName = getExportFileName(state.currentMap.dataUrl, state.currentMap.id);
             downloadJsonFile(fileName, exportedDocument);
+            updateDirtyState({ map: false });
             setExportStatus(`Exported ${fileName}.`);
         } catch (error) {
             console.error(error);
@@ -1162,6 +1334,7 @@
                 mapSettings: state.currentMap ? readMapSettingsForm() : {}
             });
             downloadJsonFile('maps.json', exportedManifest);
+            updateDirtyState({ atlas: false });
             setExportStatus('Exported maps.json.');
         } catch (error) {
             console.error(error);
@@ -1197,15 +1370,17 @@
 
         state.currentMap = utils.findMapRecursive(state.atlasTree, mapId);
         state.lineCollectionKey = utils.detectLineCollectionKey(state.currentMap);
+        state.atlasPanelOpen = false;
+        dom.appShell.setAttribute('data-mode', 'edit');
+        syncAtlasPanelState();
         renderAtlasTree();
         renderMapSettingsForm();
+        renderMapContext();
         renderFeatureLists();
         renderFeatureInspector();
         setSelectionStatus(`Editing "${state.currentMap.name || state.currentMap.id}".`);
         renderMapLayers(true);
         setExportStatus('');
-
-        dom.appShell.setAttribute('data-mode', 'edit');
         queueMapViewportReset();
     }
 
@@ -1227,6 +1402,63 @@
         state.vertexLayer = L.layerGroup().addTo(state.map);
         state.draftLayer = L.layerGroup().addTo(state.map);
         window.addEventListener('resize', queueMapViewportReset);
+    }
+
+    function isTextEditingTarget(element) {
+        if (!element || element === document.body) return false;
+        const tagName = String(element.tagName || '').toLowerCase();
+        return tagName === 'input' ||
+            tagName === 'textarea' ||
+            tagName === 'select' ||
+            element.isContentEditable;
+    }
+
+    function handleEditorKeydown(event) {
+        if (isTextEditingTarget(event.target) || event.metaKey || event.ctrlKey || event.altKey) return;
+
+        if (event.key === 'Escape' && state.drawMode) {
+            event.preventDefault();
+            clearDrawMode();
+            setSelectionStatus('Canceled the current draft.');
+            return;
+        }
+
+        if (event.key === 'Escape' && state.atlasPanelOpen) {
+            event.preventDefault();
+            state.atlasPanelOpen = false;
+            syncAtlasPanelState();
+            return;
+        }
+
+        if (event.key === 'Enter' && (state.drawMode === 'region' || state.drawMode === 'line')) {
+            event.preventDefault();
+            finishDraftGeometry();
+            return;
+        }
+
+        if ((event.key === 'Delete' || event.key === 'Backspace') && state.selectedFeature) {
+            event.preventDefault();
+            deleteSelectedFeature();
+            return;
+        }
+
+        const key = String(event.key || '').toLowerCase();
+        if (key === 'p') {
+            event.preventDefault();
+            beginDrawMode('point');
+        } else if (key === 'r') {
+            event.preventDefault();
+            beginDrawMode('region');
+        } else if (key === 'l') {
+            event.preventDefault();
+            beginDrawMode('line');
+        } else if (key === '0' && state.currentBounds) {
+            event.preventDefault();
+            queueMapViewportReset();
+        } else if (key === '/' && dom.featureSearchInput && !dom.featureSearchInput.hidden) {
+            event.preventDefault();
+            dom.featureSearchInput.focus();
+        }
     }
 
     function registerEventListeners() {
@@ -1255,15 +1487,20 @@
 
         dom.featureForm.addEventListener('change', updateSelectedFeatureFromForm);
 
-        // ⚡ Bolt: Debounce input handling to prevent UI lag on every keystroke
-        const debouncedUpdateSelectedFeatureFromForm = debounce((event) => {
-            updateSelectedFeatureFromForm(event);
-        }, 300);
+        const debouncedFieldUpdates = new WeakMap();
 
         dom.featureForm.addEventListener('input', (event) => {
             const field = event.target.dataset.field;
             if (!field || field === 'description' || field === 'summary') return;
-            debouncedUpdateSelectedFeatureFromForm(event);
+            if (!debouncedFieldUpdates.has(event.target)) {
+                const target = event.target;
+                debouncedFieldUpdates.set(target, debounce(() => {
+                    if (target.isConnected) {
+                        updateSelectedFeatureFromForm({ target });
+                    }
+                }, 250));
+            }
+            debouncedFieldUpdates.get(event.target)();
         });
 
         dom.featureTypeSelect.addEventListener('change', (event) => {
@@ -1303,17 +1540,25 @@
         });
         if (dom.chooseMapButton) {
             dom.chooseMapButton.addEventListener('click', () => {
-                dom.appShell.setAttribute('data-mode', 'select');
+                state.atlasPanelOpen = !state.atlasPanelOpen;
+                syncAtlasPanelState();
+                if (state.atlasPanelOpen && dom.treeSearch) {
+                    requestAnimationFrame(() => dom.treeSearch.focus());
+                }
             });
         }
         dom.exportCurrentMapButton.addEventListener('click', exportCurrentMapJson);
         dom.exportAtlasStructureButton.addEventListener('click', exportAtlasStructure);
+        document.addEventListener('keydown', handleEditorKeydown);
     }
 
     async function initializeEditor() {
         try {
             initializeMap();
             registerEventListeners();
+            syncAtlasPanelState();
+            updateDirtyState({ map: false, atlas: false });
+            renderMapContext();
 
             const atlas = await fetchJsonAsset('maps/atlas-index.json');
             if (!atlas || !Array.isArray(atlas.tree)) {

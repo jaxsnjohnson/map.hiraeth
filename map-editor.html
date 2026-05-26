@@ -64,11 +64,11 @@
     </script>
 </head>
 <body class="map-editor-body">
-    <div id="map-editor-app" class="map-editor-shell" data-mode="select">
+    <div id="map-editor-app" class="map-editor-shell" data-mode="select" data-atlas-panel="collapsed" data-dirty="false">
         <aside class="map-editor-sidebar">
             <div class="map-editor-panel-header">
                 <div>
-                    <p class="map-editor-eyebrow">Internal Tool</p>
+                    <p class="map-editor-eyebrow">Atlas Workspace</p>
                     <h1>Map Editor</h1>
                 </div>
                 <button id="reload-editor-btn" type="button">Reload Data</button>
@@ -82,40 +82,47 @@
 
         <main class="map-editor-canvas-panel">
             <div class="map-editor-toolbar">
-                <div class="map-editor-toolbar-group">
-                    <button id="editor-choose-map-btn" type="button">⬅ Choose Map</button>
-                    <button id="editor-add-poi-btn" type="button">Add POI</button>
-                    <button id="editor-add-region-btn" type="button">Draw Region</button>
-                    <button id="editor-add-line-btn" type="button">Draw Line</button>
-                    <button id="editor-finish-draw-btn" type="button" hidden>Finish Draft</button>
-                    <button id="editor-cancel-draw-btn" type="button" hidden>Cancel Draft</button>
-                    <button id="editor-delete-selection-btn" type="button">Delete Selected</button>
-                    <button id="editor-reset-view-btn" type="button">Reset View</button>
+                <div class="map-editor-map-context" aria-live="polite">
+                    <span class="map-editor-map-context-label">Editing</span>
+                    <strong id="editor-current-map-title">No map selected</strong>
+                    <span id="editor-current-map-counts">0 POIs, 0 regions, 0 lines</span>
+                </div>
+                <div class="map-editor-toolbar-actions">
+                    <div class="map-editor-toolbar-group" aria-label="Workspace actions">
+                        <button id="editor-choose-map-btn" type="button" aria-controls="editor-atlas-tree" aria-expanded="false">Choose Map</button>
+                        <button id="editor-reset-view-btn" type="button">Reset</button>
+                    </div>
+                    <div class="map-editor-toolbar-group map-editor-toolbar-group-primary" aria-label="Create features">
+                        <button id="editor-add-poi-btn" type="button">POI</button>
+                        <button id="editor-add-region-btn" type="button">Region</button>
+                        <button id="editor-add-line-btn" type="button">Line</button>
+                    </div>
                 </div>
                 <p id="editor-selection-status" class="map-editor-status">Loading atlas data...</p>
-            </div>
-            <div class="map-editor-toolbar-hint">
-                Click a feature to select it. Drag POI markers to move them, and drag orange vertex handles to reshape regions and lines.
             </div>
 
             <div class="map-editor-map-frame">
                 <div id="editor-map"></div>
+                <div id="editor-draw-overlay" class="map-editor-draw-overlay" hidden>
+                    <div class="map-editor-draw-copy">
+                        <strong id="editor-draw-title">Drawing</strong>
+                        <span id="editor-draw-copy">Click the map to add points.</span>
+                    </div>
+                    <div class="map-editor-draw-actions">
+                        <button id="editor-finish-draw-btn" type="button" hidden>Finish</button>
+                        <button id="editor-cancel-draw-btn" type="button" hidden>Cancel</button>
+                    </div>
+                </div>
                 <div id="editor-map-empty-state" class="map-editor-empty-state" hidden>
                     <h2 id="editor-map-empty-title">No Renderable Map Selected</h2>
                     <p id="editor-map-empty-copy">Select a map with image data to edit points, regions, and lines.</p>
                     <p id="editor-map-empty-detail" class="map-editor-empty-detail" hidden></p>
                 </div>
             </div>
-
-            <div class="map-editor-export-bar">
-                <button id="export-current-map-btn" type="button">Export Current Map JSON</button>
-                <button id="export-atlas-structure-btn" type="button">Export Atlas Structure</button>
-                <span id="editor-export-status" aria-live="polite"></span>
-            </div>
         </main>
 
         <aside class="map-editor-inspector">
-            <details class="map-editor-section" open>
+            <details id="editor-map-metadata-section" class="map-editor-section">
                 <summary class="map-editor-section-header">
                     <h2>Map Metadata</h2>
                     <span id="editor-current-map-id" class="map-editor-chip">No map</span>
@@ -157,28 +164,28 @@
                 </form>
             </details>
 
-            <details class="map-editor-section" open>
+            <details id="editor-features-section" class="map-editor-section" open>
                 <summary class="map-editor-section-header">
                     <h2>Features</h2>
                     <span id="editor-feature-summary" class="map-editor-chip">0 selected</span>
                 </summary>
 
-                <div class="map-editor-feature-controls" style="display: flex; gap: 10px; margin-top: 14px; margin-bottom: 10px;">
-                    <select id="editor-feature-type-select" aria-label="Feature Type" style="padding: 4px;">
+                <div class="map-editor-feature-controls">
+                    <select id="editor-feature-type-select" aria-label="Feature Type">
                         <option value="points">POIs</option>
                         <option value="regions">Regions</option>
                         <option value="lines">Lines</option>
                     </select>
-                    <input id="editor-feature-search" type="search" aria-label="Search Features" placeholder="Search features..." style="flex: 1; padding: 4px;">
+                    <input id="editor-feature-search" type="search" aria-label="Search Features" placeholder="Search features...">
                 </div>
 
                 <div id="editor-unified-feature-list" class="map-editor-feature-list"></div>
-                <div style="text-align: center; margin-top: 10px;">
-                    <button id="editor-feature-show-more-btn" type="button" style="padding: 4px 10px;" hidden>Show More</button>
+                <div class="map-editor-feature-list-footer">
+                    <button id="editor-feature-show-more-btn" type="button" hidden>Show More</button>
                 </div>
             </details>
 
-            <details class="map-editor-section" open>
+            <details id="editor-selected-feature-section" class="map-editor-section" open>
                 <summary class="map-editor-section-header">
                     <h2>Selected Feature</h2>
                     <span id="editor-selected-feature-chip" class="map-editor-chip">None</span>
@@ -188,6 +195,22 @@
                     Select a POI, region, or line to edit its fields.
                 </div>
                 <form id="editor-feature-form" class="map-editor-form" hidden></form>
+                <div class="map-editor-selected-actions">
+                    <button id="editor-delete-selection-btn" type="button">Delete Feature</button>
+                </div>
+            </details>
+
+            <details id="editor-export-section" class="map-editor-section map-editor-export-panel">
+                <summary class="map-editor-section-header">
+                    <h2>Export</h2>
+                    <span id="editor-change-status" class="map-editor-change-status">No local edits</span>
+                </summary>
+
+                <div class="map-editor-export-actions">
+                    <button id="export-current-map-btn" type="button">Current Map JSON</button>
+                    <button id="export-atlas-structure-btn" type="button">Atlas Structure</button>
+                </div>
+                <span id="editor-export-status" aria-live="polite"></span>
             </details>
         </aside>
     </div>
