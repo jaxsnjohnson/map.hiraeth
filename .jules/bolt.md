@@ -69,3 +69,7 @@
 ## 2025-06-03 - O(1) HTMLCollection Length Access via Precaching
 **Learning:** Iterating directly over a live `HTMLCollection` is slow because the browser may re-evaluate the DOM state on each property access, especially when accessing the `.length` property and accessing elements by index during each iteration.
 **Action:** When performing intense iterative filtering across dynamic collections (like `poiFilterCheckboxesLive`), convert the live collection into a static array using `Array.from()` immediately before the iteration loop to achieve O(1) length and index access, dramatically improving performance (up to 63%).
+
+## 2024-05-27 - Lazy Initialization of Search Context Strings
+**Learning:** In the `searchMapMarkers` function, map marker objects were unconditionally executing expensive operations like string concatenation (`${poi.summary} ${poi.description}`) and normalization (`normalizeSearchValue()`) to populate `marker._searchContext` on the first iteration of the filter loop, even when the user was only toggling a category filter and had not entered a search term. This caused thousands of unnecessary string allocations and CPU cycles on complex maps.
+**Action:** Defer the initialization of expensive search strings (like normalized titles and concatenated descriptions) until they are actually required by the matching algorithm. Use a lazy-loading pattern by setting them to `null` initially and computing them on-demand inside the search condition (e.g., `if (hasSearchTerm && searchContext.normalizedPrimary === null) { ... }`).

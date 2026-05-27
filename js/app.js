@@ -3463,8 +3463,8 @@ function searchMapMarkers(searchTerm, results, allPoiGroupsChecked, activeSpecif
         if (!searchContext) {
             searchContext = {
                 poiGroup: getPoiGroup(poi.type),
-                normalizedPrimary: normalizeSearchValue(poi.name),
-                normalizedSecondary: normalizeSearchValue(`${poi.summary || ''} ${poi.description || ''}`)
+                normalizedPrimary: null,
+                normalizedSecondary: null
             };
             marker._searchContext = searchContext;
         }
@@ -3474,6 +3474,13 @@ function searchMapMarkers(searchTerm, results, allPoiGroupsChecked, activeSpecif
         let match = { matched: false, score: -1, matchedByContent: false };
         // ⚡ Bolt: Skip expensive string concatenation and fuzzy matching when the user is only filtering (search is empty) or the marker is filtered out.
         if (searchFiltersCurrentMap && groupMatch && hasSearchTerm) {
+            // ⚡ Bolt: Lazy evaluation of `normalizedPrimary` and `normalizedSecondary` string normalizations
+            // and concatenations only when actually performing a search to eliminate wasted CPU cycles and
+            // object allocations during map load and pure category filtering.
+            if (searchContext.normalizedPrimary === null) {
+                searchContext.normalizedPrimary = normalizeSearchValue(poi.name);
+                searchContext.normalizedSecondary = normalizeSearchValue(`${poi.summary || ''} ${poi.description || ''}`);
+            }
             match = computePrecomputedSearchMatch(searchTerm, searchContext.normalizedPrimary, searchContext.normalizedSecondary);
         }
         const isSearchMatch = !hasSearchTerm || match.matched;
