@@ -2494,10 +2494,7 @@ function getFuzzyMatchScore(term, target) {
     return Math.max(40, 160 - spreadPenalty);
 }
 
-function computeSearchMatch(term, primaryText, secondaryText = '') {
-    const normalizedPrimary = normalizeSearchValue(primaryText);
-    if (!term || !normalizedPrimary) return { matched: false, score: -1, matchedByContent: false };
-
+function checkPrimarySearchMatch(term, normalizedPrimary) {
     if (normalizedPrimary === term) {
         return { matched: true, score: 520, matchedByContent: false };
     }
@@ -2513,6 +2510,26 @@ function computeSearchMatch(term, primaryText, secondaryText = '') {
     if (fuzzyScore >= 0) {
         return { matched: true, score: fuzzyScore, matchedByContent: false };
     }
+    return null;
+}
+
+function checkSecondarySearchMatch(term, normalizedSecondary) {
+    if (normalizedSecondary.includes(term)) {
+        return { matched: true, score: 180, matchedByContent: true };
+    }
+    const fuzzySecondaryScore = getFuzzyMatchScore(term, normalizedSecondary);
+    if (fuzzySecondaryScore >= 0) {
+        return { matched: true, score: Math.max(80, fuzzySecondaryScore - 40), matchedByContent: true };
+    }
+    return null;
+}
+
+function computeSearchMatch(term, primaryText, secondaryText = '') {
+    const normalizedPrimary = normalizeSearchValue(primaryText);
+    if (!term || !normalizedPrimary) return { matched: false, score: -1, matchedByContent: false };
+
+    const primaryMatch = checkPrimarySearchMatch(term, normalizedPrimary);
+    if (primaryMatch) return primaryMatch;
 
     // ⚡ Bolt: Defer expensive string normalization on potentially large secondary text
     // until after all primary fast-paths fail
@@ -2520,13 +2537,8 @@ function computeSearchMatch(term, primaryText, secondaryText = '') {
     const actualSecondaryText = typeof secondaryText === 'function' ? secondaryText() : secondaryText;
     const normalizedSecondary = normalizeSearchValue(actualSecondaryText);
     if (normalizedSecondary) {
-        if (normalizedSecondary.includes(term)) {
-            return { matched: true, score: 180, matchedByContent: true };
-        }
-        const fuzzySecondaryScore = getFuzzyMatchScore(term, normalizedSecondary);
-        if (fuzzySecondaryScore >= 0) {
-            return { matched: true, score: Math.max(80, fuzzySecondaryScore - 40), matchedByContent: true };
-        }
+        const secondaryMatch = checkSecondarySearchMatch(term, normalizedSecondary);
+        if (secondaryMatch) return secondaryMatch;
     }
 
     return { matched: false, score: -1, matchedByContent: false };
@@ -3423,30 +3435,12 @@ function sortSearchResults(results) {
 function computePrecomputedSearchMatch(term, normalizedPrimary, normalizedSecondary) {
     if (!term || !normalizedPrimary) return { matched: false, score: -1, matchedByContent: false };
 
-    if (normalizedPrimary === term) {
-        return { matched: true, score: 520, matchedByContent: false };
-    }
-    if (normalizedPrimary.startsWith(term)) {
-        return { matched: true, score: 430, matchedByContent: false };
-    }
-    const primaryIndex = normalizedPrimary.indexOf(term);
-    if (primaryIndex >= 0) {
-        return { matched: true, score: 320 - Math.min(primaryIndex, 120), matchedByContent: false };
-    }
-
-    const fuzzyScore = getFuzzyMatchScore(term, normalizedPrimary);
-    if (fuzzyScore >= 0) {
-        return { matched: true, score: fuzzyScore, matchedByContent: false };
-    }
+    const primaryMatch = checkPrimarySearchMatch(term, normalizedPrimary);
+    if (primaryMatch) return primaryMatch;
 
     if (normalizedSecondary) {
-        if (normalizedSecondary.includes(term)) {
-            return { matched: true, score: 180, matchedByContent: true };
-        }
-        const fuzzySecondaryScore = getFuzzyMatchScore(term, normalizedSecondary);
-        if (fuzzySecondaryScore >= 0) {
-            return { matched: true, score: Math.max(80, fuzzySecondaryScore - 40), matchedByContent: true };
-        }
+        const secondaryMatch = checkSecondarySearchMatch(term, normalizedSecondary);
+        if (secondaryMatch) return secondaryMatch;
     }
 
     return { matched: false, score: -1, matchedByContent: false };
