@@ -23,6 +23,7 @@ const path = require('path');
 
     // Global mocks
     global.allMapMarkers = [];
+    global.poiMarkerMap = new Map();
     global.currentMarkerGroup = {
         layers: [],
         hasLayer: function(l) { return this.layers.includes(l); },
@@ -75,6 +76,7 @@ const path = require('path');
     // Reset state between tests
     function resetMocks() {
         global.allMapMarkers = [];
+        global.poiMarkerMap.clear();
         global.currentMarkerGroup.layers = [];
         global.currentRegionGroup.layers = [];
         global.currentRoadGroup.layers = [];
@@ -94,6 +96,8 @@ const path = require('path');
             popupOpened: false
         };
         global.allMapMarkers.push(mockMarker);
+        if (mockMarker.poiData.id) global.poiMarkerMap.set(mockMarker.poiData.id, mockMarker);
+        if (mockMarker.poiData.name) global.poiMarkerMap.set(mockMarker.poiData.name, mockMarker);
         const resultPoi = focusPOI('Test POI');
         assert.equal(resultPoi, true, 'focusPOI should return true for found POI');
         assert.ok(mockMarker.popupOpened, 'Marker popup should be opened');
@@ -145,6 +149,8 @@ const path = require('path');
         // Test checkAndFocusFeature
         resetMocks();
         global.allMapMarkers.push(mockMarker);
+        if (mockMarker.poiData.id) global.poiMarkerMap.set(mockMarker.poiData.id, mockMarker);
+        if (mockMarker.poiData.name) global.poiMarkerMap.set(mockMarker.poiData.name, mockMarker);
         searchParams = { poi: 'Test POI' };
         const resultCheckPoi = checkAndFocusFeature();
         assert.equal(resultCheckPoi, true, 'checkAndFocusFeature should return true when POI is focused');
