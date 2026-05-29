@@ -641,6 +641,7 @@ let currentImageLayer = null;
 let currentMapUnderlay = null;
 let currentMarkerGroup = null; // Holds currently *visible* markers
 let allMapMarkers = []; // Holds *all* markers for the loaded map
+let mapMarkersByNameOrId = new Map(); // O(1) lookups for focus operations
 let currentBounds = null;
 let currentlyLoadedMapId = null;
 let currentSidebarState = 'o';
@@ -3770,7 +3771,7 @@ function focusRouteStep(route, step) {
     renderRouteSteps(step.id);
     switch (step.targetType) {
         case 'poi': {
-            const marker = allMapMarkers.find(m => m.poiData && (m.poiData.id === step.targetId || m.poiData.name === step.targetId));
+            const marker = mapMarkersByNameOrId.get(step.targetId);
             if (marker) {
                 map.flyTo(marker.getLatLng(), step.zoom != null ? step.zoom : Math.max(map.getZoom(), 1));
                 marker.openPopup();
@@ -4616,7 +4617,7 @@ window.openLinkedMapFromPopup = function(event, mapId) {
 };
 
 function focusPOI(poiName) {
-    const marker = allMapMarkers.find(m => m.poiData && m.poiData.name === poiName);
+    const marker = mapMarkersByNameOrId.get(poiName);
     if (marker) {
         // Ensure marker is visible (add to group if not)
         if (!currentMarkerGroup.hasLayer(marker)) {
@@ -4845,6 +4846,7 @@ function resetMapState() {
     currentRegionGroup = null;
     currentRoadGroup = null;
     allMapMarkers = [];
+    mapMarkersByNameOrId.clear();
 }
 
 function populatePOIsOnMap(selectedMap) {
@@ -4865,6 +4867,8 @@ function populatePOIsOnMap(selectedMap) {
                         marker.bindTooltip(createPoiTooltipContent(point), getPoiTooltipOptions());
                         attachPoiTooltipBehavior(marker);
                         allMapMarkers.push(marker);
+                        if (point.id) mapMarkersByNameOrId.set(point.id, marker);
+                        if (point.name) mapMarkersByNameOrId.set(point.name, marker);
                     } else {
                         console.warn(`L.marker returned undefined for POI: ${point.name || 'Unnamed POI'}`);
                     }

@@ -63,6 +63,14 @@ const path = require('path');
     const originalWindow = global.window;
     global.window = { location: { search: '' } };
 
+    global.mapMarkersByNameOrId = new Map();
+    allMapMarkers.forEach(m => {
+        if (m.poiData) {
+            if (m.poiData.id) global.mapMarkersByNameOrId.set(m.poiData.id, m);
+            if (m.poiData.name) global.mapMarkersByNameOrId.set(m.poiData.name, m);
+        }
+    });
+
     eval(focusPOIStr);
     eval(focusRegionStr);
     eval(focusLineStr);
@@ -94,6 +102,7 @@ const path = require('path');
             popupOpened: false
         };
         global.allMapMarkers.push(mockMarker);
+        global.mapMarkersByNameOrId.set('Test POI', mockMarker);
         const resultPoi = focusPOI('Test POI');
         assert.equal(resultPoi, true, 'focusPOI should return true for found POI');
         assert.ok(mockMarker.popupOpened, 'Marker popup should be opened');
