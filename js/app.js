@@ -4278,7 +4278,11 @@ function hideShareRelayPrompt(reason = 'hidden') {
         shareRelayCopy.textContent = SHARE_RELAY_DEFAULT_COPY;
     }
     if (shareRelayActionBtn && shareRelayActionBtn.dataset.originalInnerHtml) {
-        shareRelayActionBtn.innerHTML = shareRelayActionBtn.dataset.originalInnerHtml;
+        if (typeof DOMPurify !== 'undefined') {
+            shareRelayActionBtn.innerHTML = DOMPurify.sanitize(shareRelayActionBtn.dataset.originalInnerHtml);
+        } else {
+            shareRelayActionBtn.textContent = shareRelayActionBtn.dataset.originalInnerHtml;
+        }
     }
 
     if (reason === 'dismissed' || reason === 'completed') {
@@ -4422,7 +4426,11 @@ function showShareButtonSuccessState(btn) {
         clearTimeout(btn.__shareResetTimeoutId);
     }
     btn.__shareResetTimeoutId = setTimeout(() => {
-        btn.innerHTML = btn.dataset.originalInnerHtml;
+        if (typeof DOMPurify !== 'undefined') {
+            btn.innerHTML = DOMPurify.sanitize(btn.dataset.originalInnerHtml);
+        } else {
+            btn.textContent = btn.dataset.originalInnerHtml;
+        }
     }, 1500);
 }
 
@@ -4436,7 +4444,11 @@ function showShareButtonErrorState(btn) {
         clearTimeout(btn.__shareResetTimeoutId);
     }
     btn.__shareResetTimeoutId = setTimeout(() => {
-        btn.innerHTML = btn.dataset.originalInnerHtml;
+        if (typeof DOMPurify !== 'undefined') {
+            btn.innerHTML = DOMPurify.sanitize(btn.dataset.originalInnerHtml);
+        } else {
+            btn.textContent = btn.dataset.originalInnerHtml;
+        }
     }, 1500);
 }
 
