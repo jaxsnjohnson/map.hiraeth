@@ -638,56 +638,91 @@
         if (state.selectedFeature.mode === 'points') {
             dom.selectedFeatureChip.textContent = 'POI';
             dom.featureForm.innerHTML = `
-                <label>Name<input data-field="name" type="text" value="${escapeHtml(feature.name || '')}"></label>
-                <label>Pronunciation<input data-field="pronunciation" type="text" value="${escapeHtml(feature.pronunciation || '')}"></label>
-                <label>Type<input data-field="type" type="text" value="${escapeHtml(feature.type || '')}"></label>
-                <label>Summary<textarea data-field="summary" rows="3">${escapeHtml(feature.summary || '')}</textarea></label>
-                <label>Description<textarea data-field="description" rows="4">${escapeHtml(feature.description || '')}</textarea></label>
-                <label>Wiki Link<input data-field="wikiLink" type="text" value="${escapeHtml(feature.wikiLink || '')}"></label>
-                <label>Linked Map ID<input data-field="linkedMapId" type="text" value="${escapeHtml(feature.linkedMapId || '')}"></label>
+                <label>Name<input data-field="name" type="text"></label>
+                <label>Pronunciation<input data-field="pronunciation" type="text"></label>
+                <label>Type<input data-field="type" type="text"></label>
+                <label>Summary<textarea data-field="summary" rows="3"></textarea></label>
+                <label>Description<textarea data-field="description" rows="4"></textarea></label>
+                <label>Wiki Link<input data-field="wikiLink" type="text"></label>
+                <label>Linked Map ID<input data-field="linkedMapId" type="text"></label>
                 <div class="map-editor-form-grid">
-                    <label>Y<input data-field="coordY" type="number" value="${escapeHtml(feature.coords?.[0] ?? '')}"></label>
-                    <label>X<input data-field="coordX" type="number" value="${escapeHtml(feature.coords?.[1] ?? '')}"></label>
+                    <label>Y<input data-field="coordY" type="number"></label>
+                    <label>X<input data-field="coordX" type="number"></label>
                 </div>
-                <label>Properties JSON<textarea data-field="properties" rows="5">${escapeHtml(JSON.stringify(feature.properties || {}, null, 2))}</textarea></label>
+                <label>Properties JSON<textarea data-field="properties" rows="5"></textarea></label>
             `;
+            dom.featureForm.querySelector('[data-field="name"]').value = feature.name || '';
+            dom.featureForm.querySelector('[data-field="pronunciation"]').value = feature.pronunciation || '';
+            dom.featureForm.querySelector('[data-field="type"]').value = feature.type || '';
+            dom.featureForm.querySelector('[data-field="summary"]').value = feature.summary || '';
+            dom.featureForm.querySelector('[data-field="description"]').value = feature.description || '';
+            dom.featureForm.querySelector('[data-field="wikiLink"]').value = feature.wikiLink || '';
+            dom.featureForm.querySelector('[data-field="linkedMapId"]').value = feature.linkedMapId || '';
+            dom.featureForm.querySelector('[data-field="coordY"]').value = feature.coords?.[0] ?? '';
+            dom.featureForm.querySelector('[data-field="coordX"]').value = feature.coords?.[1] ?? '';
+            dom.featureForm.querySelector('[data-field="properties"]').value = JSON.stringify(feature.properties || {}, null, 2);
         } else if (state.selectedFeature.mode === 'regions') {
             dom.selectedFeatureChip.textContent = 'Region';
             dom.featureForm.innerHTML = `
-                <label>ID<input data-field="id" type="text" value="${escapeHtml(feature.id || '')}"></label>
-                <label>Name<input data-field="name" type="text" value="${escapeHtml(feature.name || '')}"></label>
-                <label>Type<input data-field="type" type="text" value="${escapeHtml(feature.type || '')}"></label>
-                <label>Value<input data-field="value" type="text" value="${escapeHtml(feature.value || '')}"></label>
-                <label>Summary<textarea data-field="summary" rows="3">${escapeHtml(feature.summary || '')}</textarea></label>
-                <label>Description<textarea data-field="description" rows="4">${escapeHtml(feature.description || '')}</textarea></label>
-                <label>Wiki Link<input data-field="wikiLink" type="text" value="${escapeHtml(feature.wikiLink || '')}"></label>
-                <label>Linked Map ID<input data-field="linkedMapId" type="text" value="${escapeHtml(feature.linkedMapId || '')}"></label>
+                <label>ID<input data-field="id" type="text"></label>
+                <label>Name<input data-field="name" type="text"></label>
+                <label>Type<input data-field="type" type="text"></label>
+                <label>Value<input data-field="value" type="text"></label>
+                <label>Summary<textarea data-field="summary" rows="3"></textarea></label>
+                <label>Description<textarea data-field="description" rows="4"></textarea></label>
+                <label>Wiki Link<input data-field="wikiLink" type="text"></label>
+                <label>Linked Map ID<input data-field="linkedMapId" type="text"></label>
                 <div class="map-editor-form-grid">
-                    <label>Stroke Color<input data-field="color" type="text" value="${escapeHtml(feature.color || '')}"></label>
-                    <label>Fill Color<input data-field="fillColor" type="text" value="${escapeHtml(feature.fillColor || '')}"></label>
-                    <label>Fill Opacity<input data-field="fillOpacity" type="number" step="0.05" value="${escapeHtml(feature.fillOpacity ?? '')}"></label>
+                    <label>Stroke Color<input data-field="color" type="text"></label>
+                    <label>Fill Color<input data-field="fillColor" type="text"></label>
+                    <label>Fill Opacity<input data-field="fillOpacity" type="number" step="0.05"></label>
                 </div>
-                <label>Coordinates<textarea class="map-editor-coordinates" data-field="coordinates" rows="7">${escapeHtml(stringifyCoordinates(feature.coordinates || []))}</textarea></label>
-                <label>Properties JSON<textarea data-field="properties" rows="5">${escapeHtml(JSON.stringify(feature.properties || {}, null, 2))}</textarea></label>
+                <label>Coordinates<textarea class="map-editor-coordinates" data-field="coordinates" rows="7"></textarea></label>
+                <label>Properties JSON<textarea data-field="properties" rows="5"></textarea></label>
             `;
+            dom.featureForm.querySelector('[data-field="id"]').value = feature.id || '';
+            dom.featureForm.querySelector('[data-field="name"]').value = feature.name || '';
+            dom.featureForm.querySelector('[data-field="type"]').value = feature.type || '';
+            dom.featureForm.querySelector('[data-field="value"]').value = feature.value || '';
+            dom.featureForm.querySelector('[data-field="summary"]').value = feature.summary || '';
+            dom.featureForm.querySelector('[data-field="description"]').value = feature.description || '';
+            dom.featureForm.querySelector('[data-field="wikiLink"]').value = feature.wikiLink || '';
+            dom.featureForm.querySelector('[data-field="linkedMapId"]').value = feature.linkedMapId || '';
+            dom.featureForm.querySelector('[data-field="color"]').value = feature.color || '';
+            dom.featureForm.querySelector('[data-field="fillColor"]').value = feature.fillColor || '';
+            dom.featureForm.querySelector('[data-field="fillOpacity"]').value = feature.fillOpacity ?? '';
+            dom.featureForm.querySelector('[data-field="coordinates"]').value = stringifyCoordinates(feature.coordinates || []);
+            dom.featureForm.querySelector('[data-field="properties"]').value = JSON.stringify(feature.properties || {}, null, 2);
         } else {
             dom.selectedFeatureChip.textContent = 'Line';
             dom.featureForm.innerHTML = `
-                <label>ID<input data-field="id" type="text" value="${escapeHtml(feature.id || '')}"></label>
-                <label>Name<input data-field="name" type="text" value="${escapeHtml(feature.name || '')}"></label>
-                <label>Type<input data-field="type" type="text" value="${escapeHtml(feature.type || '')}"></label>
-                <label>Summary<textarea data-field="summary" rows="3">${escapeHtml(feature.summary || '')}</textarea></label>
-                <label>Description<textarea data-field="description" rows="4">${escapeHtml(feature.description || '')}</textarea></label>
-                <label>Wiki Link<input data-field="wikiLink" type="text" value="${escapeHtml(feature.wikiLink || '')}"></label>
-                <label>Linked Map ID<input data-field="linkedMapId" type="text" value="${escapeHtml(feature.linkedMapId || '')}"></label>
+                <label>ID<input data-field="id" type="text"></label>
+                <label>Name<input data-field="name" type="text"></label>
+                <label>Type<input data-field="type" type="text"></label>
+                <label>Summary<textarea data-field="summary" rows="3"></textarea></label>
+                <label>Description<textarea data-field="description" rows="4"></textarea></label>
+                <label>Wiki Link<input data-field="wikiLink" type="text"></label>
+                <label>Linked Map ID<input data-field="linkedMapId" type="text"></label>
                 <div class="map-editor-form-grid">
-                    <label>Color<input data-field="color" type="text" value="${escapeHtml(feature.color || '')}"></label>
-                    <label>Weight<input data-field="weight" type="number" step="1" min="1" value="${escapeHtml(feature.weight ?? '')}"></label>
-                    <label>Dash Array<input data-field="dashArray" type="text" value="${escapeHtml(feature.dashArray || '')}"></label>
+                    <label>Color<input data-field="color" type="text"></label>
+                    <label>Weight<input data-field="weight" type="number" step="1" min="1"></label>
+                    <label>Dash Array<input data-field="dashArray" type="text"></label>
                 </div>
-                <label>Coordinates<textarea class="map-editor-coordinates" data-field="coordinates" rows="7">${escapeHtml(stringifyCoordinates(feature.coordinates || []))}</textarea></label>
-                <label>Properties JSON<textarea data-field="properties" rows="5">${escapeHtml(JSON.stringify(feature.properties || {}, null, 2))}</textarea></label>
+                <label>Coordinates<textarea class="map-editor-coordinates" data-field="coordinates" rows="7"></textarea></label>
+                <label>Properties JSON<textarea data-field="properties" rows="5"></textarea></label>
             `;
+            dom.featureForm.querySelector('[data-field="id"]').value = feature.id || '';
+            dom.featureForm.querySelector('[data-field="name"]').value = feature.name || '';
+            dom.featureForm.querySelector('[data-field="type"]').value = feature.type || '';
+            dom.featureForm.querySelector('[data-field="summary"]').value = feature.summary || '';
+            dom.featureForm.querySelector('[data-field="description"]').value = feature.description || '';
+            dom.featureForm.querySelector('[data-field="wikiLink"]').value = feature.wikiLink || '';
+            dom.featureForm.querySelector('[data-field="linkedMapId"]').value = feature.linkedMapId || '';
+            dom.featureForm.querySelector('[data-field="color"]').value = feature.color || '';
+            dom.featureForm.querySelector('[data-field="weight"]').value = feature.weight ?? '';
+            dom.featureForm.querySelector('[data-field="dashArray"]').value = feature.dashArray || '';
+            dom.featureForm.querySelector('[data-field="coordinates"]').value = stringifyCoordinates(feature.coordinates || []);
+            dom.featureForm.querySelector('[data-field="properties"]').value = JSON.stringify(feature.properties || {}, null, 2);
         }
     }
 
