@@ -155,6 +155,7 @@ let temporaryMouseMoveTooltip = null; // L.Tooltip for the temporary line's leng
 // --- GM / Routes / Session Toolkit State ---
 let gmContentVisible = false;
 let currentRoutes = [];
+let currentRoutesById = new Map();
 let visibleRoutes = [];
 let currentRoute = null;
 let currentRouteStepIndex = -1;
@@ -3744,7 +3745,7 @@ function renderRouteSteps(activeStepId) {
     if (!routeStepList) return;
     routeStepList.innerHTML = '';
     const selectedRouteId = routeSelect?.value;
-    const route = currentRoutes.find(r => r.id === selectedRouteId);
+    const route = currentRoutesById.get(selectedRouteId);
     if (!route) return;
     route.steps.forEach(step => {
         const div = document.createElement('div');
@@ -3813,7 +3814,7 @@ function focusRouteStep(route, step) {
 }
 
 function startRoute(routeId, stepId = null) {
-    const route = currentRoutes.find(r => r.id === routeId) || currentRoutes[0];
+    const route = currentRoutesById.get(routeId) || currentRoutes[0];
     if (!route) return;
     currentRoute = route;
     const idx = stepId ? route.steps.findIndex(s => s.id === stepId) : 0;
@@ -4973,6 +4974,7 @@ function renderMapFeatures(selectedMap, requestedMapId) {
     visibleLinesCache = getVisibleLines(selectedMap);
     visibleRoutes = getVisibleRoutes(selectedMap);
     currentRoutes = visibleRoutes;
+    currentRoutesById = new Map(currentRoutes.map(r => [r.id, r]));
     currentEncounterTables = getVisibleEncounterTables(selectedMap);
     renderRoutesPanel();
     updateEncounterSelect();
