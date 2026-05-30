@@ -73,3 +73,7 @@
 ## 2024-05-27 - Lazy Initialization of Search Context Strings
 **Learning:** In the `searchMapMarkers` function, map marker objects were unconditionally executing expensive operations like string concatenation (`${poi.summary} ${poi.description}`) and normalization (`normalizeSearchValue()`) to populate `marker._searchContext` on the first iteration of the filter loop, even when the user was only toggling a category filter and had not entered a search term. This caused thousands of unnecessary string allocations and CPU cycles on complex maps.
 **Action:** Defer the initialization of expensive search strings (like normalized titles and concatenated descriptions) until they are actually required by the matching algorithm. Use a lazy-loading pattern by setting them to `null` initially and computing them on-demand inside the search condition (e.g., `if (hasSearchTerm && searchContext.normalizedPrimary === null) { ... }`).
+
+## 2024-05-30 - O(N) Array Searches Replaced with O(1) Map Lookups
+**Learning:** `allMapMarkers` array is frequently searched using `find` by POI ID and Name during route step focus (`focusRouteStep`) and map marker focus operations (`focusPOI`), which are linear O(N) operations. By caching this array into an O(1) ES6 `Map` by POI Name and ID whenever it is updated in `populatePOIsOnMap`, we can avoid the linear performance penalty.
+**Action:** Implemented caching Maps for `allMapMarkers` populated during map render to be used for O(1) fetching. Avoid overwriting first instance by checking `!Map.has()` first.
