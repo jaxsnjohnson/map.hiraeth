@@ -1,6 +1,6 @@
 (function initAppConfig(root, factory) {
-    const DEFAULT_SITE_CONFIG = {
-            brand: {
+    function getDefaultBrandConfig() {
+        return {
                 siteName: 'HAG Interactive World Map Viewer',
                 shortName: 'Hiraeth Maps',
                 description: 'Explore interactive maps, discover points of interest, and measure distances in Hiraeth!',
@@ -14,8 +14,11 @@
                     favicon: 'favicon.png',
                     appleTouchIcon: 'apple-touch-icon.png'
                 }
-            },
-            assets: {
+            };
+    }
+
+    function getDefaultAssetsConfig() {
+        return {
                 version: '2026.04.19.04',
                 stylesheets: [
                     'css/style.css',
@@ -80,8 +83,11 @@
                         'images/poi-icons/unknown.png'
                     ]
                 }
-            },
-            theme: {
+            };
+    }
+
+    function getDefaultThemeConfig() {
+        return {
                 preset: 'parchment',
                 fontImportUrl: 'https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap',
                 fontFamilyMain: "'EB Garamond', serif",
@@ -136,8 +142,11 @@
                     light: '#f4f0eb',
                     dark: '#050510'
                 }
-            },
-            features: {
+            };
+    }
+
+    function getDefaultFeaturesConfig() {
+        return {
                 sound: true,
                 stars: true,
                 atmosphere: true,
@@ -154,8 +163,11 @@
                 onboarding: true,
                 wipNotice: true,
                 embeddedMode: true
-            },
-            performance: {
+            };
+    }
+
+    function getDefaultPerformanceConfig() {
+        return {
                 lowQualityMode: false,
                 mobileBreakpoint: 768,
                 starCount: 450,
@@ -164,8 +176,11 @@
                 prefetchImages: true,
                 prefetchJson: true,
                 serviceWorker: true
-            },
-            taxonomy: {
+            };
+    }
+
+    function getDefaultTaxonomyConfig() {
+        return {
                 poiTypeGroups: {
                     Settlements: ['City', 'Town', 'Village', 'Hamlet', 'Settlement', 'Capital'],
                     Structures: ['Castle', 'Fortress', 'Fort', 'Tower', 'Ruin', 'Temple', 'Shrine', 'Mine', 'Lighthouse', 'Bridge', 'Dungeon', 'Lair', 'Camp', 'Asylum', 'Landmark'],
@@ -188,8 +203,11 @@
                     color: '#ffffff',
                     weight: 3
                 }
-            },
-            copy: {
+            };
+    }
+
+    function getDefaultCopyConfig() {
+        return {
                 sidebarTitle: 'Select Map',
                 themeLabel: 'Theme',
                 loading: {
@@ -252,14 +270,28 @@
                     emptyTitle: 'No Renderable Map Selected',
                     emptyCopy: 'Select a map with image data to edit points, regions, and lines.'
                 }
-            },
-            security: {
+            };
+    }
+
+    function getDefaultSecurityConfig() {
+        return {
                 analyticsEndpoint: '',
                 gmToolkitPolicy: 'local-only',
                 externalLinksNewTab: true,
                 allowedVisibilityValues: ['public', 'gm', 'private']
-            }
-        };
+            };
+    }
+
+    const DEFAULT_SITE_CONFIG = {
+        brand: getDefaultBrandConfig(),
+        assets: getDefaultAssetsConfig(),
+        theme: getDefaultThemeConfig(),
+        features: getDefaultFeaturesConfig(),
+        performance: getDefaultPerformanceConfig(),
+        taxonomy: getDefaultTaxonomyConfig(),
+        copy: getDefaultCopyConfig(),
+        security: getDefaultSecurityConfig()
+    };
 
     if (typeof module === 'object' && module.exports) {
         module.exports = factory(root, DEFAULT_SITE_CONFIG);
