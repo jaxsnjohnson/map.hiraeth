@@ -626,15 +626,18 @@
             };
         }
 
+        function addSelectionEntry(item) {
+            const selectionEntry = buildSelectionEntry(item);
+            if (!selectionEntry) return;
+
+            seenIds.add(selectionEntry.id);
+            selections.push(selectionEntry);
+        }
+
         function collectNode(item) {
             if (!item || typeof item !== 'object') return;
 
-            const selectionEntry = buildSelectionEntry(item);
-            if (selectionEntry) {
-                seenIds.add(selectionEntry.id);
-                selections.push(selectionEntry);
-            }
-
+            addSelectionEntry(item);
             walk(item.children);
         }
 
