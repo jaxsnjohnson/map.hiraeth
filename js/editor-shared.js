@@ -303,6 +303,39 @@
             (mapData.filterGroups && typeof mapData.filterGroups === 'object');
     }
 
+    function buildFileBackedMapCandidatePaths(fallbackMap, resolveDefaultDataUrl) {
+        const candidatePaths = [];
+        const explicitDataUrl = String(fallbackMap.dataUrl || '').trim();
+        if (explicitDataUrl) candidatePaths.push(explicitDataUrl);
+
+        const defaultDataUrl = String(resolveDefaultDataUrl(fallbackMap.id, fallbackMap) || '').trim();
+        if (defaultDataUrl && !candidatePaths.includes(defaultDataUrl)) {
+            candidatePaths.push(defaultDataUrl);
+        }
+        return candidatePaths;
+    }
+
+    function mergeFileBackedMapDocument(fallbackMap, loadedMap) {
+        if (!loadedMap || typeof loadedMap !== 'object') {
+            throw new Error('returned no JSON object');
+        }
+
+        const resolvedMap = {
+            ...fallbackMap,
+            ...cloneJson(loadedMap)
+        };
+        if (resolvedMap.selectorDescription === undefined && fallbackMap.selectorDescription !== undefined) {
+            resolvedMap.selectorDescription = fallbackMap.selectorDescription;
+        }
+        delete resolvedMap.dataUrl;
+        return resolvedMap;
+    }
+
+    async function loadFileBackedMapCandidate(candidatePath, fallbackMap, loadJsonByPath) {
+        const loadedMap = await loadJsonByPath(candidatePath, fallbackMap);
+        return mergeFileBackedMapDocument(fallbackMap, loadedMap);
+    }
+
     async function resolveFileBackedMapDocument(mapData, options = {}) {
         if (!mapData || typeof mapData !== 'object') {
             throw new Error('Cannot resolve map document: invalid map node.');
@@ -326,15 +359,7 @@
             throw new Error(`Could not resolve full map JSON for "${mapId}": no loader configured.`);
         }
 
-        const candidatePaths = [];
-        const explicitDataUrl = String(fallbackMap.dataUrl || '').trim();
-        if (explicitDataUrl) candidatePaths.push(explicitDataUrl);
-
-        const defaultDataUrl = String(resolveDefaultDataUrl(fallbackMap.id, fallbackMap) || '').trim();
-        if (defaultDataUrl && !candidatePaths.includes(defaultDataUrl)) {
-            candidatePaths.push(defaultDataUrl);
-        }
-
+        const candidatePaths = buildFileBackedMapCandidatePaths(fallbackMap, resolveDefaultDataUrl);
         if (candidatePaths.length === 0) {
             throw new Error(`Could not resolve full map JSON for "${mapId}": no dataUrl or default path was available.`);
         }
@@ -342,20 +367,7 @@
         const failures = [];
         for (const candidatePath of candidatePaths) {
             try {
-                const loadedMap = await loadJsonByPath(candidatePath, fallbackMap);
-                if (!loadedMap || typeof loadedMap !== 'object') {
-                    throw new Error('returned no JSON object');
-                }
-
-                const resolvedMap = {
-                    ...fallbackMap,
-                    ...cloneJson(loadedMap)
-                };
-                if (resolvedMap.selectorDescription === undefined && fallbackMap.selectorDescription !== undefined) {
-                    resolvedMap.selectorDescription = fallbackMap.selectorDescription;
-                }
-                delete resolvedMap.dataUrl;
-                return resolvedMap;
+                return await loadFileBackedMapCandidate(candidatePath, fallbackMap, loadJsonByPath);
             } catch (error) {
                 failures.push(`${candidatePath} (${error?.message || 'Unknown error.'})`);
             }
