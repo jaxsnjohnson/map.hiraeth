@@ -398,6 +398,13 @@
         return aliases;
     }
 
+    function getRequiredMapImageUrl(mapData) {
+        const imageUrl = String(mapData?.imageUrl || '').trim();
+        if (imageUrl) return imageUrl;
+
+        throw new Error(`Map "${String(mapData?.id || mapData?.name || 'unknown-map')}" is missing an imageUrl.`);
+    }
+
     function createNormalizedRepoEntry(entry) {
         const normalizedPath = normalizeRepoEntryPath(entry);
         if (!normalizedPath) return null;
@@ -493,6 +500,10 @@
             return cloneJson(await jsonCache.get(normalizedPath));
         }
 
+        function resolveImageEntry(mapData) {
+            return getFileEntry(getRequiredMapImageUrl(mapData));
+        }
+
         const manifestDocument = await loadJsonByPath('maps/maps.json');
         const manifest = buildManifestTreeFromDocument(manifestDocument);
         if (
@@ -529,13 +540,7 @@
                 loadJsonByPath,
                 resolveDefaultDataUrl: buildDefaultMapDataUrl
             }),
-            resolveImageEntry: (mapData) => {
-                const imageUrl = String(mapData?.imageUrl || '').trim();
-                if (!imageUrl) {
-                    throw new Error(`Map "${String(mapData?.id || mapData?.name || 'unknown-map')}" is missing an imageUrl.`);
-                }
-                return getFileEntry(imageUrl);
-            }
+            resolveImageEntry
         };
     }
 
