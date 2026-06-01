@@ -13,9 +13,11 @@
 ## 2026-05-01 - Hidden Input Keyboard Accessibility
 **Learning:** Custom UI components (like toggles) that use a visually hidden `<input>` element with `opacity: 0` alongside a custom surrogate element (like a `.slider` div) lose default browser focus rings. The invisible input still receives focus via Tab navigation, but no visual indicator is shown to the user.
 **Action:** When hiding native inputs for custom styling, always apply a `:focus-visible` ring on the custom surrogate element using the adjacent sibling combinator (e.g., `input:focus-visible + .slider`).
+
 ## 2023-10-24 - Make filter group headers keyboard accessible
 **Learning:** Adding `tabindex="0"` and `role="button"` makes custom group headers keyboard focusable, but requires an explicit `keydown` listener for 'Enter' and 'Space'. The default 'Space' behavior scrolls the page, requiring `e.preventDefault()`. Custom focus outlines via `:focus-visible` can cause layout shifts if not balanced with equal positive padding and negative margin (e.g., `padding: 2px 4px; margin: -2px -4px;`).
 **Action:** When implementing custom toggle elements, always add the `keydown` event listener, suppress default spacebar scrolling, and use the padding/margin trick to safely add focus rings without breaking the layout.
+
 ## 2026-05-06 - Programmatic Checkbox Toggling
 **Learning:** When programmatically toggling the `checked` property of a native `<input type="checkbox">` in a custom `keydown` event listener (e.g., to handle 'Space' or 'Enter'), the browser does not automatically fire a 'change' event like it does for a physical click. This breaks any downstream logic relying on 'change' listeners.
 **Action:** Always explicitly dispatch a new 'change' event (e.g., `element.dispatchEvent(new Event('change'))`) immediately after programmatically mutating the `checked` state to ensure complete functionality parity with native clicks.
@@ -26,3 +28,4 @@
 ## 2023-10-27 - Form Element Focus States
 **Learning:** By default, standard form elements like `<select>` and `<textarea>` might not automatically inherit the custom `:focus-visible` styling applied to `<input>` elements in global CSS resets, leaving them without clear visual indicators during keyboard navigation.
 **Action:** Always verify that all interactive form elements (`input`, `select`, `textarea`, `button`) are explicitly included in the comma-separated CSS selectors for `:focus-visible` styling to maintain consistent keyboard accessibility.
+**Action:** Always wrap destructive actions, such as deleting a feature in a map editor, with a confirmation dialog (e.g., `window.confirm`) to explicitly require user consent and prevent accidental data loss. Furthermore, make the prompt contextual by including the feature name to reduce ambiguity.
