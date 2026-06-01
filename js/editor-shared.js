@@ -105,27 +105,36 @@
             ];
         const flattenedEntries = [];
 
+        function createFlatEntry(item, index, parentId) {
+            const normalizedId = String(item.id || '').trim();
+            if (!normalizedId) return null;
+
+            const entry = {};
+            keysToCopy.forEach((key) => {
+                if (item[key] === undefined) return;
+                if (typeof item[key] === 'string' && !String(item[key]).trim() && key !== 'name') return;
+                entry[key] = cloneJson(item[key]);
+            });
+
+            entry.id = normalizedId;
+            entry.order = index;
+            if (parentId) entry.parentId = parentId;
+            return entry;
+        }
+
+        function appendFlatEntry(item, index, parentId) {
+            if (!item || typeof item !== 'object') return;
+
+            const entry = createFlatEntry(item, index, parentId);
+            if (!entry) return;
+
+            flattenedEntries.push(entry);
+            walk(item.children, entry.id);
+        }
+
         function walk(nodes, parentId = '') {
             if (!Array.isArray(nodes)) return;
-            nodes.forEach((item, index) => {
-                if (!item || typeof item !== 'object' || !String(item.id || '').trim()) return;
-
-                const entry = {};
-                keysToCopy.forEach((key) => {
-                    if (item[key] === undefined) return;
-                    if (typeof item[key] === 'string' && !String(item[key]).trim() && key !== 'name') return;
-                    entry[key] = cloneJson(item[key]);
-                });
-
-                entry.id = String(item.id || '').trim();
-                entry.order = index;
-                if (parentId) entry.parentId = parentId;
-                flattenedEntries.push(entry);
-
-                if (Array.isArray(item.children) && item.children.length > 0) {
-                    walk(item.children, entry.id);
-                }
-            });
+            nodes.forEach((item, index) => appendFlatEntry(item, index, parentId));
         }
 
         walk(items);
