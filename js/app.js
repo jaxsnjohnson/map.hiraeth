@@ -5336,16 +5336,7 @@ function getMapPresetGroupLabel(item) {
     return String(item?.group || item?.category || '').trim();
 }
 
-function createSidebarFolderItem(item) {
-    const listItem = document.createElement('li');
-    listItem.classList.add('folder', 'closed');
-    const header = document.createElement('div');
-    header.classList.add('folder-header');
-    const folderName = item.name || 'Unnamed Folder!';
-    const hasChildren = Array.isArray(item.children) && item.children.length > 0;
-    const isComingSoon = item.status === 'coming-soon';
-    const isLoadable = isRenderableMapEntry(item);
-
+function createFolderToggleBtn(folderName, hasChildren) {
     const toggleBtn = document.createElement('button');
     toggleBtn.type = 'button';
     toggleBtn.className = 'folder-toggle-btn';
@@ -5360,7 +5351,10 @@ function createSidebarFolderItem(item) {
         toggleBtn.setAttribute('aria-hidden', 'true');
         toggleBtn.tabIndex = -1;
     }
+    return toggleBtn;
+}
 
+function createFolderMainAction(folderName, isLoadable, isComingSoon) {
     const mainAction = document.createElement('button');
     mainAction.type = 'button';
     mainAction.className = 'folder-main-action';
@@ -5375,21 +5369,10 @@ function createSidebarFolderItem(item) {
     mainActionLabel.className = 'folder-main-action-label';
     mainActionLabel.textContent = `${folderName}${isComingSoon ? ' (Soon)' : ''}`;
     mainAction.appendChild(mainActionLabel);
+    return mainAction;
+}
 
-    const nestedList = document.createElement('ul');
-    nestedList.classList.add('nested-list');
-
-    if (hasChildren) {
-        populateSidebar(nestedList, item.children);
-    }
-
-    const toggleFolderOpen = (e) => {
-        e.stopPropagation();
-        if (!hasChildren) return;
-        listItem.classList.toggle('closed');
-        syncFolderExpandedAria(listItem);
-    };
-
+function attachFolderEventListeners(item, folderName, isLoadable, isComingSoon, header, toggleBtn, mainAction, toggleFolderOpen) {
     toggleBtn.addEventListener('click', toggleFolderOpen);
     toggleBtn.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -5440,7 +5423,39 @@ function createSidebarFolderItem(item) {
             }
         });
     }
+}
+
+function createSidebarFolderItem(item) {
+    const listItem = document.createElement('li');
+    listItem.classList.add('folder', 'closed');
+    const header = document.createElement('div');
+    header.classList.add('folder-header');
+
+    const folderName = item.name || 'Unnamed Folder!';
+    const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+    const isComingSoon = item.status === 'coming-soon';
+    const isLoadable = isRenderableMapEntry(item);
+
+    const toggleBtn = createFolderToggleBtn(folderName, hasChildren);
+    const mainAction = createFolderMainAction(folderName, isLoadable, isComingSoon);
+
+    const nestedList = document.createElement('ul');
+    nestedList.classList.add('nested-list');
+    if (hasChildren) {
+        populateSidebar(nestedList, item.children);
+    }
+
+    const toggleFolderOpen = (e) => {
+        e.stopPropagation();
+        if (!hasChildren) return;
+        listItem.classList.toggle('closed');
+        syncFolderExpandedAria(listItem);
+    };
+
+    attachFolderEventListeners(item, folderName, isLoadable, isComingSoon, header, toggleBtn, mainAction, toggleFolderOpen);
+
     syncFolderExpandedAria(listItem);
+
     header.appendChild(toggleBtn);
     header.appendChild(mainAction);
     listItem.appendChild(header);
