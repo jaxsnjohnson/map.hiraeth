@@ -30,6 +30,8 @@ function extractFunctionSource(name) {
 const snippets = [
     extractFunctionSource('normalizeSearchValue'),
     extractFunctionSource('getFuzzyMatchScore'),
+    extractFunctionSource('checkPrimarySearchMatch'),
+    extractFunctionSource('checkSecondarySearchMatch'),
     extractFunctionSource('computeSearchMatch'),
     extractFunctionSource('computePrecomputedSearchMatch')
 ].join('\n');
