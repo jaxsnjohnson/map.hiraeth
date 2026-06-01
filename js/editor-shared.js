@@ -105,26 +105,47 @@
             ];
         const flattenedEntries = [];
 
+        function getFlatManifestEntryId(item) {
+            return String(item.id || '').trim();
+        }
+
+        function isValidManifestTreeItem(item) {
+            return Boolean(item && typeof item === 'object' && getFlatManifestEntryId(item));
+        }
+
+        function shouldCopyManifestEntryKey(item, key) {
+            if (item[key] === undefined) return false;
+            if (typeof item[key] === 'string' && !String(item[key]).trim() && key !== 'name') return false;
+            return true;
+        }
+
+        function createFlatManifestEntry(item, index, parentId) {
+            const entry = keysToCopy.reduce((copiedEntry, key) => {
+                if (shouldCopyManifestEntryKey(item, key)) {
+                    copiedEntry[key] = cloneJson(item[key]);
+                }
+                return copiedEntry;
+            }, {});
+
+            entry.id = getFlatManifestEntryId(item);
+            entry.order = index;
+            if (parentId) entry.parentId = parentId;
+            return entry;
+        }
+
+        function walkChildren(item, parentId) {
+            if (!Array.isArray(item.children) || item.children.length === 0) return;
+            walk(item.children, parentId);
+        }
+
         function walk(nodes, parentId = '') {
             if (!Array.isArray(nodes)) return;
             nodes.forEach((item, index) => {
-                if (!item || typeof item !== 'object' || !String(item.id || '').trim()) return;
+                if (!isValidManifestTreeItem(item)) return;
 
-                const entry = {};
-                keysToCopy.forEach((key) => {
-                    if (item[key] === undefined) return;
-                    if (typeof item[key] === 'string' && !String(item[key]).trim() && key !== 'name') return;
-                    entry[key] = cloneJson(item[key]);
-                });
-
-                entry.id = String(item.id || '').trim();
-                entry.order = index;
-                if (parentId) entry.parentId = parentId;
+                const entry = createFlatManifestEntry(item, index, parentId);
                 flattenedEntries.push(entry);
-
-                if (Array.isArray(item.children) && item.children.length > 0) {
-                    walk(item.children, entry.id);
-                }
+                walkChildren(item, entry.id);
             });
         }
 
