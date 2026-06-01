@@ -40,3 +40,8 @@
 **Vulnerability:** Constructing HTML strings using `replace` with regular expressions on escaped text, and then injecting the result into the DOM via `innerHTML`, allows for DOM-based XSS. If a malicious user input matches standard HTML tags but bypasses string sanitization due to regex edge cases (e.g., zero-width matches, entities tampering), it renders as executable HTML elements.
 **Learning:** Returning constructed raw HTML strings from utility functions meant for textual highlighting introduces critical injection vectors when those strings are consumed via `.innerHTML`.
 **Prevention:** Always refactor string-based DOM manipulators to return a `DocumentFragment` dynamically constructed with `document.createTextNode()` and `document.createElement()`, replacing `.innerHTML` sinks with `.appendChild()`. When using `exec` in a `while` loop, always clone the regex to guarantee the `g` flag is present to prevent infinite iteration loops.
+
+## 2026-06-01 - DOM-based XSS via RegExp.exec() in highlightSearchText
+**Vulnerability:** DOM-based XSS via unsafe innerHTML usage with dynamically highlighted search terms. The fix replaced innerHTML with document.createElement and textContent, but the initial attempt introduced an infinite loop bug.
+**Learning:** When replacing String.prototype.replace() with RegExp.prototype.exec() in a while loop to manually construct DOM nodes, account for non-global regular expressions. If a RegExp lacks the global (`g`) flag, repeated exec calls can return the same match without advancing `lastIndex`.
+**Prevention:** Clone highlight regexes with the global flag or otherwise advance the loop explicitly before using `RegExp.prototype.exec()` in a loop.
