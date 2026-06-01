@@ -24,6 +24,7 @@ const path = require('path');
     // Global mocks
     global.allMapMarkers = [];
     global.allMapMarkersByName = new Map();
+    global.allMapRegionsByName = new Map();
     global.currentMarkerGroup = {
         layers: [],
         hasLayer: function(l) { return this.layers.includes(l); },
@@ -118,6 +119,7 @@ const path = require('path');
             popupOpened: false
         };
         global.currentRegionGroup.layers.push(mockRegionLayer);
+        global.allMapRegionsByName.set('Test Region', mockRegionLayer);
         const resultRegion = focusRegion('Test Region');
         assert.equal(resultRegion, true, 'focusRegion should return true for found Region');
         assert.ok(mockRegionLayer.popupOpened, 'Region popup should be opened');
@@ -155,6 +157,7 @@ const path = require('path');
 
         resetMocks();
         global.currentRegionGroup.layers.push(mockRegionLayer);
+        global.allMapRegionsByName.set('Test Region', mockRegionLayer);
         searchParams = { region: 'Test Region' };
         const resultCheckRegion = checkAndFocusFeature();
         assert.equal(resultCheckRegion, true, 'checkAndFocusFeature should return true when Region is focused');

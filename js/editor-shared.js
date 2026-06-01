@@ -105,27 +105,50 @@
             ];
         const flattenedEntries = [];
 
+        function getFlatManifestEntryId(item) {
+            return String(item.id || '').trim();
+        }
+
+        function isValidManifestTreeItem(item) {
+            return Boolean(item && typeof item === 'object' && getFlatManifestEntryId(item));
+        }
+
+        function shouldCopyManifestEntryKey(item, key) {
+            if (item[key] === undefined) return false;
+            if (typeof item[key] === 'string' && !String(item[key]).trim() && key !== 'name') return false;
+            return true;
+        }
+
+        function createFlatManifestEntry(item, index, parentId) {
+            const entry = keysToCopy.reduce((copiedEntry, key) => {
+                if (shouldCopyManifestEntryKey(item, key)) {
+                    copiedEntry[key] = cloneJson(item[key]);
+                }
+                return copiedEntry;
+            }, {});
+
+            entry.id = getFlatManifestEntryId(item);
+            entry.order = index;
+            if (parentId) entry.parentId = parentId;
+            return entry;
+        }
+
+        function walkChildren(item, parentId) {
+            if (!Array.isArray(item.children) || item.children.length === 0) return;
+            walk(item.children, parentId);
+        }
+
+        function appendFlatManifestEntry(item, index, parentId) {
+            if (!isValidManifestTreeItem(item)) return;
+
+            const entry = createFlatManifestEntry(item, index, parentId);
+            flattenedEntries.push(entry);
+            walkChildren(item, entry.id);
+        }
+
         function walk(nodes, parentId = '') {
             if (!Array.isArray(nodes)) return;
-            nodes.forEach((item, index) => {
-                if (!item || typeof item !== 'object' || !String(item.id || '').trim()) return;
-
-                const entry = {};
-                keysToCopy.forEach((key) => {
-                    if (item[key] === undefined) return;
-                    if (typeof item[key] === 'string' && !String(item[key]).trim() && key !== 'name') return;
-                    entry[key] = cloneJson(item[key]);
-                });
-
-                entry.id = String(item.id || '').trim();
-                entry.order = index;
-                if (parentId) entry.parentId = parentId;
-                flattenedEntries.push(entry);
-
-                if (Array.isArray(item.children) && item.children.length > 0) {
-                    walk(item.children, entry.id);
-                }
-            });
+            nodes.forEach((item, index) => appendFlatManifestEntry(item, index, parentId));
         }
 
         walk(items);
@@ -521,30 +544,34 @@
             return cloneJson(await cache.get(normalizedId));
         }
 
+        function shouldLoadFileBackedPayload(mapData, normalizedId) {
+            if (!normalizedId) return false;
+            if (!String(mapData.dataUrl || '').trim()) return false;
+            return !hasInlineEditableMapPayload(mapData);
+        }
+
+        async function mergeFileBackedPayload(mapData, normalizedId) {
+            if (!shouldLoadFileBackedPayload(mapData, normalizedId)) return mapData;
+
+            try {
+                const loadedMap = await fetchMap(normalizedId, mapData);
+                if (!loadedMap || typeof loadedMap !== 'object') return mapData;
+
+                return {
+                    ...cloneJson(loadedMap),
+                    ...mapData
+                };
+            } catch (error) {
+                return createUnavailableMapEntry(normalizedId, error?.message || 'Unknown error.');
+            }
+        }
+
         async function hydrateNode(node) {
             if (!node || typeof node !== 'object') return null;
 
             let hydrated = cloneJson(node);
             const normalizedId = String(hydrated.id || '').trim();
-            const explicitDataUrl = String(hydrated.dataUrl || '').trim();
-
-            if (
-                normalizedId &&
-                explicitDataUrl &&
-                !hasInlineEditableMapPayload(hydrated)
-            ) {
-                try {
-                    const loadedMap = await fetchMap(normalizedId, hydrated);
-                    if (loadedMap && typeof loadedMap === 'object') {
-                        hydrated = {
-                            ...cloneJson(loadedMap),
-                            ...hydrated
-                        };
-                    }
-                } catch (error) {
-                    return createUnavailableMapEntry(normalizedId, error?.message || 'Unknown error.');
-                }
-            }
+            hydrated = await mergeFileBackedPayload(hydrated, normalizedId);
 
             if (resolveDataUrl && hydrated.id && hydrated.imageUrl && !hydrated.dataUrl) {
                 hydrated.dataUrl = resolveDataUrl(hydrated.id, hydrated);
@@ -573,7 +600,7 @@
         const selections = [];
         const seenIds = new Set();
 
-        function addSelectionEntry(item) {
+        function buildSelectionEntry(item) {
             const normalizedId = String(item.id || '').trim();
             const label = String(item.name || normalizedId || '').trim();
             const isLoadable = Boolean(
@@ -588,25 +615,35 @@
                 (item.status === 'coming-soon' || item.error)
             );
 
-            if ((!isLoadable && !isUnavailablePlaceholder) || seenIds.has(normalizedId)) return;
+            if (!isLoadable && !isUnavailablePlaceholder) return null;
+            if (seenIds.has(normalizedId)) return null;
 
-            seenIds.add(normalizedId);
-            selections.push({
+            return {
                 id: normalizedId,
                 name: label || normalizedId,
                 disabled: !isLoadable,
                 title: String(item.error || (item.status === 'coming-soon' ? 'Unavailable' : ''))
-            });
+            };
+        }
+
+        function addSelectionEntry(item) {
+            const selectionEntry = buildSelectionEntry(item);
+            if (!selectionEntry) return;
+
+            seenIds.add(selectionEntry.id);
+            selections.push(selectionEntry);
+        }
+
+        function collectNode(item) {
+            if (!item || typeof item !== 'object') return;
+
+            addSelectionEntry(item);
+            walk(item.children);
         }
 
         function walk(nodes) {
             if (!Array.isArray(nodes)) return;
-            nodes.forEach((item) => {
-                if (!item || typeof item !== 'object') return;
-
-                addSelectionEntry(item);
-                walk(item.children);
-            });
+            nodes.forEach(collectNode);
         }
 
         walk(items);
@@ -645,6 +682,40 @@
         delete target[key];
     }
 
+    const LAT_LON_BOUND_KEYS = ['north', 'south', 'east', 'west'];
+
+    function parseLatLonBoundValue(value) {
+        const rawValue = String(value ?? '').trim();
+        if (!rawValue) return null;
+
+        const parsedValue = parseFloat(rawValue);
+        return Number.isFinite(parsedValue) ? parsedValue : null;
+    }
+
+    function buildLatLonBounds(latLonBounds) {
+        const nextBounds = {};
+        LAT_LON_BOUND_KEYS.forEach((key) => {
+            const parsedValue = parseLatLonBoundValue(latLonBounds[key]);
+            if (parsedValue !== null) {
+                nextBounds[key] = parsedValue;
+            }
+        });
+
+        return Object.keys(nextBounds).length > 0 ? nextBounds : null;
+    }
+
+    function assignLatLonBounds(mapToUpdate, latLonBounds) {
+        if (!latLonBounds || typeof latLonBounds !== 'object') return;
+
+        const nextBounds = buildLatLonBounds(latLonBounds);
+        if (nextBounds) {
+            mapToUpdate.latLonBounds = nextBounds;
+            return;
+        }
+
+        delete mapToUpdate.latLonBounds;
+    }
+
     function applyMapSettings(mapToUpdate, mapSettings = {}) {
         if (!mapToUpdate || typeof mapToUpdate !== 'object') return mapToUpdate;
 
@@ -673,23 +744,7 @@
         assignNumberField(mapToUpdate, 'scalePixels', mapSettings.scalePixels, { integer: true });
         assignNumberField(mapToUpdate, 'scaleKilometers', mapSettings.scaleKilometers);
 
-        if (mapSettings.latLonBounds && typeof mapSettings.latLonBounds === 'object') {
-            const nextBounds = {};
-            ['north', 'south', 'east', 'west'].forEach((key) => {
-                const rawValue = String(mapSettings.latLonBounds[key] ?? '').trim();
-                if (!rawValue) return;
-                const parsedValue = parseFloat(rawValue);
-                if (Number.isFinite(parsedValue)) {
-                    nextBounds[key] = parsedValue;
-                }
-            });
-
-            if (Object.keys(nextBounds).length > 0) {
-                mapToUpdate.latLonBounds = nextBounds;
-            } else {
-                delete mapToUpdate.latLonBounds;
-            }
-        }
+        assignLatLonBounds(mapToUpdate, mapSettings.latLonBounds);
     }
 
     function stripStructureFieldsFromMapDocument(mapDocument) {

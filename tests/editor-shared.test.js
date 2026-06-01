@@ -369,6 +369,51 @@ assert.deepEqual(mapSettingsTarget.latLonBounds, {
     west: -5
 });
 
+const partialLatLonBoundsTarget = {
+    latLonBounds: {
+        north: 1,
+        south: 0
+    }
+};
+applyMapSettings(partialLatLonBoundsTarget, {
+    latLonBounds: {
+        north: ' 42 ',
+        south: '',
+        east: 'not-a-number',
+        west: '0'
+    }
+});
+assert.deepEqual(partialLatLonBoundsTarget.latLonBounds, {
+    north: 42,
+    west: 0
+});
+
+const emptyLatLonBoundsTarget = {
+    latLonBounds: {
+        north: 1
+    }
+};
+applyMapSettings(emptyLatLonBoundsTarget, {
+    latLonBounds: {
+        north: '',
+        south: 'not-a-number',
+        east: null
+    }
+});
+assert.equal(emptyLatLonBoundsTarget.latLonBounds, undefined);
+
+const ignoredLatLonBoundsTarget = {
+    latLonBounds: {
+        north: 1
+    }
+};
+applyMapSettings(ignoredLatLonBoundsTarget, {
+    latLonBounds: null
+});
+assert.deepEqual(ignoredLatLonBoundsTarget.latLonBounds, {
+    north: 1
+});
+
 // applyMapSettings edge cases
 assert.equal(applyMapSettings(null), null);
 assert.equal(applyMapSettings(undefined), undefined);
