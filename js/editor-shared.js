@@ -502,20 +502,25 @@
             return loadPromiseCache.get(id);
         }
 
+        async function loadHydratedMapById(normalizedId) {
+            try {
+                const loadedMap = await fetchMap(normalizedId, undefined);
+                if (!loadedMap || typeof loadedMap !== 'object') {
+                    return createUnavailableMapEntry(normalizedId, `Map "${normalizedId}" returned no data.`);
+                }
+
+                return hydrateNode(loadedMap);
+            } catch (error) {
+                return createUnavailableMapEntry(normalizedId, error?.message || 'Unknown error.');
+            }
+        }
+
         async function hydrateFromId(id) {
             const normalizedId = String(id || '').trim();
             if (!normalizedId) return null;
 
             if (!cache.has(normalizedId)) {
-                cache.set(normalizedId, Promise.resolve()
-                    .then(() => fetchMap(normalizedId, undefined))
-                    .then((loadedMap) => {
-                        if (!loadedMap || typeof loadedMap !== 'object') {
-                            return createUnavailableMapEntry(normalizedId, `Map "${normalizedId}" returned no data.`);
-                        }
-                        return hydrateNode(loadedMap);
-                    })
-                    .catch((error) => createUnavailableMapEntry(normalizedId, error?.message || 'Unknown error.')));
+                cache.set(normalizedId, loadHydratedMapById(normalizedId));
             }
 
             return cloneJson(await cache.get(normalizedId));
