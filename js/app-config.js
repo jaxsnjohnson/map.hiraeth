@@ -311,6 +311,7 @@
 
     const COLOR_LIKE_PATTERN = /^(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|[a-z]+|var\(--[a-z0-9_-]+\)|transparent|white|black)$/i;
     const COLOR_LIKE_TOKEN_KEYWORDS = ['color', 'bg', 'ring', 'thumb', 'slider', 'text'];
+    const THEME_TOKEN_MODES = ['light', 'dark'];
 
     function isPlainObject(value) {
         return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -372,7 +373,7 @@
     }
 
     function validateThemeTokens(themeTokens, errors) {
-        ['light', 'dark'].forEach((mode) => {
+        THEME_TOKEN_MODES.forEach((mode) => {
             const tokens = themeTokens[mode];
             if (!isPlainObject(tokens)) {
                 errors.push(`theme.tokens.${mode} must be an object.`);
