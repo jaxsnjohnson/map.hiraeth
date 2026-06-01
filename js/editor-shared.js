@@ -657,6 +657,40 @@
         delete target[key];
     }
 
+    const LAT_LON_BOUND_KEYS = ['north', 'south', 'east', 'west'];
+
+    function parseLatLonBoundValue(value) {
+        const rawValue = String(value ?? '').trim();
+        if (!rawValue) return null;
+
+        const parsedValue = parseFloat(rawValue);
+        return Number.isFinite(parsedValue) ? parsedValue : null;
+    }
+
+    function buildLatLonBounds(latLonBounds) {
+        const nextBounds = {};
+        LAT_LON_BOUND_KEYS.forEach((key) => {
+            const parsedValue = parseLatLonBoundValue(latLonBounds[key]);
+            if (parsedValue !== null) {
+                nextBounds[key] = parsedValue;
+            }
+        });
+
+        return Object.keys(nextBounds).length > 0 ? nextBounds : null;
+    }
+
+    function assignLatLonBounds(mapToUpdate, latLonBounds) {
+        if (!latLonBounds || typeof latLonBounds !== 'object') return;
+
+        const nextBounds = buildLatLonBounds(latLonBounds);
+        if (nextBounds) {
+            mapToUpdate.latLonBounds = nextBounds;
+            return;
+        }
+
+        delete mapToUpdate.latLonBounds;
+    }
+
     function applyMapSettings(mapToUpdate, mapSettings = {}) {
         if (!mapToUpdate || typeof mapToUpdate !== 'object') return mapToUpdate;
 
@@ -685,23 +719,7 @@
         assignNumberField(mapToUpdate, 'scalePixels', mapSettings.scalePixels, { integer: true });
         assignNumberField(mapToUpdate, 'scaleKilometers', mapSettings.scaleKilometers);
 
-        if (mapSettings.latLonBounds && typeof mapSettings.latLonBounds === 'object') {
-            const nextBounds = {};
-            ['north', 'south', 'east', 'west'].forEach((key) => {
-                const rawValue = String(mapSettings.latLonBounds[key] ?? '').trim();
-                if (!rawValue) return;
-                const parsedValue = parseFloat(rawValue);
-                if (Number.isFinite(parsedValue)) {
-                    nextBounds[key] = parsedValue;
-                }
-            });
-
-            if (Object.keys(nextBounds).length > 0) {
-                mapToUpdate.latLonBounds = nextBounds;
-            } else {
-                delete mapToUpdate.latLonBounds;
-            }
-        }
+        assignLatLonBounds(mapToUpdate, mapSettings.latLonBounds);
     }
 
     function stripStructureFieldsFromMapDocument(mapDocument) {
