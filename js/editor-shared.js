@@ -280,6 +280,22 @@
             (mapData.filterGroups && typeof mapData.filterGroups === 'object');
     }
 
+    function mergeLoadedMapDocument(fallbackMap, loadedMap) {
+        if (!loadedMap || typeof loadedMap !== 'object') {
+            throw new Error('returned no JSON object');
+        }
+
+        const resolvedMap = {
+            ...fallbackMap,
+            ...cloneJson(loadedMap)
+        };
+        if (resolvedMap.selectorDescription === undefined && fallbackMap.selectorDescription !== undefined) {
+            resolvedMap.selectorDescription = fallbackMap.selectorDescription;
+        }
+        delete resolvedMap.dataUrl;
+        return resolvedMap;
+    }
+
     async function resolveFileBackedMapDocument(mapData, options = {}) {
         if (!mapData || typeof mapData !== 'object') {
             throw new Error('Cannot resolve map document: invalid map node.');
@@ -320,19 +336,7 @@
         for (const candidatePath of candidatePaths) {
             try {
                 const loadedMap = await loadJsonByPath(candidatePath, fallbackMap);
-                if (!loadedMap || typeof loadedMap !== 'object') {
-                    throw new Error('returned no JSON object');
-                }
-
-                const resolvedMap = {
-                    ...fallbackMap,
-                    ...cloneJson(loadedMap)
-                };
-                if (resolvedMap.selectorDescription === undefined && fallbackMap.selectorDescription !== undefined) {
-                    resolvedMap.selectorDescription = fallbackMap.selectorDescription;
-                }
-                delete resolvedMap.dataUrl;
-                return resolvedMap;
+                return mergeLoadedMapDocument(fallbackMap, loadedMap);
             } catch (error) {
                 failures.push(`${candidatePath} (${error?.message || 'Unknown error.'})`);
             }
