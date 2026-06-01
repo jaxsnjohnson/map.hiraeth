@@ -820,10 +820,16 @@
         const parentSelect = inputs.parentIdSelect;
         const options = buildParentOptions();
         if (parentSelect) {
-            parentSelect.innerHTML = options.map((option) => {
-                const selected = option.id === (currentLocation?.parentId || '') ? ' selected' : '';
-                return `<option value="${escapeHtml(option.id)}"${selected}>${escapeHtml(option.label)}</option>`;
-            }).join('');
+            parentSelect.innerHTML = '';
+            options.forEach((option) => {
+                const optEl = document.createElement('option');
+                optEl.value = option.id;
+                optEl.textContent = option.label;
+                if (option.id === (currentLocation?.parentId || '')) {
+                    optEl.selected = true;
+                }
+                parentSelect.appendChild(optEl);
+            });
         }
 
         dom.currentMapId.textContent = currentMap?.id || 'No map';
