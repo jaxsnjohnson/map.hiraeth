@@ -5178,7 +5178,7 @@ function setupMapLayers(selectedMap, requestedMapId, mapImageUrl, updateHash) {
     return true;
 }
 
-function setupMapImageLoading(requestedMapId, selectedMap, mapImageUrl, usingAlternateMobileImage, loadStartedAt, updateHash) {
+function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingAlternateMobileImage, loadStartedAt, updateHash }) {
     const preloadImg = new Image();
     let loadingComplete = false;
     let loadingTimeout = null;
@@ -5236,7 +5236,7 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
 
     if (!setupMapLayers(selectedMap, requestedMapId, mapImageUrl, updateHash)) return;
 
-    setupMapImageLoading(requestedMapId, selectedMap, mapImageUrl, usingAlternateMobileImage, loadStartedAt, updateHash);
+    setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingAlternateMobileImage, loadStartedAt, updateHash });
 
     renderMapFeatures(selectedMap, requestedMapId);
     finalizeMapUI(requestedMapId, selectedMap);
