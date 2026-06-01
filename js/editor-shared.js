@@ -138,15 +138,17 @@
             walk(item.children, parentId);
         }
 
+        function appendFlatManifestEntry(item, index, parentId) {
+            if (!isValidManifestTreeItem(item)) return;
+
+            const entry = createFlatManifestEntry(item, index, parentId);
+            flattenedEntries.push(entry);
+            walkChildren(item, entry.id);
+        }
+
         function walk(nodes, parentId = '') {
             if (!Array.isArray(nodes)) return;
-            nodes.forEach((item, index) => {
-                if (!isValidManifestTreeItem(item)) return;
-
-                const entry = createFlatManifestEntry(item, index, parentId);
-                flattenedEntries.push(entry);
-                walkChildren(item, entry.id);
-            });
+            nodes.forEach((item, index) => appendFlatManifestEntry(item, index, parentId));
         }
 
         walk(items);
@@ -542,30 +544,34 @@
             return cloneJson(await cache.get(normalizedId));
         }
 
+        function shouldLoadFileBackedPayload(mapData, normalizedId) {
+            if (!normalizedId) return false;
+            if (!String(mapData.dataUrl || '').trim()) return false;
+            return !hasInlineEditableMapPayload(mapData);
+        }
+
+        async function mergeFileBackedPayload(mapData, normalizedId) {
+            if (!shouldLoadFileBackedPayload(mapData, normalizedId)) return mapData;
+
+            try {
+                const loadedMap = await fetchMap(normalizedId, mapData);
+                if (!loadedMap || typeof loadedMap !== 'object') return mapData;
+
+                return {
+                    ...cloneJson(loadedMap),
+                    ...mapData
+                };
+            } catch (error) {
+                return createUnavailableMapEntry(normalizedId, error?.message || 'Unknown error.');
+            }
+        }
+
         async function hydrateNode(node) {
             if (!node || typeof node !== 'object') return null;
 
             let hydrated = cloneJson(node);
             const normalizedId = String(hydrated.id || '').trim();
-            const explicitDataUrl = String(hydrated.dataUrl || '').trim();
-
-            if (
-                normalizedId &&
-                explicitDataUrl &&
-                !hasInlineEditableMapPayload(hydrated)
-            ) {
-                try {
-                    const loadedMap = await fetchMap(normalizedId, hydrated);
-                    if (loadedMap && typeof loadedMap === 'object') {
-                        hydrated = {
-                            ...cloneJson(loadedMap),
-                            ...hydrated
-                        };
-                    }
-                } catch (error) {
-                    return createUnavailableMapEntry(normalizedId, error?.message || 'Unknown error.');
-                }
-            }
+            hydrated = await mergeFileBackedPayload(hydrated, normalizedId);
 
             if (resolveDataUrl && hydrated.id && hydrated.imageUrl && !hydrated.dataUrl) {
                 hydrated.dataUrl = resolveDataUrl(hydrated.id, hydrated);
@@ -665,6 +671,40 @@
         delete target[key];
     }
 
+    const LAT_LON_BOUND_KEYS = ['north', 'south', 'east', 'west'];
+
+    function parseLatLonBoundValue(value) {
+        const rawValue = String(value ?? '').trim();
+        if (!rawValue) return null;
+
+        const parsedValue = parseFloat(rawValue);
+        return Number.isFinite(parsedValue) ? parsedValue : null;
+    }
+
+    function buildLatLonBounds(latLonBounds) {
+        const nextBounds = {};
+        LAT_LON_BOUND_KEYS.forEach((key) => {
+            const parsedValue = parseLatLonBoundValue(latLonBounds[key]);
+            if (parsedValue !== null) {
+                nextBounds[key] = parsedValue;
+            }
+        });
+
+        return Object.keys(nextBounds).length > 0 ? nextBounds : null;
+    }
+
+    function assignLatLonBounds(mapToUpdate, latLonBounds) {
+        if (!latLonBounds || typeof latLonBounds !== 'object') return;
+
+        const nextBounds = buildLatLonBounds(latLonBounds);
+        if (nextBounds) {
+            mapToUpdate.latLonBounds = nextBounds;
+            return;
+        }
+
+        delete mapToUpdate.latLonBounds;
+    }
+
     function applyMapSettings(mapToUpdate, mapSettings = {}) {
         if (!mapToUpdate || typeof mapToUpdate !== 'object') return mapToUpdate;
 
@@ -693,23 +733,7 @@
         assignNumberField(mapToUpdate, 'scalePixels', mapSettings.scalePixels, { integer: true });
         assignNumberField(mapToUpdate, 'scaleKilometers', mapSettings.scaleKilometers);
 
-        if (mapSettings.latLonBounds && typeof mapSettings.latLonBounds === 'object') {
-            const nextBounds = {};
-            ['north', 'south', 'east', 'west'].forEach((key) => {
-                const rawValue = String(mapSettings.latLonBounds[key] ?? '').trim();
-                if (!rawValue) return;
-                const parsedValue = parseFloat(rawValue);
-                if (Number.isFinite(parsedValue)) {
-                    nextBounds[key] = parsedValue;
-                }
-            });
-
-            if (Object.keys(nextBounds).length > 0) {
-                mapToUpdate.latLonBounds = nextBounds;
-            } else {
-                delete mapToUpdate.latLonBounds;
-            }
-        }
+        assignLatLonBounds(mapToUpdate, mapSettings.latLonBounds);
     }
 
     function stripStructureFieldsFromMapDocument(mapDocument) {

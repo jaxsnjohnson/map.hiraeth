@@ -1,6 +1,6 @@
 (function initAppConfig(root, factory) {
-    const DEFAULT_SITE_CONFIG = {
-            brand: {
+    function getDefaultBrandConfig() {
+        return {
                 siteName: 'HAG Interactive World Map Viewer',
                 shortName: 'Hiraeth Maps',
                 description: 'Explore interactive maps, discover points of interest, and measure distances in Hiraeth!',
@@ -14,8 +14,11 @@
                     favicon: 'favicon.png',
                     appleTouchIcon: 'apple-touch-icon.png'
                 }
-            },
-            assets: {
+            };
+    }
+
+    function getDefaultAssetsConfig() {
+        return {
                 version: '2026.04.19.04',
                 stylesheets: [
                     'css/style.css',
@@ -80,8 +83,11 @@
                         'images/poi-icons/unknown.png'
                     ]
                 }
-            },
-            theme: {
+            };
+    }
+
+    function getDefaultThemeConfig() {
+        return {
                 preset: 'parchment',
                 fontImportUrl: 'https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap',
                 fontFamilyMain: "'EB Garamond', serif",
@@ -136,8 +142,11 @@
                     light: '#f4f0eb',
                     dark: '#050510'
                 }
-            },
-            features: {
+            };
+    }
+
+    function getDefaultFeaturesConfig() {
+        return {
                 sound: true,
                 stars: true,
                 atmosphere: true,
@@ -154,8 +163,11 @@
                 onboarding: true,
                 wipNotice: true,
                 embeddedMode: true
-            },
-            performance: {
+            };
+    }
+
+    function getDefaultPerformanceConfig() {
+        return {
                 lowQualityMode: false,
                 mobileBreakpoint: 768,
                 starCount: 450,
@@ -164,8 +176,11 @@
                 prefetchImages: true,
                 prefetchJson: true,
                 serviceWorker: true
-            },
-            taxonomy: {
+            };
+    }
+
+    function getDefaultTaxonomyConfig() {
+        return {
                 poiTypeGroups: {
                     Settlements: ['City', 'Town', 'Village', 'Hamlet', 'Settlement', 'Capital'],
                     Structures: ['Castle', 'Fortress', 'Fort', 'Tower', 'Ruin', 'Temple', 'Shrine', 'Mine', 'Lighthouse', 'Bridge', 'Dungeon', 'Lair', 'Camp', 'Asylum', 'Landmark'],
@@ -188,8 +203,11 @@
                     color: '#ffffff',
                     weight: 3
                 }
-            },
-            copy: {
+            };
+    }
+
+    function getDefaultCopyConfig() {
+        return {
                 sidebarTitle: 'Select Map',
                 themeLabel: 'Theme',
                 loading: {
@@ -252,14 +270,28 @@
                     emptyTitle: 'No Renderable Map Selected',
                     emptyCopy: 'Select a map with image data to edit points, regions, and lines.'
                 }
-            },
-            security: {
+            };
+    }
+
+    function getDefaultSecurityConfig() {
+        return {
                 analyticsEndpoint: '',
                 gmToolkitPolicy: 'local-only',
                 externalLinksNewTab: true,
                 allowedVisibilityValues: ['public', 'gm', 'private']
-            }
-        };
+            };
+    }
+
+    const DEFAULT_SITE_CONFIG = {
+        brand: getDefaultBrandConfig(),
+        assets: getDefaultAssetsConfig(),
+        theme: getDefaultThemeConfig(),
+        features: getDefaultFeaturesConfig(),
+        performance: getDefaultPerformanceConfig(),
+        taxonomy: getDefaultTaxonomyConfig(),
+        copy: getDefaultCopyConfig(),
+        security: getDefaultSecurityConfig()
+    };
 
     if (typeof module === 'object' && module.exports) {
         module.exports = factory(root, DEFAULT_SITE_CONFIG);
@@ -277,7 +309,8 @@
             .replace(/`/g, '&#96;');
     }
 
-const COLOR_LIKE_PATTERN = /^(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|[a-z]+|var\(--[a-z0-9_-]+\)|transparent|white|black)$/i;
+    const COLOR_LIKE_PATTERN = /^(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|[a-z]+|var\(--[a-z0-9_-]+\)|transparent|white|black)$/i;
+    const COLOR_LIKE_TOKEN_KEYWORDS = ['color', 'bg', 'ring', 'thumb', 'slider', 'text'];
 
     function isPlainObject(value) {
         return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -325,6 +358,31 @@ const COLOR_LIKE_PATTERN = /^(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|[a-z]
         return merged;
     }
 
+    function isColorLikeTokenKey(key) {
+        return COLOR_LIKE_TOKEN_KEYWORDS.some((keyword) => key.includes(keyword));
+    }
+
+    function validateThemeTokenValue(mode, key, rawValue, errors) {
+        if (!isColorLikeTokenKey(key)) return;
+
+        const value = String(rawValue || '').trim();
+        if (!value || COLOR_LIKE_PATTERN.test(value)) return;
+
+        errors.push(`theme.tokens.${mode}.${key} has an invalid color-like value.`);
+    }
+
+    function validateThemeTokens(themeTokens, errors) {
+        ['light', 'dark'].forEach((mode) => {
+            const tokens = themeTokens[mode];
+            if (!isPlainObject(tokens)) {
+                errors.push(`theme.tokens.${mode} must be an object.`);
+                return;
+            }
+
+            Object.keys(tokens).forEach((key) => validateThemeTokenValue(mode, key, tokens[key], errors));
+        });
+    }
+
     function validateConfig(config) {
         const candidate = normalizeConfig(config);
         const errors = [];
@@ -334,21 +392,7 @@ const COLOR_LIKE_PATTERN = /^(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|[a-z]
         if (!Array.isArray(candidate.assets.stylesheets) || candidate.assets.stylesheets.length === 0) errors.push('assets.stylesheets must list at least one stylesheet.');
         if (!isPlainObject(candidate.assets.poiIcons) || !candidate.assets.poiIcons.Unknown) errors.push('assets.poiIcons.Unknown is required.');
         if (!isPlainObject(candidate.taxonomy.poiTypeGroups) || !Array.isArray(candidate.taxonomy.poiTypeGroups.Unknown)) errors.push('taxonomy.poiTypeGroups.Unknown must be an array.');
-        ['light', 'dark'].forEach((mode) => {
-            const tokens = candidate.theme.tokens[mode];
-            if (!isPlainObject(tokens)) {
-                errors.push(`theme.tokens.${mode} must be an object.`);
-                return;
-            }
-            Object.keys(tokens).forEach((key) => {
-                const value = String(tokens[key] || '').trim();
-                if (key.includes('color') || key.includes('bg') || key.includes('ring') || key.includes('thumb') || key.includes('slider') || key.includes('text')) {
-                    if (value && !COLOR_LIKE_PATTERN.test(value)) {
-                        errors.push(`theme.tokens.${mode}.${key} has an invalid color-like value.`);
-                    }
-                }
-            });
-        });
+        validateThemeTokens(candidate.theme.tokens, errors);
         if (!Number.isFinite(Number(candidate.performance.mobileBreakpoint)) || Number(candidate.performance.mobileBreakpoint) < 320) {
             errors.push('performance.mobileBreakpoint must be a number >= 320.');
         }
