@@ -651,6 +651,13 @@ assert.equal(
         /Missing required file: maps\/missing-child\.webp/
     );
 
+    assert.throws(
+        () => mapsFolderSource.resolveImageEntry({
+            id: 'missing-image-url'
+        }),
+        /Map "missing-image-url" is missing an imageUrl\./
+    );
+
     assert.deepEqual(buildManifestTreeFromFlatEntries(null), []);
     assert.deepEqual(buildManifestTreeFromFlatEntries(undefined), []);
     assert.deepEqual(buildManifestTreeFromFlatEntries({}), []);
