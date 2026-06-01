@@ -4945,7 +4945,16 @@ function finalizeMapUI(requestedMapId, selectedMap) {
     }
 }
 
-function abortMapLoad(reason, requestedMapId, message, updateHash = true, isUnavailable = false, showRetry = true) {
+function abortMapLoad(options = {}) {
+    const {
+        reason,
+        requestedMapId,
+        message,
+        updateHash = true,
+        isUnavailable = false,
+        showRetry = true
+    } = options;
+
     if (loadingProgressInterval) clearInterval(loadingProgressInterval);
     loadingProgressInterval = null;
     currentlyLoadedMapId = null;
@@ -5101,7 +5110,7 @@ function handleMapUnavailable(manifestEntry, requestedMapId, mapId, updateHash) 
     if (!manifestEntry || manifestEntry.status === 'coming-soon') {
         console.warn('Attempted to load unavailable map:', mapId);
         if (manifestEntry) alert(`The map "${manifestEntry.name}" is coming soon.`);
-        abortMapLoad('unavailable', requestedMapId, 'This map is not available yet.', updateHash, true);
+        abortMapLoad({ reason: 'unavailable', requestedMapId, message: 'This map is not available yet.', updateHash, isUnavailable: true });
         return true;
     }
     return false;
@@ -5127,7 +5136,7 @@ async function fetchMapDefinitionOrAbort(requestedMapId, manifestEntry, requestT
     } catch (error) {
         if (requestToken === loadRequestToken) {
             console.error(`Failed to load map definition for ${requestedMapId}:`, error);
-            abortMapLoad('definition_error', requestedMapId, `Could not load "${manifestEntry.name || requestedMapId}" data. Check the map definition and press Retry.`, updateHash, false, true);
+            abortMapLoad({ reason: 'definition_error', requestedMapId, message: `Could not load "${manifestEntry.name || requestedMapId}" data. Check the map definition and press Retry.`, updateHash, showRetry: true });
         }
         return null;
     }
@@ -5144,7 +5153,7 @@ function setupMapLayers(selectedMap, requestedMapId, mapImageUrl, updateHash) {
 
     if (isNaN(mapHeight) || isNaN(mapWidth) || !mapImageUrl) {
         console.error(`Invalid dimensions or missing imageUrl for map ID ${requestedMapId}`);
-        abortMapLoad('invalid_data', requestedMapId, `Could not load "${selectedMap.name}". The map data is invalid. Press Retry after fixing map dimensions.`, updateHash, false, true);
+        abortMapLoad({ reason: 'invalid_data', requestedMapId, message: `Could not load "${selectedMap.name}". The map data is invalid. Press Retry after fixing map dimensions.`, updateHash, showRetry: true });
         return false;
     }
 
@@ -5185,7 +5194,7 @@ function setupMapImageLoading(requestedMapId, selectedMap, mapImageUrl, usingAlt
         if (currentMapUnderlay) map.removeLayer(currentMapUnderlay);
         currentImageLayer = null;
         currentMapUnderlay = null;
-        abortMapLoad('image_error', requestedMapId, `Could not load "${selectedMap.name}" image. Check the image path and press Retry.`, updateHash, false, true);
+        abortMapLoad({ reason: 'image_error', requestedMapId, message: `Could not load "${selectedMap.name}" image. Check the image path and press Retry.`, updateHash, showRetry: true });
     });
 
     loadingTimeout = setTimeout(() => {
