@@ -2548,9 +2548,40 @@ function computeSearchMatch(term, primaryText, secondaryText = '') {
 }
 
 function highlightSearchText(text, searchRegex) {
-    const safeText = escapeHtml(text);
-    if (!searchRegex) return safeText;
-    return safeText.replace(searchRegex, '<span class="search-result-highlight">$&</span>');
+    const fragment = document.createDocumentFragment();
+    if (!searchRegex) {
+        fragment.appendChild(document.createTextNode(text));
+        return fragment;
+    }
+
+    searchRegex.lastIndex = 0;
+    let lastIndex = 0;
+    let match;
+
+    while ((match = searchRegex.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+            fragment.appendChild(document.createTextNode(text.substring(lastIndex, match.index)));
+        }
+
+        const highlightSpan = document.createElement('span');
+        highlightSpan.className = 'search-result-highlight';
+        highlightSpan.textContent = match[0];
+        fragment.appendChild(highlightSpan);
+
+        lastIndex = match.index + match[0].length;
+
+        if (match[0].length === 0) {
+            searchRegex.lastIndex++;
+        }
+
+        if (!searchRegex.global) break;
+    }
+
+    if (lastIndex < text.length) {
+        fragment.appendChild(document.createTextNode(text.substring(lastIndex)));
+    }
+
+    return fragment;
 }
 
 function scheduleIdleTask(callback, timeout = 900) {
@@ -3377,7 +3408,7 @@ function renderSearchResults(term, results) {
             titleRow.className = 'search-result-title';
             const titleLabel = document.createElement('span');
             titleLabel.className = 'search-result-label';
-            titleLabel.innerHTML = highlightSearchText(result.title, searchRegex);
+            titleLabel.appendChild(highlightSearchText(result.title, searchRegex));
 
             const badge = document.createElement('span');
             badge.className = 'badge-kind';
