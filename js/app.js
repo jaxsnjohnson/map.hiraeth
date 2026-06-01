@@ -2785,6 +2785,23 @@ function setSidebarState(state, updateHash = true) {
     syncSidebarBackdropState();
 }
 
+function getRegionGroupChildCheckboxCounts(regionTypeCheckboxes, groupName) {
+    let childCount = 0;
+    let checkedChildCount = 0;
+
+    for (let i = 0; i < regionTypeCheckboxes.length; i++) {
+        const childCheckbox = regionTypeCheckboxes[i];
+        if (childCheckbox.getAttribute('data-group') !== groupName) continue;
+
+        childCount++;
+        if (childCheckbox.checked) {
+            checkedChildCount++;
+        }
+    }
+
+    return { childCount, checkedChildCount };
+}
+
 // --- Helper Function to Update the "Toggle All" Checkbox State ---
 function updateToggleAllCheckboxState() {
     if (!poiFilterCheckboxesLive) return;
@@ -2823,18 +2840,7 @@ function updateToggleAllCheckboxState() {
     // Update indeterminate state for each region group parent
     regionGroupCheckboxes.forEach(groupCheckbox => {
         const groupName = groupCheckbox.value;
-        let childCount = 0;
-        let checkedChildCount = 0;
-
-        for (let i = 0; i < regionTypeCheckboxes.length; i++) {
-            const childCheckbox = regionTypeCheckboxes[i];
-            if (childCheckbox.getAttribute('data-group') === groupName) {
-                childCount++;
-                if (childCheckbox.checked) {
-                    checkedChildCount++;
-                }
-            }
-        }
+        const { childCount, checkedChildCount } = getRegionGroupChildCheckboxCounts(regionTypeCheckboxes, groupName);
 
         if (checkedChildCount === 0) {
             groupCheckbox.checked = false;
