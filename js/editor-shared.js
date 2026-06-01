@@ -509,7 +509,7 @@
                     return createUnavailableMapEntry(normalizedId, `Map "${normalizedId}" returned no data.`);
                 }
 
-                return hydrateNode(loadedMap);
+                return await hydrateNode(loadedMap);
             } catch (error) {
                 return createUnavailableMapEntry(normalizedId, error?.message || 'Unknown error.');
             }

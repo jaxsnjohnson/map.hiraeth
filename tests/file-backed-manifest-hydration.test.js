@@ -95,6 +95,24 @@ const {
     assert.equal(loadCounts.get('castgate'), 1);
     assert.equal(loadCounts.get('BrokenMap'), 1);
 
+    const hydrationFailureTree = await hydrateFileBackedManifestTree(
+        ['BadDataUrl'],
+        async () => ({
+            id: 'BadDataUrl',
+            name: 'Bad Data URL',
+            imageUrl: 'maps/bad-data-url.webp'
+        }),
+        {
+            resolveDataUrl: () => {
+                throw new Error('Could not resolve data URL');
+            }
+        }
+    );
+    const hydrationFailureMap = findMapRecursive(hydrationFailureTree, 'BadDataUrl');
+    assert.ok(hydrationFailureMap);
+    assert.equal(hydrationFailureMap.status, 'coming-soon');
+    assert.match(hydrationFailureMap.error, /Could not resolve data URL/);
+
     console.log('file-backed manifest hydration regression checks passed');
 })().catch((error) => {
     console.error(error);
