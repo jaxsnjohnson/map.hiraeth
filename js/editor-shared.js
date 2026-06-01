@@ -521,30 +521,34 @@
             return cloneJson(await cache.get(normalizedId));
         }
 
+        function shouldLoadFileBackedPayload(mapData, normalizedId) {
+            if (!normalizedId) return false;
+            if (!String(mapData.dataUrl || '').trim()) return false;
+            return !hasInlineEditableMapPayload(mapData);
+        }
+
+        async function mergeFileBackedPayload(mapData, normalizedId) {
+            if (!shouldLoadFileBackedPayload(mapData, normalizedId)) return mapData;
+
+            try {
+                const loadedMap = await fetchMap(normalizedId, mapData);
+                if (!loadedMap || typeof loadedMap !== 'object') return mapData;
+
+                return {
+                    ...cloneJson(loadedMap),
+                    ...mapData
+                };
+            } catch (error) {
+                return createUnavailableMapEntry(normalizedId, error?.message || 'Unknown error.');
+            }
+        }
+
         async function hydrateNode(node) {
             if (!node || typeof node !== 'object') return null;
 
             let hydrated = cloneJson(node);
             const normalizedId = String(hydrated.id || '').trim();
-            const explicitDataUrl = String(hydrated.dataUrl || '').trim();
-
-            if (
-                normalizedId &&
-                explicitDataUrl &&
-                !hasInlineEditableMapPayload(hydrated)
-            ) {
-                try {
-                    const loadedMap = await fetchMap(normalizedId, hydrated);
-                    if (loadedMap && typeof loadedMap === 'object') {
-                        hydrated = {
-                            ...cloneJson(loadedMap),
-                            ...hydrated
-                        };
-                    }
-                } catch (error) {
-                    return createUnavailableMapEntry(normalizedId, error?.message || 'Unknown error.');
-                }
-            }
+            hydrated = await mergeFileBackedPayload(hydrated, normalizedId);
 
             if (resolveDataUrl && hydrated.id && hydrated.imageUrl && !hydrated.dataUrl) {
                 hydrated.dataUrl = resolveDataUrl(hydrated.id, hydrated);
