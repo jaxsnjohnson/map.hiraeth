@@ -573,39 +573,47 @@
         const selections = [];
         const seenIds = new Set();
 
+        function buildSelectionEntry(item) {
+            const normalizedId = String(item.id || '').trim();
+            const label = String(item.name || normalizedId || '').trim();
+            const isLoadable = Boolean(
+                normalizedId &&
+                label &&
+                item.imageUrl &&
+                item.status !== 'coming-soon' &&
+                !item.error
+            );
+            const isUnavailablePlaceholder = Boolean(
+                normalizedId &&
+                (item.status === 'coming-soon' || item.error)
+            );
+
+            if (!isLoadable && !isUnavailablePlaceholder) return null;
+            if (seenIds.has(normalizedId)) return null;
+
+            return {
+                id: normalizedId,
+                name: label || normalizedId,
+                disabled: !isLoadable,
+                title: String(item.error || (item.status === 'coming-soon' ? 'Unavailable' : ''))
+            };
+        }
+
+        function collectNode(item) {
+            if (!item || typeof item !== 'object') return;
+
+            const selectionEntry = buildSelectionEntry(item);
+            if (selectionEntry) {
+                seenIds.add(selectionEntry.id);
+                selections.push(selectionEntry);
+            }
+
+            walk(item.children);
+        }
+
         function walk(nodes) {
             if (!Array.isArray(nodes)) return;
-            nodes.forEach((item) => {
-                if (!item || typeof item !== 'object') return;
-
-                const normalizedId = String(item.id || '').trim();
-                const label = String(item.name || normalizedId || '').trim();
-                const isLoadable = Boolean(
-                    normalizedId &&
-                    label &&
-                    item.imageUrl &&
-                    item.status !== 'coming-soon' &&
-                    !item.error
-                );
-                const isUnavailablePlaceholder = Boolean(
-                    normalizedId &&
-                    (item.status === 'coming-soon' || item.error)
-                );
-
-                if ((isLoadable || isUnavailablePlaceholder) && !seenIds.has(normalizedId)) {
-                    seenIds.add(normalizedId);
-                    selections.push({
-                        id: normalizedId,
-                        name: label || normalizedId,
-                        disabled: !isLoadable,
-                        title: String(item.error || (item.status === 'coming-soon' ? 'Unavailable' : ''))
-                    });
-                }
-
-                if (Array.isArray(item.children)) {
-                    walk(item.children);
-                }
-            });
+            nodes.forEach(collectNode);
         }
 
         walk(items);
