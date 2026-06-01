@@ -363,6 +363,36 @@
         return aliases;
     }
 
+    function createNormalizedRepoEntry(entry) {
+        const normalizedPath = normalizeRepoEntryPath(entry);
+        if (!normalizedPath) return null;
+
+        return {
+            ...entry,
+            path: normalizedPath
+        };
+    }
+
+    function shouldReplaceRepoPathAlias(existingEntry, normalizedEntry) {
+        return !existingEntry || existingEntry.path.length > normalizedEntry.path.length;
+    }
+
+    function setRepoPathAlias(entryByAlias, alias, normalizedEntry) {
+        const existingEntry = entryByAlias.get(alias);
+        if (!shouldReplaceRepoPathAlias(existingEntry, normalizedEntry)) return;
+
+        entryByAlias.set(alias, normalizedEntry);
+    }
+
+    function indexRepoEntryAliases(entryByAlias, entry) {
+        const normalizedEntry = createNormalizedRepoEntry(entry);
+        if (!normalizedEntry) return;
+
+        buildRepoPathAliases(normalizedEntry.path).forEach((alias) => {
+            setRepoPathAlias(entryByAlias, alias, normalizedEntry);
+        });
+    }
+
     async function createRepoFileBackedMapSource(entries, options = {}) {
         if (!Array.isArray(entries) || entries.length === 0) {
             throw new Error('No files were provided for the repo folder.');
@@ -384,19 +414,7 @@
         const jsonCache = new Map();
 
         entries.forEach((entry) => {
-            const normalizedPath = normalizeRepoEntryPath(entry);
-            if (!normalizedPath) return;
-            const normalizedEntry = {
-                ...entry,
-                path: normalizedPath
-            };
-            const aliases = buildRepoPathAliases(normalizedPath);
-            aliases.forEach((alias) => {
-                const existingEntry = entryByAlias.get(alias);
-                if (!existingEntry || existingEntry.path.length > normalizedEntry.path.length) {
-                    entryByAlias.set(alias, normalizedEntry);
-                }
-            });
+            indexRepoEntryAliases(entryByAlias, entry);
         });
 
         function getFileEntry(relativePath) {
