@@ -4945,7 +4945,7 @@ function finalizeMapUI(requestedMapId, selectedMap) {
     updateCurrentControlVisibility(selectedMap);
     updateActiveFilterChips();
 
-    document.querySelectorAll('#map-list .map-item, #map-list .folder-header').forEach(item => item.classList.remove('active'));
+    mapListElement.querySelectorAll('.active').forEach(item => item.classList.remove('active'));
     const activeMapItem = document.querySelector(`#map-list .map-item[data-map-id="${requestedMapId}"]`);
     const activeFolderHeader = document.querySelector(`#map-list .folder-header[data-map-id="${requestedMapId}"]`);
     if (activeMapItem) {
