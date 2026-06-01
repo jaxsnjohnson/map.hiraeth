@@ -3377,7 +3377,11 @@ function renderSearchResults(term, results) {
             titleRow.className = 'search-result-title';
             const titleLabel = document.createElement('span');
             titleLabel.className = 'search-result-label';
-            titleLabel.innerHTML = highlightSearchText(result.title, searchRegex);
+            if (typeof DOMPurify !== 'undefined') {
+                titleLabel.innerHTML = DOMPurify.sanitize(highlightSearchText(result.title, searchRegex));
+            } else {
+                titleLabel.textContent = result.title;
+            }
 
             const badge = document.createElement('span');
             badge.className = 'badge-kind';
