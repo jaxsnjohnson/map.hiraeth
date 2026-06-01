@@ -14,6 +14,7 @@ if (
     formatStart === -1 ||
     sanitizeStart === -1 ||
     escapeStart === -1 ||
+    wikiLinkStart === -1 ||
     resolveStart === -1 ||
     popupStart === -1 ||
     popupEnd === -1
@@ -23,8 +24,8 @@ if (
 
 const formatSource = appSource.slice(formatStart, sanitizeStart);
 const sanitizeSource = appSource.slice(sanitizeStart, escapeStart);
-const escapeSource = appSource.slice(escapeStart, wikiLinkStart !== -1 ? wikiLinkStart : resolveStart);
-const wikiLinkSource = wikiLinkStart !== -1 ? appSource.slice(wikiLinkStart, resolveStart) : '';
+const escapeSource = appSource.slice(escapeStart, wikiLinkStart);
+const wikiLinkSource = appSource.slice(wikiLinkStart, resolveStart);
 const popupSource = appSource.slice(popupStart, popupEnd);
 
 // Minimal dependency stub for this regression check.
@@ -38,13 +39,8 @@ eval(formatSource);
 eval(sanitizeSource);
 // eslint-disable-next-line no-eval
 eval(escapeSource);
-if (wikiLinkSource) {
-    // eslint-disable-next-line no-eval
-    eval(wikiLinkSource);
-} else {
-    // Backward compatibility for pre-fix snapshots.
-    global.sanitizeWikiLinkForHref = (value) => value;
-}
+// eslint-disable-next-line no-eval
+eval(wikiLinkSource);
 // eslint-disable-next-line no-eval
 eval(popupSource);
 
