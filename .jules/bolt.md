@@ -77,3 +77,6 @@
 ## 2024-05-30 - O(N) Array Searches Replaced with O(1) Map Lookups
 **Learning:** `allMapMarkers` array is frequently searched using `find` by POI ID and Name during route step focus (`focusRouteStep`) and map marker focus operations (`focusPOI`), which are linear O(N) operations. By caching this array into an O(1) ES6 `Map` by POI Name and ID whenever it is updated in `populatePOIsOnMap`, we can avoid the linear performance penalty.
 **Action:** Implemented caching Maps for `allMapMarkers` populated during map render to be used for O(1) fetching. Avoid overwriting first instance by checking `!Map.has()` first.
+## 2024-05-18 - Optimize DOM active state class removal
+**Learning:** In vanilla JS apps, resetting state across a large list (like a sidebar navigation or map list) by querying all possible items (e.g., `#map-list .map-item, #map-list .folder-header`) and unconditionally calling `classList.remove('active')` leads to unnecessary O(N) iteration overhead.
+**Action:** When clearing a single "active" state or similar class from a list, query only the elements currently holding that state (e.g., `.active`) to reduce the operation to O(1) or O(K) where K is the small number of active elements.
