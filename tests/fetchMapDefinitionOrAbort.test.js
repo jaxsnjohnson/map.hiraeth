@@ -55,14 +55,13 @@ async function runTests() {
 
         assert.equal(result, null);
         assert.equal(errorLogged, true);
-        assert.deepEqual(abortMapLoadArgs, [
-            'definition_error',
-            'map2',
-            'Could not load "Map Two" data. Check the map definition and press Retry.',
-            'hash2',
-            false,
-            true
-        ]);
+        assert.deepEqual(abortMapLoadArgs, [{
+            reason: 'definition_error',
+            requestedMapId: 'map2',
+            message: 'Could not load "Map Two" data. Check the map definition and press Retry.',
+            updateHash: 'hash2',
+            showRetry: true
+        }]);
 
         // Test 3: Error path - getMapDefinition rejects, requestToken DOES NOT match loadRequestToken
         errorLogged = false;
@@ -84,14 +83,13 @@ async function runTests() {
 
         assert.equal(result, null);
         assert.equal(errorLogged, true);
-        assert.deepEqual(abortMapLoadArgs, [
-            'definition_error',
-            'map4',
-            'Could not load "map4" data. Check the map definition and press Retry.',
-            'hash4',
-            false,
-            true
-        ]);
+        assert.deepEqual(abortMapLoadArgs, [{
+            reason: 'definition_error',
+            requestedMapId: 'map4',
+            message: 'Could not load "map4" data. Check the map definition and press Retry.',
+            updateHash: 'hash4',
+            showRetry: true
+        }]);
 
         console.log('fetchMapDefinitionOrAbort checks passed');
     } finally {
