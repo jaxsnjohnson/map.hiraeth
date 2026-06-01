@@ -913,88 +913,66 @@
         });
     }
 
-    function renderMapLayers(resetView) {
-        state.pointLayer.clearLayers();
-        state.regionLayer.clearLayers();
-        state.lineLayer.clearLayers();
+    function handleUnrenderableMap() {
+        clearMapVisualLayers();
+        state.currentBounds = null;
+        setMapEmptyState({
+            hidden: false,
+            title: 'No Renderable Map Selected',
+            copy: 'Select a map with image data to edit points, regions, and lines.',
+            detail: state.currentMap
+                ? `Image URL: ${state.currentMap.imageUrl || 'Missing imageUrl'}`
+                : ''
+        });
+        setSelectionStatus('This map does not have renderable image data yet.');
+        renderVertexHandles();
+        renderDraftGeometry();
+        syncToolbarState();
+    }
 
-        const mapIsRenderable = canRenderMap(state.currentMap);
+    function setupImageUnderlay(mapHeight, mapWidth, nextBounds) {
+        clearMapVisualLayers();
+        state.currentBounds = nextBounds;
+        state.underlayLayer = L.rectangle(nextBounds, {
+            stroke: false,
+            fill: true,
+            fillOpacity: 1,
+            fillColor: state.currentMap.backgroundColor || '#0f172a',
+            interactive: false,
+            pane: 'tilePane'
+        }).addTo(state.map);
+        setMapEmptyState({
+            hidden: false,
+            title: 'Loading Map Image',
+            copy: `Loading "${state.currentMap.name || state.currentMap.id}" into the editor canvas...`,
+            detail: `Image URL: ${state.currentMap.imageUrl}`
+        });
+        setSelectionStatus(`Loading image for "${state.currentMap.name || state.currentMap.id}"...`);
 
-        if (!mapIsRenderable) {
-            clearMapVisualLayers();
-            state.currentBounds = null;
+        const imageLayer = L.imageOverlay(state.currentMap.imageUrl, nextBounds);
+        imageLayer.once('load', () => {
+            if (state.imageLayer !== imageLayer) return;
+            setMapEmptyState({ hidden: true });
+            setSelectionStatus(`Image loaded for "${state.currentMap.name || state.currentMap.id}".`);
+            queueMapViewportReset();
+        });
+        imageLayer.once('error', () => {
+            if (state.imageLayer !== imageLayer) return;
+            state.map.removeLayer(imageLayer);
+            state.imageLayer = null;
             setMapEmptyState({
                 hidden: false,
-                title: 'No Renderable Map Selected',
-                copy: 'Select a map with image data to edit points, regions, and lines.',
-                detail: state.currentMap
-                    ? `Image URL: ${state.currentMap.imageUrl || 'Missing imageUrl'}`
-                    : ''
-            });
-            setSelectionStatus('This map does not have renderable image data yet.');
-            renderVertexHandles();
-            renderDraftGeometry();
-            syncToolbarState();
-            return;
-        }
-
-        const mapHeight = Number(state.currentMap.height);
-        const mapWidth = Number(state.currentMap.width);
-        const nextBounds = [[0, 0], [mapHeight, mapWidth]];
-        const needsImageReset = !state.currentBounds ||
-            state.currentBounds[1][0] !== mapHeight ||
-            state.currentBounds[1][1] !== mapWidth ||
-            !state.imageLayer ||
-            state.imageLayer._url !== state.currentMap.imageUrl;
-
-        if (needsImageReset) {
-            clearMapVisualLayers();
-            state.currentBounds = nextBounds;
-            state.underlayLayer = L.rectangle(nextBounds, {
-                stroke: false,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: state.currentMap.backgroundColor || '#0f172a',
-                interactive: false,
-                pane: 'tilePane'
-            }).addTo(state.map);
-            setMapEmptyState({
-                hidden: false,
-                title: 'Loading Map Image',
-                copy: `Loading "${state.currentMap.name || state.currentMap.id}" into the editor canvas...`,
+                title: 'Image Failed To Load',
+                copy: `The editor could not render "${state.currentMap.name || state.currentMap.id}".`,
                 detail: `Image URL: ${state.currentMap.imageUrl}`
             });
-            setSelectionStatus(`Loading image for "${state.currentMap.name || state.currentMap.id}"...`);
+            setSelectionStatus(`Image failed to load for "${state.currentMap.name || state.currentMap.id}".`);
+        });
+        state.imageLayer = imageLayer;
+        state.imageLayer.addTo(state.map);
+    }
 
-            const imageLayer = L.imageOverlay(state.currentMap.imageUrl, nextBounds);
-            imageLayer.once('load', () => {
-                if (state.imageLayer !== imageLayer) return;
-                setMapEmptyState({ hidden: true });
-                setSelectionStatus(`Image loaded for "${state.currentMap.name || state.currentMap.id}".`);
-                queueMapViewportReset();
-            });
-            imageLayer.once('error', () => {
-                if (state.imageLayer !== imageLayer) return;
-                state.map.removeLayer(imageLayer);
-                state.imageLayer = null;
-                setMapEmptyState({
-                    hidden: false,
-                    title: 'Image Failed To Load',
-                    copy: `The editor could not render "${state.currentMap.name || state.currentMap.id}".`,
-                    detail: `Image URL: ${state.currentMap.imageUrl}`
-                });
-                setSelectionStatus(`Image failed to load for "${state.currentMap.name || state.currentMap.id}".`);
-            });
-            state.imageLayer = imageLayer;
-            state.imageLayer.addTo(state.map);
-        } else if (state.underlayLayer) {
-            state.underlayLayer.setStyle({
-                fillColor: state.currentMap.backgroundColor || '#0f172a',
-                color: state.currentMap.backgroundColor || '#0f172a'
-            });
-            setMapEmptyState({ hidden: true });
-        }
-
+    function renderPointsLayer() {
         getCurrentPoints().forEach((point, index) => {
             if (!Array.isArray(point.coords) || point.coords.length !== 2) return;
             const marker = L.marker(point.coords, {
@@ -1011,7 +989,9 @@
             });
             state.pointLayer.addLayer(marker);
         });
+    }
 
+    function renderRegionsLayer() {
         getCurrentRegions().forEach((region, index) => {
             if (!Array.isArray(region.coordinates) || region.coordinates.length < 3) return;
             const layer = L.polygon(region.coordinates, {
@@ -1023,7 +1003,9 @@
             layer.on('click', () => selectFeature('regions', index));
             state.regionLayer.addLayer(layer);
         });
+    }
 
+    function renderLinesLayer() {
         getCurrentLines().forEach((line, index) => {
             if (!Array.isArray(line.coordinates) || line.coordinates.length < 2) return;
             const layer = L.polyline(line.coordinates, {
@@ -1034,6 +1016,42 @@
             layer.on('click', () => selectFeature('lines', index));
             state.lineLayer.addLayer(layer);
         });
+    }
+
+    function renderMapLayers(resetView) {
+        state.pointLayer.clearLayers();
+        state.regionLayer.clearLayers();
+        state.lineLayer.clearLayers();
+
+        const mapIsRenderable = canRenderMap(state.currentMap);
+
+        if (!mapIsRenderable) {
+            handleUnrenderableMap();
+            return;
+        }
+
+        const mapHeight = Number(state.currentMap.height);
+        const mapWidth = Number(state.currentMap.width);
+        const nextBounds = [[0, 0], [mapHeight, mapWidth]];
+        const needsImageReset = !state.currentBounds ||
+            state.currentBounds[1][0] !== mapHeight ||
+            state.currentBounds[1][1] !== mapWidth ||
+            !state.imageLayer ||
+            state.imageLayer._url !== state.currentMap.imageUrl;
+
+        if (needsImageReset) {
+            setupImageUnderlay(mapHeight, mapWidth, nextBounds);
+        } else if (state.underlayLayer) {
+            state.underlayLayer.setStyle({
+                fillColor: state.currentMap.backgroundColor || '#0f172a',
+                color: state.currentMap.backgroundColor || '#0f172a'
+            });
+            setMapEmptyState({ hidden: true });
+        }
+
+        renderPointsLayer();
+        renderRegionsLayer();
+        renderLinesLayer();
 
         renderVertexHandles();
         renderDraftGeometry();
