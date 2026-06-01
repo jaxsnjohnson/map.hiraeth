@@ -761,6 +761,19 @@ function getStaticPoiFilterCheckboxes() {
     }
     return staticPoiFilterCheckboxesCache || [];
 }
+
+function setFilterCheckboxesChecked(checked) {
+    if (!poiFilterCheckboxesLive) return;
+
+    const staticCheckboxes = getStaticPoiFilterCheckboxes();
+    for (let i = 0; i < staticCheckboxes.length; i++) {
+        const checkbox = staticCheckboxes[i];
+        if (checkbox.type !== 'checkbox' || checkbox.id === 'filter-toggle-all') continue;
+
+        checkbox.checked = checked;
+    }
+}
+
 if (poiFilterContainer) {
     const observer = new MutationObserver(() => {
         staticPoiFilterCheckboxesCache = null;
@@ -3195,15 +3208,7 @@ if (searchRefineClearBtn) {
 
         filterToggleAllCheckbox.checked = true;
         filterToggleAllCheckbox.indeterminate = false;
-        if (poiFilterCheckboxesLive) {
-            // ⚡ Bolt: Convert live HTMLCollection to a static array for O(1) length and index access (Measured improvement: ~91% faster)
-            const staticCheckboxes = getStaticPoiFilterCheckboxes();
-            for (let i = 0; i < staticCheckboxes.length; i++) {
-                if (staticCheckboxes[i].type === 'checkbox' && staticCheckboxes[i].id !== 'filter-toggle-all') {
-                    staticCheckboxes[i].checked = true;
-                }
-            }
-        }
+        setFilterCheckboxesChecked(true);
 
         updateToggleAllCheckboxState();
         updateVisibleMarkersAndSearch();
@@ -6558,15 +6563,7 @@ poiFilterContainer.addEventListener('change', (e) => {
     // Handle master "Show All / Hide All" checkbox
     if (target.id === 'filter-toggle-all') {
         const isChecked = target.checked;
-        if (poiFilterCheckboxesLive) {
-            // ⚡ Bolt: Convert live HTMLCollection to a static array for O(1) length and index access (Measured improvement: ~91% faster)
-            const staticCheckboxes = getStaticPoiFilterCheckboxes();
-            for (let i = 0; i < staticCheckboxes.length; i++) {
-                if (staticCheckboxes[i].type === 'checkbox' && staticCheckboxes[i].id !== 'filter-toggle-all') {
-                    staticCheckboxes[i].checked = isChecked;
-                }
-            }
-        }
+        setFilterCheckboxesChecked(isChecked);
         filterToggleAllCheckbox.indeterminate = false;
     }
 
