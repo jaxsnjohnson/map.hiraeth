@@ -105,27 +105,50 @@
             ];
         const flattenedEntries = [];
 
+        function getFlatManifestEntryId(item) {
+            return String(item.id || '').trim();
+        }
+
+        function isValidManifestTreeItem(item) {
+            return Boolean(item && typeof item === 'object' && getFlatManifestEntryId(item));
+        }
+
+        function shouldCopyManifestEntryKey(item, key) {
+            if (item[key] === undefined) return false;
+            if (typeof item[key] === 'string' && !String(item[key]).trim() && key !== 'name') return false;
+            return true;
+        }
+
+        function createFlatManifestEntry(item, index, parentId) {
+            const entry = keysToCopy.reduce((copiedEntry, key) => {
+                if (shouldCopyManifestEntryKey(item, key)) {
+                    copiedEntry[key] = cloneJson(item[key]);
+                }
+                return copiedEntry;
+            }, {});
+
+            entry.id = getFlatManifestEntryId(item);
+            entry.order = index;
+            if (parentId) entry.parentId = parentId;
+            return entry;
+        }
+
+        function walkChildren(item, parentId) {
+            if (!Array.isArray(item.children) || item.children.length === 0) return;
+            walk(item.children, parentId);
+        }
+
+        function appendFlatManifestEntry(item, index, parentId) {
+            if (!isValidManifestTreeItem(item)) return;
+
+            const entry = createFlatManifestEntry(item, index, parentId);
+            flattenedEntries.push(entry);
+            walkChildren(item, entry.id);
+        }
+
         function walk(nodes, parentId = '') {
             if (!Array.isArray(nodes)) return;
-            nodes.forEach((item, index) => {
-                if (!item || typeof item !== 'object' || !String(item.id || '').trim()) return;
-
-                const entry = {};
-                keysToCopy.forEach((key) => {
-                    if (item[key] === undefined) return;
-                    if (typeof item[key] === 'string' && !String(item[key]).trim() && key !== 'name') return;
-                    entry[key] = cloneJson(item[key]);
-                });
-
-                entry.id = String(item.id || '').trim();
-                entry.order = index;
-                if (parentId) entry.parentId = parentId;
-                flattenedEntries.push(entry);
-
-                if (Array.isArray(item.children) && item.children.length > 0) {
-                    walk(item.children, entry.id);
-                }
-            });
+            nodes.forEach((item, index) => appendFlatManifestEntry(item, index, parentId));
         }
 
         walk(items);
@@ -280,6 +303,39 @@
             (mapData.filterGroups && typeof mapData.filterGroups === 'object');
     }
 
+    function buildFileBackedMapCandidatePaths(fallbackMap, resolveDefaultDataUrl) {
+        const candidatePaths = [];
+        const explicitDataUrl = String(fallbackMap.dataUrl || '').trim();
+        if (explicitDataUrl) candidatePaths.push(explicitDataUrl);
+
+        const defaultDataUrl = String(resolveDefaultDataUrl(fallbackMap.id, fallbackMap) || '').trim();
+        if (defaultDataUrl && !candidatePaths.includes(defaultDataUrl)) {
+            candidatePaths.push(defaultDataUrl);
+        }
+        return candidatePaths;
+    }
+
+    function mergeFileBackedMapDocument(fallbackMap, loadedMap) {
+        if (!loadedMap || typeof loadedMap !== 'object') {
+            throw new Error('returned no JSON object');
+        }
+
+        const resolvedMap = {
+            ...fallbackMap,
+            ...cloneJson(loadedMap)
+        };
+        if (resolvedMap.selectorDescription === undefined && fallbackMap.selectorDescription !== undefined) {
+            resolvedMap.selectorDescription = fallbackMap.selectorDescription;
+        }
+        delete resolvedMap.dataUrl;
+        return resolvedMap;
+    }
+
+    async function loadFileBackedMapCandidate(candidatePath, fallbackMap, loadJsonByPath) {
+        const loadedMap = await loadJsonByPath(candidatePath, fallbackMap);
+        return mergeFileBackedMapDocument(fallbackMap, loadedMap);
+    }
+
     async function resolveFileBackedMapDocument(mapData, options = {}) {
         if (!mapData || typeof mapData !== 'object') {
             throw new Error('Cannot resolve map document: invalid map node.');
@@ -303,15 +359,7 @@
             throw new Error(`Could not resolve full map JSON for "${mapId}": no loader configured.`);
         }
 
-        const candidatePaths = [];
-        const explicitDataUrl = String(fallbackMap.dataUrl || '').trim();
-        if (explicitDataUrl) candidatePaths.push(explicitDataUrl);
-
-        const defaultDataUrl = String(resolveDefaultDataUrl(fallbackMap.id, fallbackMap) || '').trim();
-        if (defaultDataUrl && !candidatePaths.includes(defaultDataUrl)) {
-            candidatePaths.push(defaultDataUrl);
-        }
-
+        const candidatePaths = buildFileBackedMapCandidatePaths(fallbackMap, resolveDefaultDataUrl);
         if (candidatePaths.length === 0) {
             throw new Error(`Could not resolve full map JSON for "${mapId}": no dataUrl or default path was available.`);
         }
@@ -319,20 +367,7 @@
         const failures = [];
         for (const candidatePath of candidatePaths) {
             try {
-                const loadedMap = await loadJsonByPath(candidatePath, fallbackMap);
-                if (!loadedMap || typeof loadedMap !== 'object') {
-                    throw new Error('returned no JSON object');
-                }
-
-                const resolvedMap = {
-                    ...fallbackMap,
-                    ...cloneJson(loadedMap)
-                };
-                if (resolvedMap.selectorDescription === undefined && fallbackMap.selectorDescription !== undefined) {
-                    resolvedMap.selectorDescription = fallbackMap.selectorDescription;
-                }
-                delete resolvedMap.dataUrl;
-                return resolvedMap;
+                return await loadFileBackedMapCandidate(candidatePath, fallbackMap, loadJsonByPath);
             } catch (error) {
                 failures.push(`${candidatePath} (${error?.message || 'Unknown error.'})`);
             }
@@ -363,6 +398,43 @@
         return aliases;
     }
 
+    function getRequiredMapImageUrl(mapData) {
+        const imageUrl = String(mapData?.imageUrl || '').trim();
+        if (imageUrl) return imageUrl;
+
+        throw new Error(`Map "${String(mapData?.id || mapData?.name || 'unknown-map')}" is missing an imageUrl.`);
+    }
+
+    function createNormalizedRepoEntry(entry) {
+        const normalizedPath = normalizeRepoEntryPath(entry);
+        if (!normalizedPath) return null;
+
+        return {
+            ...entry,
+            path: normalizedPath
+        };
+    }
+
+    function shouldReplaceRepoPathAlias(existingEntry, normalizedEntry) {
+        return !existingEntry || existingEntry.path.length > normalizedEntry.path.length;
+    }
+
+    function setRepoPathAlias(entryByAlias, alias, normalizedEntry) {
+        const existingEntry = entryByAlias.get(alias);
+        if (!shouldReplaceRepoPathAlias(existingEntry, normalizedEntry)) return;
+
+        entryByAlias.set(alias, normalizedEntry);
+    }
+
+    function indexRepoEntryAliases(entryByAlias, entry) {
+        const normalizedEntry = createNormalizedRepoEntry(entry);
+        if (!normalizedEntry) return;
+
+        buildRepoPathAliases(normalizedEntry.path).forEach((alias) => {
+            setRepoPathAlias(entryByAlias, alias, normalizedEntry);
+        });
+    }
+
     async function createRepoFileBackedMapSource(entries, options = {}) {
         if (!Array.isArray(entries) || entries.length === 0) {
             throw new Error('No files were provided for the repo folder.');
@@ -384,19 +456,7 @@
         const jsonCache = new Map();
 
         entries.forEach((entry) => {
-            const normalizedPath = normalizeRepoEntryPath(entry);
-            if (!normalizedPath) return;
-            const normalizedEntry = {
-                ...entry,
-                path: normalizedPath
-            };
-            const aliases = buildRepoPathAliases(normalizedPath);
-            aliases.forEach((alias) => {
-                const existingEntry = entryByAlias.get(alias);
-                if (!existingEntry || existingEntry.path.length > normalizedEntry.path.length) {
-                    entryByAlias.set(alias, normalizedEntry);
-                }
-            });
+            indexRepoEntryAliases(entryByAlias, entry);
         });
 
         function getFileEntry(relativePath) {
@@ -440,6 +500,10 @@
             return cloneJson(await jsonCache.get(normalizedPath));
         }
 
+        function resolveImageEntry(mapData) {
+            return getFileEntry(getRequiredMapImageUrl(mapData));
+        }
+
         const manifestDocument = await loadJsonByPath('maps/maps.json');
         const manifest = buildManifestTreeFromDocument(manifestDocument);
         if (
@@ -476,13 +540,7 @@
                 loadJsonByPath,
                 resolveDefaultDataUrl: buildDefaultMapDataUrl
             }),
-            resolveImageEntry: (mapData) => {
-                const imageUrl = String(mapData?.imageUrl || '').trim();
-                if (!imageUrl) {
-                    throw new Error(`Map "${String(mapData?.id || mapData?.name || 'unknown-map')}" is missing an imageUrl.`);
-                }
-                return getFileEntry(imageUrl);
-            }
+            resolveImageEntry
         };
     }
 
@@ -582,39 +640,50 @@
         const selections = [];
         const seenIds = new Set();
 
+        function buildSelectionEntry(item) {
+            const normalizedId = String(item.id || '').trim();
+            const label = String(item.name || normalizedId || '').trim();
+            const isLoadable = Boolean(
+                normalizedId &&
+                label &&
+                item.imageUrl &&
+                item.status !== 'coming-soon' &&
+                !item.error
+            );
+            const isUnavailablePlaceholder = Boolean(
+                normalizedId &&
+                (item.status === 'coming-soon' || item.error)
+            );
+
+            if (!isLoadable && !isUnavailablePlaceholder) return null;
+            if (seenIds.has(normalizedId)) return null;
+
+            return {
+                id: normalizedId,
+                name: label || normalizedId,
+                disabled: !isLoadable,
+                title: String(item.error || (item.status === 'coming-soon' ? 'Unavailable' : ''))
+            };
+        }
+
+        function addSelectionEntry(item) {
+            const selectionEntry = buildSelectionEntry(item);
+            if (!selectionEntry) return;
+
+            seenIds.add(selectionEntry.id);
+            selections.push(selectionEntry);
+        }
+
+        function collectNode(item) {
+            if (!item || typeof item !== 'object') return;
+
+            addSelectionEntry(item);
+            walk(item.children);
+        }
+
         function walk(nodes) {
             if (!Array.isArray(nodes)) return;
-            nodes.forEach((item) => {
-                if (!item || typeof item !== 'object') return;
-
-                const normalizedId = String(item.id || '').trim();
-                const label = String(item.name || normalizedId || '').trim();
-                const isLoadable = Boolean(
-                    normalizedId &&
-                    label &&
-                    item.imageUrl &&
-                    item.status !== 'coming-soon' &&
-                    !item.error
-                );
-                const isUnavailablePlaceholder = Boolean(
-                    normalizedId &&
-                    (item.status === 'coming-soon' || item.error)
-                );
-
-                if ((isLoadable || isUnavailablePlaceholder) && !seenIds.has(normalizedId)) {
-                    seenIds.add(normalizedId);
-                    selections.push({
-                        id: normalizedId,
-                        name: label || normalizedId,
-                        disabled: !isLoadable,
-                        title: String(item.error || (item.status === 'coming-soon' ? 'Unavailable' : ''))
-                    });
-                }
-
-                if (Array.isArray(item.children)) {
-                    walk(item.children);
-                }
-            });
+            nodes.forEach(collectNode);
         }
 
         walk(items);
@@ -653,6 +722,40 @@
         delete target[key];
     }
 
+    const LAT_LON_BOUND_KEYS = ['north', 'south', 'east', 'west'];
+
+    function parseLatLonBoundValue(value) {
+        const rawValue = String(value ?? '').trim();
+        if (!rawValue) return null;
+
+        const parsedValue = parseFloat(rawValue);
+        return Number.isFinite(parsedValue) ? parsedValue : null;
+    }
+
+    function buildLatLonBounds(latLonBounds) {
+        const nextBounds = {};
+        LAT_LON_BOUND_KEYS.forEach((key) => {
+            const parsedValue = parseLatLonBoundValue(latLonBounds[key]);
+            if (parsedValue !== null) {
+                nextBounds[key] = parsedValue;
+            }
+        });
+
+        return Object.keys(nextBounds).length > 0 ? nextBounds : null;
+    }
+
+    function assignLatLonBounds(mapToUpdate, latLonBounds) {
+        if (!latLonBounds || typeof latLonBounds !== 'object') return;
+
+        const nextBounds = buildLatLonBounds(latLonBounds);
+        if (nextBounds) {
+            mapToUpdate.latLonBounds = nextBounds;
+            return;
+        }
+
+        delete mapToUpdate.latLonBounds;
+    }
+
     function applyMapSettings(mapToUpdate, mapSettings = {}) {
         if (!mapToUpdate || typeof mapToUpdate !== 'object') return mapToUpdate;
 
@@ -681,23 +784,7 @@
         assignNumberField(mapToUpdate, 'scalePixels', mapSettings.scalePixels, { integer: true });
         assignNumberField(mapToUpdate, 'scaleKilometers', mapSettings.scaleKilometers);
 
-        if (mapSettings.latLonBounds && typeof mapSettings.latLonBounds === 'object') {
-            const nextBounds = {};
-            ['north', 'south', 'east', 'west'].forEach((key) => {
-                const rawValue = String(mapSettings.latLonBounds[key] ?? '').trim();
-                if (!rawValue) return;
-                const parsedValue = parseFloat(rawValue);
-                if (Number.isFinite(parsedValue)) {
-                    nextBounds[key] = parsedValue;
-                }
-            });
-
-            if (Object.keys(nextBounds).length > 0) {
-                mapToUpdate.latLonBounds = nextBounds;
-            } else {
-                delete mapToUpdate.latLonBounds;
-            }
-        }
+        assignLatLonBounds(mapToUpdate, mapSettings.latLonBounds);
     }
 
     function stripStructureFieldsFromMapDocument(mapDocument) {
