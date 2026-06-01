@@ -31,6 +31,11 @@ assert.notDeepStrictEqual(
     [],
     'invalid color-like theme tokens should be reported'
 );
+assert.deepEqual(
+    AppConfig.validateConfig({ theme: { tokens: { light: { '--panel-radius': 'not a valid color value' } } } }),
+    [],
+    'non-color-like theme tokens should not be color validated'
+);
 assert.notDeepStrictEqual(
     AppConfig.validateConfig({ performance: { mobileBreakpoint: 120 } }),
     [],
