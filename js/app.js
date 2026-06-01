@@ -2565,9 +2565,42 @@ function computeSearchMatch(term, primaryText, secondaryText = '') {
 }
 
 function highlightSearchText(text, searchRegex) {
-    const safeText = escapeHtml(text);
-    if (!searchRegex) return safeText;
-    return safeText.replace(searchRegex, '<span class="search-result-highlight">$&</span>');
+    const fragment = document.createDocumentFragment();
+    if (!searchRegex) {
+        fragment.textContent = text;
+        return fragment;
+    }
+
+    const safeRegex = new RegExp(searchRegex.source, searchRegex.flags + (searchRegex.global ? '' : 'g'));
+    safeRegex.lastIndex = 0;
+    let lastIndex = 0;
+    let match;
+
+    while ((match = safeRegex.exec(text)) !== null) {
+        const matchStart = match.index;
+        const matchLength = match[0].length;
+
+        if (matchStart > lastIndex) {
+            fragment.appendChild(document.createTextNode(text.slice(lastIndex, matchStart)));
+        }
+
+        const span = document.createElement('span');
+        span.className = 'search-result-highlight';
+        span.textContent = match[0];
+        fragment.appendChild(span);
+
+        lastIndex = matchStart + matchLength;
+
+        if (matchLength === 0) {
+            safeRegex.lastIndex++;
+        }
+    }
+
+    if (lastIndex < text.length) {
+        fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+    }
+
+    return fragment;
 }
 
 function scheduleIdleTask(callback, timeout = 900) {
@@ -3394,11 +3427,7 @@ function renderSearchResults(term, results) {
             titleRow.className = 'search-result-title';
             const titleLabel = document.createElement('span');
             titleLabel.className = 'search-result-label';
-            if (typeof DOMPurify !== 'undefined') {
-                titleLabel.innerHTML = DOMPurify.sanitize(highlightSearchText(result.title, searchRegex));
-            } else {
-                titleLabel.textContent = result.title;
-            }
+            titleLabel.appendChild(highlightSearchText(result.title, searchRegex));
 
             const badge = document.createElement('span');
             badge.className = 'badge-kind';
