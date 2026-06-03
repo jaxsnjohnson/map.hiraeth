@@ -1128,7 +1128,6 @@ body.embedded-view #search-control-container {
     background: none;
     border: none;
     font: inherit;
-    outline: inherit;
     display: block;
     width: 100%;
     text-align: center;
