@@ -1125,6 +1125,12 @@ body.embedded-view #search-control-container {
     overflow-y: auto; /* Add scrollbar if content overflows */
 }
 .popup-read-more {
+    background: none;
+    border: none;
+    font: inherit;
+    outline: inherit;
+    display: block;
+    width: 100%;
     text-align: center;
     padding-top: 5px;
     margin-top: -5px; /* Overlap the fade */
