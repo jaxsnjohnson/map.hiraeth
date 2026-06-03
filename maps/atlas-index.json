@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-29T20:14:05.368Z",
+  "generatedAt": "2026-06-03T23:37:43.385Z",
   "tree": [
     {
       "type": "folder",
@@ -570,7 +570,7 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Castgate",
-      "summary": "",
+      "summary": "Icebeach's largest native town, a walled fishing, shepherding, mining, and shipbuilding settlement warmed by old magic.",
       "description": "Encased within a dome that holds the winter at bay, Castgate's picturesque beauty was earned through legendary battles against a goddess and an undead horde. Though its streets bustle with prosperity from gems and ships, the common folk work in the shadow of the very magic that shelters them.",
       "typeLabel": "City",
       "visibility": "public"
@@ -582,7 +582,7 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Flamore",
-      "summary": "",
+      "summary": "A remote mountain school where the Flamore family pushed magical research into IceBeach's cold secrets.",
       "description": "Once a secret college where forbidden magic summoned angels and raised the dead, Flamore was annihilated in a necromantic cataclysm of its own making. Now, its crumbling ruins radiate a palpable corruption, twisting any creature who strays too close into a monstrous thing that craves only flesh and warmth.",
       "typeLabel": "Ruin",
       "visibility": "public"
@@ -594,7 +594,7 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Fractured Point",
-      "summary": "",
+      "summary": "A walled crag town and trade center where lantern-lit streets face relentless icefield winds.",
       "description": "Perched on a wind-scoured spike of rock, Fractured Point greets visitors with the festive dance of colored lanterns. Yet this light is a fleeting warmth in a town where the ceaseless gales have eroded all friendliness, leaving only a grim haven for opportunistic traders who bar the gates at sundown.",
       "typeLabel": "Capital",
       "visibility": "public"
@@ -618,7 +618,7 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Houlen Top",
-      "summary": "",
+      "summary": "The southern breadbasket of Icebeach, farming grains and root vegetables between the Blom Rill and Coldriver.",
       "description": "The fertile valley of Houlen Top serves as the breadbasket of the north, but its farmers are a guarded people who shun outsiders. A primal, territorial instinct lies just beneath their civilized surface, suggesting the town's name is a warning as much as a label.",
       "typeLabel": "Town",
       "visibility": "public"
@@ -630,7 +630,7 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Icemoor",
-      "summary": "",
+      "summary": "Icebeach's smallest settlement, built around a watchtower overlooking the Winrich Glacier and its fortress.",
       "description": "From its lonely tower, the watchmen of Icemoor once guarded against horrors seeping from the Winrich Glacier. Now, with the settlement all but abandoned, a few grim, half-mad old men remain, their prophetic whispers lost on the wind as they maintain a forgotten vigil against the whispering, soul-filled waters.",
       "typeLabel": "Settlement",
       "visibility": "public"
@@ -642,7 +642,7 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Little Rock Mentle Asylam",
-      "summary": "",
+      "summary": "A Gilded Nations asylum off Whitedrift for dangerous inmates deemed untreatable by stronger nations.",
       "description": "Carved into an isolated shard of rock, this asylum is where the Gilded Nations dispose of their most hardened criminals. Whispers persist of inmates suspended in pocket dimensions of pure void, a fate perhaps inspired by the one prisoner said to have simply unwoven reality to escape.",
       "typeLabel": "Asylum",
       "visibility": "public"
@@ -654,7 +654,7 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Morana's Fang",
-      "summary": "",
+      "summary": "Morana's Fang is Cyndamile, the tallest mountain, kept cold by Morana to bar the non-faithful from the gods.",
       "description": "Claimed by the Goddess of Winter herself, this jagged peak is the tallest point in the world, a place where the veil to the divine thins to a whisper. Those few who survive the brutal, sentinel-guarded ascent return forever changed, haunted by the mountain's crushing silence and the cryptic visions granted at its summit.",
       "typeLabel": "Mountain",
       "visibility": "public"
@@ -678,7 +678,7 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Ottiker",
-      "summary": "",
+      "summary": "An immigrant wine town on Sleetmond Lake, now cut off from deliveries by conflict with local druids.",
       "description": "The immigrant town of Ottiker defies the ice, using geothermal waters to produce renowned wine on the shores of Sleetmond Lake. Yet this fragile prosperity, born from a distant homeland, has angered local druids, and now the flow of wine has stopped as the town prepares for a fight.",
       "typeLabel": "Town",
       "visibility": "public"
@@ -690,7 +690,7 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Quilt",
-      "summary": "",
+      "summary": "Icebeach's smallest town, farming fish through winter and making dyed quilts from Icebeach sheep wool.",
       "description": "The tiny hamlet of Quilt weaves its history into its namesake craft, with intricate patterns telling stories of survival against the endless winter. This hardy community owes its existence to the geothermal 'Foaming Burrow,' which churns the loch's waters, allowing them to farm fish.",
       "typeLabel": "Hamlet",
       "visibility": "public"
@@ -702,7 +702,7 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Shiverwallow",
-      "summary": "",
+      "summary": "Icebeach's largest fishing town, now ice-fishing from a harbor whose fleet is frozen in place.",
       "description": "The largest fishing fleet in the north now sits frozen in its own harbor, the ships trapped like flies in amber. A great wooden wall, once meant to guard against sea threats, now seems to mock the town's grim resilience as its fishers abandon their useless vessels to huddle over holes in the ice.",
       "typeLabel": "Village",
       "visibility": "public"
@@ -714,7 +714,7 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Sleetmond",
-      "summary": "",
+      "summary": "A druidic lakeside town centered on the Hope Tree, sugar maples, fish, and Icebeach sheep.",
       "description": "Centered around the Hope Tree, whose power holds the winters at bay, Sleetmond is a place of unsettling druidic ways. Its people, seemingly immune to the cold, harvest from an impossible sugar maple orchard, their strange resilience making them an object of deep distrust to the frozen world outside.",
       "typeLabel": "Settlement",
       "visibility": "public"
@@ -726,7 +726,7 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "The Foaming Burrow",
-      "summary": "",
+      "summary": "A giant-era burial mound at the headwaters of the Foaming River.",
       "description": "A network of steam vents and geysers, the Foaming Burrow is the geothermal heart that keeps the surrounding lands and river and downstream lakes from freezing solid. Legends claim elemental guardians protect this lush, snow-free oasis.",
       "typeLabel": "Cavern",
       "visibility": "public"
@@ -738,7 +738,7 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "The Hope Tree",
-      "summary": "",
+      "summary": "The druidic focus of Sleetmond, a town known for sugar maples, fish, and Icebeach sheep.",
       "description": "A defiant miracle, this impossibly massive tree radiates a divine warmth, creating a sanctuary the Frostmaiden's chill cannot penetrate. Believed to be a blessing from a rival god, its magical leaves can heal the sick, making it a vital symbol of hope that is now threatened by factions seeking to control its power.",
       "typeLabel": "Natural Landmark",
       "visibility": "public"
@@ -750,7 +750,7 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Thrawbreak",
-      "summary": "",
+      "summary": "A cut-off mountain town of ruined defenses, frozen docks, bitter people, and stubborn survival.",
       "description": "Buried in the shadow of the Auruan mountains and surrounded by the ruins of failed fortifications, Thrawbreak is a town pickled in bitterness and beer. Its people, stubborn trappers cut off from the world, endure their isolation fueled by a tavern that never runs dry and the haunting tavern song, 'The Ferryman's Coin,' a dirge for the world that abandoned them.",
       "typeLabel": "Hamlet",
       "visibility": "public"
@@ -762,7 +762,7 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Whitedrift",
-      "summary": "",
+      "summary": "A rocky Curse Run town whose people are forced to serve the nearby Littlerock Mental Asylum.",
       "description": "Clinging to the mouth of the Curse Run, this unstable town is a dumping ground for former asylum inmates and other exiles. Paranoia is the local currency, and the tense peace is often broken by the sight of townsfolk arguing with a percived ghosts of their dead loved ones who whisper from the foul, glacial waters.",
       "typeLabel": "Settlement",
       "visibility": "public"
@@ -774,7 +774,7 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Winrich Fortress",
-      "summary": "",
+      "summary": "A former lich fortress, cleared and garrisoned after local heroes destroyed Winrich and his phylactery.",
       "description": "Hewn from stone that drinks the light, this is the infamous seat of Winrich, the first mortal to achieve lichdom. Though heroes are said to have destroyed his echo, the fortress remains, its black walls glowing with a sickly, spectral light on moonless nights, a silent testament to the ancient evil born within.",
       "typeLabel": "Fortress",
       "visibility": "public"
