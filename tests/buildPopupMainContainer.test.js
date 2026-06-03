@@ -22,7 +22,7 @@ const fs = require('node:fs');
     assert.ok(result.mainContent.includes('<p>A safe summary</p>'), 'Should contain safe summary');
     assert.ok(result.mainContent.includes('<div class="popup-full-content">'), 'Should contain full content container');
     assert.ok(result.mainContent.includes('<p>Full content</p>'), 'Should contain full content inner HTML');
-    assert.ok(result.readMoreButton.includes('<div class="popup-read-more" onclick="togglePopupExpand(this)">Read More</div>'), 'Should contain read more button');
+    assert.ok(result.readMoreButton.includes('<button type="button" class="popup-read-more" aria-expanded="false" onclick="togglePopupExpand(this)">Read More</button>'), 'Should contain read more button');
 
     // test case 2: hasSummary = true, hasFullContent = false
     result = buildPopupMainContainer('A safe summary', '<p>Full content</p>', true, false);
@@ -38,7 +38,7 @@ const fs = require('node:fs');
     assert.ok(!result.mainContent.includes('<p>A safe summary</p>'), 'Should NOT contain safe summary');
     assert.ok(!result.mainContent.includes('<div class="popup-full-content">'), 'Should NOT contain full content container');
     assert.ok(result.mainContent.includes('<p>Full content</p>'), 'Should contain full content inner HTML');
-    assert.ok(result.readMoreButton.includes('<div class="popup-read-more" onclick="togglePopupExpand(this)">Read More</div>'), 'Should contain read more button');
+    assert.ok(result.readMoreButton.includes('<button type="button" class="popup-read-more" aria-expanded="false" onclick="togglePopupExpand(this)">Read More</button>'), 'Should contain read more button');
 
     // test case 4: hasSummary = false, hasFullContent = false
     result = buildPopupMainContainer('A safe summary', '<p>Full content</p>', false, false);
