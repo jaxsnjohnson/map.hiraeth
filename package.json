@@ -2,8 +2,10 @@
   "scripts": {
     "generate:atlas": "node scripts/generate_atlas_index.js",
     "validate:data": "node scripts/validate_map_data.js",
+    "test:editor-local-access": "node tests/map-editor-local-access.test.js",
+    "test:editor-shell": "node tests/map-editor-shell.test.js",
     "build:pages": "node scripts/build_pages.js",
-    "validate:pages": "npm run generate:atlas && npm run validate:data && npm run build:pages",
+    "validate:pages": "npm run generate:atlas && npm run validate:data && npm run test:editor-local-access && npm run test:editor-shell && npm run build:pages",
     "test": "npm run validate:pages"
   },
   "dependencies": {

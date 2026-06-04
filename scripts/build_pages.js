@@ -107,10 +107,26 @@ function buildPagesBundle() {
     runtimeDirectories.forEach(copyDirectory);
 
     fs.writeFileSync(path.join(outputDir, '.nojekyll'), '');
+    removeIgnoredAssetFiles(outputDir);
     assertForbiddenFilesAbsent();
 
     const copiedFileCount = countFiles(outputDir);
     console.log(`Built GitHub Pages bundle at dist/ with ${copiedFileCount} files.`);
+}
+
+function removeIgnoredAssetFiles(directoryPath) {
+    if (!fs.existsSync(directoryPath)) return;
+    const entries = fs.readdirSync(directoryPath, { withFileTypes: true });
+    entries.forEach((entry) => {
+        const entryPath = path.join(directoryPath, entry.name);
+        if (entry.isDirectory()) {
+            removeIgnoredAssetFiles(entryPath);
+            return;
+        }
+        if (entry.isFile() && ignoredAssetFileNames.has(entry.name)) {
+            fs.rmSync(entryPath, { force: true });
+        }
+    });
 }
 
 function countFiles(directoryPath) {
