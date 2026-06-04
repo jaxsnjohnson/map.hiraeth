@@ -35,6 +35,7 @@ const path = require('path');
         layers: [],
         eachLayer: function(cb) { this.layers.forEach(cb); }
     };
+    global.allMapRoadsByName = new Map();
     global.currentRoadGroup = {
         layers: [],
         eachLayer: function(cb) { this.layers.forEach(cb); }
@@ -138,6 +139,7 @@ const path = require('path');
             popupOpened: false
         };
         global.currentRoadGroup.layers.push(mockLineLayer);
+        global.allMapRoadsByName.set("Test Line", mockLineLayer);
         const resultLine = focusLine('Test Line');
         assert.equal(resultLine, true, 'focusLine should return true for found Line');
         assert.ok(mockLineLayer.popupOpened, 'Line popup should be opened');
@@ -164,6 +166,7 @@ const path = require('path');
 
         resetMocks();
         global.currentRoadGroup.layers.push(mockLineLayer);
+        global.allMapRoadsByName.set("Test Line", mockLineLayer);
         searchParams = { line: 'Test Line' };
         const resultCheckLine = checkAndFocusFeature();
         assert.equal(resultCheckLine, true, 'checkAndFocusFeature should return true when Line is focused');
