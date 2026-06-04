@@ -569,7 +569,7 @@ function buildPopupMainContainer(safeSummary, fullContentInnerHtml, hasSummary, 
             </div>
         `;
         if (hasFullContent) {
-            readMoreButton = `<div class="popup-read-more" onclick="togglePopupExpand(this)">Read More</div>`;
+            readMoreButton = `<button type="button" class="popup-read-more" aria-expanded="false" onclick="togglePopupExpand(this)">Read More</button>`;
         }
     } else {
         mainContent = `
@@ -578,7 +578,7 @@ function buildPopupMainContainer(safeSummary, fullContentInnerHtml, hasSummary, 
             </div>
         `;
         if (hasFullContent) {
-            readMoreButton = `<div class="popup-read-more" onclick="togglePopupExpand(this)">Read More</div>`;
+            readMoreButton = `<button type="button" class="popup-read-more" aria-expanded="false" onclick="togglePopupExpand(this)">Read More</button>`;
         }
     }
     return { mainContent, readMoreButton };
@@ -6155,9 +6155,11 @@ function togglePopupExpand(button) {
     if (isExpanded) {
         container.classList.remove('expanded');
         button.textContent = 'Read More';
+        button.setAttribute('aria-expanded', 'false');
     } else {
         container.classList.add('expanded');
         button.textContent = 'Read Less';
+        button.setAttribute('aria-expanded', 'true');
     }
 }
 
