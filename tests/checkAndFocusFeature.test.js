@@ -25,6 +25,7 @@ const path = require('path');
     global.allMapMarkers = [];
     global.allMapMarkersByName = new Map();
     global.allMapRegionsByName = new Map();
+    global.allMapLinesByName = new Map();
     global.currentMarkerGroup = {
         layers: [],
         hasLayer: function(l) { return this.layers.includes(l); },
@@ -137,7 +138,7 @@ const path = require('path');
             openPopup: function() { this.popupOpened = true; },
             popupOpened: false
         };
-        global.currentRoadGroup.layers.push(mockLineLayer);
+        global.allMapLinesByName.set('Test Line', mockLineLayer);
         const resultLine = focusLine('Test Line');
         assert.equal(resultLine, true, 'focusLine should return true for found Line');
         assert.ok(mockLineLayer.popupOpened, 'Line popup should be opened');
