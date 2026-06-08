@@ -442,6 +442,12 @@
                     ? (state.expandedFolderIds.has(item.id) ? 'v' : '>')
                     : '-';
                 toggleButton.disabled = !hasChildren;
+                if (hasChildren) {
+                    toggleButton.setAttribute('aria-expanded', state.expandedFolderIds.has(item.id) ? 'true' : 'false');
+                    toggleButton.setAttribute('aria-label', `Toggle folder: ${item.name || item.id}`);
+                } else {
+                    toggleButton.setAttribute('aria-hidden', 'true');
+                }
                 toggleButton.addEventListener('click', () => toggleFolder(item.id));
                 header.appendChild(toggleButton);
 
