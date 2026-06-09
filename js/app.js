@@ -3966,8 +3966,14 @@ function renderEncounterTableList(tableId) {
         const item = document.createElement('div');
         item.className = 'list-item';
         const weight = entry.weight || 1;
-        const safeResult = escapeHtml(entry.result || `Entry ${index + 1}`);
-        item.innerHTML = `<span class="encounter-weight">x${escapeHtml(weight)}</span> ${safeResult}`;
+        const result = entry.result || `Entry ${index + 1}`;
+
+        const weightSpan = document.createElement('span');
+        weightSpan.className = 'encounter-weight';
+        weightSpan.textContent = `x${weight}`;
+
+        item.appendChild(weightSpan);
+        item.appendChild(document.createTextNode(` ${result}`));
         encounterTableList.appendChild(item);
     });
 }
@@ -7506,7 +7512,14 @@ function determineMapToLoad(initialMapIdFromHash) {
 function handleNoMapFallback(effectiveSidebarState) {
     console.error("No loadable map data found for initialization.");
     if (sidebar) {
-        sidebar.innerHTML = `<h2>${escapeHtml(getConfigValue('copy.sidebarTitle', 'Select Map'))}</h2><p>${escapeHtml(getConfigValue('copy.loading.noMaps', 'No maps available.'))}</p>`;
+        sidebar.innerHTML = '';
+        const h2 = document.createElement('h2');
+        h2.textContent = getConfigValue('copy.sidebarTitle', 'Select Map');
+        sidebar.appendChild(h2);
+
+        const p = document.createElement('p');
+        p.textContent = getConfigValue('copy.loading.noMaps', 'No maps available.');
+        sidebar.appendChild(p);
     }
     setMapBlurbVisible(false);
     // Ensure loading indicator is hidden if it somehow wasn't
