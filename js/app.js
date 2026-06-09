@@ -746,6 +746,7 @@ const toggleToolkitPanelBtn = document.getElementById('toggle-toolkit-panel-btn'
 const mapBlurbElement = document.getElementById('map-blurb');
 const toggleMarkersBtn = document.getElementById('toggle-markers-btn');
 const searchControlContainer = document.getElementById('search-control-container');
+const dynamicFiltersContainer = document.getElementById('dynamic-filters-container');
 const poiSearchInput = document.getElementById('poi-search-input');
 const searchScopeAtlasBtn = document.getElementById('search-scope-atlas-btn');
 const searchResultsContainer = document.getElementById('search-results-container');
@@ -4034,9 +4035,10 @@ function updateTravelTime() {
 
 // --- Function to Populate Filter Checkboxes (in the panel) ---
 function populateFilters(pointsOfInterest, mapId) {
-    // Clear existing dynamic filters (headers, dividers, specific checkboxes)
-    const dynamicElements = poiFilterContainer.querySelectorAll('h3:not(:first-of-type), hr, .filter-item:not(:first-child), .filter-group');
-    dynamicElements.forEach(el => el.remove());
+    // Clear existing dynamic filters
+    if (dynamicFiltersContainer) {
+        dynamicFiltersContainer.replaceChildren();
+    }
 
     const hasPOIs = pointsOfInterest && pointsOfInterest.length > 0;
     const selectedMap = getMapRuntimeData(mapId);
@@ -4098,7 +4100,7 @@ function populatePOIFilters(pointsOfInterest) {
     if (poiFilterContainer.querySelector('h3')) {
         const poiHeader = document.createElement('h3');
         poiHeader.textContent = getConfigValue('taxonomy.labels.poiTypes', 'POI Types:');
-        poiFilterContainer.appendChild(poiHeader);
+        dynamicFiltersContainer.appendChild(poiHeader);
     }
     const relevantGroups = new Set();
     pointsOfInterest.forEach(poi => {
@@ -4122,7 +4124,7 @@ function populatePOIFilters(pointsOfInterest) {
         label.textContent = groupName;
         div.appendChild(checkbox);
         div.appendChild(label);
-        poiFilterContainer.appendChild(div);
+        dynamicFiltersContainer.appendChild(div);
     });
 }
 
@@ -4229,11 +4231,11 @@ function populateRegionFilters(regions, selectedMap, hasPOIs) {
             const divider = document.createElement('hr');
             divider.style.margin = '10px 0';
             divider.style.borderColor = 'var(--glass-border)';
-            poiFilterContainer.appendChild(divider);
+            dynamicFiltersContainer.appendChild(divider);
         }
         const regionHeader = document.createElement('h3');
         regionHeader.textContent = "Region Types:";
-        poiFilterContainer.appendChild(regionHeader);
+        dynamicFiltersContainer.appendChild(regionHeader);
 
         for (const groupName in regionFilterGroups) {
             if (Object.hasOwnProperty.call(regionFilterGroups, groupName)) {
@@ -4241,7 +4243,7 @@ function populateRegionFilters(regions, selectedMap, hasPOIs) {
                 if (!Array.isArray(values) || values.length === 0) continue;
 
                 const groupContainer = createRegionFilterGroupDOM(groupName, values);
-                poiFilterContainer.appendChild(groupContainer);
+                dynamicFiltersContainer.appendChild(groupContainer);
             }
         }
     }
@@ -4252,12 +4254,12 @@ function populateLineFilters(lines, hasPOIs, hasRegions) {
         const divider = document.createElement('hr');
         divider.style.margin = '10px 0';
         divider.style.borderColor = 'var(--glass-border)';
-        poiFilterContainer.appendChild(divider);
+        dynamicFiltersContainer.appendChild(divider);
     }
 
     const lineHeader = document.createElement('h3');
     lineHeader.textContent = "Line Types:";
-    poiFilterContainer.appendChild(lineHeader);
+    dynamicFiltersContainer.appendChild(lineHeader);
 
     const allLines = lines;
     const lineTypes = [...new Set(allLines.map(r => r.type || "Unnamed Road Type").filter(Boolean))].sort();
@@ -4279,7 +4281,7 @@ function populateLineFilters(lines, hasPOIs, hasRegions) {
 
         div.appendChild(checkbox);
         div.appendChild(label);
-        poiFilterContainer.appendChild(div);
+        dynamicFiltersContainer.appendChild(div);
     });
 }
 
@@ -4910,8 +4912,9 @@ function resetMapState() {
     setSearchMeta('');
     updateActiveFilterChips();
 
-    const dynamicFilters = poiFilterContainer.querySelectorAll('h3:not(:first-of-type), hr, .filter-item:not(:first-child)');
-    dynamicFilters.forEach(el => el.remove());
+    if (dynamicFiltersContainer) {
+        dynamicFiltersContainer.replaceChildren();
+    }
     filterToggleAllCheckbox.checked = true;
     filterToggleAllCheckbox.indeterminate = false;
 
