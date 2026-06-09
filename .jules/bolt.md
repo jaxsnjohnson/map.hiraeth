@@ -84,3 +84,6 @@
 ## 2024-05-24 - Active Selection DOM State Toggling Bottleneck
 **Learning:** In interactive lists (like search results) where a single item holds an "active" state, iterating over the entire list (`Array.from(document.querySelectorAll(...)).forEach(...)`) to ensure the active class is toggled properly creates severe performance bottlenecks as the list size grows. This results in an O(N) mutation cascade that forces layout thrashing and string allocations.
 **Action:** When updating a singular active state within a collection, query specifically for the currently active items (`querySelectorAll('.active')`) to deactivate them, and use a direct index lookup (`getElementsByClassName(...)[index]`) for O(1) activation. This specific pattern reduced latency by ~9.8x for lists of 100 items.
+## 2026-06-09 - Optimize populatePOIFilters with DocumentFragment
+**Learning:** When generating multiple elements in a loop and appending them to the live DOM, utilizing a `DocumentFragment` batches the DOM insertions, substantially mitigating costly layout thrashing and reflows.
+**Action:** When a function requires creating and appending multiple elements dynamically in a loop, always instantiate a `document.createDocumentFragment()`, append children to it during iterations, and perform a single `appendChild` to the target container once outside the loop.

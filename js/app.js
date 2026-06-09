@@ -4106,6 +4106,7 @@ function populatePOIFilters(pointsOfInterest) {
         relevantGroups.add(group);
     });
     const sortedGroups = Array.from(relevantGroups).sort();
+    const fragment = document.createDocumentFragment();
     sortedGroups.forEach(groupName => {
         if (!groupName || (poiTypeGroups[groupName] && poiTypeGroups[groupName].length === 0)) return;
         const filterId = `filter-group-${groupName.replace(/\s+/g, '-')}`;
@@ -4122,8 +4123,9 @@ function populatePOIFilters(pointsOfInterest) {
         label.textContent = groupName;
         div.appendChild(checkbox);
         div.appendChild(label);
-        poiFilterContainer.appendChild(div);
+        fragment.appendChild(div);
     });
+    poiFilterContainer.appendChild(fragment);
 }
 
 function getOrGenerateRegionFilterGroups(regions, selectedMap) {
