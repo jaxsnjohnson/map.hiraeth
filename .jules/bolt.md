@@ -91,3 +91,7 @@
 ## 2024-06-04 - O(1) Bypassing of Layer Iteration and Caching for Lines
 **Learning:** Leaflet's internal `.eachLayer()` layer iteration for lines (roads) is slow during frequent search loops, taking 189ms per 10k iterations. Replacing this with iteration over native parallel static arrays and O(1) Map lookups for focus operations reduces the time to 46.8ms, a ~75% performance improvement.
 **Action:** When filtering or focusing on features in Leaflet LayerGroups, maintain parallel static arrays (e.g., `allMapLines`) and Maps (e.g., `allMapLinesByName`) to iterate and fetch features in O(N) Array and O(1) Map operations instead of relying on `.eachLayer()`.
+
+## 2024-05-30 - O(1) Map Lookups for Focus Operations
+**Learning:** Functions like `focusLine` and `focusRegion` that iterate over Leaflet `LayerGroup` instances (e.g., using `currentRoadGroup.eachLayer()`) to find a specific layer by name perform O(N) operations. While fast for small datasets, this iteration is completely unnecessary and scales poorly for maps with hundreds or thousands of features.
+**Action:** When a specific feature needs to be retrieved by a unique identifier (like a name or ID), maintain a parallel O(1) ES6 `Map` (e.g., `allMapLinesByName`) that is populated when the layers are instantiated and cleared when the map resets.
