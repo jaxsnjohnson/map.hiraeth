@@ -103,3 +103,6 @@
 ## 2026-06-09 - Optimize populatePOIFilters with DocumentFragment
 **Learning:** When generating multiple elements in a loop and appending them to the live DOM, utilizing a `DocumentFragment` batches the DOM insertions, substantially mitigating costly layout thrashing and reflows.
 **Action:** When a function requires creating and appending multiple elements dynamically in a loop, always instantiate a `document.createDocumentFragment()`, append children to it during iterations, and perform a single `appendChild` to the target container once outside the loop.
+## 2025-06-10 - Optimize search results DOM insertions with DocumentFragment
+**Learning:** When evaluating DOM optimization techniques like `DocumentFragment` vs `appendChild`, micro-benchmarks on isolated containers (e.g., via jsdom or basic HTML pages) often show negligible differences or even slight regressions (like the -4.09% observed). The real performance benefit of `DocumentFragment` minimizing repaints and reflows is best observed when appending to an active, connected DOM with complex CSS rendering rules in a real browser.
+**Action:** Always write the DocumentFragment optimization for batch UI updates, but recognize when to benchmark. If a micro-benchmark using JSDOM regressions, document the rationale explaining that the actual win happens in the connected rendering pipeline.
