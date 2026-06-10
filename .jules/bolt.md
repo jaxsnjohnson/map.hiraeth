@@ -99,3 +99,7 @@
 ## 2025-06-09 - Use DocumentFragment for map chooser DOM insertions
 **Learning:** For bulk DOM updates, micro-benchmarks of `appendChild` vs `DocumentFragment` can often show negligible differences (or even slight regressions for Fragment) because raw memory structures do not trigger layout recalculations. However, when appending to an active, connected DOM in the live app, `appendChild` in a loop creates multiple reflows, whereas a DocumentFragment aggregates children offline and appends them in one layout step.
 **Action:** When updating a connected DOM element inside a loop with multiple children, prefer using a `DocumentFragment` to batch insertions and prevent reflow/repaint penalties.
+
+## 2026-06-09 - Optimize populatePOIFilters with DocumentFragment
+**Learning:** When generating multiple elements in a loop and appending them to the live DOM, utilizing a `DocumentFragment` batches the DOM insertions, substantially mitigating costly layout thrashing and reflows.
+**Action:** When a function requires creating and appending multiple elements dynamically in a loop, always instantiate a `document.createDocumentFragment()`, append children to it during iterations, and perform a single `appendChild` to the target container once outside the loop.
