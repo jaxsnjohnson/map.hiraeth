@@ -1967,9 +1967,11 @@ function renderMapChooser(items = mapData) {
         return;
     }
 
+    const entriesFragment = document.createDocumentFragment();
     entries.forEach((entry, index) => {
-        mapChooserGrid.appendChild(createMapChooserCard(entry, index, activeMapId));
+        entriesFragment.appendChild(createMapChooserCard(entry, index, activeMapId));
     });
+    mapChooserGrid.appendChild(entriesFragment);
 
     if (archiveEntries.length > 0) {
         const details = document.createElement('details');
@@ -1985,9 +1987,11 @@ function renderMapChooser(items = mapData) {
         archiveGrid.className = 'map-chooser-grid';
         archiveGrid.style.marginTop = '16px';
 
+        const archiveFragment = document.createDocumentFragment();
         archiveEntries.forEach((entry, index) => {
-            archiveGrid.appendChild(createMapChooserCard(entry, entries.length + index, activeMapId));
+            archiveFragment.appendChild(createMapChooserCard(entry, entries.length + index, activeMapId));
         });
+        archiveGrid.appendChild(archiveFragment);
 
         details.appendChild(archiveGrid);
         mapChooserGrid.appendChild(details);

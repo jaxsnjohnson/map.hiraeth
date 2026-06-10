@@ -95,3 +95,7 @@
 ## 2024-05-30 - O(1) Map Lookups for Focus Operations
 **Learning:** Functions like `focusLine` and `focusRegion` that iterate over Leaflet `LayerGroup` instances (e.g., using `currentRoadGroup.eachLayer()`) to find a specific layer by name perform O(N) operations. While fast for small datasets, this iteration is completely unnecessary and scales poorly for maps with hundreds or thousands of features.
 **Action:** When a specific feature needs to be retrieved by a unique identifier (like a name or ID), maintain a parallel O(1) ES6 `Map` (e.g., `allMapLinesByName`) that is populated when the layers are instantiated and cleared when the map resets.
+
+## 2025-06-09 - Use DocumentFragment for map chooser DOM insertions
+**Learning:** For bulk DOM updates, micro-benchmarks of `appendChild` vs `DocumentFragment` can often show negligible differences (or even slight regressions for Fragment) because raw memory structures do not trigger layout recalculations. However, when appending to an active, connected DOM in the live app, `appendChild` in a loop creates multiple reflows, whereas a DocumentFragment aggregates children offline and appends them in one layout step.
+**Action:** When updating a connected DOM element inside a loop with multiple children, prefer using a `DocumentFragment` to batch insertions and prevent reflow/repaint penalties.
