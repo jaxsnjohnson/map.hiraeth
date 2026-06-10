@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'bun:test';
+const { describe, it, beforeEach, afterEach } = require('node:test');
+const assert = require('node:assert/strict');
 const fs = require('fs');
 
 const appSource = fs.readFileSync(__dirname + '/../js/app.js', 'utf8');
@@ -10,12 +11,24 @@ const functionString = appSource.substring(startIndex, nextFunctionIndex);
 let resolveMobileLayoutV2Enabled;
 eval(`resolveMobileLayoutV2Enabled = ${functionString}`);
 
+function createMock() {
+    const fn = (...args) => {
+        fn.calls.push(args);
+        return fn.returnValue;
+    };
+    fn.calls = [];
+    fn.mockReturnValue = (value) => {
+        fn.returnValue = value;
+    };
+    return fn;
+}
+
 describe('resolveMobileLayoutV2Enabled', () => {
     beforeEach(() => {
-        global.getMobileLayoutModeFromUrl = vi.fn();
-        global.safeSetStorage = vi.fn();
-        global.safeGetStorage = vi.fn();
-        global.normalizeMobileLayoutMode = vi.fn();
+        global.getMobileLayoutModeFromUrl = createMock();
+        global.safeSetStorage = createMock();
+        global.safeGetStorage = createMock();
+        global.normalizeMobileLayoutMode = createMock();
 
         global.UX_STORAGE_KEYS = { mobileLayoutMode: 'mobileLayoutMode' };
         global.MOBILE_LAYOUT_MODE_V2 = 'v2';
@@ -36,10 +49,10 @@ describe('resolveMobileLayoutV2Enabled', () => {
 
         const result = resolveMobileLayoutV2Enabled();
 
-        expect(result).toBe(true);
-        expect(global.safeSetStorage).toHaveBeenCalledWith('mobileLayoutMode', 'v2');
-        expect(global.safeGetStorage).not.toHaveBeenCalled();
-        expect(global.normalizeMobileLayoutMode).not.toHaveBeenCalled();
+        assert.equal(result, true);
+        assert.deepEqual(global.safeSetStorage.calls, [['mobileLayoutMode', 'v2']]);
+        assert.equal(global.safeGetStorage.calls.length, 0);
+        assert.equal(global.normalizeMobileLayoutMode.calls.length, 0);
     });
 
     it('should return false and set storage when URL mode is non-v2', () => {
@@ -47,10 +60,10 @@ describe('resolveMobileLayoutV2Enabled', () => {
 
         const result = resolveMobileLayoutV2Enabled();
 
-        expect(result).toBe(false);
-        expect(global.safeSetStorage).toHaveBeenCalledWith('mobileLayoutMode', 'legacy');
-        expect(global.safeGetStorage).not.toHaveBeenCalled();
-        expect(global.normalizeMobileLayoutMode).not.toHaveBeenCalled();
+        assert.equal(result, false);
+        assert.deepEqual(global.safeSetStorage.calls, [['mobileLayoutMode', 'legacy']]);
+        assert.equal(global.safeGetStorage.calls.length, 0);
+        assert.equal(global.normalizeMobileLayoutMode.calls.length, 0);
     });
 
     it('should return true when no URL mode but storage mode is v2', () => {
@@ -60,11 +73,10 @@ describe('resolveMobileLayoutV2Enabled', () => {
 
         const result = resolveMobileLayoutV2Enabled();
 
-        expect(result).toBe(true);
-        expect(global.safeGetStorage).toHaveBeenCalledWith('mobileLayoutMode');
-        expect(global.normalizeMobileLayoutMode).toHaveBeenCalledWith('v2_raw');
-        // It shouldn't set storage if read from storage
-        expect(global.safeSetStorage).not.toHaveBeenCalled();
+        assert.equal(result, true);
+        assert.deepEqual(global.safeGetStorage.calls, [['mobileLayoutMode']]);
+        assert.deepEqual(global.normalizeMobileLayoutMode.calls, [['v2_raw']]);
+        assert.equal(global.safeSetStorage.calls.length, 0);
     });
 
     it('should fall back to setting v2 in storage and returning true when both URL and storage are empty', () => {
@@ -74,9 +86,9 @@ describe('resolveMobileLayoutV2Enabled', () => {
 
         const result = resolveMobileLayoutV2Enabled();
 
-        expect(result).toBe(true);
-        expect(global.safeGetStorage).toHaveBeenCalledWith('mobileLayoutMode');
-        expect(global.normalizeMobileLayoutMode).toHaveBeenCalledWith(null);
-        expect(global.safeSetStorage).toHaveBeenCalledWith('mobileLayoutMode', 'v2');
+        assert.equal(result, true);
+        assert.deepEqual(global.safeGetStorage.calls, [['mobileLayoutMode']]);
+        assert.deepEqual(global.normalizeMobileLayoutMode.calls, [[null]]);
+        assert.deepEqual(global.safeSetStorage.calls, [['mobileLayoutMode', 'v2']]);
     });
 });

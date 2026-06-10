@@ -16,8 +16,14 @@ assert.match(appSource, /navigator\.serviceWorker\.register\(swUrl\)/);
 
 assert.match(swSource, /const VERSION = new URL\(self\.location\.href\)\.searchParams\.get\('v'\) \|\| '0';/);
 assert.match(swSource, /const DEFAULT_VERSIONED_SHELL_ASSETS = \[[\s\S]*'css\/style\.css'/);
+assert.match(swSource, /const DEFAULT_VERSIONED_SHELL_ASSETS = \[[\s\S]*'css\/leaflet\.css'/);
 assert.match(swSource, /const DEFAULT_VERSIONED_SHELL_ASSETS = \[[\s\S]*'js\/app-config\.js'/);
+assert.match(swSource, /const DEFAULT_VERSIONED_SHELL_ASSETS = \[[\s\S]*'js\/shared-utils\.js'/);
+assert.match(swSource, /const DEFAULT_VERSIONED_SHELL_ASSETS = \[[\s\S]*'js\/libs\/leaflet\.js'/);
+assert.match(swSource, /const DEFAULT_VERSIONED_SHELL_ASSETS = \[[\s\S]*'js\/libs\/lucide\.min\.js'/);
+assert.match(swSource, /const DEFAULT_VERSIONED_SHELL_ASSETS = \[[\s\S]*'js\/libs\/purify\.min\.js'/);
 assert.match(swSource, /const DEFAULT_VERSIONED_SHELL_ASSETS = \[[\s\S]*'maps\/atlas-index\.json'/);
+assert.match(swSource, /const DEFAULT_STATIC_SHELL_ASSETS = \[[\s\S]*'images\/sky-background\.webp'/);
 assert.match(swSource, /site\.config\.json\?v=\$\{VERSION\}/);
 assert.match(swSource, /cache\.addAll\(\[\.\.\.configuredAssets\.static, \.\.\.versionedShellAssets\]\)/);
 

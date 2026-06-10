@@ -8,12 +8,116 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin="">
+    <script>
+        (function resolveMapEditorLocalAccess() {
+            const hostname = window.location.hostname;
+            const localHostnames = new Set(["localhost", "::1", "[::1]"]);
+            const isLocalAccess = window.location.protocol === "file:" ||
+                localHostnames.has(hostname) ||
+                /^127\./.test(hostname) ||
+                hostname.endsWith(".localhost");
+
+            window.__MAP_EDITOR_LOCAL_ACCESS__ = isLocalAccess;
+            document.documentElement.classList.add(isLocalAccess ? "map-editor-local-access" : "map-editor-remote-access");
+        })();
+    </script>
+    <style>
+        #map-editor-remote-notice {
+            display: none;
+            min-height: 100vh;
+            padding: 32px;
+            place-items: center;
+            background: linear-gradient(135deg, #fdfaf6 0%, #efe4d4 100%);
+            color: #3d2a1e;
+            box-sizing: border-box;
+        }
+
+        html.map-editor-remote-access #map-editor-remote-notice {
+            display: grid;
+        }
+
+        html.map-editor-remote-access #map-editor-app {
+            display: none;
+        }
+
+        .map-editor-remote-card {
+            width: min(560px, 100%);
+            padding: 28px;
+            border: 1px solid rgba(107, 44, 37, 0.22);
+            border-radius: 8px;
+            background: rgba(255, 252, 247, 0.9);
+            box-shadow: 0 18px 45px rgba(64, 42, 28, 0.16);
+        }
+
+        .map-editor-remote-card h1 {
+            margin: 0 0 12px;
+            font-size: 2rem;
+            line-height: 1.1;
+        }
+
+        .map-editor-remote-card p {
+            margin: 0 0 18px;
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .map-editor-remote-label {
+            margin: 0 0 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #8f5a2f;
+        }
+
+        .map-editor-remote-link {
+            display: inline-flex;
+            align-items: center;
+            min-height: 42px;
+            padding: 0 16px;
+            border-radius: 6px;
+            background: #6b2c25;
+            color: #fff;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .map-editor-remote-link:focus-visible {
+            outline: 3px solid #0f5fbf;
+            outline-offset: 3px;
+        }
+
+        html[data-theme="dark"] #map-editor-remote-notice {
+            background: linear-gradient(135deg, #161421 0%, #29243c 100%);
+            color: #e8e6f2;
+        }
+
+        html[data-theme="dark"] .map-editor-remote-card {
+            border-color: rgba(245, 67, 91, 0.3);
+            background: rgba(34, 33, 50, 0.88);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.3);
+        }
+
+        html[data-theme="dark"] .map-editor-remote-label {
+            color: #d4d3ff;
+        }
+
+        html[data-theme="dark"] .map-editor-remote-link {
+            background: #429fe3;
+            color: #10131f;
+        }
+    </style>
     <script src="js/app-config.js"></script>
     <script>
         window.APP_ASSET_VERSION = window.AppConfig ? window.AppConfig.get("assets.version", "0") : "0";
+
+        function injectLeafletStylesheet() {
+            const link = document.createElement("link");
+            link.rel = "stylesheet";
+            const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
+            link.href = `css/leaflet.css?v=${version}`;
+            document.head.appendChild(link);
+        }
 
         (function applyInitialTheme() {
             const root = document.documentElement;
@@ -44,6 +148,10 @@
                 if (window.AppConfig) {
                     window.AppConfig.applyThemeTokens(document);
                     window.AppConfig.injectFont(document);
+                }
+                if (!window.__MAP_EDITOR_LOCAL_ACCESS__) return;
+                injectLeafletStylesheet();
+                if (window.AppConfig) {
                     window.AppConfig.hydrateEditorDom(document);
                     document.addEventListener("DOMContentLoaded", () => {
                         window.AppConfig.hydrateEditorDom(document);
@@ -64,6 +172,15 @@
     </script>
 </head>
 <body class="map-editor-body">
+    <section id="map-editor-remote-notice" aria-labelledby="map-editor-remote-title">
+        <div class="map-editor-remote-card">
+            <p class="map-editor-remote-label">Map Editor</p>
+            <h1 id="map-editor-remote-title">This map editor only runs locally.</h1>
+            <p>This is the authoring tool for Hiraeth map data. The public atlas is available in the map viewer.</p>
+            <a class="map-editor-remote-link" href="./">View the Maps</a>
+        </div>
+    </section>
+
     <div id="map-editor-app" class="map-editor-shell" data-mode="select">
         <aside class="map-editor-sidebar">
             <div class="map-editor-panel-header">
@@ -108,6 +225,8 @@
             </div>
 
             <div class="map-editor-export-bar">
+                <button id="save-current-map-btn" type="button" disabled>Save Current Map</button>
+                <button id="save-atlas-structure-btn" type="button" disabled>Save Atlas Structure</button>
                 <button id="export-current-map-btn" type="button">Export Current Map JSON</button>
                 <button id="export-atlas-structure-btn" type="button">Export Atlas Structure</button>
                 <span id="editor-export-status" aria-live="polite"></span>
@@ -192,24 +311,37 @@
         </aside>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-        crossorigin=""></script>
     <script>
         (function injectVersionedScripts() {
+            if (!window.__MAP_EDITOR_LOCAL_ACCESS__) return;
             const ready = window.AppConfig ? window.AppConfig.ready : Promise.resolve();
-            ready.then(() => {
+
+            function appendScript(src, options = {}) {
+                const script = document.createElement("script");
+                script.src = src;
+                script.async = false;
+                if (options.integrity) script.integrity = options.integrity;
+                if (options.crossOrigin !== undefined) script.crossOrigin = options.crossOrigin;
+                if (typeof options.onload === "function") script.onload = options.onload;
+                document.body.appendChild(script);
+            }
+
+            function injectEditorScripts() {
                 if (window.AppConfig) window.AppConfig.hydrateEditorDom(document);
                 const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
                 const scripts = window.AppConfig
                     ? window.AppConfig.get("assets.editorScripts", ["js/editor-shared.js", "js/shared-utils.js", "js/map-editor.js"])
                     : ["js/editor-shared.js", "js/shared-utils.js", "js/map-editor.js"];
                 scripts.forEach((src) => {
-                const script = document.createElement("script");
-                script.src = `${src}?v=${version}`;
-                script.async = false;
-                document.body.appendChild(script);
+                    appendScript(`${src}?v=${version}`);
                 });
+            }
+
+            ready.then(() => {
+                appendScript(
+                    `js/libs/leaflet.js?v=${encodeURIComponent(window.APP_ASSET_VERSION || "0")}`,
+                    { onload: injectEditorScripts }
+                );
             });
         })();
     </script>

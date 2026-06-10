@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
-import fs from 'node:fs';
+const { describe, it, afterEach } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
 
 const appSource = fs.readFileSync('js/app.js', 'utf8');
 
@@ -39,31 +40,31 @@ describe('getMobileLayoutModeFromUrl', () => {
 
     it('returns "v2" when mobileLayout=v2', () => {
         global.window = { location: { search: '?mobileLayout=v2' } };
-        expect(getMobileLayoutModeFromUrlRef()).toBe('v2');
+        assert.equal(getMobileLayoutModeFromUrlRef(), 'v2');
     });
 
     it('returns "legacy" when mobileLayout=legacy', () => {
         global.window = { location: { search: '?mobileLayout=legacy' } };
-        expect(getMobileLayoutModeFromUrlRef()).toBe('legacy');
+        assert.equal(getMobileLayoutModeFromUrlRef(), 'legacy');
     });
 
     it('returns null when mobileLayout is invalid', () => {
         global.window = { location: { search: '?mobileLayout=invalid' } };
-        expect(getMobileLayoutModeFromUrlRef()).toBeNull();
+        assert.equal(getMobileLayoutModeFromUrlRef(), null);
     });
 
     it('returns null when mobileLayout is missing', () => {
         global.window = { location: { search: '?otherParam=123' } };
-        expect(getMobileLayoutModeFromUrlRef()).toBeNull();
+        assert.equal(getMobileLayoutModeFromUrlRef(), null);
     });
 
     it('returns null when search is empty', () => {
         global.window = { location: { search: '' } };
-        expect(getMobileLayoutModeFromUrlRef()).toBeNull();
+        assert.equal(getMobileLayoutModeFromUrlRef(), null);
     });
 
     it('returns "v2" ignoring case and whitespace', () => {
         global.window = { location: { search: '?mobileLayout=%20V2%20' } };
-        expect(getMobileLayoutModeFromUrlRef()).toBe('v2');
+        assert.equal(getMobileLayoutModeFromUrlRef(), 'v2');
     });
 });

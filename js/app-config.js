@@ -21,6 +21,7 @@
         return {
                 version: '2026.04.19.04',
                 stylesheets: [
+                    'css/leaflet.css',
                     'css/style.css',
                     'css/stars.css',
                     'css/Control.MiniMap.min.css'
@@ -30,7 +31,9 @@
                     'css/map-editor.css'
                 ],
                 scripts: [
+                    'js/libs/leaflet.js',
                     'js/libs/Control.MiniMap.min.js',
+                    'js/libs/lucide.min.js',
                     'js/starfield.js',
                     'js/shared-utils.js',
                     'js/app.js'
@@ -56,9 +59,14 @@
                 serviceWorker: {
                     versionedShellAssets: [
                         'css/style.css',
+                        'css/leaflet.css',
                         'css/stars.css',
                         'css/Control.MiniMap.min.css',
                         'js/app-config.js',
+                        'js/shared-utils.js',
+                        'js/libs/leaflet.js',
+                        'js/libs/lucide.min.js',
+                        'js/libs/purify.min.js',
                         'js/app.js',
                         'js/starfield.js',
                         'js/libs/Control.MiniMap.min.js',
@@ -75,6 +83,9 @@
                         'images/sky-background.webp',
                         'images/clouds.webp',
                         'images/toggle.svg',
+                        'css/images/marker-icon.png',
+                        'css/images/marker-icon-2x.png',
+                        'css/images/marker-shadow.png',
                         'images/hiraeth-maps-preview.png',
                         'images/poi-icons/settlements.png',
                         'images/poi-icons/structures.png',
@@ -490,6 +501,24 @@
         return `${selector} {\n${Object.keys(tokens).map((key) => `    ${key}: ${tokens[key]};`).join('\n')}\n}`;
     }
 
+    function resolveDocumentAssetUrl(assetPath, documentRef = root.document) {
+        const value = String(assetPath || '').trim();
+        if (!value) return '';
+        const baseUrl = documentRef?.baseURI || root.location?.href || '';
+        if (!baseUrl) return value;
+        try {
+            return new URL(value, baseUrl).href;
+        } catch (error) {
+            return value;
+        }
+    }
+
+    function toCssUrl(assetPath, documentRef = root.document) {
+        const url = resolveDocumentAssetUrl(assetPath, documentRef);
+        const escapedUrl = url.replace(/["\\\n\r\f]/g, '\\$&');
+        return `url("${escapedUrl}")`;
+    }
+
     function applyThemeTokens(documentRef = root.document) {
         if (!documentRef) return;
         let style = documentRef.getElementById('app-config-theme-tokens');
@@ -500,7 +529,7 @@
         }
         const lightTokens = {
             ...activeConfig.theme.tokens.light,
-            '--cloud-texture-url': `url('${activeConfig.assets.cloudTexture}')`,
+            '--cloud-texture-url': toCssUrl(activeConfig.assets.cloudTexture, documentRef),
             '--glass-bg': 'var(--glass-bg-light)',
             '--glass-border': 'var(--glass-border-light)',
             '--popup-bg': 'var(--popup-bg-light)',
@@ -510,7 +539,7 @@
         };
         const darkTokens = {
             ...activeConfig.theme.tokens.dark,
-            '--cloud-texture-url': `url('${activeConfig.assets.cloudTexture}')`,
+            '--cloud-texture-url': toCssUrl(activeConfig.assets.cloudTexture, documentRef),
             '--glass-bg': 'var(--glass-bg-dark)',
             '--glass-border': 'var(--glass-border-dark)',
             '--popup-bg': 'var(--popup-bg-dark)',
