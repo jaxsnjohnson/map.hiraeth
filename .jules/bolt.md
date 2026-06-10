@@ -103,3 +103,6 @@
 ## 2026-06-09 - Optimize populatePOIFilters with DocumentFragment
 **Learning:** When generating multiple elements in a loop and appending them to the live DOM, utilizing a `DocumentFragment` batches the DOM insertions, substantially mitigating costly layout thrashing and reflows.
 **Action:** When a function requires creating and appending multiple elements dynamically in a loop, always instantiate a `document.createDocumentFragment()`, append children to it during iterations, and perform a single `appendChild` to the target container once outside the loop.
+## 2024-06-25 - Cache Region Filter Groups
+**Learning:** Automatically generating region filter groups involves iterating through potentially thousands of region entries, sorting, and array manipulation. Re-running this multiple times when the regions data pointer is stable causes performance degradation on render paths.
+**Action:** Use a `WeakMap` to cache the derived filter groups object by using the `regions` array as the key, guaranteeing stable cache hits without memory leaks. Furthermore, tracking unique values initially into a plain object `Object.create(null)` bypasses the `Set` conversion overhead (`Array.from(set).sort()`).
