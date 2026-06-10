@@ -587,7 +587,13 @@
             const meta = type === 'points'
                 ? `${item.type || 'Point'} - ${Array.isArray(item.coords) ? item.coords.join(', ') : 'No coords'}`
                 : `${type === 'regions' ? (item.value || item.type || 'Region') : (item.type || 'Line')} - ${(Array.isArray(item.coordinates) ? item.coordinates.length : 0)} vertices`;
-            button.innerHTML = `${escapeHtml(label)}<span class="map-editor-feature-meta">${escapeHtml(meta)}</span>`;
+
+            button.textContent = label;
+            const metaSpan = document.createElement('span');
+            metaSpan.className = 'map-editor-feature-meta';
+            metaSpan.textContent = meta;
+            button.appendChild(metaSpan);
+
             button.addEventListener('click', () => selectFeature(type, index));
             dom.unifiedFeatureList.appendChild(button);
         });
@@ -1526,7 +1532,11 @@
         } catch (error) {
             console.error(error);
             setSelectionStatus(error.message || 'Could not initialize the map editor.');
-            dom.atlasTree.innerHTML = `<p class="map-editor-placeholder">${escapeHtml(error.message || 'Initialization failed.')}</p>`;
+            dom.atlasTree.innerHTML = '';
+            const p = document.createElement('p');
+            p.className = 'map-editor-placeholder';
+            p.textContent = error.message || 'Initialization failed.';
+            dom.atlasTree.appendChild(p);
         }
     }
 
