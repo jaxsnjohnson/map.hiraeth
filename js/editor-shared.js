@@ -233,7 +233,7 @@
         const base = line && typeof line === 'object' ? cloneJson(line) : {};
         return {
             ...base,
-            id: base.id || `line-${Math.random().toString(36).slice(2, 10)}`,
+            id: base.id || `line-${crypto.randomUUID()}`,
             name: base.name || '',
             pronunciation: base.pronunciation || '',
             type: base.type || '',
