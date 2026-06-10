@@ -35,10 +35,62 @@ function isLoopbackHost(host) {
         /^127\./.test(normalized);
 }
 
+function isLocalEditorHostname(host) {
+    const normalized = normalizeHost(host);
+    return isLoopbackHost(normalized) || normalized.endsWith('.localhost');
+}
+
 function assertLoopbackBindHost(host) {
     if (!isLoopbackHost(host)) {
         throw new Error(`Refusing to start editor server on non-loopback host "${host}". Use ${DEFAULT_HOST}.`);
     }
+}
+
+function getDefaultPortForProtocol(protocol) {
+    return protocol === 'https:' ? '443' : '80';
+}
+
+function parseHostHeader(hostHeader) {
+    const rawHost = String(hostHeader || '').trim();
+    if (!rawHost) return null;
+    try {
+        const parsed = new URL(`http://${rawHost}`);
+        return {
+            hostname: normalizeHost(parsed.hostname),
+            port: parsed.port || '80'
+        };
+    } catch (error) {
+        return null;
+    }
+}
+
+function isSameLocalEditorOrigin(originValue, hostHeader) {
+    const requestHost = parseHostHeader(hostHeader);
+    if (!requestHost || !isLocalEditorHostname(requestHost.hostname)) return false;
+
+    try {
+        const originUrl = new URL(originValue);
+        if (originUrl.protocol !== 'http:' && originUrl.protocol !== 'https:') return false;
+
+        const originHostname = normalizeHost(originUrl.hostname);
+        const originPort = originUrl.port || getDefaultPortForProtocol(originUrl.protocol);
+
+        return isLocalEditorHostname(originHostname) &&
+            originHostname === requestHost.hostname &&
+            originPort === requestHost.port;
+    } catch (error) {
+        return false;
+    }
+}
+
+function isAllowedEditorWriteRequest(request) {
+    const origin = String(request.headers.origin || '').trim();
+    if (origin) return isSameLocalEditorOrigin(origin, request.headers.host);
+
+    const referer = String(request.headers.referer || '').trim();
+    if (referer) return isSameLocalEditorOrigin(referer, request.headers.host);
+
+    return true;
 }
 
 function resolveRepoPath(repoRoot, relativePath) {
@@ -299,6 +351,10 @@ async function handleApiRequest(repoRoot, request, response, url) {
     }
 
     if (url.pathname === '/api/editor/save-map' && request.method === 'POST') {
+        if (!isAllowedEditorWriteRequest(request)) {
+            sendJson(response, 403, { ok: false, error: 'Editor save requests must come from the local editor origin.' });
+            return true;
+        }
         try {
             const payload = await readRequestBody(request);
             sendJson(response, 200, saveMapDocument(repoRoot, payload));
@@ -309,6 +365,10 @@ async function handleApiRequest(repoRoot, request, response, url) {
     }
 
     if (url.pathname === '/api/editor/save-atlas' && request.method === 'POST') {
+        if (!isAllowedEditorWriteRequest(request)) {
+            sendJson(response, 403, { ok: false, error: 'Editor save requests must come from the local editor origin.' });
+            return true;
+        }
         try {
             const payload = await readRequestBody(request);
             sendJson(response, 200, saveAtlasStructure(repoRoot, payload));
@@ -418,6 +478,7 @@ module.exports = {
     DEFAULT_PORT,
     assertLoopbackBindHost,
     createEditorServer,
+    isAllowedEditorWriteRequest,
     isLoopbackHost,
     resolveMapTargetPath,
     saveAtlasStructure,

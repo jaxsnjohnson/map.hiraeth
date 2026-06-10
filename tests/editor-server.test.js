@@ -5,6 +5,7 @@ const path = require('node:path');
 const {
     assertLoopbackBindHost,
     createEditorServer,
+    isAllowedEditorWriteRequest,
     isLoopbackHost,
     resolveMapTargetPath,
     validateAtlasManifestDocument,
@@ -20,6 +21,44 @@ assert.equal(isLoopbackHost('::1'), true);
 assert.equal(isLoopbackHost('0.0.0.0'), false);
 assert.equal(isLoopbackHost('192.168.1.20'), false);
 assert.throws(() => assertLoopbackBindHost('0.0.0.0'), /Refusing to start editor server/);
+
+assert.equal(isAllowedEditorWriteRequest({
+    headers: {
+        host: '127.0.0.1:8010',
+        origin: 'http://127.0.0.1:8010'
+    }
+}), true);
+assert.equal(isAllowedEditorWriteRequest({
+    headers: {
+        host: 'localhost:8010',
+        origin: 'http://localhost:8010'
+    }
+}), true);
+assert.equal(isAllowedEditorWriteRequest({
+    headers: {
+        host: 'editor.localhost:8010',
+        referer: 'http://editor.localhost:8010/map-editor.html'
+    }
+}), true);
+assert.equal(isAllowedEditorWriteRequest({
+    headers: {
+        host: '127.0.0.1:8010',
+        origin: 'http://evil.example'
+    }
+}), false);
+assert.equal(isAllowedEditorWriteRequest({
+    headers: {
+        host: '127.0.0.1:8010',
+        origin: 'http://localhost:8010'
+    }
+}), false);
+assert.equal(isAllowedEditorWriteRequest({
+    headers: {
+        host: '0.0.0.0:8010',
+        origin: 'http://0.0.0.0:8010'
+    }
+}), false);
+assert.equal(isAllowedEditorWriteRequest({ headers: { host: '127.0.0.1:8010' } }), true);
 
 assert.equal(
     resolveMapTargetPath(repoRoot, { dataUrl: 'maps/IceBeach.json' }).relativePath,

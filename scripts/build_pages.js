@@ -18,11 +18,18 @@ const runtimeFiles = [
 ];
 
 const runtimeAssetFiles = [
+    'css/leaflet.css',
     'css/style.css',
     'css/stars.css',
     'css/Control.MiniMap.min.css',
+    'css/images/marker-icon.png',
+    'css/images/marker-icon-2x.png',
+    'css/images/marker-shadow.png',
     'js/app-config.js',
     'js/shared-utils.js',
+    'js/libs/leaflet.js',
+    'js/libs/purify.min.js',
+    'js/libs/lucide.min.js',
     'js/starfield.js',
     'js/app.js',
     'js/libs/Control.MiniMap.min.js'
@@ -30,7 +37,6 @@ const runtimeAssetFiles = [
 
 const runtimeDirectories = [
     'images',
-    'maps',
     'sounds'
 ];
 
@@ -40,6 +46,7 @@ const forbiddenPublicFiles = [
     'js/editor-shared.js',
     'js/libs/text-toolbar.js',
     'css/map-editor.css',
+    'maps/maps.json',
     'tests',
     'scripts',
     'node_modules'
@@ -89,6 +96,107 @@ function copyDirectory(relativePath) {
     });
 }
 
+function isExternalUrl(value) {
+    return /^https?:\/\//i.test(String(value || ''));
+}
+
+function normalizePublicAssetPath(assetPath) {
+    const rawPath = String(assetPath || '').trim();
+    if (!rawPath || isExternalUrl(rawPath) || rawPath.startsWith('#') || rawPath.startsWith('mailto:')) {
+        return '';
+    }
+
+    const withoutHash = rawPath.split('#')[0];
+    const withoutQuery = withoutHash.split('?')[0];
+    if (!withoutQuery || path.isAbsolute(withoutQuery)) return '';
+
+    const normalized = path.posix.normalize(withoutQuery);
+    if (!normalized || normalized.startsWith('../') || normalized === '..' || path.isAbsolute(normalized)) {
+        return '';
+    }
+    return normalized;
+}
+
+function addPublicAssetPath(assetPaths, assetPath, { optional = false } = {}) {
+    const normalized = normalizePublicAssetPath(assetPath);
+    if (!normalized) return;
+    if (optional && !fs.existsSync(resolveRepoPath(normalized))) return;
+    assetPaths.add(normalized);
+}
+
+function getDerivedMiniMapImagePath(imagePath) {
+    const normalized = normalizePublicAssetPath(imagePath);
+    if (!normalized) return '';
+    const miniPath = normalized.replace(/(\.[^./?#]+)$/, '.mini.webp');
+    return miniPath === normalized ? `${normalized}.mini.webp` : miniPath;
+}
+
+function addMapImageAssetPaths(assetPaths, mapLike) {
+    if (!mapLike || typeof mapLike !== 'object') return;
+    [
+        'imageUrl',
+        'mobileImageUrl',
+        'imageUrlMobile',
+        'smallImageUrl',
+        'imageUrlSmall'
+    ].forEach((key) => {
+        const imagePath = mapLike[key];
+        addPublicAssetPath(assetPaths, imagePath);
+        addPublicAssetPath(assetPaths, getDerivedMiniMapImagePath(imagePath), { optional: true });
+    });
+
+    if (mapLike.imageVariants && typeof mapLike.imageVariants === 'object' && !Array.isArray(mapLike.imageVariants)) {
+        Object.values(mapLike.imageVariants).forEach((variantValue) => {
+            const imagePath = typeof variantValue === 'string' ? variantValue : variantValue?.url;
+            addPublicAssetPath(assetPaths, imagePath);
+            addPublicAssetPath(assetPaths, getDerivedMiniMapImagePath(imagePath), { optional: true });
+        });
+    }
+}
+
+function collectMapDocumentAssetPaths(assetPaths, dataUrl) {
+    const normalizedDataUrl = normalizePublicAssetPath(dataUrl);
+    if (!normalizedDataUrl) return;
+    const mapDocumentPath = resolveRepoPath(normalizedDataUrl);
+    if (!fs.existsSync(mapDocumentPath)) return;
+
+    const mapDocument = JSON.parse(fs.readFileSync(mapDocumentPath, 'utf8'));
+    addMapImageAssetPaths(assetPaths, mapDocument);
+}
+
+function collectPublicMapAssetFiles() {
+    const atlasIndexPath = resolveRepoPath('maps/atlas-index.json');
+    assertExists(atlasIndexPath, 'maps/atlas-index.json');
+
+    const atlasIndex = JSON.parse(fs.readFileSync(atlasIndexPath, 'utf8'));
+    const assetPaths = new Set(['maps/atlas-index.json']);
+
+    function walkNode(node) {
+        if (!node || typeof node !== 'object') return;
+        addMapImageAssetPaths(assetPaths, node);
+
+        const dataUrl = normalizePublicAssetPath(node.dataUrl);
+        if (dataUrl) {
+            addPublicAssetPath(assetPaths, dataUrl);
+            collectMapDocumentAssetPaths(assetPaths, dataUrl);
+        }
+
+        if (Array.isArray(node.children)) {
+            node.children.forEach(walkNode);
+        }
+    }
+
+    if (Array.isArray(atlasIndex.tree)) {
+        atlasIndex.tree.forEach(walkNode);
+    }
+
+    return Array.from(assetPaths).sort();
+}
+
+function copyPublicMapAssets() {
+    collectPublicMapAssetFiles().forEach(copyFile);
+}
+
 function assertForbiddenFilesAbsent() {
     const presentForbiddenFiles = forbiddenPublicFiles.filter((relativePath) => {
         return fs.existsSync(resolveOutputPath(relativePath));
@@ -105,6 +213,7 @@ function buildPagesBundle() {
     runtimeFiles.forEach(copyFile);
     runtimeAssetFiles.forEach(copyFile);
     runtimeDirectories.forEach(copyDirectory);
+    copyPublicMapAssets();
 
     fs.writeFileSync(path.join(outputDir, '.nojekyll'), '');
     removeIgnoredAssetFiles(outputDir);
@@ -153,5 +262,6 @@ if (require.main === module) {
 }
 
 module.exports = {
-    buildPagesBundle
+    buildPagesBundle,
+    collectPublicMapAssetFiles
 };

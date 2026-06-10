@@ -35,7 +35,6 @@ function evaluateLocalAccess(protocol, hostname) {
     ['http:', 'localhost'],
     ['http:', '127.0.0.1'],
     ['http:', '127.10.20.30'],
-    ['http:', '0.0.0.0'],
     ['http:', 'editor.localhost'],
     ['file:', '']
 ].forEach(([protocol, hostname]) => {
@@ -47,6 +46,7 @@ function evaluateLocalAccess(protocol, hostname) {
 [
     ['https:', 'maps.hiraeth.wiki'],
     ['https:', 'hiraeth-adventuring-information-repos.github.io'],
+    ['http:', '0.0.0.0'],
     ['http:', '192.168.1.10']
 ].forEach(([protocol, hostname]) => {
     const result = evaluateLocalAccess(protocol, hostname);

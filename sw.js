@@ -5,10 +5,15 @@ const ASSET_CACHE = `hag-assets-${VERSION}`;
 const ALL_CACHES = [SHELL_CACHE, DATA_CACHE, ASSET_CACHE];
 
 const DEFAULT_VERSIONED_SHELL_ASSETS = [
+    'css/leaflet.css',
     'css/style.css',
     'css/stars.css',
     'css/Control.MiniMap.min.css',
     'js/app-config.js',
+    'js/shared-utils.js',
+    'js/libs/leaflet.js',
+    'js/libs/lucide.min.js',
+    'js/libs/purify.min.js',
     'js/app.js',
     'js/starfield.js',
     'js/libs/Control.MiniMap.min.js',
@@ -23,8 +28,12 @@ const DEFAULT_STATIC_SHELL_ASSETS = [
     'favicon-32x32.png',
     'favicon.png',
     'apple-touch-icon.png',
+    'images/sky-background.webp',
     'images/clouds.webp',
     'images/toggle.svg',
+    'css/images/marker-icon.png',
+    'css/images/marker-icon-2x.png',
+    'css/images/marker-shadow.png',
     'images/hiraeth-maps-preview.png',
     'images/poi-icons/settlements.png',
     'images/poi-icons/structures.png',

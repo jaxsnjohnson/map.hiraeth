@@ -11,7 +11,7 @@
     <script>
         (function resolveMapEditorLocalAccess() {
             const hostname = window.location.hostname;
-            const localHostnames = new Set(["localhost", "0.0.0.0", "::1", "[::1]"]);
+            const localHostnames = new Set(["localhost", "::1", "[::1]"]);
             const isLocalAccess = window.location.protocol === "file:" ||
                 localHostnames.has(hostname) ||
                 /^127\./.test(hostname) ||
@@ -114,9 +114,8 @@
         function injectLeafletStylesheet() {
             const link = document.createElement("link");
             link.rel = "stylesheet";
-            link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-            link.integrity = "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=";
-            link.crossOrigin = "";
+            const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
+            link.href = `css/leaflet.css?v=${version}`;
             document.head.appendChild(link);
         }
 
@@ -340,12 +339,8 @@
 
             ready.then(() => {
                 appendScript(
-                    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
-                    {
-                        integrity: "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=",
-                        crossOrigin: "",
-                        onload: injectEditorScripts
-                    }
+                    `js/libs/leaflet.js?v=${encodeURIComponent(window.APP_ASSET_VERSION || "0")}`,
+                    { onload: injectEditorScripts }
                 );
             });
         })();
