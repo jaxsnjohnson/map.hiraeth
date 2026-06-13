@@ -103,3 +103,6 @@
 ## 2026-06-09 - Optimize populatePOIFilters with DocumentFragment
 **Learning:** When generating multiple elements in a loop and appending them to the live DOM, utilizing a `DocumentFragment` batches the DOM insertions, substantially mitigating costly layout thrashing and reflows.
 **Action:** When a function requires creating and appending multiple elements dynamically in a loop, always instantiate a `document.createDocumentFragment()`, append children to it during iterations, and perform a single `appendChild` to the target container once outside the loop.
+## 2025-06-10 - O(1) Allocations in Array Transformations
+**Learning:** Creating `Set` objects to extract distinct values followed by `Array.from().sort()` triggers substantial object allocation and iteration overhead compared to using native primitive loops on a null-prototype hash map. Creating Sets from Arrays via `[...new Set(array.map(...))]` takes 6-7x longer than populating `Object.create(null)` keys with a traditional `for` loop.
+**Action:** When filtering or accumulating unique distinct string items (like map feature categories or types) to build the UI, explicitly use `Object.create(null)` map lookups via simple `for` loops, then extract the values using `Object.keys()`. Eliminate `Set` construction overhead.

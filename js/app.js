@@ -4116,12 +4116,12 @@ function populatePOIFilters(pointsOfInterest) {
         poiHeader.textContent = getConfigValue('taxonomy.labels.poiTypes', 'POI Types:');
         dynamicFiltersContainer.appendChild(poiHeader);
     }
-    const relevantGroups = new Set();
-    pointsOfInterest.forEach(poi => {
-        const group = getPoiGroup(poi.type);
-        relevantGroups.add(group);
-    });
-    const sortedGroups = Array.from(relevantGroups).sort();
+    const relevantGroupsObj = Object.create(null);
+    for (let i = 0; i < pointsOfInterest.length; i++) {
+        const group = getPoiGroup(pointsOfInterest[i].type);
+        if (group !== undefined && group !== null) relevantGroupsObj[group] = true;
+    }
+    const sortedGroups = Object.keys(relevantGroupsObj).sort();
     const fragment = document.createDocumentFragment();
     sortedGroups.forEach(groupName => {
         if (!groupName || (poiTypeGroups[groupName] && poiTypeGroups[groupName].length === 0)) return;
@@ -4150,30 +4150,37 @@ function getOrGenerateRegionFilterGroups(regions, selectedMap) {
 
     // Auto-generation fallback
     if (!regionFilterGroups) {
-        const tempGroups = {};
-        regions.forEach(region => {
+        const tempGroups = Object.create(null);
+        for (let i = 0; i < regions.length; i++) {
+            const region = regions[i];
             // If region has type and value, group by type
             if (region.type && region.value) {
                 if (!tempGroups[region.type]) {
-                    tempGroups[region.type] = new Set();
+                    tempGroups[region.type] = Object.create(null);
                 }
-                tempGroups[region.type].add(region.value);
+                if (region.value !== undefined && region.value !== null) {
+                    tempGroups[region.type][region.value] = true;
+                }
             }
             // Fallback: If region just has 'type' but no 'value'
             else if (region.type && region.name) {
                 if (!tempGroups[region.type]) {
-                    tempGroups[region.type] = new Set();
+                    tempGroups[region.type] = Object.create(null);
                 }
-                tempGroups[region.type].add(region.name);
+                if (region.name !== undefined && region.name !== null) {
+                    tempGroups[region.type][region.name] = true;
+                }
                 if (!region.value) region.value = region.name;
             }
-        });
+        }
 
         // Convert Sets to Arrays for processing
-        if (Object.keys(tempGroups).length > 0) {
-            regionFilterGroups = {};
-            for (const key in tempGroups) {
-                regionFilterGroups[key] = Array.from(tempGroups[key]).sort();
+        const keys = Object.keys(tempGroups);
+        if (keys.length > 0) {
+            regionFilterGroups = Object.create(null);
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
+                regionFilterGroups[key] = Object.keys(tempGroups[key]).sort();
             }
         }
     }
@@ -4278,7 +4285,12 @@ function populateLineFilters(lines, hasPOIs, hasRegions) {
     dynamicFiltersContainer.appendChild(lineHeader);
 
     const allLines = lines;
-    const lineTypes = [...new Set(allLines.map(r => r.type || "Unnamed Road Type").filter(Boolean))].sort();
+    const typesObj = Object.create(null);
+    for (let i = 0; i < allLines.length; i++) {
+        const t = allLines[i].type || "Unnamed Road Type";
+        if (t !== undefined && t !== null) typesObj[t] = true;
+    }
+    const lineTypes = Object.keys(typesObj).sort();
 
     lineTypes.forEach(type => {
         const filterId = `filter-line-${(type || "untyped").replace(/\s+/g, '-').toLowerCase()}`;
