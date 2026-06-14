@@ -30,3 +30,6 @@
 ## 2026-06-08 - Icon-Only Button Characters Accessibility
 **Learning:** Using text characters (like '>', 'v', or '-') as makeshift icons inside buttons without explicit `aria-label` attributes results in screen readers reading the literal characters (e.g., "greater than") to users, causing confusion and poor UX.
 **Action:** When implementing icon-only buttons using text characters as symbols, always provide an explicit `aria-label` attribute to describe the action, use `aria-expanded` when acting as a toggle, and set `aria-hidden="true"` on disabled placeholder buttons that have no action.
+## 2024-06-14 - Add aria-live to utility output containers
+**Learning:** For utility outputs that receive dynamic content (like travel time or encounter results), users relying on screen readers need the updates announced automatically.
+**Action:** When creating or modifying dynamic output containers, always add `aria-live="polite"` and `aria-atomic="true"` so that the updated text is immediately accessible without requiring manual refocusing.
