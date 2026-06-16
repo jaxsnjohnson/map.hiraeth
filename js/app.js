@@ -4243,15 +4243,18 @@ function populateRegionFilters(regions, selectedMap, hasPOIs) {
     const regionFilterGroups = getOrGenerateRegionFilterGroups(regions, selectedMap);
 
     if (regionFilterGroups && Object.keys(regionFilterGroups).length > 0) {
+        // ⚡ Bolt: Batch DOM insertions using DocumentFragment to prevent costly layout thrashing and reflows.
+        const fragment = document.createDocumentFragment();
+
         if (hasPOIs) {
             const divider = document.createElement('hr');
             divider.style.margin = '10px 0';
             divider.style.borderColor = 'var(--glass-border)';
-            dynamicFiltersContainer.appendChild(divider);
+            fragment.appendChild(divider);
         }
         const regionHeader = document.createElement('h3');
         regionHeader.textContent = "Region Types:";
-        dynamicFiltersContainer.appendChild(regionHeader);
+        fragment.appendChild(regionHeader);
 
         for (const groupName in regionFilterGroups) {
             if (Object.hasOwnProperty.call(regionFilterGroups, groupName)) {
@@ -4259,26 +4262,48 @@ function populateRegionFilters(regions, selectedMap, hasPOIs) {
                 if (!Array.isArray(values) || values.length === 0) continue;
 
                 const groupContainer = createRegionFilterGroupDOM(groupName, values);
-                dynamicFiltersContainer.appendChild(groupContainer);
+                fragment.appendChild(groupContainer);
             }
         }
+        dynamicFiltersContainer.appendChild(fragment);
     }
 }
 
+// ⚡ Bolt: Cache derived unique line types by map data reference to achieve O(1) retrieval on UI updates.
+const lineTypesCache = new WeakMap();
+
 function populateLineFilters(lines, hasPOIs, hasRegions) {
+    // ⚡ Bolt: Batch DOM insertions using DocumentFragment to prevent costly layout thrashing and reflows.
+    const fragment = document.createDocumentFragment();
+
     if (hasPOIs || hasRegions) { // Add divider if other filters are present
         const divider = document.createElement('hr');
         divider.style.margin = '10px 0';
         divider.style.borderColor = 'var(--glass-border)';
-        dynamicFiltersContainer.appendChild(divider);
+        fragment.appendChild(divider);
     }
 
     const lineHeader = document.createElement('h3');
     lineHeader.textContent = "Line Types:";
-    dynamicFiltersContainer.appendChild(lineHeader);
+    fragment.appendChild(lineHeader);
 
     const allLines = lines;
-    const lineTypes = [...new Set(allLines.map(r => r.type || "Unnamed Road Type").filter(Boolean))].sort();
+    let lineTypes;
+
+    if (lineTypesCache.has(allLines)) {
+        lineTypes = lineTypesCache.get(allLines);
+    } else {
+        // ⚡ Bolt: Optimized unique value extraction using Object.create(null) instead of allocating Set instances and chained array methods.
+        const uniqueTypes = Object.create(null);
+        for (let i = 0; i < allLines.length; i++) {
+            const type = allLines[i].type || "Unnamed Road Type";
+            if (type) {
+                uniqueTypes[type] = true;
+            }
+        }
+        lineTypes = Object.keys(uniqueTypes).sort();
+        lineTypesCache.set(allLines, lineTypes);
+    }
 
     lineTypes.forEach(type => {
         const filterId = `filter-line-${(type || "untyped").replace(/\s+/g, '-').toLowerCase()}`;
@@ -4297,8 +4322,9 @@ function populateLineFilters(lines, hasPOIs, hasRegions) {
 
         div.appendChild(checkbox);
         div.appendChild(label);
-        dynamicFiltersContainer.appendChild(div);
+        fragment.appendChild(div);
     });
+    dynamicFiltersContainer.appendChild(fragment);
 }
 
 const sharedLinkOpenSessionKeys = new Set();
