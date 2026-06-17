@@ -11,6 +11,7 @@
         atlasTree: [],
         currentMapId: '',
         currentMap: null,
+        currentMapDataUrl: '',
         currentBounds: null,
         lineCollectionKey: 'lines',
         drawMode: '',
@@ -31,7 +32,8 @@
         regionLayer: null,
         lineLayer: null,
         vertexLayer: null,
-        draftLayer: null
+        draftLayer: null,
+        localSaveAvailable: false
     };
 
     const dom = {
@@ -62,6 +64,8 @@
         cancelDrawButton: document.getElementById('editor-cancel-draw-btn'),
         deleteSelectionButton: document.getElementById('editor-delete-selection-btn'),
         resetViewButton: document.getElementById('editor-reset-view-btn'),
+        saveCurrentMapButton: document.getElementById('save-current-map-btn'),
+        saveAtlasStructureButton: document.getElementById('save-atlas-structure-btn'),
         exportCurrentMapButton: document.getElementById('export-current-map-btn'),
         exportAtlasStructureButton: document.getElementById('export-atlas-structure-btn'),
         chooseMapButton: document.getElementById('editor-choose-map-btn'),
@@ -275,6 +279,19 @@
         dom.exportStatus.style.color = isError ? '#dc2626' : '';
     }
 
+    function setLocalSaveAvailability(available, message = '') {
+        state.localSaveAvailable = Boolean(available);
+        const title = state.localSaveAvailable
+            ? 'Save directly to the local map files.'
+            : (message || 'Run npm run editor to enable direct saves.');
+        [dom.saveCurrentMapButton, dom.saveAtlasStructureButton].forEach((button) => {
+            if (!button) return;
+            button.disabled = !state.localSaveAvailable;
+            button.title = title;
+            button.setAttribute('aria-disabled', String(!state.localSaveAvailable));
+        });
+    }
+
     function setMapEmptyState({ hidden, title = '', copy = '', detail = '' }) {
         dom.mapEmptyState.hidden = hidden;
 
@@ -442,6 +459,12 @@
                     ? (state.expandedFolderIds.has(item.id) ? 'v' : '>')
                     : '-';
                 toggleButton.disabled = !hasChildren;
+                if (hasChildren) {
+                    toggleButton.setAttribute('aria-expanded', state.expandedFolderIds.has(item.id) ? 'true' : 'false');
+                    toggleButton.setAttribute('aria-label', `Toggle folder: ${item.name || item.id}`);
+                } else {
+                    toggleButton.setAttribute('aria-hidden', 'true');
+                }
                 toggleButton.addEventListener('click', () => toggleFolder(item.id));
                 header.appendChild(toggleButton);
 
@@ -570,7 +593,13 @@
             const meta = type === 'points'
                 ? `${item.type || 'Point'} - ${Array.isArray(item.coords) ? item.coords.join(', ') : 'No coords'}`
                 : `${type === 'regions' ? (item.value || item.type || 'Region') : (item.type || 'Line')} - ${(Array.isArray(item.coordinates) ? item.coordinates.length : 0)} vertices`;
-            button.innerHTML = `${escapeHtml(label)}<span class="map-editor-feature-meta">${escapeHtml(meta)}</span>`;
+
+            button.textContent = label;
+            const metaSpan = document.createElement('span');
+            metaSpan.className = 'map-editor-feature-meta';
+            metaSpan.textContent = meta;
+            button.appendChild(metaSpan);
+
             button.addEventListener('click', () => selectFeature(type, index));
             dom.unifiedFeatureList.appendChild(button);
         });
@@ -1192,6 +1221,13 @@
         URL.revokeObjectURL(objectUrl);
     }
 
+    function getCurrentMapDataUrl() {
+        const formDataUrl = dom.mapSettingsInputs?.dataUrl
+            ? String(dom.mapSettingsInputs.dataUrl.value || '').trim()
+            : '';
+        return formDataUrl || String(state.currentMapDataUrl || state.currentMap?.dataUrl || '').trim();
+    }
+
     function exportCurrentMapJson() {
         if (!state.currentMap) return;
         try {
@@ -1204,12 +1240,64 @@
                 lineCollectionKey: state.lineCollectionKey,
                 mapSettings: readMapSettingsForm()
             });
-            const fileName = getExportFileName(state.currentMap.dataUrl, state.currentMap.id);
+            const fileName = getExportFileName(getCurrentMapDataUrl(), state.currentMap.id);
             downloadJsonFile(fileName, exportedDocument);
             setExportStatus(`Exported ${fileName}.`);
         } catch (error) {
             console.error(error);
             setExportStatus(error.message || 'Could not export the current map.', true);
+        }
+    }
+
+    async function saveEditorDocument(endpoint, payload) {
+        if (!state.localSaveAvailable) {
+            throw new Error('Direct saves require the local editor server. Run npm run editor.');
+        }
+
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        let result = null;
+        try {
+            result = await response.json();
+        } catch (error) {
+            result = null;
+        }
+        if (!response.ok || !result || result.ok !== true) {
+            throw new Error(result?.error || `Save failed with HTTP ${response.status}.`);
+        }
+        return result;
+    }
+
+    async function saveCurrentMapJson() {
+        if (!state.currentMap) return;
+        try {
+            const exportedDocument = utils.serializeMapDocumentState({
+                masterMapData: state.atlasTree,
+                currentMapId: state.currentMap.id,
+                collectedPoints: getCurrentPoints(),
+                collectedRegions: getCurrentRegions(),
+                collectedLines: getCurrentLines(),
+                lineCollectionKey: state.lineCollectionKey,
+                mapSettings: readMapSettingsForm()
+            });
+            const currentMapDataUrl = getCurrentMapDataUrl();
+            const fileName = getExportFileName(currentMapDataUrl, state.currentMap.id);
+            setExportStatus(`Saving ${fileName}...`);
+            const result = await saveEditorDocument('/api/editor/save-map', {
+                mapId: state.currentMap.id,
+                dataUrl: currentMapDataUrl,
+                fileName,
+                document: exportedDocument
+            });
+            setExportStatus(`Saved ${result.saved} and regenerated ${result.atlas}.`);
+        } catch (error) {
+            console.error(error);
+            setExportStatus(error.message || 'Could not save the current map.', true);
         }
     }
 
@@ -1228,6 +1316,24 @@
         }
     }
 
+    async function saveAtlasStructure() {
+        try {
+            const exportedManifest = utils.serializeFlatManifestState({
+                masterMapData: state.atlasTree,
+                currentMapId: state.currentMap?.id || '',
+                mapSettings: state.currentMap ? readMapSettingsForm() : {}
+            });
+            setExportStatus('Saving maps.json...');
+            const result = await saveEditorDocument('/api/editor/save-atlas', {
+                document: exportedManifest
+            });
+            setExportStatus(`Saved ${result.saved} and regenerated ${result.atlas}.`);
+        } catch (error) {
+            console.error(error);
+            setExportStatus(error.message || 'Could not save maps.json.', true);
+        }
+    }
+
     async function selectMap(mapId) {
         const atlasNode = utils.findMapRecursive(state.atlasTree, mapId);
         if (!atlasNode) {
@@ -1235,6 +1341,7 @@
         }
 
         state.currentMapId = mapId;
+        state.currentMapDataUrl = String(atlasNode.dataUrl || '').trim();
         clearDrawMode();
         deselectFeature();
 
@@ -1255,6 +1362,9 @@
         }
 
         state.currentMap = utils.findMapRecursive(state.atlasTree, mapId);
+        if (!state.currentMapDataUrl) {
+            state.currentMapDataUrl = String(state.currentMap?.dataUrl || '').trim();
+        }
         state.lineCollectionKey = utils.detectLineCollectionKey(state.currentMap);
         renderAtlasTree();
         renderMapSettingsForm();
@@ -1365,14 +1475,37 @@
                 dom.appShell.setAttribute('data-mode', 'select');
             });
         }
+        if (dom.saveCurrentMapButton) {
+            dom.saveCurrentMapButton.addEventListener('click', saveCurrentMapJson);
+        }
+        if (dom.saveAtlasStructureButton) {
+            dom.saveAtlasStructureButton.addEventListener('click', saveAtlasStructure);
+        }
         dom.exportCurrentMapButton.addEventListener('click', exportCurrentMapJson);
         dom.exportAtlasStructureButton.addEventListener('click', exportAtlasStructure);
+    }
+
+    async function detectLocalSaveApi() {
+        setLocalSaveAvailability(false);
+        try {
+            const response = await fetch('/api/editor/status', { cache: 'no-store' });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const payload = await response.json();
+            if (!payload || payload.saveEnabled !== true) {
+                throw new Error('Save API is not enabled.');
+            }
+            setLocalSaveAvailability(true);
+            setExportStatus('Direct saves enabled.');
+        } catch (error) {
+            setLocalSaveAvailability(false);
+        }
     }
 
     async function initializeEditor() {
         try {
             initializeMap();
             registerEventListeners();
+            detectLocalSaveApi();
 
             const atlas = await fetchJsonAsset('maps/atlas-index.json');
             if (!atlas || !Array.isArray(atlas.tree)) {
@@ -1405,7 +1538,11 @@
         } catch (error) {
             console.error(error);
             setSelectionStatus(error.message || 'Could not initialize the map editor.');
-            dom.atlasTree.innerHTML = `<p class="map-editor-placeholder">${escapeHtml(error.message || 'Initialization failed.')}</p>`;
+            dom.atlasTree.innerHTML = '';
+            const p = document.createElement('p');
+            p.className = 'map-editor-placeholder';
+            p.textContent = error.message || 'Initialization failed.';
+            dom.atlasTree.appendChild(p);
         }
     }
 

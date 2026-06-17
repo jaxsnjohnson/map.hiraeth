@@ -25,6 +25,7 @@ const path = require('path');
     global.allMapMarkers = [];
     global.allMapMarkersByName = new Map();
     global.allMapRegionsByName = new Map();
+    global.allMapLinesByName = new Map();
     global.currentMarkerGroup = {
         layers: [],
         hasLayer: function(l) { return this.layers.includes(l); },
@@ -76,6 +77,7 @@ const path = require('path');
 
     // Reset state between tests
     function resetMocks() {
+        global.allMapLinesByName.clear();
         global.allMapMarkers = [];
         global.allMapMarkersByName.clear();
         global.currentMarkerGroup.layers = [];
@@ -138,6 +140,7 @@ const path = require('path');
             popupOpened: false
         };
         global.currentRoadGroup.layers.push(mockLineLayer);
+        global.allMapLinesByName.set('Test Line', mockLineLayer);
         const resultLine = focusLine('Test Line');
         assert.equal(resultLine, true, 'focusLine should return true for found Line');
         assert.ok(mockLineLayer.popupOpened, 'Line popup should be opened');
@@ -164,6 +167,7 @@ const path = require('path');
 
         resetMocks();
         global.currentRoadGroup.layers.push(mockLineLayer);
+        global.allMapLinesByName.set('Test Line', mockLineLayer);
         searchParams = { line: 'Test Line' };
         const resultCheckLine = checkAndFocusFeature();
         assert.equal(resultCheckLine, true, 'checkAndFocusFeature should return true when Line is focused');

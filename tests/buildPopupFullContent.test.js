@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'bun:test';
-import * as fs from 'node:fs';
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
 
 const appSource = fs.readFileSync('js/app.js', 'utf8');
 
@@ -40,37 +41,37 @@ eval(`buildPopupFullContent = ${buildSource}`);
 describe('buildPopupFullContent', () => {
     it('should safely escape malicious HTML in type and value', () => {
         const result = buildPopupFullContent({ type: '<script>alert(1)</script>', value: '<b>Oops</b>' }, 'Safe description');
-        expect(result).toContain('<p><em>&lt;script&gt;alert(1)&lt;/script&gt;: &lt;b&gt;Oops&lt;/b&gt;</em></p>');
+        assert.ok(result.includes('<p><em>&lt;script&gt;alert(1)&lt;/script&gt;: &lt;b&gt;Oops&lt;/b&gt;</em></p>'));
     });
 
     it('should include region info and safe description for regions', () => {
         const result = buildPopupFullContent({ type: 'Region', value: 'North' }, 'Safe description');
-        expect(result).toContain('<p><em>Region: North</em></p>');
-        expect(result).toContain('<p>Safe description</p>');
+        assert.ok(result.includes('<p><em>Region: North</em></p>'));
+        assert.ok(result.includes('<p>Safe description</p>'));
     });
 
     it('should include POI info with capitalized type and no empty description block', () => {
         const result = buildPopupFullContent({ type: 'town' }, '');
-        expect(result).toContain('<p><em>Type: Town</em></p>');
-        expect(result).not.toContain('<p></p>');
+        assert.ok(result.includes('<p><em>Type: Town</em></p>'));
+        assert.ok(!result.includes('<p></p>'));
     });
 
     it('should include properties and safe description for data with properties', () => {
         const result = buildPopupFullContent({ type: 'road', properties: { Surface: 'Dirt', Length: '10 miles' } }, 'A long road');
-        expect(result).toContain('<p><em>Type: Road</em></p>');
-        expect(result).toContain('<strong>Surface:</strong> Dirt');
-        expect(result).toContain('<strong>Length:</strong> 10 miles');
-        expect(result).toContain('<p>A long road</p>');
+        assert.ok(result.includes('<p><em>Type: Road</em></p>'));
+        assert.ok(result.includes('<strong>Surface:</strong> Dirt'));
+        assert.ok(result.includes('<strong>Length:</strong> 10 miles'));
+        assert.ok(result.includes('<p>A long road</p>'));
     });
 
     it('should include properties and no type info if type is absent', () => {
         const result = buildPopupFullContent({ properties: { Elevation: '1000m' } }, null);
-        expect(result).toContain('<strong>Elevation:</strong> 1000m');
-        expect(result).not.toContain('<p><em>');
+        assert.ok(result.includes('<strong>Elevation:</strong> 1000m'));
+        assert.ok(!result.includes('<p><em>'));
     });
 
     it('should return empty string for empty data and no description', () => {
         const result = buildPopupFullContent({}, '');
-        expect(result).toBe('');
+        assert.equal(result, '');
     });
 });

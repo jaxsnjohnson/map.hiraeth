@@ -12,10 +12,6 @@
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin=""/>
-
     <script src="js/app-config.js"></script>
     <script>
         window.APP_ASSET_VERSION = window.AppConfig ? window.AppConfig.get("assets.version", "0") : "0";
@@ -358,6 +354,7 @@
                      <input type="checkbox" id="filter-toggle-all" checked>
                      <label for="filter-toggle-all">Show All / Hide All</label>
                  </div>
+                 <div id="dynamic-filters-container"></div>
             </div>
             <div id="route-panel" class="leaflet-control">
                 <div class="panel-header">
@@ -427,11 +424,7 @@
       Your browser does not support the audio element.
     </audio>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-        crossorigin=""></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/dompurify@3.1.7/dist/purify.min.js"></script>
+    <script src="js/libs/purify.min.js"></script>
 
     <script>
         (function loadVersionedLocalScripts() {
@@ -455,17 +448,23 @@
                     }, { once: true });
                 }
                 const scripts = window.AppConfig
-                    ? window.AppConfig.get("assets.scripts", ["js/libs/Control.MiniMap.min.js", "js/starfield.js", "js/shared-utils.js", "js/app.js"])
-                    : ["js/libs/Control.MiniMap.min.js", "js/starfield.js", "js/shared-utils.js", "js/app.js"];
+                    ? window.AppConfig.get("assets.scripts", ["js/libs/leaflet.js", "js/libs/Control.MiniMap.min.js", "js/libs/lucide.min.js", "js/starfield.js", "js/shared-utils.js", "js/app.js"])
+                    : ["js/libs/leaflet.js", "js/libs/Control.MiniMap.min.js", "js/libs/lucide.min.js", "js/starfield.js", "js/shared-utils.js", "js/app.js"];
                 const appendNext = (index) => {
                     if (index >= scripts.length) return;
                     appendScript(scripts[index], () => appendNext(index + 1));
                 };
                 appendNext(0);
             }).catch(() => {
-                appendScript("js/libs/Control.MiniMap.min.js", () => {
-                    appendScript("js/starfield.js", () => {
-                        appendScript("js/app.js");
+                appendScript("js/libs/leaflet.js", () => {
+                    appendScript("js/libs/Control.MiniMap.min.js", () => {
+                        appendScript("js/libs/lucide.min.js", () => {
+                            appendScript("js/starfield.js", () => {
+                                appendScript("js/shared-utils.js", () => {
+                                    appendScript("js/app.js");
+                                });
+                            });
+                        });
                     });
                 });
             });

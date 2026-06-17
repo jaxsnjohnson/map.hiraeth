@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'bun:test';
+const { describe, it, beforeEach, afterEach } = require('node:test');
+const assert = require('node:assert/strict');
 
 const fs = require('fs');
 const appSource = fs.readFileSync(__dirname + '/../js/app.js', 'utf8');
@@ -21,25 +22,28 @@ describe('refreshLucideIcons', () => {
     });
 
     it('should not throw an error if window.lucide is undefined', () => {
-        expect(() => refreshLucideIcons()).not.toThrow();
+        assert.doesNotThrow(() => refreshLucideIcons());
     });
 
     it('should not throw an error if window.lucide is defined but createIcons is not a function', () => {
         global.window.lucide = {};
-        expect(() => refreshLucideIcons()).not.toThrow();
+        assert.doesNotThrow(() => refreshLucideIcons());
 
         global.window.lucide.createIcons = 'not a function';
-        expect(() => refreshLucideIcons()).not.toThrow();
+        assert.doesNotThrow(() => refreshLucideIcons());
     });
 
     it('should call window.lucide.createIcons if it is a function', () => {
-        const createIconsMock = vi.fn();
+        const createIconsMock = () => {
+            createIconsMock.calls += 1;
+        };
+        createIconsMock.calls = 0;
         global.window.lucide = {
             createIcons: createIconsMock
         };
 
         refreshLucideIcons();
 
-        expect(createIconsMock).toHaveBeenCalled();
+        assert.equal(createIconsMock.calls, 1);
     });
 });

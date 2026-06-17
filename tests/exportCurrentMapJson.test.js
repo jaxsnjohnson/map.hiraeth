@@ -23,6 +23,7 @@ global.getCurrentPoints = () => [];
 global.getCurrentRegions = () => [];
 global.getCurrentLines = () => [];
 global.readMapSettingsForm = () => ({});
+global.getCurrentMapDataUrl = () => '';
 global.getExportFileName = () => 'test.json';
 global.downloadJsonFile = (name, doc) => {
     downloadJsonFileArgs = { name, doc };
@@ -55,6 +56,7 @@ function resetMocks() {
     global.getCurrentRegions = () => ['region1'];
     global.getCurrentLines = () => ['line1'];
     global.readMapSettingsForm = () => ({ bg: 'black' });
+    global.getCurrentMapDataUrl = () => 'maps/test-map-export.json';
     global.getExportFileName = (url, id) => 'test-map-export.json';
 }
 
