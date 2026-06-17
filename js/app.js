@@ -116,7 +116,7 @@ const map = L.map('map', mapOptions);
 
 let atmosphereLayer = null;
 
-// Register URL update listeners
+// Register map interaction listeners
 map.on('moveend zoomend', updateURLWithMapView);
 map.on('popupopen', refreshLucideIcons);
 let interactionCooldownId = null;
@@ -4466,9 +4466,7 @@ function buildFeatureShareUrl(type, name) {
     if (!normalizedName) return null;
 
     const url = new URL(window.location.href);
-    url.searchParams.delete('poi');
-    url.searchParams.delete('region');
-    url.searchParams.delete('line');
+    clearShareTargetSearchParams(url.searchParams);
     url.searchParams.set(normalizedType, normalizedName);
     url.searchParams.set('src', 'share');
     url.searchParams.set('stype', normalizedType);
@@ -4485,13 +4483,25 @@ function buildCurrentViewShareUrl() {
     const view = `${lat},${lng},${zoom}`;
 
     const url = new URL(window.location.href);
-    url.searchParams.delete('poi');
-    url.searchParams.delete('region');
-    url.searchParams.delete('line');
+    clearShareTargetSearchParams(url.searchParams);
     url.searchParams.set('view', view);
     url.searchParams.set('src', 'share');
     url.searchParams.set('stype', 'view');
     return url.toString();
+}
+
+function clearShareTargetSearchParams(searchParams) {
+    if (!(searchParams instanceof URLSearchParams)) return;
+    [
+        'view',
+        'poi',
+        'region',
+        'line',
+        'route',
+        'step',
+        'src',
+        'stype'
+    ].forEach((key) => searchParams.delete(key));
 }
 
 function canUseNativeShare(shareUrl) {
@@ -4836,37 +4846,22 @@ if (sidebarBackToChooserBtn) {
 }
 
 function updateURLWithMapView() {
-    // Don't update if map is not loaded or valid
+    // Keep the last active map/view in local storage without making ordinary
+    // pan/zoom interactions visible in the address bar.
     if (!map || !currentlyLoadedMapId) return;
 
     clearTimeout(viewUpdateTimeout);
     viewUpdateTimeout = setTimeout(() => {
-        // Double check in case map was unloaded during timeout
         if (!map || !currentlyLoadedMapId) return;
 
         const center = map.getCenter();
         const zoom = map.getZoom();
-
-        // Round to reasonable precision to avoid ugly URLs
         const lat = parseFloat(center.lat.toFixed(4));
         const lng = parseFloat(center.lng.toFixed(4));
-
-        const url = new URL(window.location.href);
-        const currentView = url.searchParams.get('view');
         const newView = `${lat},${lng},${zoom}`;
 
-        // Only update if changed
-        if (currentView !== newView) {
-            url.searchParams.set('view', newView);
-            saveMapView(currentlyLoadedMapId, newView);
-            safeSetStorage(UX_STORAGE_KEYS.lastMapId, currentlyLoadedMapId);
-
-            // Reconstruct URL preserving hash
-            const newUrl = `${url.pathname}${url.search}${window.location.hash}`;
-
-            // Use replaceState to avoid cluttering history
-            history.replaceState(history.state, '', newUrl);
-        }
+        saveMapView(currentlyLoadedMapId, newView);
+        safeSetStorage(UX_STORAGE_KEYS.lastMapId, currentlyLoadedMapId);
     }, 500); // 500ms debounce
 }
 
