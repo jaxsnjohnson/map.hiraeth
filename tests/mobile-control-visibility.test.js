@@ -58,16 +58,16 @@ assert.equal(mobileVisibility.showMobileSoundAction, true);
 assert.equal(mobileVisibility.showMobileMeasureAction, true);
 assert.equal(mobileVisibility.showMobileCoordsAction, true);
 assert.equal(mobileVisibility.showMobileHelpAction, true);
-assert.equal(mobileVisibility.showMobileGMAction, true);
+assert.equal(mobileVisibility.showMobileGMAction, false);
 assert.equal(mobileVisibility.showMobileRoutesAction, true);
-assert.equal(mobileVisibility.showMobileToolkitAction, true);
+assert.equal(mobileVisibility.showMobileToolkitAction, false);
 assert.equal(mobileVisibility.mobileMarkersDisabled, false);
 assert.equal(mobileVisibility.mobileFiltersDisabled, false);
 assert.equal(mobileVisibility.mobileMeasureDisabled, false);
 assert.equal(mobileVisibility.mobileCoordsDisabled, false);
-assert.equal(mobileVisibility.mobileGMDisabled, false);
+assert.equal(mobileVisibility.mobileGMDisabled, true);
 assert.equal(mobileVisibility.mobileRoutesDisabled, false);
-assert.equal(mobileVisibility.mobileToolkitDisabled, false);
+assert.equal(mobileVisibility.mobileToolkitDisabled, true);
 assert.equal(mobileVisibility.showMobileMapBlurb, false);
 
 const mobileLimitedVisibility = resolveControlVisibilityState({
@@ -120,8 +120,8 @@ assert.equal(desktopVisibility.showMobileSheetToggle, false);
 assert.equal(desktopVisibility.showMarkersButton, true);
 assert.equal(desktopVisibility.showFiltersButton, true);
 assert.equal(desktopVisibility.showRoutePanel, true);
-assert.equal(desktopVisibility.showToolkitPanel, true);
-assert.equal(desktopVisibility.showGMPill, true);
+assert.equal(desktopVisibility.showToolkitPanel, false);
+assert.equal(desktopVisibility.showGMPill, false);
 assert.equal(desktopVisibility.showMobileMapBlurb, false);
 
 const desktopLockedVisibility = resolveControlVisibilityState({

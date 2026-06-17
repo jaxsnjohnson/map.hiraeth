@@ -152,7 +152,7 @@ let multiPointTotalTooltip = null; // L.Tooltip for the total path length
 let temporaryMouseMoveLine = null; // L.Polyline for the line from last point to cursor
 let temporaryMouseMoveTooltip = null; // L.Tooltip for the temporary line's length
 
-// --- GM / Routes / Session Toolkit State ---
+// --- Routes State ---
 let gmContentVisible = false;
 let currentRoutes = [];
 let currentRoutesById = new Map(); // Bolt: O(1) lookups for routes
@@ -165,8 +165,8 @@ let lastMeasuredDistanceKm = null;
 let visiblePointsCache = [];
 let visibleRegionsCache = [];
 let visibleLinesCache = [];
-let gmPanelVisible = safeGetStorage(UX_STORAGE_KEYS.gmPanelVisible) !== 'false';
-let toolkitPanelVisible = safeGetStorage(UX_STORAGE_KEYS.toolkitPanelVisible) !== 'false';
+let gmPanelVisible = false;
+let toolkitPanelVisible = false;
 
 // --- Coordinate Display Logic ---
 const coordinateDisplay = document.getElementById('coordinate-display');
@@ -744,8 +744,8 @@ if (mapElement) {
     mapElement.appendChild(atmosphereLayer);
 }
 const toggleBlurbBtn = document.getElementById('toggle-blurb-btn');
-const toggleGMPanelBtn = document.getElementById('toggle-gm-panel-btn');
-const toggleToolkitPanelBtn = document.getElementById('toggle-toolkit-panel-btn');
+const toggleGMPanelBtn = null;
+const toggleToolkitPanelBtn = null;
 const mapBlurbElement = document.getElementById('map-blurb');
 const toggleMarkersBtn = document.getElementById('toggle-markers-btn');
 const searchControlContainer = document.getElementById('search-control-container');
@@ -811,9 +811,9 @@ const mobileSoundBtn = document.getElementById('mobile-sound-btn');
 const mobileShareViewBtn = document.getElementById('mobile-share-view-btn');
 const mobileCoordsBtn = document.getElementById('mobile-coords-btn');
 const mobileHelpBtn = document.getElementById('mobile-help-btn');
-const mobileGmViewBtn = document.getElementById('mobile-gm-view-btn');
+const mobileGmViewBtn = null;
 const mobileRoutesBtn = document.getElementById('mobile-routes-btn');
-const mobileToolkitBtn = document.getElementById('mobile-toolkit-btn');
+const mobileToolkitBtn = null;
 const onboardingCoachmark = document.getElementById('onboarding-coachmark');
 const onboardingOpenHelpBtn = document.getElementById('onboarding-open-help-btn');
 const onboardingDismissBtn = document.getElementById('onboarding-dismiss-btn');
@@ -828,7 +828,7 @@ const lightAmbient = document.getElementById('light-ambient');
 const darkAmbient = document.getElementById('dark-ambient');
 const toggleSoundBtn = document.getElementById('toggle-sound-btn');
 const soundIcon = document.getElementById('sound-icon');
-// New route / toolkit DOM
+// Route panel DOM
 const routePanel = document.getElementById('route-panel');
 const routeSelect = document.getElementById('route-select');
 const routeStartBtn = document.getElementById('route-start-btn');
@@ -836,19 +836,19 @@ const routeResetBtn = document.getElementById('route-reset-btn');
 const routeCollapseBtn = document.getElementById('route-collapse-btn');
 const routeStepList = document.getElementById('route-step-list');
 const routeCountBadge = document.getElementById('route-count-badge');
-const sessionToolkitPanel = document.getElementById('session-toolkit');
-const toolkitCollapseBtn = document.getElementById('toolkit-collapse-btn');
-const gmPill = document.getElementById('gm-pill');
-const gmStatusLabel = document.getElementById('gm-status-label');
-const gmToggleBtn = document.getElementById('gm-toggle-btn');
-const travelDistanceInput = document.getElementById('travel-distance-input');
-const travelModeSelect = document.getElementById('travel-mode-select');
-const travelTimeOutput = document.getElementById('travel-time-output');
-const encounterSelect = document.getElementById('encounter-select');
-const encounterRollBtn = document.getElementById('encounter-roll-btn');
-const encounterViewBtn = document.getElementById('encounter-view-btn');
-const encounterResult = document.getElementById('encounter-result');
-const encounterTableList = document.getElementById('encounter-table-list');
+const sessionToolkitPanel = null;
+const toolkitCollapseBtn = null;
+const gmPill = null;
+const gmStatusLabel = null;
+const gmToggleBtn = null;
+const travelDistanceInput = null;
+const travelModeSelect = null;
+const travelTimeOutput = null;
+const encounterSelect = null;
+const encounterRollBtn = null;
+const encounterViewBtn = null;
+const encounterResult = null;
+const encounterTableList = null;
 const rootElement = document.documentElement;
 let soundEnabled = false;
 let themePreference = 'system';
@@ -1007,7 +1007,8 @@ function resolveControlVisibilityState({
     const showAdvanced = advancedControls && !isEmbedded;
     const showMobileSheet = isMobileLayout && !isEmbedded;
     const showMobileCoreUtility = showMobileSheet;
-    const showMobileToolkit = showMobileSheet && allowGMToolkit && featureEnabled('sessionToolkit', true);
+    const showMobileGM = showMobileSheet && allowGMToolkit && featureEnabled('gmMode', false);
+    const showMobileToolkit = showMobileSheet && allowGMToolkit && featureEnabled('sessionToolkit', false);
     const showMobileRoutes = showMobileSheet && routeCount > 0 && featureEnabled('routes', true);
 
     return {
@@ -1022,11 +1023,11 @@ function resolveControlVisibilityState({
         showBlurbButton: showAdvanced && hasBlurb && !isMobileLayout,
         showCoordsButton: featureEnabled('coordinates', true) && showAdvanced && hasLatLonBounds && !isMobileLayout,
         showShareButton: featureEnabled('shareLinks', true) && showAdvanced && !isMobileLayout,
-        showGMButton: showAdvanced && allowGMToolkit && !isMobileLayout,
-        showToolkitButton: featureEnabled('sessionToolkit', true) && showAdvanced && allowGMToolkit && !isMobileLayout,
+        showGMButton: featureEnabled('gmMode', false) && showAdvanced && allowGMToolkit && !isMobileLayout,
+        showToolkitButton: featureEnabled('sessionToolkit', false) && showAdvanced && allowGMToolkit && !isMobileLayout,
         showRoutePanel: featureEnabled('routes', true) && routeCount > 0 && !isEmbedded && !isMobileLayout,
-        showToolkitPanel: featureEnabled('sessionToolkit', true) && allowGMToolkit && toolkitVisible && !isMobileLayout,
-        showGMPill: allowGMToolkit && gmVisible && !isMobileLayout,
+        showToolkitPanel: featureEnabled('sessionToolkit', false) && allowGMToolkit && toolkitVisible && !isMobileLayout,
+        showGMPill: featureEnabled('gmMode', false) && allowGMToolkit && gmVisible && !isMobileLayout,
         showMobileExploreMode: showMobileSheet,
         showMobileMapMode: showMobileSheet,
         showMobileMapList: showMobileSheet,
@@ -1038,7 +1039,7 @@ function resolveControlVisibilityState({
         showMobileSoundAction: featureEnabled('sound', true) && showMobileCoreUtility,
         showMobileCoordsAction: featureEnabled('coordinates', true) && showMobileCoreUtility && hasLatLonBounds,
         showMobileHelpAction: showMobileCoreUtility,
-        showMobileGMAction: showMobileToolkit,
+        showMobileGMAction: showMobileGM,
         showMobileRoutesAction: showMobileRoutes,
         showMobileToolkitAction: showMobileToolkit,
         showMobileMapBlurb: false,
@@ -1049,9 +1050,9 @@ function resolveControlVisibilityState({
         mobileSoundDisabled: false,
         mobileCoordsDisabled: !hasLatLonBounds,
         mobileHelpDisabled: false,
-        mobileGMDisabled: !allowGMToolkit,
+        mobileGMDisabled: !showMobileGM,
         mobileRoutesDisabled: routeCount <= 0,
-        mobileToolkitDisabled: !allowGMToolkit
+        mobileToolkitDisabled: !showMobileToolkit
     };
 }
 
@@ -1131,7 +1132,7 @@ function syncMobileToolPanelButtonState() {
 }
 
 function setMobileToolsPanelMode(mode = null) {
-    mobileToolsPanelMode = [MOBILE_TOOLS_PANEL_ROUTES, MOBILE_TOOLS_PANEL_TOOLKIT, MOBILE_TOOLS_PANEL_GM].includes(mode) ? mode : null;
+    mobileToolsPanelMode = [MOBILE_TOOLS_PANEL_ROUTES].includes(mode) ? mode : null;
     if (!isMobileLayoutActive || !mobileToolsPanelSlot) {
         restoreMobileToolPanels();
         syncMobileToolPanelButtonState();
@@ -1145,10 +1146,6 @@ function setMobileToolsPanelMode(mode = null) {
     let mounted = false;
     if (mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES) {
         mounted = mountMobileToolPanel(routePanel, 'block');
-    } else if (mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT) {
-        mounted = mountMobileToolPanel(sessionToolkitPanel, 'block');
-    } else if (mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM) {
-        mounted = mountMobileToolPanel(gmPill, 'flex');
     }
 
     mobileToolsPanelSlot.hidden = !mounted;
@@ -2163,7 +2160,7 @@ function isPublicHost() {
 }
 
 function canAccessGMToolkit() {
-    if (!getFeatureFlag('gmMode', true)) return false;
+    if (!getFeatureFlag('gmMode', false)) return false;
     const policy = String(getConfigValue('security.gmToolkitPolicy', 'local-only')).toLowerCase();
     if (policy === 'public') return true;
     if (policy === 'disabled') return false;
@@ -2174,7 +2171,7 @@ function setGMVisibility(enabled, source = 'manual') {
     gmContentVisible = !!enabled;
     safeSetStorage(UX_STORAGE_KEYS.gmUnlocked, gmContentVisible ? 'true' : 'false');
     if (gmStatusLabel) {
-        gmStatusLabel.textContent = `GM View: ${gmContentVisible ? 'On' : 'Off'}`;
+        gmStatusLabel.textContent = gmContentVisible ? 'GM content enabled' : 'GM content disabled';
     }
     if (gmPill) {
         gmPill.classList.toggle('active', gmContentVisible);
@@ -2205,18 +2202,7 @@ function setAuxPanelVisible(panelEl, visible, displayMode = 'block') {
 }
 
 function updatePanelToggleButtons() {
-    if (toggleGMPanelBtn) {
-        toggleGMPanelBtn.classList.toggle('active', gmPanelVisible);
-        toggleGMPanelBtn.setAttribute('aria-pressed', gmPanelVisible ? 'true' : 'false');
-        toggleGMPanelBtn.title = gmPanelVisible ? 'Hide GM View Panel' : 'Show GM View Panel';
-        toggleGMPanelBtn.setAttribute('aria-label', gmPanelVisible ? 'Hide GM View Panel' : 'Show GM View Panel');
-    }
-    if (toggleToolkitPanelBtn) {
-        toggleToolkitPanelBtn.classList.toggle('active', toolkitPanelVisible);
-        toggleToolkitPanelBtn.setAttribute('aria-pressed', toolkitPanelVisible ? 'true' : 'false');
-        toggleToolkitPanelBtn.title = toolkitPanelVisible ? 'Hide Session Toolkit Panel' : 'Show Session Toolkit Panel';
-        toggleToolkitPanelBtn.setAttribute('aria-label', toolkitPanelVisible ? 'Hide Session Toolkit Panel' : 'Show Session Toolkit Panel');
-    }
+    // GM and session toolkit controls were removed; keep this as a no-op for older call sites.
 }
 
 function initializeGMVisibility() {
@@ -3254,44 +3240,6 @@ if (routeCollapseBtn) {
         setPanelCollapsed(routePanel, routeCollapseBtn, collapsed, UX_STORAGE_KEYS.routePanelCollapsed);
     });
 }
-if (toolkitCollapseBtn) {
-    toolkitCollapseBtn.addEventListener('click', () => {
-        const collapsed = !sessionToolkitPanel.classList.contains('collapsed');
-        setPanelCollapsed(sessionToolkitPanel, toolkitCollapseBtn, collapsed, UX_STORAGE_KEYS.toolkitPanelCollapsed);
-    });
-}
-
-if (gmToggleBtn) {
-    gmToggleBtn.addEventListener('click', () => {
-        if (!canAccessGMToolkit()) return;
-        if (!gmContentVisible && !isLocalHost()) {
-            const pass = prompt('Enter GM passphrase (leave blank to cancel):', '');
-            if (!pass) return;
-        }
-        setGMVisibility(!gmContentVisible, 'toggle_button');
-    });
-}
-if (toggleGMPanelBtn) {
-    toggleGMPanelBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (!canAccessGMToolkit()) return;
-        unlockAdvancedControls('gm_panel_toggle');
-        gmPanelVisible = !gmPanelVisible;
-        safeSetStorage(UX_STORAGE_KEYS.gmPanelVisible, gmPanelVisible ? 'true' : 'false');
-        updateCurrentControlVisibility();
-    });
-}
-if (toggleToolkitPanelBtn) {
-    toggleToolkitPanelBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (!canAccessGMToolkit()) return;
-        unlockAdvancedControls('toolkit_panel_toggle');
-        toolkitPanelVisible = !toolkitPanelVisible;
-        safeSetStorage(UX_STORAGE_KEYS.toolkitPanelVisible, toolkitPanelVisible ? 'true' : 'false');
-        updateCurrentControlVisibility();
-    });
-}
-
 if (encounterRollBtn) {
     encounterRollBtn.addEventListener('click', () => {
         rollEncounter();
@@ -3912,7 +3860,7 @@ function resetRoute() {
     updateRouteUrl(null, null);
 }
 
-// --- Session Toolkit Helpers ---
+// --- Encounter and Travel Helpers ---
 function updateEncounterSelect() {
     if (!encounterSelect) return;
     encounterSelect.innerHTML = '';
@@ -6326,18 +6274,6 @@ if (mobileHelpBtn) {
     });
 }
 
-if (mobileGmViewBtn) {
-    mobileGmViewBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        if (mobileGmViewBtn.hidden || mobileGmViewBtn.disabled || !canAccessGMToolkit()) return;
-        unlockAdvancedControls('mobile_gm_panel');
-        openMobileToolsPanel({
-            panelMode: mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM ? null : MOBILE_TOOLS_PANEL_GM,
-            triggerButton: mobileGmViewBtn
-        });
-    });
-}
-
 if (mobileRoutesBtn) {
     mobileRoutesBtn.addEventListener('click', (event) => {
         event.stopPropagation();
@@ -6346,18 +6282,6 @@ if (mobileRoutesBtn) {
         openMobileToolsPanel({
             panelMode: mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES ? null : MOBILE_TOOLS_PANEL_ROUTES,
             triggerButton: mobileRoutesBtn
-        });
-    });
-}
-
-if (mobileToolkitBtn) {
-    mobileToolkitBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        if (mobileToolkitBtn.hidden || mobileToolkitBtn.disabled || !canAccessGMToolkit()) return;
-        unlockAdvancedControls('mobile_toolkit_panel');
-        openMobileToolsPanel({
-            panelMode: mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT ? null : MOBILE_TOOLS_PANEL_TOOLKIT,
-            triggerButton: mobileToolkitBtn
         });
     });
 }

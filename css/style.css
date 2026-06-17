@@ -1089,8 +1089,6 @@ html.embedded-view #toggle-sidebar-btn,
 html.embedded-view #bottom-link-bar,
 html.embedded-view #wip-popup,
 html.embedded-view #toggle-blurb-btn,
-html.embedded-view #toggle-gm-panel-btn,
-html.embedded-view #toggle-toolkit-panel-btn,
 html.embedded-view #toggle-sound-btn {
     display: none !important;
 }
@@ -1648,10 +1646,6 @@ body.embedded-view #share-relay-coachmark {
 #toggle-blurb-btn.active {
     background-color: var(--active-bg);
 }
-#toggle-gm-panel-btn.active,
-#toggle-toolkit-panel-btn.active {
-    background-color: var(--active-bg);
-}
 /* --- END CORRECTION --- */
 
 :root[data-theme="dark"] .map-control-button {
@@ -2000,8 +1994,8 @@ body.embedded-view #share-relay-coachmark {
 }
 /* --- END: Search Results Container --- */
 
-/* --- Route, GM, Toolkit Panels --- */
-#route-panel, #session-toolkit, #gm-pill {
+/* --- Route Panel --- */
+#route-panel {
     position: absolute;
     right: 10px;
     z-index: 1001;
@@ -2014,35 +2008,12 @@ body.embedded-view #share-relay-coachmark {
     box-shadow: 0 6px 20px var(--shadow-color);
     color: var(--text-primary);
 }
-:root[data-theme="dark"] #route-panel,
-:root[data-theme="dark"] #session-toolkit,
-:root[data-theme="dark"] #gm-pill {
+:root[data-theme="dark"] #route-panel {
     background: var(--glass-bg-dark);
     border-color: var(--glass-border-dark);
 }
 
-#gm-pill {
-    top: 44px;
-    right: 50px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 10px;
-    user-select: none;
-}
-#gm-pill.dragging { opacity: 0.92; }
-.gm-drag-handle { cursor: move; }
-#gm-pill button { padding: 4px 8px; border-radius: 4px; border: 1px solid var(--glass-border-light); background: var(--bg-secondary); cursor: pointer; }
-:root[data-theme="dark"] #gm-pill button { border-color: var(--glass-border-dark); }
-
 #route-panel { top: 64px; width: 260px; }
-#session-toolkit {
-    top: 78px;
-    right: 50px;
-    left: auto;
-    bottom: auto;
-    width: 300px;
-}
 
 .panel-header {
     display: flex;
@@ -2053,16 +2024,6 @@ body.embedded-view #share-relay-coachmark {
 }
 .panel-actions button { padding: 4px 8px; border-radius: 4px; border: 1px solid var(--glass-border-light); background: var(--bg-secondary); cursor: pointer; }
 :root[data-theme="dark"] .panel-actions button { border-color: var(--glass-border-dark); }
-#toolkit-collapse-btn {
-    padding: 4px 8px;
-    border-radius: 4px;
-    border: 1px solid var(--glass-border-light);
-    background: var(--bg-secondary);
-    cursor: pointer;
-}
-:root[data-theme="dark"] #toolkit-collapse-btn {
-    border-color: var(--glass-border-dark);
-}
 
 .pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 0.8rem; border: 1px solid var(--glass-border-light); }
 .pill.muted { color: var(--text-secondary); }
@@ -2072,7 +2033,7 @@ body.embedded-view #share-relay-coachmark {
 .stacked-list .list-item.active { border-color: var(--text-secondary); background: var(--highlight-bg); }
 :root[data-theme="dark"] .stacked-list .list-item { border-color: var(--glass-border-dark); }
 
-#route-select, #travel-distance-input, #travel-mode-select, #encounter-select {
+#route-select {
     width: 100%;
     box-sizing: border-box;
     margin-bottom: 8px;
@@ -2082,35 +2043,8 @@ body.embedded-view #share-relay-coachmark {
     background: var(--bg-secondary);
     color: var(--text-primary);
 }
-:root[data-theme="dark"] #route-select,
-:root[data-theme="dark"] #travel-distance-input,
-:root[data-theme="dark"] #travel-mode-select,
-:root[data-theme="dark"] #encounter-select {
+:root[data-theme="dark"] #route-select {
     border-color: var(--glass-border-dark);
-}
-
-.tool-block { margin-bottom: 10px; padding: 8px; border-radius: 6px; border: 1px dashed var(--glass-border-light); background: var(--bg-secondary); }
-:root[data-theme="dark"] .tool-block { border-color: var(--glass-border-dark); }
-.tool-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-.tool-row label { flex: 1; font-size: 0.9rem; }
-.tool-row input, .tool-row select { flex: 1.2; }
-.tool-output { font-size: 0.95rem; color: var(--text-primary); }
-
-#encounter-result { min-height: 32px; }
-#encounter-table-list {
-    margin-top: 8px;
-    max-height: 180px;
-    overflow-y: auto;
-}
-#encounter-table-list .list-item {
-    cursor: default;
-    font-size: 0.88rem;
-}
-#encounter-table-list .encounter-weight {
-    display: inline-block;
-    min-width: 28px;
-    color: var(--text-secondary);
-    font-weight: 700;
 }
 
 .badge-kind {
@@ -2128,22 +2062,12 @@ body.embedded-view #share-relay-coachmark {
 #route-panel.collapsed #route-step-list {
     display: none;
 }
-#session-toolkit.collapsed .tool-block {
-    display: none;
-}
 
 @media (max-width: 900px) {
     #route-panel {
         right: 6px;
         width: 220px;
     }
-    #session-toolkit {
-        right: 50px;
-        left: auto;
-        top: 78px;
-        width: min(320px, calc(100vw - 16px));
-    }
-    #gm-pill { right: 50px; top: 44px; }
 }
 
 #active-filters-container {
@@ -2887,8 +2811,6 @@ html.mobile-layout-v2.map-interacting #search-control-container,
 html.mobile-layout-v2.map-interacting #search-results-container,
 html.mobile-layout-v2.map-interacting #poi-filter-container,
 html.mobile-layout-v2.map-interacting #route-panel,
-html.mobile-layout-v2.map-interacting #session-toolkit,
-html.mobile-layout-v2.map-interacting #gm-pill,
 html.mobile-layout-v2.map-interacting #map-blurb {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
@@ -3401,9 +3323,7 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         border-top: 1px solid color-mix(in srgb, var(--mobile-card-border) 72%, transparent) !important;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #route-panel.mobile-tools-mounted,
-    html.mobile-layout-v2.is-mobile-layout #session-toolkit.mobile-tools-mounted,
-    html.mobile-layout-v2.is-mobile-layout #gm-pill.mobile-tools-mounted {
+    html.mobile-layout-v2.is-mobile-layout #route-panel.mobile-tools-mounted {
         position: static !important;
         width: 100% !important;
         max-width: none !important;
@@ -3416,16 +3336,9 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         -webkit-backdrop-filter: none !important;
     }
 
-    html.mobile-layout-v2.is-mobile-layout #route-panel.mobile-tools-mounted,
-    html.mobile-layout-v2.is-mobile-layout #session-toolkit.mobile-tools-mounted {
+    html.mobile-layout-v2.is-mobile-layout #route-panel.mobile-tools-mounted {
         padding: 10px !important;
         overflow: visible !important;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #gm-pill.mobile-tools-mounted {
-        align-items: center !important;
-        justify-content: space-between !important;
-        padding: 9px 10px !important;
     }
 
     html.mobile-layout-v2.is-mobile-layout #map-blurb {
