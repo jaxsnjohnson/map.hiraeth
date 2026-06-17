@@ -1,0 +1,13 @@
+{
+    "id": "OLD-map-of-south-eastern-fair",
+    "name": "South Eastern Fair",
+    "width": 3732,
+    "height": 2876,
+    "imageUrl": "maps/OLD-map-of-south-eastern-fair.webp",
+    "scalePixels": 1,
+    "scaleKilometers": 1,
+  "blurb": "This map was made in 2018 for the OG Collage D&D group for adventures in Triwater.",
+  "selectorDescription": "A 2018 South Eastern Fair map for the Triwater adventures.",
+    "pointsOfInterest": [],
+    "regions": []
+}
