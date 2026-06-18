@@ -733,7 +733,6 @@ const mobileToolsLauncherBtn = document.getElementById('mobile-tools-launcher-bt
 const mobileSheetLauncherBtn = document.getElementById('mobile-sheet-launcher-btn');
 const mobileSearchLauncherBtn = document.getElementById('mobile-search-launcher-btn');
 const themeToggle = document.getElementById('theme-checkbox');
-const themeSwitchWrapper = themeToggle ? themeToggle.closest('.theme-switch-wrapper') : null;
 const bodyElement = document.body;
 const mapElement = document.getElementById('map'); // Get map div
 const mapContainerElement = document.getElementById('map-container');
