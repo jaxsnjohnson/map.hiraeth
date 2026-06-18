@@ -103,6 +103,13 @@
 ## 2026-06-09 - Optimize populatePOIFilters with DocumentFragment
 **Learning:** When generating multiple elements in a loop and appending them to the live DOM, utilizing a `DocumentFragment` batches the DOM insertions, substantially mitigating costly layout thrashing and reflows.
 **Action:** When a function requires creating and appending multiple elements dynamically in a loop, always instantiate a `document.createDocumentFragment()`, append children to it during iterations, and perform a single `appendChild` to the target container once outside the loop.
+## 2025-06-16 - O(1) Unique Array Extractions via Object Map
+**Learning:** Converting an array of strings into unique values by doing `[...new Set(array.map(..).filter(..))]` executes three redundant O(N) allocations. Using `new Set()` involves significant overhead compared to plain object key assignment.
+**Action:** When extracting unique values from a string array in a hot path, replace the `Set` allocation and chained array methods with a single loop and an `Object.create(null)` map to eliminate unnecessary object instantiation.
+## 2025-06-16 - O(1) Derivation Cache via WeakMap
+**Learning:** When deriving arrays (like a unique list of line types) from a larger reference dataset (like an array of lines), repeating the extraction logic on every UI update wastes CPU cycles if the source dataset hasn't changed.
+**Action:** Cache the derived results in a `WeakMap` keyed by the immutable source reference dataset. This guarantees O(1) retrieval on subsequent renders and prevents memory leaks since the cache allows the reference data to be garbage collected.
+
 ## 2025-06-10 - Optimize search results DOM insertions with DocumentFragment
 **Learning:** When evaluating DOM optimization techniques like `DocumentFragment` vs `appendChild`, micro-benchmarks on isolated containers (e.g., via jsdom or basic HTML pages) often show negligible differences or even slight regressions (like the -4.09% observed). The real performance benefit of `DocumentFragment` minimizing repaints and reflows is best observed when appending to an active, connected DOM with complex CSS rendering rules in a real browser.
 **Action:** Always write the DocumentFragment optimization for batch UI updates, but recognize when to benchmark. If a micro-benchmark using JSDOM regressions, document the rationale explaining that the actual win happens in the connected rendering pipeline.
