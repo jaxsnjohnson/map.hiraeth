@@ -32,5 +32,5 @@
 **Action:** When implementing icon-only buttons using text characters as symbols, always provide an explicit `aria-label` attribute to describe the action, use `aria-expanded` when acting as a toggle, and set `aria-hidden="true"` on disabled placeholder buttons that have no action.
 
 ## 2024-05-24 - Add aria-live to dynamic utility outputs
-**Learning:** Screen readers will not announce dynamic text updates in utility output containers (like travel time or encounter results) unless `aria-live="polite"` and `aria-atomic="true"` are added to the target elements.
-**Action:** When creating containers for dynamic text updates injected via JavaScript, always add `aria-live="polite"` and `aria-atomic="true"`.
+**Learning:** Screen readers will not announce dynamic text updates in utility output containers unless aria-live="polite" and aria-atomic="true" are added to the target elements.
+**Action:** When creating containers for dynamic text updates injected via JavaScript, always add aria-live="polite" and aria-atomic="true".

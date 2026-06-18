@@ -82,7 +82,6 @@ const MOBILE_TOOLS_PANEL_GM = 'gm';
 const MOBILE_LAYOUT_QUERY_PARAM = 'mobileLayout';
 const MOBILE_LAYOUT_MODE_V2 = 'v2';
 const MOBILE_LAYOUT_MODE_LEGACY = 'legacy';
-const MOBILE_PANEL_MARGIN = 10;
 
 if (typeof document !== 'undefined') {
     document.documentElement.classList.toggle('is-firefox', isFirefox);
@@ -116,7 +115,7 @@ const map = L.map('map', mapOptions);
 
 let atmosphereLayer = null;
 
-// Register URL update listeners
+// Register map interaction listeners
 map.on('moveend zoomend', updateURLWithMapView);
 map.on('popupopen', refreshLucideIcons);
 let interactionCooldownId = null;
@@ -147,12 +146,12 @@ let isMeasuringMultiPoint = false; // Tracks if multi-point mode is active
 let multiPointPath = []; // Array of L.LatLng objects for the current path
 let multiPointPolyline = null; // The L.Polyline layer for the drawn path
 let multiPointVertexMarkers = []; // Array of L.CircleMarker for vertices
-let multiPointSegmentTooltips = []; // Array of L.Tooltip for segment lengths (optional)
 let multiPointTotalTooltip = null; // L.Tooltip for the total path length
+let cachedMultiPointPixelDistance = 0; // Cached total distance of fixed segments
 let temporaryMouseMoveLine = null; // L.Polyline for the line from last point to cursor
 let temporaryMouseMoveTooltip = null; // L.Tooltip for the temporary line's length
 
-// --- GM / Routes / Session Toolkit State ---
+// --- Routes State ---
 let gmContentVisible = false;
 let currentRoutes = [];
 let currentRoutesById = new Map(); // Bolt: O(1) lookups for routes
@@ -165,8 +164,8 @@ let lastMeasuredDistanceKm = null;
 let visiblePointsCache = [];
 let visibleRegionsCache = [];
 let visibleLinesCache = [];
-let gmPanelVisible = safeGetStorage(UX_STORAGE_KEYS.gmPanelVisible) !== 'false';
-let toolkitPanelVisible = safeGetStorage(UX_STORAGE_KEYS.toolkitPanelVisible) !== 'false';
+let gmPanelVisible = false;
+let toolkitPanelVisible = false;
 
 // --- Coordinate Display Logic ---
 const coordinateDisplay = document.getElementById('coordinate-display');
@@ -657,7 +656,6 @@ let currentSidebarState = 'o';
 let markersVisible = true; // <--- THIS SHOULD BE TRUE FOR VISIBLE BY DEFAULT
 let currentLatLonBounds = null;
 let coordsLocked = false;
-let lockedCoords = null;
 const transitionDuration = 300; // ms for sidebar animation
 let filtersPanelVisible = false; // State for combined filter panel visibility
 
@@ -733,7 +731,6 @@ const mobileToolsLauncherBtn = document.getElementById('mobile-tools-launcher-bt
 const mobileSheetLauncherBtn = document.getElementById('mobile-sheet-launcher-btn');
 const mobileSearchLauncherBtn = document.getElementById('mobile-search-launcher-btn');
 const themeToggle = document.getElementById('theme-checkbox');
-const themeSwitchWrapper = themeToggle ? themeToggle.closest('.theme-switch-wrapper') : null;
 const bodyElement = document.body;
 const mapElement = document.getElementById('map'); // Get map div
 const mapContainerElement = document.getElementById('map-container');
@@ -744,8 +741,8 @@ if (mapElement) {
     mapElement.appendChild(atmosphereLayer);
 }
 const toggleBlurbBtn = document.getElementById('toggle-blurb-btn');
-const toggleGMPanelBtn = document.getElementById('toggle-gm-panel-btn');
-const toggleToolkitPanelBtn = document.getElementById('toggle-toolkit-panel-btn');
+const toggleGMPanelBtn = null;
+const toggleToolkitPanelBtn = null;
 const mapBlurbElement = document.getElementById('map-blurb');
 const toggleMarkersBtn = document.getElementById('toggle-markers-btn');
 const searchControlContainer = document.getElementById('search-control-container');
@@ -811,9 +808,9 @@ const mobileSoundBtn = document.getElementById('mobile-sound-btn');
 const mobileShareViewBtn = document.getElementById('mobile-share-view-btn');
 const mobileCoordsBtn = document.getElementById('mobile-coords-btn');
 const mobileHelpBtn = document.getElementById('mobile-help-btn');
-const mobileGmViewBtn = document.getElementById('mobile-gm-view-btn');
+const mobileGmViewBtn = null;
 const mobileRoutesBtn = document.getElementById('mobile-routes-btn');
-const mobileToolkitBtn = document.getElementById('mobile-toolkit-btn');
+const mobileToolkitBtn = null;
 const onboardingCoachmark = document.getElementById('onboarding-coachmark');
 const onboardingOpenHelpBtn = document.getElementById('onboarding-open-help-btn');
 const onboardingDismissBtn = document.getElementById('onboarding-dismiss-btn');
@@ -828,7 +825,7 @@ const lightAmbient = document.getElementById('light-ambient');
 const darkAmbient = document.getElementById('dark-ambient');
 const toggleSoundBtn = document.getElementById('toggle-sound-btn');
 const soundIcon = document.getElementById('sound-icon');
-// New route / toolkit DOM
+// Route panel DOM
 const routePanel = document.getElementById('route-panel');
 const routeSelect = document.getElementById('route-select');
 const routeStartBtn = document.getElementById('route-start-btn');
@@ -836,19 +833,19 @@ const routeResetBtn = document.getElementById('route-reset-btn');
 const routeCollapseBtn = document.getElementById('route-collapse-btn');
 const routeStepList = document.getElementById('route-step-list');
 const routeCountBadge = document.getElementById('route-count-badge');
-const sessionToolkitPanel = document.getElementById('session-toolkit');
-const toolkitCollapseBtn = document.getElementById('toolkit-collapse-btn');
-const gmPill = document.getElementById('gm-pill');
-const gmStatusLabel = document.getElementById('gm-status-label');
-const gmToggleBtn = document.getElementById('gm-toggle-btn');
-const travelDistanceInput = document.getElementById('travel-distance-input');
-const travelModeSelect = document.getElementById('travel-mode-select');
-const travelTimeOutput = document.getElementById('travel-time-output');
-const encounterSelect = document.getElementById('encounter-select');
-const encounterRollBtn = document.getElementById('encounter-roll-btn');
-const encounterViewBtn = document.getElementById('encounter-view-btn');
-const encounterResult = document.getElementById('encounter-result');
-const encounterTableList = document.getElementById('encounter-table-list');
+const sessionToolkitPanel = null;
+const toolkitCollapseBtn = null;
+const gmPill = null;
+const gmStatusLabel = null;
+const gmToggleBtn = null;
+const travelDistanceInput = null;
+const travelModeSelect = null;
+const travelTimeOutput = null;
+const encounterSelect = null;
+const encounterRollBtn = null;
+const encounterViewBtn = null;
+const encounterResult = null;
+const encounterTableList = null;
 const rootElement = document.documentElement;
 let soundEnabled = false;
 let themePreference = 'system';
@@ -1007,7 +1004,8 @@ function resolveControlVisibilityState({
     const showAdvanced = advancedControls && !isEmbedded;
     const showMobileSheet = isMobileLayout && !isEmbedded;
     const showMobileCoreUtility = showMobileSheet;
-    const showMobileToolkit = showMobileSheet && allowGMToolkit && featureEnabled('sessionToolkit', true);
+    const showMobileGM = showMobileSheet && allowGMToolkit && featureEnabled('gmMode', false);
+    const showMobileToolkit = showMobileSheet && allowGMToolkit && featureEnabled('sessionToolkit', false);
     const showMobileRoutes = showMobileSheet && routeCount > 0 && featureEnabled('routes', true);
 
     return {
@@ -1022,11 +1020,11 @@ function resolveControlVisibilityState({
         showBlurbButton: showAdvanced && hasBlurb && !isMobileLayout,
         showCoordsButton: featureEnabled('coordinates', true) && showAdvanced && hasLatLonBounds && !isMobileLayout,
         showShareButton: featureEnabled('shareLinks', true) && showAdvanced && !isMobileLayout,
-        showGMButton: showAdvanced && allowGMToolkit && !isMobileLayout,
-        showToolkitButton: featureEnabled('sessionToolkit', true) && showAdvanced && allowGMToolkit && !isMobileLayout,
+        showGMButton: featureEnabled('gmMode', false) && showAdvanced && allowGMToolkit && !isMobileLayout,
+        showToolkitButton: featureEnabled('sessionToolkit', false) && showAdvanced && allowGMToolkit && !isMobileLayout,
         showRoutePanel: featureEnabled('routes', true) && routeCount > 0 && !isEmbedded && !isMobileLayout,
-        showToolkitPanel: featureEnabled('sessionToolkit', true) && allowGMToolkit && toolkitVisible && !isMobileLayout,
-        showGMPill: allowGMToolkit && gmVisible && !isMobileLayout,
+        showToolkitPanel: featureEnabled('sessionToolkit', false) && allowGMToolkit && toolkitVisible && !isMobileLayout,
+        showGMPill: featureEnabled('gmMode', false) && allowGMToolkit && gmVisible && !isMobileLayout,
         showMobileExploreMode: showMobileSheet,
         showMobileMapMode: showMobileSheet,
         showMobileMapList: showMobileSheet,
@@ -1038,7 +1036,7 @@ function resolveControlVisibilityState({
         showMobileSoundAction: featureEnabled('sound', true) && showMobileCoreUtility,
         showMobileCoordsAction: featureEnabled('coordinates', true) && showMobileCoreUtility && hasLatLonBounds,
         showMobileHelpAction: showMobileCoreUtility,
-        showMobileGMAction: showMobileToolkit,
+        showMobileGMAction: showMobileGM,
         showMobileRoutesAction: showMobileRoutes,
         showMobileToolkitAction: showMobileToolkit,
         showMobileMapBlurb: false,
@@ -1049,9 +1047,9 @@ function resolveControlVisibilityState({
         mobileSoundDisabled: false,
         mobileCoordsDisabled: !hasLatLonBounds,
         mobileHelpDisabled: false,
-        mobileGMDisabled: !allowGMToolkit,
+        mobileGMDisabled: !showMobileGM,
         mobileRoutesDisabled: routeCount <= 0,
-        mobileToolkitDisabled: !allowGMToolkit
+        mobileToolkitDisabled: !showMobileToolkit
     };
 }
 
@@ -1131,7 +1129,7 @@ function syncMobileToolPanelButtonState() {
 }
 
 function setMobileToolsPanelMode(mode = null) {
-    mobileToolsPanelMode = [MOBILE_TOOLS_PANEL_ROUTES, MOBILE_TOOLS_PANEL_TOOLKIT, MOBILE_TOOLS_PANEL_GM].includes(mode) ? mode : null;
+    mobileToolsPanelMode = [MOBILE_TOOLS_PANEL_ROUTES].includes(mode) ? mode : null;
     if (!isMobileLayoutActive || !mobileToolsPanelSlot) {
         restoreMobileToolPanels();
         syncMobileToolPanelButtonState();
@@ -1145,10 +1143,6 @@ function setMobileToolsPanelMode(mode = null) {
     let mounted = false;
     if (mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES) {
         mounted = mountMobileToolPanel(routePanel, 'block');
-    } else if (mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT) {
-        mounted = mountMobileToolPanel(sessionToolkitPanel, 'block');
-    } else if (mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM) {
-        mounted = mountMobileToolPanel(gmPill, 'flex');
     }
 
     mobileToolsPanelSlot.hidden = !mounted;
@@ -2163,7 +2157,7 @@ function isPublicHost() {
 }
 
 function canAccessGMToolkit() {
-    if (!getFeatureFlag('gmMode', true)) return false;
+    if (!getFeatureFlag('gmMode', false)) return false;
     const policy = String(getConfigValue('security.gmToolkitPolicy', 'local-only')).toLowerCase();
     if (policy === 'public') return true;
     if (policy === 'disabled') return false;
@@ -2174,7 +2168,7 @@ function setGMVisibility(enabled, source = 'manual') {
     gmContentVisible = !!enabled;
     safeSetStorage(UX_STORAGE_KEYS.gmUnlocked, gmContentVisible ? 'true' : 'false');
     if (gmStatusLabel) {
-        gmStatusLabel.textContent = `GM View: ${gmContentVisible ? 'On' : 'Off'}`;
+        gmStatusLabel.textContent = gmContentVisible ? 'GM content enabled' : 'GM content disabled';
     }
     if (gmPill) {
         gmPill.classList.toggle('active', gmContentVisible);
@@ -2205,18 +2199,7 @@ function setAuxPanelVisible(panelEl, visible, displayMode = 'block') {
 }
 
 function updatePanelToggleButtons() {
-    if (toggleGMPanelBtn) {
-        toggleGMPanelBtn.classList.toggle('active', gmPanelVisible);
-        toggleGMPanelBtn.setAttribute('aria-pressed', gmPanelVisible ? 'true' : 'false');
-        toggleGMPanelBtn.title = gmPanelVisible ? 'Hide GM View Panel' : 'Show GM View Panel';
-        toggleGMPanelBtn.setAttribute('aria-label', gmPanelVisible ? 'Hide GM View Panel' : 'Show GM View Panel');
-    }
-    if (toggleToolkitPanelBtn) {
-        toggleToolkitPanelBtn.classList.toggle('active', toolkitPanelVisible);
-        toggleToolkitPanelBtn.setAttribute('aria-pressed', toolkitPanelVisible ? 'true' : 'false');
-        toggleToolkitPanelBtn.title = toolkitPanelVisible ? 'Hide Session Toolkit Panel' : 'Show Session Toolkit Panel';
-        toggleToolkitPanelBtn.setAttribute('aria-label', toolkitPanelVisible ? 'Hide Session Toolkit Panel' : 'Show Session Toolkit Panel');
-    }
+    // GM and session toolkit controls were removed; keep this as a no-op for older call sites.
 }
 
 function initializeGMVisibility() {
@@ -3254,44 +3237,6 @@ if (routeCollapseBtn) {
         setPanelCollapsed(routePanel, routeCollapseBtn, collapsed, UX_STORAGE_KEYS.routePanelCollapsed);
     });
 }
-if (toolkitCollapseBtn) {
-    toolkitCollapseBtn.addEventListener('click', () => {
-        const collapsed = !sessionToolkitPanel.classList.contains('collapsed');
-        setPanelCollapsed(sessionToolkitPanel, toolkitCollapseBtn, collapsed, UX_STORAGE_KEYS.toolkitPanelCollapsed);
-    });
-}
-
-if (gmToggleBtn) {
-    gmToggleBtn.addEventListener('click', () => {
-        if (!canAccessGMToolkit()) return;
-        if (!gmContentVisible && !isLocalHost()) {
-            const pass = prompt('Enter GM passphrase (leave blank to cancel):', '');
-            if (!pass) return;
-        }
-        setGMVisibility(!gmContentVisible, 'toggle_button');
-    });
-}
-if (toggleGMPanelBtn) {
-    toggleGMPanelBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (!canAccessGMToolkit()) return;
-        unlockAdvancedControls('gm_panel_toggle');
-        gmPanelVisible = !gmPanelVisible;
-        safeSetStorage(UX_STORAGE_KEYS.gmPanelVisible, gmPanelVisible ? 'true' : 'false');
-        updateCurrentControlVisibility();
-    });
-}
-if (toggleToolkitPanelBtn) {
-    toggleToolkitPanelBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (!canAccessGMToolkit()) return;
-        unlockAdvancedControls('toolkit_panel_toggle');
-        toolkitPanelVisible = !toolkitPanelVisible;
-        safeSetStorage(UX_STORAGE_KEYS.toolkitPanelVisible, toolkitPanelVisible ? 'true' : 'false');
-        updateCurrentControlVisibility();
-    });
-}
-
 if (encounterRollBtn) {
     encounterRollBtn.addEventListener('click', () => {
         rollEncounter();
@@ -3447,6 +3392,8 @@ function renderSearchResults(term, results) {
 
         const searchRegex = term ? new RegExp(escapeRegExp(term), 'gi') : null;
 
+        const fragment = document.createDocumentFragment();
+
         results.forEach((result, index) => {
             const resultItem = document.createElement('div');
             resultItem.className = 'search-result-item';
@@ -3486,8 +3433,10 @@ function renderSearchResults(term, results) {
                 }
             });
 
-            searchResultsContainer.appendChild(resultItem);
+            fragment.appendChild(resultItem);
         });
+
+        searchResultsContainer.appendChild(fragment);
     }
 
     searchResultsContainer.style.display = 'block';
@@ -3912,7 +3861,7 @@ function resetRoute() {
     updateRouteUrl(null, null);
 }
 
-// --- Session Toolkit Helpers ---
+// --- Encounter and Travel Helpers ---
 function updateEncounterSelect() {
     if (!encounterSelect) return;
     encounterSelect.innerHTML = '';
@@ -4116,12 +4065,12 @@ function populatePOIFilters(pointsOfInterest) {
         poiHeader.textContent = getConfigValue('taxonomy.labels.poiTypes', 'POI Types:');
         dynamicFiltersContainer.appendChild(poiHeader);
     }
-    const relevantGroups = new Set();
-    pointsOfInterest.forEach(poi => {
-        const group = getPoiGroup(poi.type);
-        relevantGroups.add(group);
-    });
-    const sortedGroups = Array.from(relevantGroups).sort();
+    const relevantGroupsObj = Object.create(null);
+    for (let i = 0; i < pointsOfInterest.length; i++) {
+        const group = getPoiGroup(pointsOfInterest[i].type);
+        if (group !== undefined && group !== null) relevantGroupsObj[group] = true;
+    }
+    const sortedGroups = Object.keys(relevantGroupsObj).sort();
     const fragment = document.createDocumentFragment();
     sortedGroups.forEach(groupName => {
         if (!groupName || (poiTypeGroups[groupName] && poiTypeGroups[groupName].length === 0)) return;
@@ -4144,38 +4093,50 @@ function populatePOIFilters(pointsOfInterest) {
     dynamicFiltersContainer.appendChild(fragment);
 }
 
+const filterGroupsCache = new WeakMap();
+
 function getOrGenerateRegionFilterGroups(regions, selectedMap) {
     // Check if explicit filter groups exist, otherwise auto-generate from data
     let regionFilterGroups = selectedMap.filterGroups && selectedMap.filterGroups.Regions;
 
     // Auto-generation fallback
     if (!regionFilterGroups) {
-        const tempGroups = {};
-        regions.forEach(region => {
-            // If region has type and value, group by type
-            if (region.type && region.value) {
-                if (!tempGroups[region.type]) {
-                    tempGroups[region.type] = new Set();
-                }
-                tempGroups[region.type].add(region.value);
-            }
-            // Fallback: If region just has 'type' but no 'value'
-            else if (region.type && region.name) {
-                if (!tempGroups[region.type]) {
-                    tempGroups[region.type] = new Set();
-                }
-                tempGroups[region.type].add(region.name);
-                if (!region.value) region.value = region.name;
-            }
-        });
+        if (filterGroupsCache.has(regions)) {
+            return filterGroupsCache.get(regions);
+        }
 
-        // Convert Sets to Arrays for processing
-        if (Object.keys(tempGroups).length > 0) {
-            regionFilterGroups = {};
-            for (const key in tempGroups) {
-                regionFilterGroups[key] = Array.from(tempGroups[key]).sort();
+        const tempGroups = Object.create(null);
+        for (let i = 0; i < regions.length; i++) {
+            const region = regions[i];
+            const type = region.type;
+            if (!type) continue;
+
+            const value = region.value || region.name;
+            if (!value) continue;
+
+            if (!region.value && region.name) {
+                region.value = region.name;
+            }
+
+            let group = tempGroups[type];
+            if (!group) {
+                group = Object.create(null);
+                tempGroups[type] = group;
+            }
+
+            group[value] = true;
+        }
+
+        const keys = Object.keys(tempGroups);
+        if (keys.length > 0) {
+            regionFilterGroups = Object.create(null);
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
+                regionFilterGroups[key] = Object.keys(tempGroups[key]).sort();
             }
         }
+
+        filterGroupsCache.set(regions, regionFilterGroups);
     }
 
     return regionFilterGroups;
@@ -4243,15 +4204,18 @@ function populateRegionFilters(regions, selectedMap, hasPOIs) {
     const regionFilterGroups = getOrGenerateRegionFilterGroups(regions, selectedMap);
 
     if (regionFilterGroups && Object.keys(regionFilterGroups).length > 0) {
+        // ⚡ Bolt: Batch DOM insertions using DocumentFragment to prevent costly layout thrashing and reflows.
+        const fragment = document.createDocumentFragment();
+
         if (hasPOIs) {
             const divider = document.createElement('hr');
             divider.style.margin = '10px 0';
             divider.style.borderColor = 'var(--glass-border)';
-            dynamicFiltersContainer.appendChild(divider);
+            fragment.appendChild(divider);
         }
         const regionHeader = document.createElement('h3');
         regionHeader.textContent = "Region Types:";
-        dynamicFiltersContainer.appendChild(regionHeader);
+        fragment.appendChild(regionHeader);
 
         for (const groupName in regionFilterGroups) {
             if (Object.hasOwnProperty.call(regionFilterGroups, groupName)) {
@@ -4259,26 +4223,48 @@ function populateRegionFilters(regions, selectedMap, hasPOIs) {
                 if (!Array.isArray(values) || values.length === 0) continue;
 
                 const groupContainer = createRegionFilterGroupDOM(groupName, values);
-                dynamicFiltersContainer.appendChild(groupContainer);
+                fragment.appendChild(groupContainer);
             }
         }
+        dynamicFiltersContainer.appendChild(fragment);
     }
 }
 
+// ⚡ Bolt: Cache derived unique line types by map data reference to achieve O(1) retrieval on UI updates.
+const lineTypesCache = new WeakMap();
+
 function populateLineFilters(lines, hasPOIs, hasRegions) {
+    // ⚡ Bolt: Batch DOM insertions using DocumentFragment to prevent costly layout thrashing and reflows.
+    const fragment = document.createDocumentFragment();
+
     if (hasPOIs || hasRegions) { // Add divider if other filters are present
         const divider = document.createElement('hr');
         divider.style.margin = '10px 0';
         divider.style.borderColor = 'var(--glass-border)';
-        dynamicFiltersContainer.appendChild(divider);
+        fragment.appendChild(divider);
     }
 
     const lineHeader = document.createElement('h3');
     lineHeader.textContent = "Line Types:";
-    dynamicFiltersContainer.appendChild(lineHeader);
+    fragment.appendChild(lineHeader);
 
     const allLines = lines;
-    const lineTypes = [...new Set(allLines.map(r => r.type || "Unnamed Road Type").filter(Boolean))].sort();
+    let lineTypes;
+
+    if (lineTypesCache.has(allLines)) {
+        lineTypes = lineTypesCache.get(allLines);
+    } else {
+        // ⚡ Bolt: Optimized unique value extraction using Object.create(null) instead of allocating Set instances and chained array methods.
+        const uniqueTypes = Object.create(null);
+        for (let i = 0; i < allLines.length; i++) {
+            const type = allLines[i].type || "Unnamed Road Type";
+            if (type) {
+                uniqueTypes[type] = true;
+            }
+        }
+        lineTypes = Object.keys(uniqueTypes).sort();
+        lineTypesCache.set(allLines, lineTypes);
+    }
 
     lineTypes.forEach(type => {
         const filterId = `filter-line-${(type || "untyped").replace(/\s+/g, '-').toLowerCase()}`;
@@ -4297,8 +4283,9 @@ function populateLineFilters(lines, hasPOIs, hasRegions) {
 
         div.appendChild(checkbox);
         div.appendChild(label);
-        dynamicFiltersContainer.appendChild(div);
+        fragment.appendChild(div);
     });
+    dynamicFiltersContainer.appendChild(fragment);
 }
 
 const sharedLinkOpenSessionKeys = new Set();
@@ -4466,9 +4453,7 @@ function buildFeatureShareUrl(type, name) {
     if (!normalizedName) return null;
 
     const url = new URL(window.location.href);
-    url.searchParams.delete('poi');
-    url.searchParams.delete('region');
-    url.searchParams.delete('line');
+    clearShareTargetSearchParams(url.searchParams);
     url.searchParams.set(normalizedType, normalizedName);
     url.searchParams.set('src', 'share');
     url.searchParams.set('stype', normalizedType);
@@ -4485,13 +4470,25 @@ function buildCurrentViewShareUrl() {
     const view = `${lat},${lng},${zoom}`;
 
     const url = new URL(window.location.href);
-    url.searchParams.delete('poi');
-    url.searchParams.delete('region');
-    url.searchParams.delete('line');
+    clearShareTargetSearchParams(url.searchParams);
     url.searchParams.set('view', view);
     url.searchParams.set('src', 'share');
     url.searchParams.set('stype', 'view');
     return url.toString();
+}
+
+function clearShareTargetSearchParams(searchParams) {
+    if (!(searchParams instanceof URLSearchParams)) return;
+    [
+        'view',
+        'poi',
+        'region',
+        'line',
+        'route',
+        'step',
+        'src',
+        'stype'
+    ].forEach((key) => searchParams.delete(key));
 }
 
 function canUseNativeShare(shareUrl) {
@@ -4836,37 +4833,22 @@ if (sidebarBackToChooserBtn) {
 }
 
 function updateURLWithMapView() {
-    // Don't update if map is not loaded or valid
+    // Keep the last active map/view in local storage without making ordinary
+    // pan/zoom interactions visible in the address bar.
     if (!map || !currentlyLoadedMapId) return;
 
     clearTimeout(viewUpdateTimeout);
     viewUpdateTimeout = setTimeout(() => {
-        // Double check in case map was unloaded during timeout
         if (!map || !currentlyLoadedMapId) return;
 
         const center = map.getCenter();
         const zoom = map.getZoom();
-
-        // Round to reasonable precision to avoid ugly URLs
         const lat = parseFloat(center.lat.toFixed(4));
         const lng = parseFloat(center.lng.toFixed(4));
-
-        const url = new URL(window.location.href);
-        const currentView = url.searchParams.get('view');
         const newView = `${lat},${lng},${zoom}`;
 
-        // Only update if changed
-        if (currentView !== newView) {
-            url.searchParams.set('view', newView);
-            saveMapView(currentlyLoadedMapId, newView);
-            safeSetStorage(UX_STORAGE_KEYS.lastMapId, currentlyLoadedMapId);
-
-            // Reconstruct URL preserving hash
-            const newUrl = `${url.pathname}${url.search}${window.location.hash}`;
-
-            // Use replaceState to avoid cluttering history
-            history.replaceState(history.state, '', newUrl);
-        }
+        saveMapView(currentlyLoadedMapId, newView);
+        safeSetStorage(UX_STORAGE_KEYS.lastMapId, currentlyLoadedMapId);
     }, 500); // 500ms debounce
 }
 
@@ -5015,7 +4997,10 @@ function finalizeMapUI(requestedMapId, selectedMap) {
     updateCurrentControlVisibility(selectedMap);
     updateActiveFilterChips();
 
-    mapListElement.querySelectorAll('.active').forEach(item => item.classList.remove('active'));
+    const activeItems = mapListElement.getElementsByClassName('active');
+    while (activeItems.length > 0) {
+        activeItems[0].classList.remove('active');
+    }
     const activeMapItem = document.querySelector(`#map-list .map-item[data-map-id="${requestedMapId}"]`);
     const activeFolderHeader = document.querySelector(`#map-list .folder-header[data-map-id="${requestedMapId}"]`);
     if (activeMapItem) {
@@ -6213,7 +6198,6 @@ function updateCoordinates(e) {
     if (!currentLatLonBounds || !currentBounds) return;
 
     const { lat, lon } = projectMapPointToLatLon(e.latlng, currentLatLonBounds, currentBounds);
-    lockedCoords = { lat, lon };
     updateCoordinateDisplay(lat, lon);
 }
 
@@ -6331,18 +6315,6 @@ if (mobileHelpBtn) {
     });
 }
 
-if (mobileGmViewBtn) {
-    mobileGmViewBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        if (mobileGmViewBtn.hidden || mobileGmViewBtn.disabled || !canAccessGMToolkit()) return;
-        unlockAdvancedControls('mobile_gm_panel');
-        openMobileToolsPanel({
-            panelMode: mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM ? null : MOBILE_TOOLS_PANEL_GM,
-            triggerButton: mobileGmViewBtn
-        });
-    });
-}
-
 if (mobileRoutesBtn) {
     mobileRoutesBtn.addEventListener('click', (event) => {
         event.stopPropagation();
@@ -6351,18 +6323,6 @@ if (mobileRoutesBtn) {
         openMobileToolsPanel({
             panelMode: mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES ? null : MOBILE_TOOLS_PANEL_ROUTES,
             triggerButton: mobileRoutesBtn
-        });
-    });
-}
-
-if (mobileToolkitBtn) {
-    mobileToolkitBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        if (mobileToolkitBtn.hidden || mobileToolkitBtn.disabled || !canAccessGMToolkit()) return;
-        unlockAdvancedControls('mobile_toolkit_panel');
-        openMobileToolsPanel({
-            panelMode: mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT ? null : MOBILE_TOOLS_PANEL_TOOLKIT,
-            triggerButton: mobileToolkitBtn
         });
     });
 }
@@ -6678,6 +6638,7 @@ function toggleMeasurementTool() {
         // Clear previous measurement layers (if any)
         measurementLayerGroup.clearLayers();
         multiPointPath = [];
+        cachedMultiPointPixelDistance = 0;
         multiPointVertexMarkers = [];
         if (multiPointPolyline) map.removeLayer(multiPointPolyline);
         multiPointPolyline = null;
@@ -6704,6 +6665,12 @@ function handleMultiPointMeasureClick(e) {
 
     const clickPoint = e.latlng;
     multiPointPath.push(clickPoint);
+
+    if (multiPointPath.length >= 2) {
+        cachedMultiPointPixelDistance += map.distance(multiPointPath[multiPointPath.length - 2], multiPointPath[multiPointPath.length - 1]);
+    } else {
+        cachedMultiPointPixelDistance = 0;
+    }
 
     // Add a vertex marker
     const vertexMarker = L.circleMarker(clickPoint, {
@@ -6796,12 +6763,7 @@ function updateMeasurementTooltips() {
         typeof scaleKmValue === 'number' && scaleKmValue > 0;
 
     // Calculate total pixel distance
-    let totalPixelDistance = 0;
-    if (multiPointPath.length >= 2) {
-        for (let i = 0; i < multiPointPath.length - 1; i++) {
-            totalPixelDistance += map.distance(multiPointPath[i], multiPointPath[i + 1]);
-        }
-    }
+    let totalPixelDistance = cachedMultiPointPixelDistance;
 
     // --- Build the Tooltip Content String ---
     let tooltipContent = '';
@@ -6871,6 +6833,7 @@ function finalizeMultiPointMeasure(makePermanent = true) {
         if (temporaryMouseMoveLine) measurementLayerGroup.removeLayer(temporaryMouseMoveLine);
         if (temporaryMouseMoveTooltip) map.removeLayer(temporaryMouseMoveTooltip);
         multiPointPath = [];
+        cachedMultiPointPixelDistance = 0;
         multiPointVertexMarkers = [];
         multiPointPolyline = null;
         multiPointTotalTooltip = null;
@@ -6904,6 +6867,7 @@ function finalizeMultiPointMeasure(makePermanent = true) {
         if (multiPointTotalTooltip) map.removeLayer(multiPointTotalTooltip);
         multiPointTotalTooltip = null;
         multiPointPath = [];
+        cachedMultiPointPixelDistance = 0;
         multiPointVertexMarkers = [];
     } else {
         // Path and markers are already on measurementLayerGroup.
