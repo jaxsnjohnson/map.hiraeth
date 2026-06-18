@@ -83,6 +83,8 @@ const MOBILE_LAYOUT_QUERY_PARAM = 'mobileLayout';
 const MOBILE_LAYOUT_MODE_V2 = 'v2';
 const MOBILE_LAYOUT_MODE_LEGACY = 'legacy';
 const MOBILE_PANEL_MARGIN = 10;
+const SMOOTH_ZOOM_STEP = 0.5;
+const SMOOTH_ZOOM_OPTIONS = { animate: true };
 
 if (typeof document !== 'undefined') {
     document.documentElement.classList.toggle('is-firefox', isFirefox);
@@ -103,7 +105,12 @@ const mapOptions = {
     minZoom: -4,
     maxZoom: 4,
     attributionControl: false,
-    zoomControl: false // Disable default zoom, using custom styled one
+    zoomControl: false, // Disable default zoom, using custom styled one
+    zoomSnap: 0.25,
+    zoomDelta: SMOOTH_ZOOM_STEP,
+    wheelPxPerZoomLevel: 120,
+    wheelDebounceTime: 16,
+    zoomAnimation: true
 };
 
 if (isFirefox) {
@@ -115,6 +122,11 @@ if (isFirefox) {
 const map = L.map('map', mapOptions);
 
 let atmosphereLayer = null;
+
+function zoomMapBy(delta) {
+    if (!map || typeof map.getZoom !== 'function' || typeof map.setZoom !== 'function') return;
+    map.setZoom(map.getZoom() + delta, SMOOTH_ZOOM_OPTIONS);
+}
 
 // Register map interaction listeners
 map.on('moveend zoomend', updateURLWithMapView);
@@ -6332,7 +6344,7 @@ if (customZoomInBtn) {
     customZoomInBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         unlockAdvancedControls('zoom_in');
-        map.zoomIn();
+        zoomMapBy(SMOOTH_ZOOM_STEP);
     });
 }
 
@@ -6340,7 +6352,7 @@ if (customZoomOutBtn) {
     customZoomOutBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         unlockAdvancedControls('zoom_out');
-        map.zoomOut();
+        zoomMapBy(-SMOOTH_ZOOM_STEP);
     });
 }
 
@@ -7072,11 +7084,11 @@ function setupKeyboardAndModalLogic() {
         switch (e.key.toLowerCase()) {
             case '+':
             case '=':
-                if (map) map.zoomIn();
+                if (map) zoomMapBy(SMOOTH_ZOOM_STEP);
                 e.preventDefault();
                 return true;
             case '-':
-                if (map) map.zoomOut();
+                if (map) zoomMapBy(-SMOOTH_ZOOM_STEP);
                 e.preventDefault();
                 return true;
             case 's':
