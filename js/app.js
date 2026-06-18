@@ -4065,12 +4065,12 @@ function populatePOIFilters(pointsOfInterest) {
         poiHeader.textContent = getConfigValue('taxonomy.labels.poiTypes', 'POI Types:');
         dynamicFiltersContainer.appendChild(poiHeader);
     }
-    const relevantGroups = new Set();
-    pointsOfInterest.forEach(poi => {
-        const group = getPoiGroup(poi.type);
-        relevantGroups.add(group);
-    });
-    const sortedGroups = Array.from(relevantGroups).sort();
+    const relevantGroupsObj = Object.create(null);
+    for (let i = 0; i < pointsOfInterest.length; i++) {
+        const group = getPoiGroup(pointsOfInterest[i].type);
+        if (group !== undefined && group !== null) relevantGroupsObj[group] = true;
+    }
+    const sortedGroups = Object.keys(relevantGroupsObj).sort();
     const fragment = document.createDocumentFragment();
     sortedGroups.forEach(groupName => {
         if (!groupName || (poiTypeGroups[groupName] && poiTypeGroups[groupName].length === 0)) return;
@@ -4105,7 +4105,7 @@ function getOrGenerateRegionFilterGroups(regions, selectedMap) {
             return filterGroupsCache.get(regions);
         }
 
-        const tempGroups = {};
+        const tempGroups = Object.create(null);
         for (let i = 0; i < regions.length; i++) {
             const region = regions[i];
             const type = region.type;
@@ -4129,7 +4129,7 @@ function getOrGenerateRegionFilterGroups(regions, selectedMap) {
 
         const keys = Object.keys(tempGroups);
         if (keys.length > 0) {
-            regionFilterGroups = {};
+            regionFilterGroups = Object.create(null);
             for (let i = 0; i < keys.length; i++) {
                 const key = keys[i];
                 regionFilterGroups[key] = Object.keys(tempGroups[key]).sort();
