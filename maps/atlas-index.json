@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-17T09:11:42.751Z",
+  "generatedAt": "2026-06-17T23:35:21.773Z",
   "tree": [
     {
       "type": "folder",
@@ -121,7 +121,7 @@
     {
       "type": "folder",
       "id": "IRL Old Maps",
-      "name": "Old Dev Maps",
+      "name": "Development & Archive Maps",
       "selectorDescription": "Archive of older development maps and early Hiraeth drafts.",
       "children": [
         {
@@ -303,6 +303,18 @@
           "blurb": "This map was made in 2020s for Icebeach.",
           "selectorDescription": "A larger 2020s Icebeach map from the early campaigns.",
           "dataUrl": "maps/OLD-Icebeach-LARGE.json"
+        },
+        {
+          "id": "Astrousia",
+          "name": "Astrousia",
+          "width": 7308,
+          "height": 8192,
+          "imageUrl": "maps/Astrousia.webp",
+          "scalePixels": 1,
+          "scaleKilometers": 1,
+          "blurb": "This map is still a work in progress.",
+          "selectorDescription": "A development and archive map of Astrousia.",
+          "dataUrl": "maps/Astrousia.json"
         }
       ]
     }
@@ -3880,10 +3892,93 @@
     },
     {
       "kind": "map",
+      "id": "map:Astrousia",
+      "mapId": "Astrousia",
+      "mapName": "Astrousia",
+      "name": "Astrousia",
+      "summary": "A development and archive map of Astrousia.",
+      "description": "",
+      "typeLabel": "Map",
+      "visibility": "public"
+    },
+    {
+      "kind": "poi",
+      "id": "poi:Astrousia:0",
+      "itemId": "City Eh",
+      "mapId": "Astrousia",
+      "mapName": "Astrousia",
+      "name": "City Eh",
+      "summary": "",
+      "description": "",
+      "typeLabel": "Unknown",
+      "visibility": "public"
+    },
+    {
+      "kind": "poi",
+      "id": "poi:Astrousia:1",
+      "itemId": "City One",
+      "mapId": "Astrousia",
+      "mapName": "Astrousia",
+      "name": "City One",
+      "summary": "",
+      "description": "",
+      "typeLabel": "Unknown",
+      "visibility": "public"
+    },
+    {
+      "kind": "poi",
+      "id": "poi:Astrousia:2",
+      "itemId": "City Uno",
+      "mapId": "Astrousia",
+      "mapName": "Astrousia",
+      "name": "City Uno",
+      "summary": "",
+      "description": "",
+      "typeLabel": "Unknown",
+      "visibility": "public"
+    },
+    {
+      "kind": "poi",
+      "id": "poi:Astrousia:3",
+      "itemId": "CMC",
+      "mapId": "Astrousia",
+      "mapName": "Astrousia",
+      "name": "CMC",
+      "summary": "",
+      "description": "",
+      "typeLabel": "Unknown",
+      "visibility": "public"
+    },
+    {
+      "kind": "poi",
+      "id": "poi:Astrousia:4",
+      "itemId": "Mountain",
+      "mapId": "Astrousia",
+      "mapName": "Astrousia",
+      "name": "Mountain",
+      "summary": "",
+      "description": "",
+      "typeLabel": "Unknown",
+      "visibility": "public"
+    },
+    {
+      "kind": "poi",
+      "id": "poi:Astrousia:5",
+      "itemId": "Ruins",
+      "mapId": "Astrousia",
+      "mapName": "Astrousia",
+      "name": "Ruins",
+      "summary": "",
+      "description": "",
+      "typeLabel": "Unknown",
+      "visibility": "public"
+    },
+    {
+      "kind": "map",
       "id": "map:IRL Old Maps",
       "mapId": "IRL Old Maps",
-      "mapName": "Old Dev Maps",
-      "name": "Old Dev Maps",
+      "mapName": "Development & Archive Maps",
+      "name": "Development & Archive Maps",
       "summary": "Archive of older development maps and early Hiraeth drafts.",
       "description": "",
       "typeLabel": "Map",

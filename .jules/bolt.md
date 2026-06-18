@@ -106,3 +106,26 @@
 ## 2026-06-17 - Optimize Region Filter Group Generation
 **Learning:** When repeatedly deriving distinct values from arrays (e.g., generating filter options), repeatedly allocating `Set` instances and iterating with `.forEach()` causes noticeable O(N) overhead.
 **Action:** Cache the derived results using a `WeakMap` keyed by the stable array reference, and optimize the initial O(N) extraction by replacing `Set` with null-prototype objects (`Object.create(null)`) and using standard `for` loops. Ensure values are properly checked for truthiness before object assignment to prevent string coercion bugs.
+
+## 2026-06-10 - Optimize populateRegionFilters and populateLineFilters with DocumentFragment
+**Learning:** When dynamically generating regions and lines filter elements and appending them individually to the live `dynamicFiltersContainer` DOM node, it triggered multiple costly repaints and layout thrashing, severely degrading performance during initial render and re-renders.
+**Action:** When a function creates and appends multiple DOM elements dynamically in a loop, always instantiate a `document.createDocumentFragment()`, perform append operations within the fragment, and append the fragment in a single operation outside the loop to optimize layout recalculations.
+
+## 2025-06-10 - O(1) Allocations in Array Transformations
+**Learning:** Creating `Set` objects to extract distinct values followed by `Array.from().sort()` triggers substantial object allocation and iteration overhead compared to using native primitive loops on a null-prototype hash map. Creating Sets from Arrays via `[...new Set(array.map(...))]` takes 6-7x longer than populating `Object.create(null)` keys with a traditional `for` loop.
+**Action:** When filtering or accumulating unique distinct string items (like map feature categories or types) to build the UI, explicitly use `Object.create(null)` map lookups via simple `for` loops, then extract the values using `Object.keys()`. Eliminate `Set` construction overhead.
+
+## 2025-06-16 - O(1) Unique Array Extractions via Object Map
+**Learning:** Converting an array of strings into unique values by doing `[...new Set(array.map(..).filter(..))]` executes three redundant O(N) allocations. Using `new Set()` involves significant overhead compared to plain object key assignment.
+**Action:** When extracting unique values from a string array in a hot path, replace the `Set` allocation and chained array methods with a single loop and an `Object.create(null)` map to eliminate unnecessary object instantiation.
+## 2025-06-16 - O(1) Derivation Cache via WeakMap
+**Learning:** When deriving arrays (like a unique list of line types) from a larger reference dataset (like an array of lines), repeating the extraction logic on every UI update wastes CPU cycles if the source dataset hasn't changed.
+**Action:** Cache the derived results in a `WeakMap` keyed by the immutable source reference dataset. This guarantees O(1) retrieval on subsequent renders and prevents memory leaks since the cache allows the reference data to be garbage collected.
+
+## 2025-06-10 - Optimize search results DOM insertions with DocumentFragment
+**Learning:** When evaluating DOM optimization techniques like `DocumentFragment` vs `appendChild`, micro-benchmarks on isolated containers (e.g., via jsdom or basic HTML pages) often show negligible differences or even slight regressions (like the -4.09% observed). The real performance benefit of `DocumentFragment` minimizing repaints and reflows is best observed when appending to an active, connected DOM with complex CSS rendering rules in a real browser.
+**Action:** Always write the DocumentFragment optimization for batch UI updates, but recognize when to benchmark. If a micro-benchmark using JSDOM regressions, document the rationale explaining that the actual win happens in the connected rendering pipeline.
+
+## 2024-06-25 - Cache Region Filter Groups
+**Learning:** Automatically generating region filter groups involves iterating through potentially thousands of region entries, sorting, and array manipulation. Re-running this multiple times when the regions data pointer is stable causes performance degradation on render paths.
+**Action:** Use a `WeakMap` to cache the derived filter groups object by using the `regions` array as the key, guaranteeing stable cache hits without memory leaks. Furthermore, tracking unique values initially into a plain object `Object.create(null)` bypasses the `Set` conversion overhead (`Array.from(set).sort()`).
