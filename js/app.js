@@ -147,6 +147,7 @@ let multiPointPath = []; // Array of L.LatLng objects for the current path
 let multiPointPolyline = null; // The L.Polyline layer for the drawn path
 let multiPointVertexMarkers = []; // Array of L.CircleMarker for vertices
 let multiPointTotalTooltip = null; // L.Tooltip for the total path length
+let cachedMultiPointPixelDistance = 0; // Cached total distance of fixed segments
 let temporaryMouseMoveLine = null; // L.Polyline for the line from last point to cursor
 let temporaryMouseMoveTooltip = null; // L.Tooltip for the temporary line's length
 
@@ -6607,6 +6608,7 @@ function toggleMeasurementTool() {
         // Clear previous measurement layers (if any)
         measurementLayerGroup.clearLayers();
         multiPointPath = [];
+        cachedMultiPointPixelDistance = 0;
         multiPointVertexMarkers = [];
         if (multiPointPolyline) map.removeLayer(multiPointPolyline);
         multiPointPolyline = null;
@@ -6633,6 +6635,12 @@ function handleMultiPointMeasureClick(e) {
 
     const clickPoint = e.latlng;
     multiPointPath.push(clickPoint);
+
+    if (multiPointPath.length >= 2) {
+        cachedMultiPointPixelDistance += map.distance(multiPointPath[multiPointPath.length - 2], multiPointPath[multiPointPath.length - 1]);
+    } else {
+        cachedMultiPointPixelDistance = 0;
+    }
 
     // Add a vertex marker
     const vertexMarker = L.circleMarker(clickPoint, {
@@ -6725,12 +6733,7 @@ function updateMeasurementTooltips() {
         typeof scaleKmValue === 'number' && scaleKmValue > 0;
 
     // Calculate total pixel distance
-    let totalPixelDistance = 0;
-    if (multiPointPath.length >= 2) {
-        for (let i = 0; i < multiPointPath.length - 1; i++) {
-            totalPixelDistance += map.distance(multiPointPath[i], multiPointPath[i + 1]);
-        }
-    }
+    let totalPixelDistance = cachedMultiPointPixelDistance;
 
     // --- Build the Tooltip Content String ---
     let tooltipContent = '';
@@ -6800,6 +6803,7 @@ function finalizeMultiPointMeasure(makePermanent = true) {
         if (temporaryMouseMoveLine) measurementLayerGroup.removeLayer(temporaryMouseMoveLine);
         if (temporaryMouseMoveTooltip) map.removeLayer(temporaryMouseMoveTooltip);
         multiPointPath = [];
+        cachedMultiPointPixelDistance = 0;
         multiPointVertexMarkers = [];
         multiPointPolyline = null;
         multiPointTotalTooltip = null;
@@ -6833,6 +6837,7 @@ function finalizeMultiPointMeasure(makePermanent = true) {
         if (multiPointTotalTooltip) map.removeLayer(multiPointTotalTooltip);
         multiPointTotalTooltip = null;
         multiPointPath = [];
+        cachedMultiPointPixelDistance = 0;
         multiPointVertexMarkers = [];
     } else {
         // Path and markers are already on measurementLayerGroup.
