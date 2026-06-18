@@ -4088,38 +4088,50 @@ function populatePOIFilters(pointsOfInterest) {
     dynamicFiltersContainer.appendChild(fragment);
 }
 
+const filterGroupsCache = new WeakMap();
+
 function getOrGenerateRegionFilterGroups(regions, selectedMap) {
     // Check if explicit filter groups exist, otherwise auto-generate from data
     let regionFilterGroups = selectedMap.filterGroups && selectedMap.filterGroups.Regions;
 
     // Auto-generation fallback
     if (!regionFilterGroups) {
-        const tempGroups = {};
-        regions.forEach(region => {
-            // If region has type and value, group by type
-            if (region.type && region.value) {
-                if (!tempGroups[region.type]) {
-                    tempGroups[region.type] = new Set();
-                }
-                tempGroups[region.type].add(region.value);
-            }
-            // Fallback: If region just has 'type' but no 'value'
-            else if (region.type && region.name) {
-                if (!tempGroups[region.type]) {
-                    tempGroups[region.type] = new Set();
-                }
-                tempGroups[region.type].add(region.name);
-                if (!region.value) region.value = region.name;
-            }
-        });
+        if (filterGroupsCache.has(regions)) {
+            return filterGroupsCache.get(regions);
+        }
 
-        // Convert Sets to Arrays for processing
-        if (Object.keys(tempGroups).length > 0) {
+        const tempGroups = {};
+        for (let i = 0; i < regions.length; i++) {
+            const region = regions[i];
+            const type = region.type;
+            if (!type) continue;
+
+            const value = region.value || region.name;
+            if (!value) continue;
+
+            if (!region.value && region.name) {
+                region.value = region.name;
+            }
+
+            let group = tempGroups[type];
+            if (!group) {
+                group = Object.create(null);
+                tempGroups[type] = group;
+            }
+
+            group[value] = true;
+        }
+
+        const keys = Object.keys(tempGroups);
+        if (keys.length > 0) {
             regionFilterGroups = {};
-            for (const key in tempGroups) {
-                regionFilterGroups[key] = Array.from(tempGroups[key]).sort();
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
+                regionFilterGroups[key] = Object.keys(tempGroups[key]).sort();
             }
         }
+
+        filterGroupsCache.set(regions, regionFilterGroups);
     }
 
     return regionFilterGroups;
