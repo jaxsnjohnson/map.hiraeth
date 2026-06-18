@@ -3392,6 +3392,8 @@ function renderSearchResults(term, results) {
 
         const searchRegex = term ? new RegExp(escapeRegExp(term), 'gi') : null;
 
+        const fragment = document.createDocumentFragment();
+
         results.forEach((result, index) => {
             const resultItem = document.createElement('div');
             resultItem.className = 'search-result-item';
@@ -3431,8 +3433,10 @@ function renderSearchResults(term, results) {
                 }
             });
 
-            searchResultsContainer.appendChild(resultItem);
+            fragment.appendChild(resultItem);
         });
+
+        searchResultsContainer.appendChild(fragment);
     }
 
     searchResultsContainer.style.display = 'block';
