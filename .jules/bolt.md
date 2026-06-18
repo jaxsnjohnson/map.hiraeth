@@ -103,6 +103,10 @@
 ## 2026-06-09 - Optimize populatePOIFilters with DocumentFragment
 **Learning:** When generating multiple elements in a loop and appending them to the live DOM, utilizing a `DocumentFragment` batches the DOM insertions, substantially mitigating costly layout thrashing and reflows.
 **Action:** When a function requires creating and appending multiple elements dynamically in a loop, always instantiate a `document.createDocumentFragment()`, append children to it during iterations, and perform a single `appendChild` to the target container once outside the loop.
+## 2026-06-17 - Optimize Region Filter Group Generation
+**Learning:** When repeatedly deriving distinct values from arrays (e.g., generating filter options), repeatedly allocating `Set` instances and iterating with `.forEach()` causes noticeable O(N) overhead.
+**Action:** Cache the derived results using a `WeakMap` keyed by the stable array reference, and optimize the initial O(N) extraction by replacing `Set` with null-prototype objects (`Object.create(null)`) and using standard `for` loops. Ensure values are properly checked for truthiness before object assignment to prevent string coercion bugs.
+
 ## 2026-06-10 - Optimize populateRegionFilters and populateLineFilters with DocumentFragment
 **Learning:** When dynamically generating regions and lines filter elements and appending them individually to the live `dynamicFiltersContainer` DOM node, it triggered multiple costly repaints and layout thrashing, severely degrading performance during initial render and re-renders.
 **Action:** When a function creates and appends multiple DOM elements dynamically in a loop, always instantiate a `document.createDocumentFragment()`, perform append operations within the fragment, and append the fragment in a single operation outside the loop to optimize layout recalculations.
