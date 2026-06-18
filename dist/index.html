@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <meta property="og:description" content="">
+    <meta property="og:image" content="">
+    <meta property="og:url" content="">
+    <title>Interactive Atlas</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+
+    <script src="js/app-config.js"></script>
+    <script>
+        window.APP_ASSET_VERSION = window.AppConfig ? window.AppConfig.get("assets.version", "0") : "0";
+        window.THEME_STORAGE_KEYS = {
+            legacyTheme: "theme",
+            themePreference: "themePreference"
+        };
+
+        (function applyInitialTheme() {
+            const root = document.documentElement;
+            const keys = window.THEME_STORAGE_KEYS;
+            const safeGet = (key) => {
+                try {
+                    return localStorage.getItem(key);
+                } catch (error) {
+                    return null;
+                }
+            };
+            const safeSet = (key, value) => {
+                try {
+                    localStorage.setItem(key, value);
+                } catch (error) {
+                    // Ignore storage failures.
+                }
+            };
+            const isValidPreference = (value) => value === "light" || value === "dark" || value === "system";
+            const systemTheme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+
+            let preference = safeGet(keys.themePreference);
+            if (!isValidPreference(preference)) {
+                const legacyTheme = safeGet(keys.legacyTheme);
+                if (legacyTheme === "light" || legacyTheme === "dark") {
+                    preference = legacyTheme;
+                    safeSet(keys.themePreference, preference);
+                } else {
+                    preference = "system";
+                    safeSet(keys.themePreference, preference);
+                }
+            }
+
+            const effectiveTheme = preference === "system" ? systemTheme : preference;
+            root.setAttribute("data-theme", effectiveTheme);
+            root.style.colorScheme = effectiveTheme;
+            window.__INITIAL_THEME_PREFERENCE__ = preference;
+            window.__INITIAL_EFFECTIVE_THEME__ = effectiveTheme;
+            if (window.AppConfig) {
+                window.AppConfig.applyThemeTokens(document);
+                window.AppConfig.injectFont(document);
+                window.AppConfig.applyDocumentMetadata(document);
+            }
+        })();
+
+        (function applyInitialEmbedMode() {
+            const params = new URLSearchParams(window.location.search || "");
+            const isEmbed = params.get("embed") === "true" || params.get("hideUI") === "true";
+            window.__INITIAL_EMBEDDED_VIEW__ = isEmbed;
+            document.documentElement.classList.toggle("embedded-view", isEmbed);
+        })();
+
+        (function applyInitialMobileLayoutMode() {
+            const params = new URLSearchParams(window.location.search || "");
+            const modeFromUrl = String(params.get("mobileLayout") || "").trim().toLowerCase();
+            const validModes = new Set(["v2", "legacy"]);
+            const storageKey = "mobileLayoutMode";
+            const safeGet = () => {
+                try {
+                    return localStorage.getItem(storageKey);
+                } catch (error) {
+                    return null;
+                }
+            };
+            const safeSet = (value) => {
+                try {
+                    localStorage.setItem(storageKey, value);
+                } catch (error) {
+                    // Ignore storage failures.
+                }
+            };
+
+            let mode = validModes.has(modeFromUrl) ? modeFromUrl : safeGet();
+            if (!validModes.has(mode)) {
+                mode = "v2";
+            }
+            safeSet(mode);
+            document.documentElement.classList.toggle("mobile-layout-v2", mode === "v2");
+        })();
+
+        (function loadConfigAndInjectVersionedStyles() {
+            const loadConfig = window.AppConfig ? window.AppConfig.loadConfig() : Promise.resolve();
+            loadConfig.then(() => {
+                if (window.AppConfig) {
+                    window.AppConfig.applyDocumentMetadata(document);
+                    window.AppConfig.applyThemeTokens(document);
+                    window.AppConfig.injectFont(document);
+                }
+                const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
+                const localStylesheets = window.AppConfig
+                    ? window.AppConfig.get("assets.stylesheets", ["css/style.css", "css/stars.css", "css/Control.MiniMap.min.css"])
+                    : ["css/style.css", "css/stars.css", "css/Control.MiniMap.min.css"];
+
+                localStylesheets.forEach((href) => {
+                    const link = document.createElement("link");
+                    link.rel = "stylesheet";
+                    link.href = `${href}?v=${version}`;
+                    document.head.appendChild(link);
+                });
+            });
+        })();
+    </script>
+</head>
+<body>
+    <section id="map-chooser" class="map-chooser" aria-labelledby="map-chooser-title" aria-describedby="map-chooser-subtitle" hidden>
+        <div class="map-chooser-frame" aria-hidden="true"></div>
+        <div class="map-chooser-inner">
+            <header class="map-chooser-header">
+                <h1 id="map-chooser-title">MAP ATLAS</h1>
+                <p id="map-chooser-subtitle">MAPS OF HIRAETH</p>
+            </header>
+            <div id="map-chooser-grid" class="map-chooser-grid" aria-live="polite"></div>
+        </div>
+    </section>
+
+    <div class="container">
+        <div id="sidebar">
+            <div class="sidebar-header">
+                <button id="sidebar-back-to-chooser" class="sidebar-back-btn" title="Return to Map Chooser" aria-label="Return to Map Chooser">
+                    <i class="ui-icon" data-lucide="arrow-left" aria-hidden="true"></i>
+                    <span class="sidebar-back-title">Select Map</span>
+                </button>
+            </div>
+            <ul id="map-list">
+                </ul>
+            <div class="theme-switch-wrapper">
+                <label class="theme-switch" for="theme-checkbox">
+                    <input type="checkbox" id="theme-checkbox" aria-label="Switch to dark theme" title="Switch to dark theme" />
+                    <div class="slider round"></div>
+                </label>
+                <span>Theme</span>
+            </div>
+        </div>
+        <div id="map-container">
+            <button id="toggle-sidebar-btn" title="Collapse Sidebar" aria-label="Collapse Sidebar" aria-expanded="true">
+                <i class="ui-icon" data-lucide="chevron-left" aria-hidden="true"></i>
+            </button>
+            <div id="map">
+                <div id="star-field">
+                    <canvas id="star-canvas" aria-hidden="true"></canvas>
+                </div>
+            </div>
+
+            <div id="map-blurb"></div>
+            <div id="info-controls-container">
+                <button id="toggle-blurb-btn" class="map-control-button leaflet-control" title="Toggle Map Info" aria-label="Toggle Map Info" aria-expanded="false">
+                    <i class="ui-icon" data-lucide="info" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div id="loading-indicator" class="initial-loader">
+                <div class="spinner"></div>
+                <div class="loading-text">Loading Map Data...</div>
+                <div class="progress-container">
+                    <div class="progress-bar"></div>
+                </div>
+                <button id="loading-retry-btn" type="button">Retry</button>
+            </div>
+
+            <div id="map-controls-container">
+                <button id="custom-zoom-in" title="Zoom In" aria-label="Zoom In" class="map-control-button">
+                    <i class="ui-icon" data-lucide="plus" aria-hidden="true"></i>
+                </button>
+                <button id="custom-zoom-out" title="Zoom Out" aria-label="Zoom Out" class="map-control-button">
+                    <i class="ui-icon" data-lucide="minus" aria-hidden="true"></i>
+                </button>
+                <button id="toggle-markers-btn" title="Toggle Markers" aria-label="Hide Markers & Regions" class="map-control-button">
+                    <i class="ui-icon" data-lucide="map-pin" aria-hidden="true"></i>
+                </button>
+                <button id="toggle-filters-btn" title="Toggle Filters" aria-label="Toggle Filters" aria-expanded="false" class="map-control-button">
+                    <i class="ui-icon" data-lucide="funnel" aria-hidden="true"></i>
+                </button>
+                <button id="measure-tool-btn" title="Measure Distance" aria-label="Measure Distance" aria-pressed="false" class="map-control-button">
+                    <i class="ui-icon" data-lucide="ruler" aria-hidden="true"></i>
+                </button>
+                <button id="toggle-sound-btn" title="Toggle Sound" aria-label="Unmute Sound" aria-pressed="false" class="map-control-button">
+                    <span id="sound-icon">
+                        <i class="ui-icon" data-lucide="volume-x" aria-hidden="true"></i>
+                    </span>
+                </button>
+                <button id="toggle-coords-btn" title="Toggle Coordinate Display" aria-label="Toggle Coordinate Display" class="map-control-button" style="display: none;">
+                    <i class="ui-icon" data-lucide="globe" aria-hidden="true"></i>
+                </button>
+                <button id="share-view-btn" title="Share Current View" aria-label="Share Current View" class="map-control-button">
+                    <i class="ui-icon" data-lucide="share-2" aria-hidden="true"></i>
+                </button>
+                <button id="help-btn" title="Help & About" aria-label="Help and About" class="map-control-button">
+                    <i class="ui-icon" data-lucide="circle-help" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div id="onboarding-coachmark" role="status" aria-live="polite" hidden>
+                <p>New here? Open the Traveler's Guide for controls and shortcuts.</p>
+                <div class="onboarding-actions">
+                    <button id="onboarding-open-help-btn" type="button">Open Guide</button>
+                    <button id="onboarding-dismiss-btn" type="button">Dismiss</button>
+                </div>
+            </div>
+            <div id="share-relay-coachmark" role="status" aria-live="polite" hidden>
+                <p id="share-relay-copy">Shared with you. Pass it on to your party.</p>
+                <div class="onboarding-actions">
+                    <button id="share-relay-action-btn" type="button">Share This</button>
+                    <button id="share-relay-dismiss-btn" type="button">Dismiss</button>
+                </div>
+            </div>
+
+            <div id="coordinate-display" class="coordinate-control" style="display: none;">
+                <span>0.0° N, 0.0° W</span>
+                <button class="copy-coords-btn" title="Copy Coordinates" aria-label="Copy Coordinates">
+                    <span class="copy-coords-icon" aria-hidden="true">
+                        <i class="ui-icon" data-lucide="copy"></i>
+                    </span>
+                    <span class="copy-coords-copied-msg" aria-hidden="true">
+                        <i class="ui-icon" data-lucide="check"></i>
+                    </span>
+                    <span class="copy-coords-error-msg" aria-hidden="true">
+                        <i class="ui-icon" data-lucide="x"></i>
+                    </span>
+                </button>
+            </div>
+
+            <div id="active-filters-container" class="leaflet-control" aria-live="polite"></div>
+            <button id="mobile-info-help-btn" type="button" aria-label="Open map info and help" aria-pressed="false" aria-expanded="false">
+                <i class="ui-icon" data-lucide="info" aria-hidden="true"></i>
+            </button>
+            <button id="mobile-tools-launcher-btn" type="button" aria-label="Open tools" aria-pressed="false" aria-expanded="false">
+                <i class="ui-icon" data-lucide="sliders-horizontal" aria-hidden="true"></i>
+            </button>
+            <div id="mobile-dock" aria-label="Mobile navigation">
+                <button id="mobile-sheet-launcher-btn" type="button" aria-label="Open atlas" aria-pressed="false" aria-expanded="false">
+                    <i class="ui-icon" data-lucide="chevron-right" aria-hidden="true"></i>
+                    <span class="mobile-fab-label">Atlas</span>
+                </button>
+                <button id="mobile-search-launcher-btn" type="button" aria-label="Open search" aria-pressed="false" aria-expanded="false">
+                    <i class="ui-icon" data-lucide="search" aria-hidden="true"></i>
+                    <span class="mobile-fab-label">Search</span>
+                </button>
+            </div>
+            <div id="mobile-search-card" aria-hidden="true">
+                <div id="mobile-search-card-header">
+                    <div class="mobile-sheet-header-copy">
+                        <strong id="mobile-search-card-title">Search</strong>
+                    </div>
+                    <button id="mobile-search-card-close-btn" type="button" aria-label="Close search">
+                        <i class="ui-icon" data-lucide="x" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div id="mobile-search-card-body">
+                    <div id="mobile-search-card-search-slot"></div>
+                    <div id="mobile-search-card-results-slot" hidden></div>
+                </div>
+            </div>
+            <div id="mobile-tools-card" aria-hidden="true">
+                <div id="mobile-tools-card-header">
+                    <div class="mobile-sheet-header-copy">
+                        <strong id="mobile-tools-card-title">Tools</strong>
+                    </div>
+                    <button id="mobile-tools-card-close-btn" type="button" aria-label="Close tools">
+                        <i class="ui-icon" data-lucide="x" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div id="mobile-tools-card-body">
+                    <div id="mobile-tools-actions" aria-label="Map tools">
+                        <button id="mobile-markers-btn" type="button" aria-pressed="true">
+                            <i class="ui-icon" data-lucide="map-pin" aria-hidden="true"></i>
+                            <span>Markers</span>
+                        </button>
+                        <button id="mobile-filters-btn" type="button" aria-pressed="false">
+                            <i class="ui-icon" data-lucide="funnel" aria-hidden="true"></i>
+                            <span>Filters</span>
+                        </button>
+                        <button id="mobile-measure-btn" type="button" aria-pressed="false">
+                            <i class="ui-icon" data-lucide="ruler" aria-hidden="true"></i>
+                            <span>Measure</span>
+                        </button>
+                        <button id="mobile-sound-btn" type="button" aria-pressed="false">
+                            <i class="ui-icon" data-lucide="volume-x" aria-hidden="true"></i>
+                            <span>Sound</span>
+                        </button>
+                        <button id="mobile-coords-btn" type="button" aria-pressed="false">
+                            <i class="ui-icon" data-lucide="globe" aria-hidden="true"></i>
+                            <span>Coords</span>
+                        </button>
+                        <button id="mobile-share-view-btn" type="button">
+                            <i class="ui-icon" data-lucide="share-2" aria-hidden="true"></i>
+                            <span>Share</span>
+                        </button>
+                        <button id="mobile-help-btn" type="button">
+                            <i class="ui-icon" data-lucide="circle-help" aria-hidden="true"></i>
+                            <span>Guide</span>
+                        </button>
+                        <button id="mobile-routes-btn" type="button" aria-pressed="false">
+                            <i class="ui-icon" data-lucide="route" aria-hidden="true"></i>
+                            <span>Routes</span>
+                        </button>
+                    </div>
+                    <div id="mobile-tools-panel-slot" hidden></div>
+                </div>
+            </div>
+            <div id="search-control-container" class="leaflet-control">
+                <label for="poi-search-input" class="sr-only">Search locations</label>
+                <div class="search-input-shell">
+                    <input type="search" id="poi-search-input" placeholder="Search locations...">
+                    <div class="search-inline-actions">
+                        <button id="search-scope-atlas-btn" type="button" aria-pressed="false">Atlas</button>
+                        <button id="search-refine-filters-btn" type="button">Filters</button>
+                        <button id="search-refine-clear-btn" type="button">Clear</button>
+                    </div>
+                </div>
+            </div>
+            <div id="search-results-container" class="leaflet-control"></div>
+            <div id="poi-filter-container" class="leaflet-control">
+                 <h3>Filter by Type:</h3>
+                 <div class="filter-item">
+                     <input type="checkbox" id="filter-toggle-all" checked>
+                     <label for="filter-toggle-all">Show All / Hide All</label>
+                 </div>
+                 <div id="dynamic-filters-container"></div>
+            </div>
+            <div id="route-panel" class="leaflet-control">
+                <div class="panel-header">
+                    <div>
+                        <strong>Routes</strong>
+                        <span id="route-count-badge" class="pill muted">0</span>
+                    </div>
+                    <div class="panel-actions">
+                        <button id="route-start-btn" type="button">Start</button>
+                        <button id="route-reset-btn" type="button">Reset</button>
+                        <button id="route-collapse-btn" type="button" aria-expanded="true">Collapse</button>
+                    </div>
+                </div>
+                <label class="sr-only" for="route-select">Select route</label>
+                <select id="route-select"></select>
+                <div id="route-step-list" class="stacked-list"></div>
+            </div>
+
+            <div id="bottom-link-bar">
+                <a href="#" target="_blank" rel="noopener noreferrer">Wiki</a>
+                <a href="#" target="_blank" rel="noopener noreferrer">Blog</a>
+                <a href="#" id="about-link" class="back-link">About</a>
+                <a href="#" target="_blank" rel="noopener noreferrer">Source </a>
+            </div>
+            <div id="sidebar-backdrop" aria-hidden="true"></div>
+        </div>
+    </div>
+
+    <audio id="light-ambient" loop preload="none"> <source data-src="sounds/gentle-winds.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+    <audio id="dark-ambient" loop preload="none"> <source data-src="sounds/night-ambient.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+
+    <script src="js/libs/purify.min.js"></script>
+
+    <script>
+        (function loadVersionedLocalScripts() {
+            const ready = window.AppConfig ? window.AppConfig.ready : Promise.resolve();
+
+            function appendScript(src, onload) {
+                const script = document.createElement("script");
+                const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
+                script.src = `${src}?v=${version}`;
+                if (typeof onload === "function") {
+                    script.onload = onload;
+                }
+                document.body.appendChild(script);
+            }
+
+            ready.then(() => {
+                if (window.AppConfig) {
+                    window.AppConfig.hydrateStaticDom(document);
+                    document.addEventListener("DOMContentLoaded", () => {
+                        window.AppConfig.hydrateStaticDom(document);
+                    }, { once: true });
+                }
+                const scripts = window.AppConfig
+                    ? window.AppConfig.get("assets.scripts", ["js/libs/leaflet.js", "js/libs/Control.MiniMap.min.js", "js/libs/lucide.min.js", "js/starfield.js", "js/shared-utils.js", "js/app.js"])
+                    : ["js/libs/leaflet.js", "js/libs/Control.MiniMap.min.js", "js/libs/lucide.min.js", "js/starfield.js", "js/shared-utils.js", "js/app.js"];
+                const appendNext = (index) => {
+                    if (index >= scripts.length) return;
+                    appendScript(scripts[index], () => appendNext(index + 1));
+                };
+                appendNext(0);
+            }).catch(() => {
+                appendScript("js/libs/leaflet.js", () => {
+                    appendScript("js/libs/Control.MiniMap.min.js", () => {
+                        appendScript("js/libs/lucide.min.js", () => {
+                            appendScript("js/starfield.js", () => {
+                                appendScript("js/shared-utils.js", () => {
+                                    appendScript("js/app.js");
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        })();
+    </script>
+
+    <div id="wip-popup">
+        <p>This atlas is still being refined.</p>
+        <p>Some markers, names, and boundaries may be inaccurate.</p>
+    </div>
+    <div id="about-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button id="close-about-modal-btn" class="modal-close-btn" aria-label="Close Modal">&times;</button>
+            <div class="modal-tabs">
+                <button class="tab-btn active" data-tab="guide">Guide</button>
+            </div>
+
+            <div class="modal-body">
+                <div id="tab-guide" class="tab-content active"></div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
