@@ -656,7 +656,6 @@ let currentSidebarState = 'o';
 let markersVisible = true; // <--- THIS SHOULD BE TRUE FOR VISIBLE BY DEFAULT
 let currentLatLonBounds = null;
 let coordsLocked = false;
-let lockedCoords = null;
 const transitionDuration = 300; // ms for sidebar animation
 let filtersPanelVisible = false; // State for combined filter panel visibility
 
@@ -6154,7 +6153,6 @@ function updateCoordinates(e) {
     if (!currentLatLonBounds || !currentBounds) return;
 
     const { lat, lon } = projectMapPointToLatLon(e.latlng, currentLatLonBounds, currentBounds);
-    lockedCoords = { lat, lon };
     updateCoordinateDisplay(lat, lon);
 }
 
