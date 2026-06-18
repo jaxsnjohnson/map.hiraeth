@@ -167,12 +167,6 @@
                 <button id="toggle-blurb-btn" class="map-control-button leaflet-control" title="Toggle Map Info" aria-label="Toggle Map Info" aria-expanded="false">
                     <i class="ui-icon" data-lucide="info" aria-hidden="true"></i>
                 </button>
-                <button id="toggle-gm-panel-btn" class="map-control-button leaflet-control" title="Toggle GM View Panel" aria-label="Toggle GM View Panel" aria-pressed="false">
-                    <i class="ui-icon" data-lucide="shield" aria-hidden="true"></i>
-                </button>
-                <button id="toggle-toolkit-panel-btn" class="map-control-button leaflet-control" title="Toggle Session Toolkit Panel" aria-label="Toggle Session Toolkit Panel" aria-pressed="false">
-                    <i class="ui-icon" data-lucide="briefcase" aria-hidden="true"></i>
-                </button>
             </div>
 
             <div id="loading-indicator" class="initial-loader">
@@ -245,11 +239,6 @@
                 </button>
             </div>
 
-            <div id="gm-pill" class="leaflet-control" title="Game Master view toggle">
-                <span id="gm-status-label" class="gm-drag-handle" title="Drag to move">GM View: Auto</span>
-                <button id="gm-toggle-btn" type="button">Toggle</button>
-            </div>
-
             <div id="active-filters-container" class="leaflet-control" aria-live="polite"></div>
             <button id="mobile-info-help-btn" type="button" aria-label="Open map info and help" aria-pressed="false" aria-expanded="false">
                 <i class="ui-icon" data-lucide="info" aria-hidden="true"></i>
@@ -320,17 +309,9 @@
                             <i class="ui-icon" data-lucide="circle-help" aria-hidden="true"></i>
                             <span>Guide</span>
                         </button>
-                        <button id="mobile-gm-view-btn" type="button" aria-pressed="false">
-                            <i class="ui-icon" data-lucide="shield" aria-hidden="true"></i>
-                            <span>GM View</span>
-                        </button>
                         <button id="mobile-routes-btn" type="button" aria-pressed="false">
                             <i class="ui-icon" data-lucide="route" aria-hidden="true"></i>
                             <span>Routes</span>
-                        </button>
-                        <button id="mobile-toolkit-btn" type="button" aria-pressed="false">
-                            <i class="ui-icon" data-lucide="briefcase" aria-hidden="true"></i>
-                            <span>Toolkit</span>
                         </button>
                     </div>
                     <div id="mobile-tools-panel-slot" hidden></div>
@@ -371,40 +352,6 @@
                 <label class="sr-only" for="route-select">Select route</label>
                 <select id="route-select"></select>
                 <div id="route-step-list" class="stacked-list"></div>
-            </div>
-
-            <div id="session-toolkit" class="leaflet-control">
-                <div class="panel-header">
-                    <strong>Session Toolkit</strong>
-                    <button id="toolkit-collapse-btn" type="button" aria-expanded="true">Collapse</button>
-                </div>
-                <div class="tool-block">
-                    <div class="tool-row">
-                        <label for="travel-distance-input">Distance (km)</label>
-                        <input type="number" id="travel-distance-input" min="0" step="0.1" placeholder="e.g. 12">
-                    </div>
-                    <div class="tool-row">
-                        <label for="travel-mode-select">Mode</label>
-                        <select id="travel-mode-select">
-                            <option value="5">On foot (5 km/h)</option>
-                            <option value="8">Horse (8 km/h)</option>
-                            <option value="15">Ship (15 km/h)</option>
-                        </select>
-                    </div>
-                    <div id="travel-time-output" class="tool-output">Travel time will appear here.</div>
-                </div>
-                <div class="tool-block">
-                    <div class="tool-row">
-                        <label for="encounter-select">Encounter Table</label>
-                        <select id="encounter-select"></select>
-                    </div>
-                    <div class="tool-row">
-                        <button id="encounter-roll-btn" type="button">Roll Encounter</button>
-                        <button id="encounter-view-btn" type="button">View Full List</button>
-                    </div>
-                    <div id="encounter-result" class="tool-output"></div>
-                    <div id="encounter-table-list" class="stacked-list" style="display:none;"></div>
-                </div>
             </div>
 
             <div id="bottom-link-bar">
