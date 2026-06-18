@@ -106,3 +106,7 @@
 ## 2025-06-10 - Optimize search results DOM insertions with DocumentFragment
 **Learning:** When evaluating DOM optimization techniques like `DocumentFragment` vs `appendChild`, micro-benchmarks on isolated containers (e.g., via jsdom or basic HTML pages) often show negligible differences or even slight regressions (like the -4.09% observed). The real performance benefit of `DocumentFragment` minimizing repaints and reflows is best observed when appending to an active, connected DOM with complex CSS rendering rules in a real browser.
 **Action:** Always write the DocumentFragment optimization for batch UI updates, but recognize when to benchmark. If a micro-benchmark using JSDOM regressions, document the rationale explaining that the actual win happens in the connected rendering pipeline.
+
+## 2024-06-25 - Cache Region Filter Groups
+**Learning:** Automatically generating region filter groups involves iterating through potentially thousands of region entries, sorting, and array manipulation. Re-running this multiple times when the regions data pointer is stable causes performance degradation on render paths.
+**Action:** Use a `WeakMap` to cache the derived filter groups object by using the `regions` array as the key, guaranteeing stable cache hits without memory leaks. Furthermore, tracking unique values initially into a plain object `Object.create(null)` bypasses the `Set` conversion overhead (`Array.from(set).sort()`).

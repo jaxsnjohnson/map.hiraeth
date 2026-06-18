@@ -1,0 +1,13 @@
+{
+    "id": "OLD-Fair",
+    "name": "Fair",
+    "width": 6560,
+    "height": 5040,
+    "imageUrl": "maps/OLD-Fair.webp",
+    "scalePixels": 1,
+    "scaleKilometers": 1,
+  "blurb": "This map was made in 2015, while it has been fleshed out, kingdoms come and went, a lot of imagination started here.",
+  "selectorDescription": "An early Fair-era map that shaped the setting's first ideas.",
+    "pointsOfInterest": [],
+    "regions": []
+}

@@ -1,0 +1,13 @@
+{
+    "id": "OLD-Icebeach-LARGE",
+    "name": "Large Icebeach",
+    "width": 4032,
+    "height": 3024,
+    "imageUrl": "maps/OLD-Icebeach-LARGE.webp",
+    "scalePixels": 1,
+    "scaleKilometers": 1,
+  "blurb": "This map was made in 2020s for Icebeach.",
+  "selectorDescription": "A larger 2020s Icebeach map from the early campaigns.",
+    "pointsOfInterest": [],
+    "regions": []
+}
