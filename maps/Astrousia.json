@@ -1,0 +1,102 @@
+{
+  "id": "Astrousia",
+  "name": "Astrousia",
+  "width": 7308,
+  "height": 8192,
+  "imageUrl": "maps/Astrousia.webp",
+  "scalePixels": 1,
+  "scaleKilometers": 1,
+  "blurb": "This map is still a work in progress.",
+  "selectorDescription": "A development and archive map of Astrousia.",
+  "pointsOfInterest": [
+    {
+      "name": "City Eh",
+      "coords": [
+        5119,
+        4268
+      ],
+      "type": "Unknown",
+      "description": "",
+      "summary": "",
+      "wikiLink": "",
+      "linkedMapId": "",
+      "properties": {},
+      "pronunciation": ""
+    },
+    {
+      "name": "City One",
+      "coords": [
+        5504,
+        3982
+      ],
+      "type": "Unknown",
+      "description": "",
+      "summary": "",
+      "wikiLink": "",
+      "linkedMapId": "",
+      "properties": {},
+      "pronunciation": ""
+    },
+    {
+      "name": "City Uno",
+      "coords": [
+        5368,
+        3601
+      ],
+      "type": "Unknown",
+      "description": "",
+      "summary": "",
+      "wikiLink": "",
+      "linkedMapId": "",
+      "properties": {},
+      "pronunciation": ""
+    },
+    {
+      "name": "CMC",
+      "coords": [
+        4572,
+        4245
+      ],
+      "type": "Unknown",
+      "description": "",
+      "summary": "",
+      "wikiLink": "",
+      "linkedMapId": "",
+      "properties": {},
+      "pronunciation": ""
+    },
+    {
+      "name": "Mountain",
+      "coords": [
+        4471,
+        4226
+      ],
+      "type": "Unknown",
+      "description": "",
+      "summary": "",
+      "wikiLink": "",
+      "linkedMapId": "",
+      "properties": {},
+      "pronunciation": ""
+    },
+    {
+      "name": "Ruins",
+      "coords": [
+        4854,
+        3948
+      ],
+      "type": "Unknown",
+      "description": "",
+      "summary": "",
+      "wikiLink": "",
+      "linkedMapId": "",
+      "properties": {},
+      "pronunciation": ""
+    }
+  ],
+  "regions": [],
+  "lines": [],
+  "filterGroups": {
+    "Regions": {}
+  }
+}
