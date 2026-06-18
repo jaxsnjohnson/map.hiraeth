@@ -147,7 +147,6 @@ let isMeasuringMultiPoint = false; // Tracks if multi-point mode is active
 let multiPointPath = []; // Array of L.LatLng objects for the current path
 let multiPointPolyline = null; // The L.Polyline layer for the drawn path
 let multiPointVertexMarkers = []; // Array of L.CircleMarker for vertices
-let multiPointSegmentTooltips = []; // Array of L.Tooltip for segment lengths (optional)
 let multiPointTotalTooltip = null; // L.Tooltip for the total path length
 let temporaryMouseMoveLine = null; // L.Polyline for the line from last point to cursor
 let temporaryMouseMoveTooltip = null; // L.Tooltip for the temporary line's length
