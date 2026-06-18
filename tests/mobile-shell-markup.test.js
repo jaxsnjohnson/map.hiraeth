@@ -24,9 +24,13 @@ assert.match(indexSource, /id="mobile-sound-btn"/);
 assert.match(indexSource, /id="mobile-coords-btn"/);
 assert.match(indexSource, /id="mobile-share-view-btn"/);
 assert.match(indexSource, /id="mobile-help-btn"/);
-assert.match(indexSource, /id="mobile-gm-view-btn"/);
 assert.match(indexSource, /id="mobile-routes-btn"/);
-assert.match(indexSource, /id="mobile-toolkit-btn"/);
+assert.doesNotMatch(indexSource, /id="mobile-gm-view-btn"/);
+assert.doesNotMatch(indexSource, /id="mobile-toolkit-btn"/);
+assert.doesNotMatch(indexSource, /id="toggle-gm-panel-btn"/);
+assert.doesNotMatch(indexSource, /id="toggle-toolkit-panel-btn"/);
+assert.doesNotMatch(indexSource, /id="gm-pill"/);
+assert.doesNotMatch(indexSource, /id="session-toolkit"/);
 assert.ok(indexSource.indexOf('id="mobile-dock"') < indexSource.indexOf('id="mobile-search-card"'));
 assert.ok(indexSource.indexOf('id="mobile-search-card"') < indexSource.indexOf('id="search-control-container"'));
 
