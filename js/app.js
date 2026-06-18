@@ -4966,7 +4966,10 @@ function finalizeMapUI(requestedMapId, selectedMap) {
     updateCurrentControlVisibility(selectedMap);
     updateActiveFilterChips();
 
-    mapListElement.querySelectorAll('.active').forEach(item => item.classList.remove('active'));
+    const activeItems = mapListElement.getElementsByClassName('active');
+    while (activeItems.length > 0) {
+        activeItems[0].classList.remove('active');
+    }
     const activeMapItem = document.querySelector(`#map-list .map-item[data-map-id="${requestedMapId}"]`);
     const activeFolderHeader = document.querySelector(`#map-list .folder-header[data-map-id="${requestedMapId}"]`);
     if (activeMapItem) {
