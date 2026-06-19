@@ -9,8 +9,10 @@ const {
     detectLineCollectionKey,
     filterMapTree,
     findMapRecursive,
+    normalizeDetailSections,
     normalizeManifestTree,
     normalizePoint,
+    normalizeTags,
     createUnavailableMapEntry,
     resolveFileBackedMapDocument,
     resolveFeatureIndexFromSelection,
@@ -96,10 +98,20 @@ assert.deepEqual(filterMapTree({ a: 1 }, 'query'), { a: 1 });
 const normalizedPoint = normalizePoint({
     name: 'Round Trip',
     coords: ['11.7', '9.2'],
-    linkedMapId: 'linked-map'
+    linkedMapId: 'linked-map',
+    detailSections: [
+        { heading: 'At a glance', body: 'Busy harbor.' },
+        { heading: '', body: '' },
+        'invalid'
+    ],
+    tags: ['Harbor', 'trade', 'Harbor']
 });
 assert.deepEqual(normalizedPoint.coords, [12, 9]);
 assert.equal(normalizedPoint.linkedMapId, 'linked-map');
+assert.deepEqual(normalizedPoint.detailSections, [{ heading: 'At a glance', body: 'Busy harbor.' }]);
+assert.deepEqual(normalizedPoint.tags, ['Harbor', 'trade']);
+assert.deepEqual(normalizeDetailSections(null), []);
+assert.deepEqual(normalizeTags(['  One  ', '', 'one', 'Two']), ['One', 'Two']);
 
 assert.equal(detectLineCollectionKey(findMapRecursive(clonedManifest, 'main-map')), 'roads');
 assert.equal(detectLineCollectionKey({ lines: [] }), 'lines');
@@ -116,6 +128,8 @@ const serializedManifest = serializeEditorState({
             type: 'Harbor',
             summary: 'Updated summary',
             linkedMapId: 'harbor-map',
+            detailSections: [{ heading: 'Dockside', body: 'Old pilings and fish markets.' }],
+            tags: ['Harbor', 'Trade'],
             customFlag: true
         },
         {
@@ -123,7 +137,9 @@ const serializedManifest = serializeEditorState({
             coords: [15, 30],
             type: 'Point of Interest',
             linkedMapId: 'plaza-map',
-            properties: { mood: 'busy' }
+            properties: { mood: 'busy' },
+            detailSections: [{ heading: 'Foot traffic', body: 'Crowded on market days.' }],
+            tags: ['Market']
         }
     ],
     collectedRegions: [
@@ -170,7 +186,11 @@ assert.equal(serializedMap.group, 'Countries');
 assert.equal(serializedMap.category, undefined);
 assert.equal(serializedMap.pointsOfInterest.find((point) => point.name === 'Old Dock').customFlag, true);
 assert.equal(serializedMap.pointsOfInterest.find((point) => point.name === 'Old Dock').linkedMapId, 'harbor-map');
+assert.deepEqual(serializedMap.pointsOfInterest.find((point) => point.name === 'Old Dock').detailSections, [{ heading: 'Dockside', body: 'Old pilings and fish markets.' }]);
+assert.deepEqual(serializedMap.pointsOfInterest.find((point) => point.name === 'Old Dock').tags, ['Harbor', 'Trade']);
 assert.equal(serializedMap.pointsOfInterest.find((point) => point.name === 'New Plaza').linkedMapId, 'plaza-map');
+assert.deepEqual(serializedMap.pointsOfInterest.find((point) => point.name === 'New Plaza').detailSections, [{ heading: 'Foot traffic', body: 'Crowded on market days.' }]);
+assert.deepEqual(serializedMap.pointsOfInterest.find((point) => point.name === 'New Plaza').tags, ['Market']);
 assert.equal(serializedMap.regions.find((region) => region.name === 'South Ward').linkedMapId, 'south-map');
 assert.equal(serializedMap.roads.find((line) => line.id === 'road-1').linkedMapId, 'road-map');
 assert.equal(serializedMap.lines, undefined);

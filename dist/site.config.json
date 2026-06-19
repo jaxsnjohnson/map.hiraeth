@@ -15,7 +15,7 @@
     }
   },
   "assets": {
-    "version": "0.1.7",
+    "version": "0.1.10",
     "cloudTexture": "images/clouds.webp",
     "previewImage": "images/hiraeth-maps-preview.png",
     "poiIcons": {
@@ -96,8 +96,8 @@
     "filters": true,
     "coordinates": true,
     "routes": true,
-    "sessionToolkit": true,
-    "gmMode": true,
+    "sessionToolkit": false,
+    "gmMode": false,
     "editor": true,
     "onboarding": true,
     "wipNotice": true,

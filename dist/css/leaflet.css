@@ -61,7 +61,8 @@
 	}
 
 .leaflet-container img.leaflet-tile {
-	/* See: https://bugs.chromium.org/p/chromium/issues/detail?id=600120 */
+	/* Keep until Chromium issue 40084005 (formerly 600120) no longer causes 1px tile seams. */
+	/* See: https://issues.chromium.org/issues/40084005 */
 	mix-blend-mode: plus-lighter;
 }
 
@@ -99,11 +100,6 @@
 	     box-sizing: border-box;
 	z-index: 800;
 	}
-/* workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=888319 */
-.leaflet-overlay-pane svg {
-	-moz-user-select: none;
-	}
-
 .leaflet-pane         { z-index: 400; }
 
 .leaflet-tile-pane    { z-index: 200; }

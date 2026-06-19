@@ -55,7 +55,18 @@ fs.writeFileSync(path.join(mapsDir, 'file-backed-map.json'), `${JSON.stringify({
         {
             name: 'File POI',
             coords: [10, 20],
-            type: 'Landmark'
+            type: 'Landmark',
+            properties: {
+                Faction: 'Harbor Guild',
+                Nested: { ignored: true }
+            },
+            detailSections: [
+                {
+                    heading: 'Secret toll',
+                    body: 'Collectors watch the lower quay.'
+                }
+            ],
+            tags: ['Trade', 'Smuggling']
         }
     ]
 }, null, 2)}\n`);
@@ -95,6 +106,13 @@ assert.ok(fs.existsSync(path.join(mapsDir, 'generated', 'inline-map.json')));
 const filePoi = atlas.searchIndex.find((entry) => entry.kind === 'poi' && entry.mapId === 'file-backed-map');
 assert.ok(filePoi);
 assert.equal(filePoi.name, 'File POI');
+assert.match(filePoi.searchText, /Secret toll/);
+assert.match(filePoi.searchText, /Collectors watch the lower quay/);
+assert.match(filePoi.searchText, /Trade Smuggling/);
+assert.match(filePoi.searchText, /Faction Harbor Guild/);
+assert.equal(filePoi.detailSections, undefined);
+assert.equal(filePoi.tags, undefined);
+assert.equal(filePoi.properties, undefined);
 
 const ignored = atlas.searchIndex.find((entry) => entry.mapId === 'unreferenced-map');
 assert.equal(ignored, undefined);

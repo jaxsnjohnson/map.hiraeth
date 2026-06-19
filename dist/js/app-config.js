@@ -19,7 +19,7 @@
 
     function getDefaultAssetsConfig() {
         return {
-                version: '0.1.7',
+                version: '0.1.10',
                 stylesheets: [
                     'css/leaflet.css',
                     'css/style.css',
@@ -168,8 +168,8 @@
                 filters: true,
                 coordinates: true,
                 routes: true,
-                sessionToolkit: true,
-                gmMode: true,
+                sessionToolkit: false,
+                gmMode: false,
                 editor: true,
                 onboarding: true,
                 wipNotice: true,

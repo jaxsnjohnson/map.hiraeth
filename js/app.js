@@ -514,9 +514,9 @@ function createPopupContent(data, type) {
         return headerHtml;
     }
 
-    const { mainContent, readMoreButton } = buildPopupMainContainer(safeSummary, fullContentInnerHtml, hasSummary, hasFullContent);
+    const { mainContent } = buildPopupMainContainer(safeSummary, fullContentInnerHtml, hasSummary, hasFullContent);
 
-    return headerHtml + mainContent + readMoreButton;
+    return headerHtml + mainContent;
 }
 
 function buildPopupHeader(data, type, safePronunciation) {
@@ -567,7 +567,6 @@ function buildPopupFullContent(data, safeDescription) {
 
 function buildPopupMainContainer(safeSummary, fullContentInnerHtml, hasSummary, hasFullContent) {
     let mainContent = '';
-    let readMoreButton = '';
 
     if (hasSummary) {
         mainContent = `
@@ -575,25 +574,16 @@ function buildPopupMainContainer(safeSummary, fullContentInnerHtml, hasSummary, 
                 <div class="popup-summary">
                     <p>${safeSummary}</p>
                 </div>
-                <div class="popup-full-content">
-                    ${fullContentInnerHtml}
-                </div>
             </div>
         `;
-        if (hasFullContent) {
-            readMoreButton = `<button type="button" class="popup-read-more" aria-expanded="false" onclick="togglePopupExpand(this)">Read More</button>`;
-        }
-    } else {
+    } else if (hasFullContent) {
         mainContent = `
             <div class="popup-content-container">
                 ${fullContentInnerHtml}
             </div>
         `;
-        if (hasFullContent) {
-            readMoreButton = `<button type="button" class="popup-read-more" aria-expanded="false" onclick="togglePopupExpand(this)">Read More</button>`;
-        }
     }
-    return { mainContent, readMoreButton };
+    return { mainContent, readMoreButton: '' };
 }
 
 // --- Auto-generate a reverse map for quick lookup (Type -> Group) ---
@@ -736,6 +726,9 @@ function getVisibleEncounterTables(mapObj) {
 const container = document.querySelector('.container');
 const sidebar = document.getElementById('sidebar');
 const mapListElement = document.getElementById('map-list');
+const sidebarTabs = document.getElementById('sidebar-tabs');
+const sidebarMapPanel = document.getElementById('sidebar-map-panel');
+const sidebarPoiPanel = document.getElementById('sidebar-poi-panel');
 const toggleBtn = document.getElementById('toggle-sidebar-btn');
 const mapChooserElement = document.getElementById('map-chooser');
 const mapChooserGrid = document.getElementById('map-chooser-grid');
@@ -890,6 +883,9 @@ const hasPriorPreferenceState =
 advancedControlsUnlocked = storedAdvancedControlsFlag === 'true' ||
     (storedAdvancedControlsFlag === null && storedOnboardingFlag === null && hasPriorPreferenceState);
 coordsDisplayEnabled = safeGetStorage(UX_STORAGE_KEYS.coordsVisible) === 'true';
+let currentSidebarTab = 'maps';
+let selectedSidebarFeature = null;
+let selectedSidebarFeatureType = '';
 
 
 // --- Helper Functions ---
@@ -1689,6 +1685,325 @@ function shouldIgnoreMapPointerEvent(event) {
         return true;
     }
     return false;
+}
+
+function normalizeSidebarTab(value) {
+    return ['maps', 'details'].includes(value) ? value : 'maps';
+}
+
+function createSidebarTextElement(tagName, className, text) {
+    const element = document.createElement(tagName);
+    if (className) element.className = className;
+    element.textContent = text;
+    return element;
+}
+
+function clearSidebarElement(element) {
+    if (!element) return;
+    if (typeof element.replaceChildren === 'function') {
+        element.replaceChildren();
+        return;
+    }
+    element.innerHTML = '';
+}
+
+function getSidebarPlainText(value) {
+    return stripHtml(String(value || '')).replace(/\s+/g, ' ').trim();
+}
+
+function truncateSidebarText(value, maxLength = 220) {
+    const text = getSidebarPlainText(value);
+    if (text.length <= maxLength) return text;
+    return `${text.slice(0, Math.max(0, maxLength - 1)).trim()}...`;
+}
+
+function getSidebarFeatureTitle(feature) {
+    return String(feature?.name || feature?.id || 'Selected feature').trim();
+}
+
+function getSidebarFeatureTypeLabel(feature, type) {
+    if (type === 'poi') return getPoiGroup(feature?.type) || feature?.type || 'POI';
+    if (type === 'region') return feature?.value || feature?.type || 'Region';
+    if (type === 'line') return feature?.type || 'Line';
+    return 'Feature';
+}
+
+function getSidebarFeatureKicker(feature, type) {
+    const typeLabel = getSidebarFeatureTypeLabel(feature, type);
+    if (type === 'poi') return `POI / ${typeLabel}`;
+    if (type === 'region') return `Region / ${typeLabel}`;
+    if (type === 'line') return `Line / ${typeLabel}`;
+    return typeLabel;
+}
+
+function appendSidebarMetaRow(parent, label, value) {
+    const text = String(value || '').trim();
+    if (!text) return;
+    const row = document.createElement('div');
+    row.className = 'sidebar-detail-meta-row';
+    row.appendChild(createSidebarTextElement('span', 'sidebar-detail-meta-label', label));
+    row.appendChild(createSidebarTextElement('span', 'sidebar-detail-meta-value', text));
+    parent.appendChild(row);
+}
+
+function getFeaturePrimitiveProperties(feature) {
+    const properties = feature?.properties;
+    if (!properties || typeof properties !== 'object' || Array.isArray(properties)) return [];
+    return Object.entries(properties)
+        .filter(([, value]) => value !== null && value !== undefined && typeof value !== 'object');
+}
+
+function getSidebarFeatureProperties(feature) {
+    return getFeaturePrimitiveProperties(feature).slice(0, 8);
+}
+
+function getFeatureDetailSections(feature) {
+    const sections = Array.isArray(feature?.detailSections) ? feature.detailSections : [];
+    return sections
+        .map((section) => {
+            if (!section || typeof section !== 'object' || Array.isArray(section)) return null;
+            const heading = getSidebarPlainText(section.heading);
+            const body = getSidebarPlainText(section.body);
+            if (!heading && !body) return null;
+            return { heading, body };
+        })
+        .filter(Boolean);
+}
+
+function getFeatureTags(feature) {
+    if (!Array.isArray(feature?.tags)) return [];
+    const seen = new Set();
+    return feature.tags
+        .map((tag) => getSidebarPlainText(tag))
+        .filter((tag) => {
+            const key = tag.toLowerCase();
+            if (!tag || seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+}
+
+function getFeatureSearchDetailText(feature) {
+    const detailSectionText = getFeatureDetailSections(feature)
+        .map((section) => `${section.heading} ${section.body}`)
+        .join(' ');
+    const tagText = getFeatureTags(feature).join(' ');
+    const propertyText = getFeaturePrimitiveProperties(feature)
+        .map(([key, value]) => `${key} ${String(value)}`)
+        .join(' ');
+    return [
+        feature?.summary || '',
+        feature?.description || '',
+        detailSectionText,
+        tagText,
+        propertyText
+    ].join(' ');
+}
+
+function buildSidebarFeatureDetailModel(feature, type) {
+    if (!feature) return null;
+    const summary = getSidebarPlainText(feature.summary);
+    const description = getSidebarPlainText(feature.description);
+    const linkedMap = resolveLinkedMapData(feature);
+    const metaRows = [
+        ['Type', feature.type || getSidebarFeatureTypeLabel(feature, type)],
+        ['Linked map', linkedMap?.name || ''],
+        ['ID', feature.id || ''],
+        ...getSidebarFeatureProperties(feature)
+    ].filter(([, value]) => String(value || '').trim());
+
+    return {
+        title: getSidebarFeatureTitle(feature),
+        kicker: getSidebarFeatureKicker(feature, type),
+        summary,
+        description: description && description !== summary ? description : '',
+        metaRows,
+        sections: getFeatureDetailSections(feature),
+        tags: getFeatureTags(feature),
+        linkedMap
+    };
+}
+
+function appendSidebarTextSection(parent, title, body) {
+    if (!body) return;
+    const section = document.createElement('section');
+    section.className = 'sidebar-detail-section';
+    if (title) {
+        section.appendChild(createSidebarTextElement('h3', 'sidebar-detail-section-title', title));
+    }
+    section.appendChild(createSidebarTextElement('p', 'sidebar-detail-section-body', body));
+    parent.appendChild(section);
+}
+
+function appendSidebarTags(parent, tags) {
+    if (!Array.isArray(tags) || tags.length === 0) return;
+    const tagList = document.createElement('div');
+    tagList.className = 'sidebar-detail-tags';
+    tags.forEach((tag) => {
+        tagList.appendChild(createSidebarTextElement('span', 'sidebar-detail-tag', tag));
+    });
+    parent.appendChild(tagList);
+}
+
+function findSidebarFeatureLayer(feature, type) {
+    if (!feature) return null;
+    const id = String(feature.id || '').trim();
+    const name = String(feature.name || '').trim();
+    if (type === 'poi') {
+        return (id && allMapMarkersById.get(id)) || (name && allMapMarkersByName.get(name)) || null;
+    }
+    if (type === 'region') {
+        return (id && allMapRegionsById.get(id)) || (name && allMapRegionsByName.get(name)) || null;
+    }
+    if (type === 'line') {
+        return (id && allMapLinesById.get(id)) || (name && allMapLinesByName.get(name)) || null;
+    }
+    return null;
+}
+
+function focusSidebarSelectedFeature() {
+    const layer = findSidebarFeatureLayer(selectedSidebarFeature, selectedSidebarFeatureType);
+    if (!layer || !map) return;
+
+    if (typeof layer.getLatLng === 'function') {
+        map.flyTo(layer.getLatLng(), Math.max(map.getZoom(), 1));
+    } else if (typeof layer.getBounds === 'function') {
+        map.fitBounds(layer.getBounds(), { maxZoom: Math.max(map.getZoom(), 1) });
+    }
+    if (typeof layer.openPopup === 'function' && layer.getPopup && layer.getPopup()) {
+        layer.openPopup();
+    } else if (typeof layer.openPopup === 'function') {
+        layer.openPopup();
+    }
+}
+
+function renderSidebarEmptyFeature(parent) {
+    parent.appendChild(createSidebarTextElement('p', 'sidebar-detail-empty', 'No location selected.'));
+}
+
+function renderSidebarFeaturePanel() {
+    if (!sidebarPoiPanel) return;
+    clearSidebarElement(sidebarPoiPanel);
+
+    if (!selectedSidebarFeature) {
+        renderSidebarEmptyFeature(sidebarPoiPanel);
+        return;
+    }
+
+    const detailModel = buildSidebarFeatureDetailModel(selectedSidebarFeature, selectedSidebarFeatureType);
+    if (!detailModel) {
+        renderSidebarEmptyFeature(sidebarPoiPanel);
+        return;
+    }
+
+    const header = document.createElement('header');
+    header.className = 'sidebar-detail-header';
+    header.appendChild(createSidebarTextElement('span', 'sidebar-detail-kicker', detailModel.kicker));
+    header.appendChild(createSidebarTextElement('h2', 'sidebar-detail-title', detailModel.title));
+    sidebarPoiPanel.appendChild(header);
+
+    if (detailModel.summary) {
+        sidebarPoiPanel.appendChild(createSidebarTextElement('p', 'sidebar-detail-summary', truncateSidebarText(detailModel.summary, 240)));
+    }
+
+    const meta = document.createElement('div');
+    meta.className = 'sidebar-detail-meta';
+    detailModel.metaRows.forEach(([key, value]) => {
+        appendSidebarMetaRow(meta, key, value);
+    });
+    if (meta.children.length > 0) {
+        sidebarPoiPanel.appendChild(meta);
+    }
+
+    appendSidebarTextSection(sidebarPoiPanel, 'Overview', detailModel.description);
+    detailModel.sections.forEach((section) => {
+        appendSidebarTextSection(sidebarPoiPanel, section.heading, section.body);
+    });
+    appendSidebarTags(sidebarPoiPanel, detailModel.tags);
+
+    const actions = document.createElement('div');
+    actions.className = 'sidebar-detail-actions';
+    const focusButton = document.createElement('button');
+    focusButton.type = 'button';
+    focusButton.innerHTML = '<i class="ui-icon" data-lucide="crosshair" aria-hidden="true"></i><span>Focus</span>';
+    focusButton.addEventListener('click', focusSidebarSelectedFeature);
+    actions.appendChild(focusButton);
+
+    const linkedMap = detailModel.linkedMap;
+    if (linkedMap) {
+        const linkedButton = document.createElement('button');
+        linkedButton.type = 'button';
+        linkedButton.innerHTML = '<i class="ui-icon" data-lucide="map" aria-hidden="true"></i><span>Open Map</span>';
+        linkedButton.addEventListener('click', () => {
+            navigateToMap(linkedMap.id, { preResolvedMap: linkedMap });
+        });
+        actions.appendChild(linkedButton);
+    }
+    sidebarPoiPanel.appendChild(actions);
+}
+
+function setSidebarTab(tab) {
+    currentSidebarTab = normalizeSidebarTab(tab);
+    syncSidebarPanels();
+}
+
+function syncSidebarTabButtons() {
+    if (!sidebarTabs) return;
+    sidebarTabs.querySelectorAll('[data-sidebar-tab]').forEach((button) => {
+        const active = button.dataset.sidebarTab === currentSidebarTab;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+}
+
+function getSidebarPanelVisibility() {
+    return {
+        maps: currentSidebarTab === 'maps',
+        details: currentSidebarTab === 'details'
+    };
+}
+
+function syncSidebarPanels() {
+    if (sidebar) {
+        sidebar.classList.toggle('has-sidebar-feature', !!selectedSidebarFeature);
+    }
+
+    const visibility = getSidebarPanelVisibility();
+    setElementHiddenState(sidebarTabs, false);
+    setElementHiddenState(sidebarMapPanel, !visibility.maps);
+    setElementHiddenState(sidebarPoiPanel, !visibility.details);
+
+    renderSidebarFeaturePanel();
+    syncSidebarTabButtons();
+    refreshLucideIcons();
+}
+
+function setSidebarSelectedFeature(feature, type) {
+    selectedSidebarFeature = feature || null;
+    selectedSidebarFeatureType = feature ? type : '';
+    if (selectedSidebarFeature) {
+        currentSidebarTab = 'details';
+    }
+    syncSidebarPanels();
+    if (selectedSidebarFeature && isMobileLayoutActive) {
+        openMobileSheet({
+            mode: MOBILE_SURFACE_MODE_ATLAS,
+            focusSearch: false,
+            triggerButton: mobileSheetLauncherBtn
+        });
+    }
+}
+
+function initializeSidebarTabs() {
+    if (sidebarTabs) {
+        sidebarTabs.addEventListener('click', (event) => {
+            const target = event.target instanceof Element ? event.target : null;
+            const button = target?.closest('[data-sidebar-tab]');
+            if (!button) return;
+            setSidebarTab(button.dataset.sidebarTab);
+        });
+    }
+    syncSidebarPanels();
 }
 
 function getPreferredMapImageUrl(mapInfo) {
@@ -3319,6 +3634,13 @@ function selectSearchResult(index = activeSearchResultIndex) {
     setSearchScope(SEARCH_SCOPE_MAP);
     closeSearchResults();
     closeMobileSheet({ restoreFocus: false });
+    if (selectedSidebarFeature && isMobileLayoutActive) {
+        openMobileSheet({
+            mode: MOBILE_SURFACE_MODE_ATLAS,
+            focusSearch: false,
+            triggerButton: mobileSheetLauncherBtn
+        });
+    }
     updateActiveFilterChips();
     syncMobileExploreVisibility();
 }
@@ -3518,7 +3840,7 @@ function searchMapMarkers(searchTerm, results, allPoiGroupsChecked, activeSpecif
             // object allocations during map load and pure category filtering.
             if (searchContext.normalizedPrimary === null) {
                 searchContext.normalizedPrimary = normalizeSearchValue(poi.name);
-                searchContext.normalizedSecondary = normalizeSearchValue(`${poi.summary || ''} ${poi.description || ''}`);
+                searchContext.normalizedSecondary = normalizeSearchValue(getFeatureSearchDetailText(poi));
             }
             match = computePrecomputedSearchMatch(searchTerm, searchContext.normalizedPrimary, searchContext.normalizedSecondary);
         }
@@ -3684,7 +4006,7 @@ function searchAtlasIndex(searchTerm, results) {
             const match = computePrecomputedSearchMatch(
                 searchTerm,
                 entry._normalizedName ?? normalizeSearchValue(entry.name),
-                entry._normalizedSearchContent ?? normalizeSearchValue(`${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''}`)
+                entry._normalizedSearchContent ?? normalizeSearchValue(`${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''} ${entry.searchText || ''}`)
             );
 
             if (!match.matched) continue;
@@ -4779,6 +5101,7 @@ function checkAndFocusFeature() {
 
 // --- Map View URL State Management ---
 let viewUpdateTimeout;
+initializeSidebarTabs();
 // --- Map Chooser Back Button ---
 const sidebarBackToChooserBtn = document.getElementById('sidebar-back-to-chooser');
 if (sidebarBackToChooserBtn) {
@@ -4906,6 +5229,7 @@ function resetMapState() {
     allMapLines = [];
     allMapLinesById.clear();
     allMapLinesByName.clear();
+    setSidebarSelectedFeature(null, '');
 }
 
 function populatePOIsOnMap(selectedMap) {
@@ -4924,6 +5248,11 @@ function populatePOIsOnMap(selectedMap) {
                         marker.poiData = point;
                         marker.bindPopup(createPopupContent(point, 'poi'), { minWidth: 250 });
                         marker.bindTooltip(createPoiTooltipContent(point), getPoiTooltipOptions());
+                        if (typeof marker.on === 'function') {
+                            marker.on('popupopen', () => {
+                                setSidebarSelectedFeature(point, 'poi');
+                            });
+                        }
                         attachPoiTooltipBehavior(marker);
                         allMapMarkers.push(marker);
                         if (point.id && !allMapMarkersById.has(point.id)) {
@@ -4997,6 +5326,7 @@ function finalizeMapUI(requestedMapId, selectedMap) {
     safeSetStorage(UX_STORAGE_KEYS.lastMapId, requestedMapId);
     loadingMapId = null;
     schedulePostLoadPrefetch(selectedMap);
+    syncSidebarPanels();
 
     if (!isEmbeddedView && window.innerWidth <= MOBILE_LAYOUT_BREAKPOINT && !container.classList.contains('sidebar-collapsed')) {
         setSidebarState('c', false);
@@ -5017,6 +5347,7 @@ function abortMapLoad(options = {}) {
     loadingProgressInterval = null;
     currentlyLoadedMapId = null;
     currentMapData = null;
+    syncSidebarPanels();
     setMapAtmosphere(null);
     toggleMarkersBtn.style.display = 'none';
     measureToolBtn.style.display = 'none';
@@ -5333,6 +5664,11 @@ function addRegionsToMap(mapId) {
         }
 
         polygon.regionData = region; // Store data for filtering
+        if (typeof polygon.on === 'function') {
+            polygon.on('popupopen', () => {
+                setSidebarSelectedFeature(region, 'region');
+            });
+        }
         currentRegionGroup.addLayer(polygon);
         polygon.bringToBack(); // Ensure regions are behind markers
         allMapRegions.push(polygon);
@@ -5996,6 +6332,11 @@ function addRoadsToMap(mapId) {
         }
 
         polyline.roadData = road; // Store data for filtering
+        if (typeof polyline.on === 'function') {
+            polyline.on('popupopen', () => {
+                setSidebarSelectedFeature(road, 'line');
+            });
+        }
         currentRoadGroup.addLayer(polyline);
         allMapLines.push(polyline);
         if (road.id && !allMapLinesById.has(road.id)) {
@@ -6127,22 +6468,6 @@ if (toggleSoundBtn) {
 // Apply initial theme from storage
 themePreference = resolveThemePreference();
 applyTheme(resolveEffectiveTheme(themePreference), { animate: false });
-
-// --- NEW: Expand/Collapse Popup Logic ---
-function togglePopupExpand(button) {
-    const container = button.previousElementSibling;
-    const isExpanded = container.classList.contains('expanded');
-
-    if (isExpanded) {
-        container.classList.remove('expanded');
-        button.textContent = 'Read More';
-        button.setAttribute('aria-expanded', 'false');
-    } else {
-        container.classList.add('expanded');
-        button.textContent = 'Read Less';
-        button.setAttribute('aria-expanded', 'true');
-    }
-}
 
 function getMapPixelDimensions(bounds) {
     return {
@@ -7177,7 +7502,7 @@ async function loadMapData() {
         for (let i = 0; i < atlasSearchIndex.length; i++) {
             const entry = atlasSearchIndex[i];
             entry._normalizedName = normalizeSearchValue(entry.name);
-            entry._normalizedSearchContent = normalizeSearchValue(`${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''}`);
+            entry._normalizedSearchContent = normalizeSearchValue(`${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''} ${entry.searchText || ''}`);
         }
 
         if (loadingIndicator && loadingIndicator.querySelector('.progress-bar')) {

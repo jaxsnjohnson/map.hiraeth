@@ -142,8 +142,15 @@
                     <span class="sidebar-back-title">Select Map</span>
                 </button>
             </div>
-            <ul id="map-list">
+            <div id="sidebar-tabs" class="sidebar-tabs" role="tablist" aria-label="Sidebar sections">
+                <button type="button" data-sidebar-tab="maps" role="tab" aria-selected="true">Maps</button>
+                <button type="button" data-sidebar-tab="details" role="tab" aria-selected="false">POI Detail</button>
+            </div>
+            <section id="sidebar-map-panel" class="sidebar-map-panel" aria-label="Map selection">
+                <ul id="map-list">
                 </ul>
+            </section>
+            <section id="sidebar-poi-panel" class="sidebar-poi-panel" aria-live="polite" aria-label="Selected feature details"></section>
             <div class="theme-switch-wrapper">
                 <label class="theme-switch" for="theme-checkbox">
                     <input type="checkbox" id="theme-checkbox" aria-label="Switch to dark theme" title="Switch to dark theme" />

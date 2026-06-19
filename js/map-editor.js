@@ -650,6 +650,82 @@
         return parsed;
     }
 
+    function stringifyKeyFacts(properties) {
+        if (!properties || typeof properties !== 'object' || Array.isArray(properties)) return '';
+        return Object.entries(properties)
+            .filter(([, value]) => value !== null && value !== undefined && typeof value !== 'object')
+            .map(([key, value]) => `${key}: ${String(value)}`)
+            .join('\n');
+    }
+
+    function parseKeyFacts(value) {
+        const rows = String(value || '')
+            .split('\n')
+            .map((row) => row.trim())
+            .filter(Boolean);
+        return rows.reduce((properties, row) => {
+            const separatorIndex = row.indexOf(':');
+            if (separatorIndex === -1) {
+                throw new Error('Key facts must use "Label: Value" rows.');
+            }
+            const key = row.slice(0, separatorIndex).trim();
+            const factValue = row.slice(separatorIndex + 1).trim();
+            if (!key) {
+                throw new Error('Key facts require a label before the colon.');
+            }
+            if (factValue) properties[key] = factValue;
+            return properties;
+        }, {});
+    }
+
+    function stringifyTags(tags) {
+        return Array.isArray(tags)
+            ? tags.map((tag) => String(tag || '').trim()).filter(Boolean).join('\n')
+            : '';
+    }
+
+    function parseTags(value) {
+        const seen = new Set();
+        return String(value || '')
+            .split(/[\n,]/)
+            .map((tag) => tag.trim())
+            .filter((tag) => {
+                const key = tag.toLowerCase();
+                if (!tag || seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+    }
+
+    function stringifyDetailSections(sections) {
+        return Array.isArray(sections)
+            ? sections
+                .map((section) => {
+                    const heading = String(section?.heading || '').trim();
+                    const body = String(section?.body || '').trim();
+                    if (!heading && !body) return '';
+                    return [heading, body].filter(Boolean).join('\n');
+                })
+                .filter(Boolean)
+                .join('\n\n')
+            : '';
+    }
+
+    function parseDetailSections(value) {
+        return String(value || '')
+            .split(/\n\s*\n/)
+            .map((block) => block.trim())
+            .filter(Boolean)
+            .map((block) => {
+                const lines = block.split('\n').map((line) => line.trim()).filter(Boolean);
+                const heading = lines.shift() || '';
+                const body = lines.join('\n');
+                if (!heading && !body) return null;
+                return { heading, body };
+            })
+            .filter(Boolean);
+    }
+
     function renderFeatureInspector() {
         const feature = getSelectedFeature();
         dom.featureForm.innerHTML = '';
@@ -672,19 +748,28 @@
                 <label>Type<input data-field="type" type="text"></label>
                 <label>Summary<textarea data-field="summary" rows="3"></textarea></label>
                 <label>Description<textarea data-field="description" rows="4"></textarea></label>
+                <label>Key Facts<textarea data-field="propertiesText" rows="5" placeholder="Nation: Commonwealth of Half Height&#10;Known for: Trade and white-stone terraces"></textarea></label>
+                <label>Tags<textarea data-field="tags" rows="3" placeholder="One tag per line, or comma-separated"></textarea></label>
+                <label>Detail Sections<textarea data-field="detailSections" rows="8" placeholder="At a glance&#10;Short focused detail block.&#10;&#10;Current tensions&#10;Another focused detail block."></textarea></label>
                 <label>Wiki Link<input data-field="wikiLink" type="text"></label>
                 <label>Linked Map ID<input data-field="linkedMapId" type="text"></label>
                 <div class="map-editor-form-grid">
                     <label>Y<input data-field="coordY" type="number"></label>
                     <label>X<input data-field="coordX" type="number"></label>
                 </div>
-                <label>Properties JSON<textarea data-field="properties" rows="5"></textarea></label>
+                <details>
+                    <summary>Advanced properties JSON</summary>
+                    <label>Properties JSON<textarea data-field="properties" rows="5"></textarea></label>
+                </details>
             `;
             dom.featureForm.querySelector('[data-field="name"]').value = feature.name || '';
             dom.featureForm.querySelector('[data-field="pronunciation"]').value = feature.pronunciation || '';
             dom.featureForm.querySelector('[data-field="type"]').value = feature.type || '';
             dom.featureForm.querySelector('[data-field="summary"]').value = feature.summary || '';
             dom.featureForm.querySelector('[data-field="description"]').value = feature.description || '';
+            dom.featureForm.querySelector('[data-field="propertiesText"]').value = stringifyKeyFacts(feature.properties || {});
+            dom.featureForm.querySelector('[data-field="tags"]').value = stringifyTags(feature.tags || []);
+            dom.featureForm.querySelector('[data-field="detailSections"]').value = stringifyDetailSections(feature.detailSections || []);
             dom.featureForm.querySelector('[data-field="wikiLink"]').value = feature.wikiLink || '';
             dom.featureForm.querySelector('[data-field="linkedMapId"]').value = feature.linkedMapId || '';
             dom.featureForm.querySelector('[data-field="coordY"]').value = feature.coords?.[0] ?? '';
@@ -768,8 +853,18 @@
                     const nextY = field === 'coordY' ? event.target.value : dom.featureForm.querySelector('[data-field="coordY"]').value;
                     const nextX = field === 'coordX' ? event.target.value : dom.featureForm.querySelector('[data-field="coordX"]').value;
                     feature.coords = [roundCoordinate(nextY), roundCoordinate(nextX)];
+                } else if (field === 'propertiesText') {
+                    feature.properties = parseKeyFacts(event.target.value);
+                    const propertiesJsonField = dom.featureForm.querySelector('[data-field="properties"]');
+                    if (propertiesJsonField) propertiesJsonField.value = JSON.stringify(feature.properties || {}, null, 2);
+                } else if (field === 'tags') {
+                    feature.tags = parseTags(event.target.value);
+                } else if (field === 'detailSections') {
+                    feature.detailSections = parseDetailSections(event.target.value);
                 } else if (field === 'properties') {
                     feature.properties = parseJsonObject(event.target.value);
+                    const keyFactsField = dom.featureForm.querySelector('[data-field="propertiesText"]');
+                    if (keyFactsField) keyFactsField.value = stringifyKeyFacts(feature.properties || {});
                 } else {
                     feature[field] = event.target.value;
                 }
@@ -1159,6 +1254,8 @@
                 summary: '',
                 wikiLink: '',
                 linkedMapId: '',
+                detailSections: [],
+                tags: [],
                 properties: {}
             });
             clearDrawMode();
@@ -1431,7 +1528,15 @@
 
         dom.featureForm.addEventListener('input', (event) => {
             const field = event.target.dataset.field;
-            if (!field || field === 'description' || field === 'summary') return;
+            if (
+                !field ||
+                field === 'description' ||
+                field === 'summary' ||
+                field === 'properties' ||
+                field === 'propertiesText' ||
+                field === 'tags' ||
+                field === 'detailSections'
+            ) return;
             debouncedUpdateSelectedFeatureFromForm(event);
         });
 

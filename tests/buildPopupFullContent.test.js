@@ -64,6 +64,20 @@ describe('buildPopupFullContent', () => {
         assert.ok(result.includes('<p>A long road</p>'));
     });
 
+    it('should keep rich POI drawer fields out of compact popup content', () => {
+        const result = buildPopupFullContent({
+            type: 'town',
+            detailSections: [{ heading: 'Current tensions', body: 'Full drawer-only detail.' }],
+            tags: ['Capital', 'Free port']
+        }, 'Safe description');
+
+        assert.ok(result.includes('<p><em>Type: Town</em></p>'));
+        assert.ok(result.includes('<p>Safe description</p>'));
+        assert.ok(!result.includes('Current tensions'));
+        assert.ok(!result.includes('Full drawer-only detail'));
+        assert.ok(!result.includes('Free port'));
+    });
+
     it('should include properties and no type info if type is absent', () => {
         const result = buildPopupFullContent({ properties: { Elevation: '1000m' } }, null);
         assert.ok(result.includes('<strong>Elevation:</strong> 1000m'));

@@ -24434,6 +24434,7 @@
       }
     ],
     "blurb": "From the gold-laced dust of its western canyons to the haunted glaciers of the far north, Fair is a land of adventure and antiquity. Chart a course through newly-opened fjord kingdoms, navigate the politics of ancient empires, and unearth the secrets of a world shaped by heroes and forgotten evils.",
+    "selectorDescription": "The world of Fair, from western canyons to haunted northern ice.",
     "pointsOfInterest": [
       {
         "coords": [
@@ -24446,7 +24447,26 @@
         "description": "Apsley is the principal city and political heart of the Commonwealth of Half Height, rising in bright tiers of stone, stucco, and retaining walls from its busy docks to its sunlit upper terraces. Long admired as a free-port miracle, the city is known for its ministries, merchant houses, embassies, legal arcades, and the great gondola-funicular spine that binds its heights together. Yet Apsley’s prosperity rests upon a deep social divide: the upper wards enjoy ceremony, comfort, and influence, while the lower districts bear the burdens of freight, customs, industry, and unrest. Its culture is shaped by halfling household politics, public hospitality, and reputation-driven commerce, giving the city a reputation for both generosity and quiet coercion. To admirers, Apsley is proof that disciplined law and trade can secure independence in a dangerous world; to critics, it is a city of polished facades sustained by patronage, inequality, and carefully managed disorder.",
         "summary": "Apsley is the cliffside capital of the Commonwealth of Half Height, famed for its trade, wealth, and white-stone terraces.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Nation": "Commonwealth of Half Height",
+          "Known for": "Free-port trade, ministries, legal arcades",
+          "Primary tension": "Upper-ward wealth over lower-district labor"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Apsley rises in bright terraces from its harbor, with civic offices, embassies, and merchant houses stacked above the docks."
+          },
+          {
+            "heading": "Current tensions",
+            "body": "Its prosperity depends on a managed divide between ceremonial upper wards and freight-heavy lower districts where customs work, industry, and unrest concentrate."
+          }
+        ],
+        "tags": [
+          "Capital",
+          "Free port",
+          "Halfling politics"
+        ]
       },
       {
         "coords": [
@@ -24473,8 +24493,19 @@
         "summary": "This city thrives inside a winter-defying dome, a beacon of prosperity won in legendary battles.",
         "wikiLink": "",
         "properties": {
-          "Population": "15,000"
-        }
+          "Population": "15,000",
+          "Defining feature": "Winter-defying dome"
+        },
+        "detailSections": [
+          {
+            "heading": "Legacy",
+            "body": "Castgate's present prosperity is inseparable from the battles that preserved the city against divine winter and undead siege."
+          }
+        ],
+        "tags": [
+          "Dome city",
+          "Sub Rosa legacy"
+        ]
       },
       {
         "coords": [
@@ -24500,7 +24531,25 @@
         "description": "The marble metropolis of Delphi, a jewel on the shore of a sacred lake, is still reeling from the 'Slip'—a magical cataclysm that recently tore through its heart. Now, the air is thick not only with the dust of reconstruction, but with the renewed, ruthless ambitions of its magical elite.",
         "summary": "Following a magical cataclysm, the marble city of Delphi rebuilds, fueled by ruthless ambition.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Known for": "Marble academies, sacred lake, magical politics",
+          "Recent event": "The Slip"
+        },
+        "detailSections": [
+          {
+            "heading": "After the Slip",
+            "body": "Reconstruction has become a political weapon as Delphi's magical elite compete to shape what rises from the damaged districts."
+          },
+          {
+            "heading": "Atmosphere",
+            "body": "Dust, lake mist, and ambition hang over a city trying to look eternal while its foundations are still unsettled."
+          }
+        ],
+        "tags": [
+          "Magic",
+          "Cataclysm",
+          "Reconstruction"
+        ]
       },
       {
         "coords": [
