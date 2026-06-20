@@ -85,6 +85,14 @@ const MOBILE_LAYOUT_MODE_LEGACY = 'legacy';
 const MOBILE_PANEL_MARGIN = 10;
 const SMOOTH_ZOOM_STEP = 0.5;
 const SMOOTH_ZOOM_OPTIONS = { animate: true };
+const WHEEL_ZOOM_SNAP = 0;
+const SMOOTH_WHEEL_ZOOM_SENSITIVITY = 0.0024;
+const SMOOTH_WHEEL_MAX_DELTA = 0.45;
+const SMOOTH_WHEEL_EASE = 0.32;
+const SMOOTH_WHEEL_SETTLE_DELTA = 0.002;
+const SMOOTH_WHEEL_IDLE_MS = 120;
+const WHEEL_DELTA_LINE_HEIGHT = 16;
+const WHEEL_DELTA_PAGE_HEIGHT = 240;
 
 if (typeof document !== 'undefined') {
     document.documentElement.classList.toggle('is-firefox', isFirefox);
@@ -106,10 +114,9 @@ const mapOptions = {
     maxZoom: 4,
     attributionControl: false,
     zoomControl: false, // Disable default zoom, using custom styled one
-    zoomSnap: 0.25,
+    zoomSnap: WHEEL_ZOOM_SNAP,
     zoomDelta: SMOOTH_ZOOM_STEP,
-    wheelPxPerZoomLevel: 120,
-    wheelDebounceTime: 16,
+    scrollWheelZoom: false,
     zoomAnimation: true
 };
 
@@ -122,6 +129,95 @@ if (isFirefox) {
 const map = L.map('map', mapOptions);
 
 let atmosphereLayer = null;
+let smoothWheelTargetZoom = null;
+let smoothWheelAnchorPoint = null;
+let smoothWheelFrameId = null;
+let smoothWheelIdleTimeoutId = null;
+
+function clampZoomLevel(zoom) {
+    if (!map || !Number.isFinite(zoom)) return zoom;
+    const minZoom = typeof map.getMinZoom === 'function' ? map.getMinZoom() : mapOptions.minZoom;
+    const maxZoom = typeof map.getMaxZoom === 'function' ? map.getMaxZoom() : mapOptions.maxZoom;
+    return Math.min(maxZoom, Math.max(minZoom, zoom));
+}
+
+function normalizeWheelDelta(event) {
+    let delta = Number(event.deltaY) || 0;
+    if (event.deltaMode === 1) {
+        delta *= WHEEL_DELTA_LINE_HEIGHT;
+    } else if (event.deltaMode === 2) {
+        delta *= Math.max(window.innerHeight || 0, WHEEL_DELTA_PAGE_HEIGHT);
+    }
+    return delta;
+}
+
+function scheduleSmoothWheelFrame() {
+    if (smoothWheelFrameId !== null) return;
+    const requestFrame = typeof requestAnimationFrame === 'function'
+        ? requestAnimationFrame
+        : (callback) => setTimeout(callback, 16);
+    smoothWheelFrameId = requestFrame(stepSmoothWheelZoom);
+}
+
+function stepSmoothWheelZoom() {
+    smoothWheelFrameId = null;
+    if (!map || smoothWheelTargetZoom === null || !smoothWheelAnchorPoint) return;
+
+    const currentZoom = map.getZoom();
+    const remainingZoom = smoothWheelTargetZoom - currentZoom;
+    const nextZoom = Math.abs(remainingZoom) <= SMOOTH_WHEEL_SETTLE_DELTA
+        ? smoothWheelTargetZoom
+        : currentZoom + (remainingZoom * SMOOTH_WHEEL_EASE);
+
+    map.setZoomAround(smoothWheelAnchorPoint, clampZoomLevel(nextZoom), { animate: false });
+
+    if (Math.abs(smoothWheelTargetZoom - map.getZoom()) > SMOOTH_WHEEL_SETTLE_DELTA) {
+        scheduleSmoothWheelFrame();
+    }
+}
+
+function endSmoothWheelZoom() {
+    if (smoothWheelFrameId !== null) {
+        const cancelFrame = typeof cancelAnimationFrame === 'function'
+            ? cancelAnimationFrame
+            : clearTimeout;
+        cancelFrame(smoothWheelFrameId);
+    }
+    smoothWheelFrameId = null;
+    smoothWheelIdleTimeoutId = null;
+
+    if (map && smoothWheelTargetZoom !== null && smoothWheelAnchorPoint) {
+        map.setZoomAround(smoothWheelAnchorPoint, clampZoomLevel(smoothWheelTargetZoom), { animate: false });
+    }
+
+    smoothWheelTargetZoom = null;
+    smoothWheelAnchorPoint = null;
+    endMapInteraction();
+}
+
+function handleSmoothWheelZoom(event) {
+    if (!map || typeof map.mouseEventToContainerPoint !== 'function') return;
+
+    event.preventDefault();
+
+    const wheelDelta = normalizeWheelDelta(event);
+    if (!wheelDelta) return;
+
+    beginMapInteraction();
+
+    const zoomDelta = Math.max(
+        -SMOOTH_WHEEL_MAX_DELTA,
+        Math.min(SMOOTH_WHEEL_MAX_DELTA, -wheelDelta * SMOOTH_WHEEL_ZOOM_SENSITIVITY)
+    );
+    const baseZoom = smoothWheelTargetZoom === null ? map.getZoom() : smoothWheelTargetZoom;
+    smoothWheelTargetZoom = clampZoomLevel(baseZoom + zoomDelta);
+    smoothWheelAnchorPoint = map.mouseEventToContainerPoint(event);
+
+    scheduleSmoothWheelFrame();
+
+    if (smoothWheelIdleTimeoutId) clearTimeout(smoothWheelIdleTimeoutId);
+    smoothWheelIdleTimeoutId = setTimeout(endSmoothWheelZoom, SMOOTH_WHEEL_IDLE_MS);
+}
 
 function zoomMapBy(delta) {
     if (!map || typeof map.getZoom !== 'function' || typeof map.setZoom !== 'function') return;
@@ -133,9 +229,7 @@ map.on('moveend zoomend', updateURLWithMapView);
 map.on('popupopen', refreshLucideIcons);
 let interactionCooldownId = null;
 const beginMapInteraction = () => {
-    if (mobileLayoutV2Enabled && isMobileLayoutActive) {
-        rootElement.classList.add('map-interacting');
-    }
+    rootElement.classList.add('map-interacting');
     if (interactionCooldownId) {
         clearTimeout(interactionCooldownId);
         interactionCooldownId = null;
@@ -149,6 +243,10 @@ const endMapInteraction = () => {
 };
 map.on('movestart zoomstart', beginMapInteraction);
 map.on('moveend zoomend', endMapInteraction);
+
+if (map && map.getContainer && typeof map.getContainer().addEventListener === 'function') {
+    map.getContainer().addEventListener('wheel', handleSmoothWheelZoom, { passive: false });
+}
 
 // NOW Initialize measurementLayerGroup
 measurementLayerGroup = L.layerGroup().addTo(map);

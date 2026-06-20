@@ -12,7 +12,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 
-    <script src="js/app-config.js"></script>
+    <script src="js/app-config.js?v=0.1.15"></script>
     <script>
         window.APP_ASSET_VERSION = window.AppConfig ? window.AppConfig.get("assets.version", "0") : "0";
         window.THEME_STORAGE_KEYS = {
@@ -136,17 +136,15 @@
 
     <div class="container">
         <div id="sidebar">
-            <div class="sidebar-header">
-                <button id="sidebar-back-to-chooser" class="sidebar-back-btn" title="Return to Map Chooser" aria-label="Return to Map Chooser">
-                    <i class="ui-icon" data-lucide="arrow-left" aria-hidden="true"></i>
-                    <span class="sidebar-back-title">Select Map</span>
-                </button>
-            </div>
             <div id="sidebar-tabs" class="sidebar-tabs" role="tablist" aria-label="Sidebar sections">
                 <button type="button" data-sidebar-tab="maps" role="tab" aria-selected="true">Maps</button>
                 <button type="button" data-sidebar-tab="details" role="tab" aria-selected="false">POI Detail</button>
             </div>
             <section id="sidebar-map-panel" class="sidebar-map-panel" aria-label="Map selection">
+                <button id="sidebar-back-to-chooser" class="sidebar-back-btn" title="Return to Map Chooser" aria-label="Return to Map Chooser">
+                    <i class="ui-icon" data-lucide="arrow-left" aria-hidden="true"></i>
+                    <span class="sidebar-back-title">Select Map</span>
+                </button>
                 <ul id="map-list">
                 </ul>
             </section>

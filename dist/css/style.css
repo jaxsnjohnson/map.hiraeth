@@ -605,6 +605,8 @@ textarea:focus-visible,
 }
 .sidebar-map-panel {
     display: flex;
+    flex-direction: column;
+    gap: 8px;
     flex: 1 1 auto;
     min-height: 120px;
 }
@@ -953,7 +955,13 @@ textarea:focus-visible,
 }
 
 /* Map container */
-#map-container { flex-grow: 1; height: 100%; position: relative; overflow: hidden; }
+#map-container {
+    flex-grow: 1;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    contain: layout paint;
+}
 #map {
     height: 100%; width: 100%;
     background-color: var(--bg-secondary);
@@ -973,6 +981,15 @@ textarea:focus-visible,
 #map .leaflet-image-layer {
     opacity: 1 !important;
     visibility: visible !important;
+}
+
+#map .leaflet-map-pane,
+#map .leaflet-pane,
+#map .leaflet-image-layer,
+#map .leaflet-overlay-pane svg {
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    will-change: transform;
 }
 
 #sidebar-backdrop {
@@ -1007,6 +1024,34 @@ textarea:focus-visible,
 .leaflet-image-layer,
 #atmosphere-layer {
     will-change: transform, opacity;
+}
+
+html.map-interacting #atmosphere-layer,
+html.map-interacting #atmosphere-layer::before,
+html.map-interacting #atmosphere-layer::after,
+html.map-interacting #star-canvas {
+    animation-play-state: paused !important;
+    filter: none !important;
+}
+
+html.map-interacting .leaflet-marker-icon.poi-custom-icon,
+html.map-interacting body:not(.embedded-view) .leaflet-control-minimap .leaflet-image-layer {
+    filter: none !important;
+}
+
+html.map-interacting .map-control-button,
+html.map-interacting .coordinate-control,
+html.map-interacting #onboarding-coachmark,
+html.map-interacting #share-relay-coachmark,
+html.map-interacting #search-control-container,
+html.map-interacting #search-results-container,
+html.map-interacting #poi-filter-container,
+html.map-interacting #route-panel,
+html.map-interacting #map-blurb,
+html.map-interacting #bottom-link-bar,
+html.map-interacting .leaflet-control-zoom a {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
 #map::before,
@@ -1512,6 +1557,8 @@ body.embedded-view #search-control-container {
 :root[data-theme="dark"] .leaflet-control-zoom a:hover { background-color: rgba(70, 70, 70, 0.75); color: #fff; }
 
 .leaflet-marker-icon.poi-custom-icon {
+    pointer-events: auto;
+    cursor: pointer;
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
 }
 

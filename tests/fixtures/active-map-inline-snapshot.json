@@ -8,6 +8,7 @@
     "scalePixels": 50,
     "scaleKilometers": 3600,
     "blurb": "Encased within a dome that holds the winter at bay, Castgate's picturesque beauty was earned through legendary battles against a goddess and an undead horde. Though its streets bustle with prosperity from gems and ships, the common folk work in the shadow of the very magic that shelters them.",
+    "selectorDescription": "A prosperous dome-city that endures winter under old magic.",
     "pointsOfInterest": [
       {
         "coords": [
@@ -17,10 +18,23 @@
         "name": "Athenaeum Embasy & Minterals House",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "Athenaeum Embasy & Minterals House is recorded as a point of interest on Castgate.",
+        "summary": "Athenaeum Embasy & Minterals House is recorded as a point of interest on Castgate.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Castgate"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Athenaeum Embasy & Minterals House is recorded as a point of interest on Castgate."
+          }
+        ],
+        "tags": [
+          "Castgate",
+          "Diplomacy",
+          "Learning"
+        ]
       },
       {
         "coords": [
@@ -31,9 +45,21 @@
         "pronunciation": "",
         "type": "Landmark",
         "description": "An imposing column of polished obsidian, this monument was rededicated to commemorate the townspeople and adventurers who died during the devastating attack by The Cave Mother.",
-        "summary": "",
+        "summary": "An imposing column of polished obsidian, this monument was rededicated to commemorate the townspeople and adventurers who died during the devastating attack by The Cave Mother.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Castgate"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "An imposing column of polished obsidian, this monument was rededicated to commemorate the townspeople and adventurers who died during the devastating attack by The Cave Mother."
+          }
+        ],
+        "tags": [
+          "Landmark",
+          "Castgate"
+        ]
       },
       {
         "coords": [
@@ -44,9 +70,22 @@
         "pronunciation": "",
         "type": "Landmark",
         "description": "Attached to the popular tea house, the Chai en' Steep Inn provides a cozy atmosphere for travelers, offering comfortable lodging with soft bedding and lantern-lit hallways.",
-        "summary": "",
+        "summary": "Attached to the popular tea house, the Chai en' Steep Inn provides a cozy atmosphere for travelers, offering comfortable lodging with soft bedding and lantern-lit hallways.",
         "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate#bkmrk-fireside-newt-%26-chai",
-        "properties": {}
+        "properties": {
+          "Map": "Castgate"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Attached to the popular tea house, the Chai en' Steep Inn provides a cozy atmosphere for travelers, offering comfortable lodging with soft bedding and lantern-lit hallways."
+          }
+        ],
+        "tags": [
+          "Landmark",
+          "Castgate",
+          "Hospitality"
+        ]
       },
       {
         "coords": [
@@ -56,10 +95,22 @@
         "name": "Dwarf Brewery",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "Dwarf Brewery is recorded as a point of interest on Castgate.",
+        "summary": "Dwarf Brewery is recorded as a point of interest on Castgate.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Castgate"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Dwarf Brewery is recorded as a point of interest on Castgate."
+          }
+        ],
+        "tags": [
+          "Castgate",
+          "Hospitality"
+        ]
       },
       {
         "coords": [
@@ -69,10 +120,23 @@
         "name": "Frostviel",
         "pronunciation": "",
         "type": "Temple",
-        "description": "This grand temple, built from pale stone with stained-glass windows, is a place of worship dedicated to the deity Matrix. It also serves as a sanctuary, offering food and shelter to those in need.",
-        "summary": "",
+        "description": "This grand temple, built from pale stone with stained-glass windows, is a place of worship dedicated to the deity Matrix.",
+        "summary": "This grand temple, built from pale stone with stained-glass windows, is a place of worship dedicated to the deity Matrix.",
         "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate#bkmrk-frostviel---temple-t",
-        "properties": {}
+        "properties": {
+          "Map": "Castgate"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "It also serves as a sanctuary, offering food and shelter to those in need."
+          }
+        ],
+        "tags": [
+          "Temple",
+          "Castgate",
+          "Sacred site"
+        ]
       },
       {
         "coords": [
@@ -82,10 +146,22 @@
         "name": "School for Adventures",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "School for Adventures is recorded as a point of interest on Castgate.",
+        "summary": "School for Adventures is recorded as a point of interest on Castgate.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Castgate"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "School for Adventures is recorded as a point of interest on Castgate."
+          }
+        ],
+        "tags": [
+          "Castgate",
+          "Learning"
+        ]
       },
       {
         "coords": [
@@ -95,10 +171,23 @@
         "name": "The Crystal Needle",
         "pronunciation": "",
         "type": "Landmark",
-        "description": "This elegant spire of clear quartz hums with magical energy and serves as a meeting place for scholars and mages. Some believe it helps channel power to the town's protective Firmament.",
-        "summary": "",
+        "description": "This elegant spire of clear quartz hums with magical energy and serves as a meeting place for scholars and mages.",
+        "summary": "This elegant spire of clear quartz hums with magical energy and serves as a meeting place for scholars and mages.",
         "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate#bkmrk-the-crystal-needle",
-        "properties": {}
+        "properties": {
+          "Map": "Castgate"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Some believe it helps channel power to the town's protective Firmament."
+          }
+        ],
+        "tags": [
+          "Landmark",
+          "Castgate",
+          "Magic"
+        ]
       },
       {
         "coords": [
@@ -108,10 +197,23 @@
         "name": "The Fireside Newt",
         "pronunciation": "",
         "type": "Tavern",
-        "description": "This enchanting waterside tea house is a tranquil retreat where patrons can watch whimsical, color-changing Firenewts that bask in tabletop hearths and indicate the perfect tea temperature. Its proprietor, Tessan, is famous for brewing teas that can soothe ailments.",
-        "summary": "",
+        "description": "This enchanting waterside tea house is a tranquil retreat where patrons can watch whimsical, color-changing Firenewts that bask in tabletop hearths and indicate the perfect tea temperature.",
+        "summary": "This enchanting waterside tea house is a tranquil retreat where patrons can watch whimsical, color-changing Firenewts that bask in tabletop hearths and indicate the perfect tea...",
         "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate#bkmrk-fireside-newt-%26-chai",
-        "properties": {}
+        "properties": {
+          "Map": "Castgate"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Its proprietor, Tessan, is famous for brewing teas that can soothe ailments."
+          }
+        ],
+        "tags": [
+          "Tavern",
+          "Castgate",
+          "Hospitality"
+        ]
       },
       {
         "coords": [
@@ -121,10 +223,22 @@
         "name": "The Frozen Rose",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "Once a derelict tavern, this building was revitalized by the adventuring party Sub Rosa and transformed into a thriving hub for adventurers and locals. Featuring frosted glass windows and a carved white rose emblem, the tavern is run by the quiet barkeep Thorn and serves as an informal guildhall for The Argentum Compact. Its walls are decorated with trophies from Sub Rosa’s adventures, making it a symbol of the town’s enduring resilience.",
-        "summary": "",
+        "description": "Once a derelict tavern, this building was revitalized by the adventuring party Sub Rosa and transformed into a thriving hub for adventurers and locals.",
+        "summary": "Once a derelict tavern, this building was revitalized by the adventuring party Sub Rosa and transformed into a thriving hub for adventurers and locals.",
         "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate#bkmrk-the-frozen-rose",
-        "properties": {}
+        "properties": {
+          "Map": "Castgate"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Featuring frosted glass windows and a carved white rose emblem, the tavern is run by the quiet barkeep Thorn and serves as an informal guildhall for The Argentum Compact. Its walls are decorated with trophies from Sub Rosa’s adventures, making it a symbol of the town’s enduring resilience."
+          }
+        ],
+        "tags": [
+          "Castgate",
+          "Hospitality"
+        ]
       },
       {
         "coords": [
@@ -135,9 +249,21 @@
         "pronunciation": "",
         "type": "Landmark",
         "description": "Located on the edge of town, this carved stone archway is a somber monument marking the gravesite of those who died during the eternal winter.",
-        "summary": "",
+        "summary": "Located on the edge of town, this carved stone archway is a somber monument marking the gravesite of those who died during the eternal winter.",
         "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate#bkmrk-the-mourning-arch",
-        "properties": {}
+        "properties": {
+          "Map": "Castgate"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Located on the edge of town, this carved stone archway is a somber monument marking the gravesite of those who died during the eternal winter."
+          }
+        ],
+        "tags": [
+          "Landmark",
+          "Castgate"
+        ]
       },
       {
         "coords": [
@@ -148,9 +274,23 @@
         "pronunciation": "",
         "type": "Landmark",
         "description": "This sacred shrine at the heart of Casgate's main square is a stone lantern with an eternal flame that allows people of all languages to understand one another while nearby.",
-        "summary": "",
+        "summary": "This sacred shrine at the heart of Casgate's main square is a stone lantern with an eternal flame that allows people of all languages to understand one another while nearby.",
         "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate#bkmrk-shrine-of-hestia",
-        "properties": {}
+        "properties": {
+          "Map": "Castgate"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "This sacred shrine at the heart of Casgate's main square is a stone lantern with an eternal flame that allows people of all languages to understand one another while nearby."
+          }
+        ],
+        "tags": [
+          "Landmark",
+          "Castgate",
+          "Gate",
+          "Sacred site"
+        ]
       }
     ],
     "regions": [
@@ -628,6 +768,7 @@
       }
     ],
     "blurb": "A detailed view of the <a href='https://www.hiraeth.wiki/books/players-guide-to-icebeach' target='_blank' rel='noopener noreferrer'>Icebeach region</a>, known for its harsh climate and resilient settlements.",
+    "selectorDescription": "A harsh northern region of frozen coasts, settlements, and old threats.",
     "pointsOfInterest": [
       {
         "coords": [
@@ -636,9 +777,24 @@
         ],
         "name": "Castgate",
         "type": "City",
-        "description": "Encased within a dome that holds the winter at bay, Castgate's picturesque beauty was earned through legendary battles against a goddess and an undead horde. Though its streets bustle with prosperity from gems and ships, the common folk work in the shadow of the very magic that shelters them.",
+        "description": "Encased within a dome that holds the winter at bay, Castgate's picturesque beauty was earned through legendary battles against a goddess and an undead horde.",
         "summary": "Icebeach's largest native town, a walled fishing, shepherding, mining, and shipbuilding settlement warmed by old magic.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate"
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Though its streets bustle with prosperity from gems and ships, the common folk work in the shadow of the very magic that shelters them."
+          }
+        ],
+        "tags": [
+          "City",
+          "IceBeach",
+          "Gate",
+          "Magic"
+        ]
       },
       {
         "coords": [
@@ -647,9 +803,25 @@
         ],
         "name": "Flamore",
         "type": "Ruin",
-        "description": "Once a secret college where forbidden magic summoned angels and raised the dead, Flamore was annihilated in a necromantic cataclysm of its own making. Now, its crumbling ruins radiate a palpable corruption, twisting any creature who strays too close into a monstrous thing that craves only flesh and warmth.",
+        "description": "Once a secret college where forbidden magic summoned angels and raised the dead, Flamore was annihilated in a necromantic cataclysm of its own making.",
         "summary": "A remote mountain school where the Flamore family pushed magical research into IceBeach's cold secrets.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/flamores-school-of-experimental-wizardry"
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/flamores-school-of-experimental-wizardry",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Now, its crumbling ruins radiate a palpable corruption, twisting any creature who strays too close into a monstrous thing that craves only flesh and warmth."
+          }
+        ],
+        "tags": [
+          "Ruin",
+          "IceBeach",
+          "Learning",
+          "Magic",
+          "Mountain"
+        ]
       },
       {
         "coords": [
@@ -658,9 +830,23 @@
         ],
         "name": "Fractured Point",
         "type": "Capital",
-        "description": "Perched on a wind-scoured spike of rock, Fractured Point greets visitors with the festive dance of colored lanterns. Yet this light is a fleeting warmth in a town where the ceaseless gales have eroded all friendliness, leaving only a grim haven for opportunistic traders who bar the gates at sundown.",
+        "description": "Perched on a wind-scoured spike of rock, Fractured Point greets visitors with the festive dance of colored lanterns.",
         "summary": "A walled crag town and trade center where lantern-lit streets face relentless icefield winds.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/the-fractured-point"
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/the-fractured-point",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Yet this light is a fleeting warmth in a town where the ceaseless gales have eroded all friendliness, leaving only a grim haven for opportunistic traders who bar the gates at sundown."
+          }
+        ],
+        "tags": [
+          "Capital",
+          "IceBeach",
+          "Gate"
+        ]
       },
       {
         "coords": [
@@ -669,8 +855,23 @@
         ],
         "name": "Gernerum",
         "type": "Village",
-        "description": "The scorched wreckage of Gernerum is a monument to its fiery end, a tragic grave for a town that once birthed heroes. Locals now shun the ruins, whispering that the only survivor is a timeless hag who wanders the ash, bearing a fragile-looking form that conceals a truly catastrophic power.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/gernerum"
+        "description": "The scorched wreckage of Gernerum is a monument to its fiery end, a tragic grave for a town that once birthed heroes.",
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/gernerum",
+        "summary": "The scorched wreckage of Gernerum is a monument to its fiery end, a tragic grave for a town that once birthed heroes.",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Locals now shun the ruins, whispering that the only survivor is a timeless hag who wanders the ash, bearing a fragile-looking form that conceals a truly catastrophic power."
+          }
+        ],
+        "tags": [
+          "Village",
+          "IceBeach",
+          "Death"
+        ]
       },
       {
         "coords": [
@@ -679,9 +880,22 @@
         ],
         "name": "Houlen Top",
         "type": "Town",
-        "description": "The fertile valley of Houlen Top serves as the breadbasket of the north, but its farmers are a guarded people who shun outsiders. A primal, territorial instinct lies just beneath their civilized surface, suggesting the town's name is a warning as much as a label.",
+        "description": "The fertile valley of Houlen Top serves as the breadbasket of the north, but its farmers are a guarded people who shun outsiders.",
         "summary": "The southern breadbasket of Icebeach, farming grains and root vegetables between the Blom Rill and Coldriver.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/howlentop"
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/howlentop",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "A primal, territorial instinct lies just beneath their civilized surface, suggesting the town's name is a warning as much as a label."
+          }
+        ],
+        "tags": [
+          "Town",
+          "IceBeach"
+        ]
       },
       {
         "coords": [
@@ -690,9 +904,23 @@
         ],
         "name": "Icemoor",
         "type": "Settlement",
-        "description": "From its lonely tower, the watchmen of Icemoor once guarded against horrors seeping from the Winrich Glacier. Now, with the settlement all but abandoned, a few grim, half-mad old men remain, their prophetic whispers lost on the wind as they maintain a forgotten vigil against the whispering, soul-filled waters.",
+        "description": "From its lonely tower, the watchmen of Icemoor once guarded against horrors seeping from the Winrich Glacier.",
         "summary": "Icebeach's smallest settlement, built around a watchtower overlooking the Winrich Glacier and its fortress.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/icemoor"
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/icemoor",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Now, with the settlement all but abandoned, a few grim, half-mad old men remain, their prophetic whispers lost on the wind as they maintain a forgotten vigil against the whispering, soul-filled waters."
+          }
+        ],
+        "tags": [
+          "Settlement",
+          "IceBeach",
+          "Seat of power"
+        ]
       },
       {
         "coords": [
@@ -701,9 +929,22 @@
         ],
         "name": "Little Rock Mentle Asylam",
         "type": "Asylum",
-        "description": "Carved into an isolated shard of rock, this asylum is where the Gilded Nations dispose of their most hardened criminals. Whispers persist of inmates suspended in pocket dimensions of pure void, a fate perhaps inspired by the one prisoner said to have simply unwoven reality to escape.",
+        "description": "Carved into an isolated shard of rock, this asylum is where the Gilded Nations dispose of their most hardened criminals.",
         "summary": "A Gilded Nations asylum off Whitedrift for dangerous inmates deemed untreatable by stronger nations.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/little-rock-mental-asylum"
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/little-rock-mental-asylum",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Whispers persist of inmates suspended in pocket dimensions of pure void, a fate perhaps inspired by the one prisoner said to have simply unwoven reality to escape."
+          }
+        ],
+        "tags": [
+          "Asylum",
+          "IceBeach"
+        ]
       },
       {
         "coords": [
@@ -712,9 +953,22 @@
         ],
         "name": "Morana's Fang",
         "type": "Mountain",
-        "description": "Claimed by the Goddess of Winter herself, this jagged peak is the tallest point in the world, a place where the veil to the divine thins to a whisper. Those few who survive the brutal, sentinel-guarded ascent return forever changed, haunted by the mountain's crushing silence and the cryptic visions granted at its summit.",
+        "description": "Claimed by the Goddess of Winter herself, this jagged peak is the tallest point in the world, a place where the veil to the divine thins to a whisper.",
         "summary": "Morana's Fang is Cyndamile, the tallest mountain, kept cold by Morana to bar the non-faithful from the gods.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/moranas-fang"
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/moranas-fang",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Those few who survive the brutal, sentinel-guarded ascent return forever changed, haunted by the mountain's crushing silence and the cryptic visions granted at its summit."
+          }
+        ],
+        "tags": [
+          "Mountain",
+          "IceBeach"
+        ]
       },
       {
         "coords": [
@@ -723,8 +977,22 @@
         ],
         "name": "Mt. Solaria",
         "type": "Mountain",
-        "description": "Ironically named Mt. Solaria vents geothermal steam, believed to be the slumbering breath of the destructive dragon that claims tribute from the lands below. This strange warmth creates a perilous allure, drawing the desperate to its slopes, which are littered with the failed mines and forgotten tombs of those who previously challenged its master(s).",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/mt-solaria"
+        "description": "Ironically named Mt.",
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/mt-solaria",
+        "summary": "Ironically named Mt.",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Solaria vents geothermal steam, believed to be the slumbering breath of the destructive dragon that claims tribute from the lands below. This strange warmth creates a perilous allure, drawing the desperate to its slopes, which are littered with the failed mines and forgotten tombs of those who previously challenged its master(s)."
+          }
+        ],
+        "tags": [
+          "Mountain",
+          "IceBeach"
+        ]
       },
       {
         "coords": [
@@ -733,9 +1001,22 @@
         ],
         "name": "Ottiker",
         "type": "Town",
-        "description": "The immigrant town of Ottiker defies the ice, using geothermal waters to produce renowned wine on the shores of Sleetmond Lake. Yet this fragile prosperity, born from a distant homeland, has angered local druids, and now the flow of wine has stopped as the town prepares for a fight.",
+        "description": "The immigrant town of Ottiker defies the ice, using geothermal waters to produce renowned wine on the shores of Sleetmond Lake.",
         "summary": "An immigrant wine town on Sleetmond Lake, now cut off from deliveries by conflict with local druids.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/niror"
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/niror",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Yet this fragile prosperity, born from a distant homeland, has angered local druids, and now the flow of wine has stopped as the town prepares for a fight."
+          }
+        ],
+        "tags": [
+          "Town",
+          "IceBeach"
+        ]
       },
       {
         "coords": [
@@ -744,9 +1025,22 @@
         ],
         "name": "Quilt",
         "type": "Hamlet",
-        "description": "The tiny hamlet of Quilt weaves its history into its namesake craft, with intricate patterns telling stories of survival against the endless winter. This hardy community owes its existence to the geothermal 'Foaming Burrow,' which churns the loch's waters, allowing them to farm fish.",
+        "description": "The tiny hamlet of Quilt weaves its history into its namesake craft, with intricate patterns telling stories of survival against the endless winter.",
         "summary": "Icebeach's smallest town, farming fish through winter and making dyed quilts from Icebeach sheep wool.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/quilt"
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/quilt",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "This hardy community owes its existence to the geothermal 'Foaming Burrow,' which churns the loch's waters, allowing them to farm fish."
+          }
+        ],
+        "tags": [
+          "Hamlet",
+          "IceBeach"
+        ]
       },
       {
         "coords": [
@@ -755,9 +1049,22 @@
         ],
         "name": "Shiverwallow",
         "type": "Village",
-        "description": "The largest fishing fleet in the north now sits frozen in its own harbor, the ships trapped like flies in amber. A great wooden wall, once meant to guard against sea threats, now seems to mock the town's grim resilience as its fishers abandon their useless vessels to huddle over holes in the ice.",
+        "description": "The largest fishing fleet in the north now sits frozen in its own harbor, the ships trapped like flies in amber.",
         "summary": "Icebeach's largest fishing town, now ice-fishing from a harbor whose fleet is frozen in place.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/shiverwallow"
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/shiverwallow",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "A great wooden wall, once meant to guard against sea threats, now seems to mock the town's grim resilience as its fishers abandon their useless vessels to huddle over holes in the ice."
+          }
+        ],
+        "tags": [
+          "Village",
+          "IceBeach"
+        ]
       },
       {
         "coords": [
@@ -766,9 +1073,22 @@
         ],
         "name": "Sleetmond",
         "type": "Settlement",
-        "description": "Centered around the Hope Tree, whose power holds the winters at bay, Sleetmond is a place of unsettling druidic ways. Its people, seemingly immune to the cold, harvest from an impossible sugar maple orchard, their strange resilience making them an object of deep distrust to the frozen world outside.",
+        "description": "Centered around the Hope Tree, whose power holds the winters at bay, Sleetmond is a place of unsettling druidic ways.",
         "summary": "A druidic lakeside town centered on the Hope Tree, sugar maples, fish, and Icebeach sheep.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/sleetmond"
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/sleetmond",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Its people, seemingly immune to the cold, harvest from an impossible sugar maple orchard, their strange resilience making them an object of deep distrust to the frozen world outside."
+          }
+        ],
+        "tags": [
+          "Settlement",
+          "IceBeach"
+        ]
       },
       {
         "coords": [
@@ -777,9 +1097,22 @@
         ],
         "name": "The Foaming Burrow",
         "type": "Cavern",
-        "description": "A network of steam vents and geysers, the Foaming Burrow is the geothermal heart that keeps the surrounding lands and river and downstream lakes from freezing solid. Legends claim elemental guardians protect this lush, snow-free oasis.",
+        "description": "A network of steam vents and geysers, the Foaming Burrow is the geothermal heart that keeps the surrounding lands and river and downstream lakes from freezing solid.",
         "summary": "A giant-era burial mound at the headwaters of the Foaming River.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/the-foaming-burrow"
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/the-foaming-burrow",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Legends claim elemental guardians protect this lush, snow-free oasis."
+          }
+        ],
+        "tags": [
+          "Cavern",
+          "IceBeach"
+        ]
       },
       {
         "coords": [
@@ -788,9 +1121,23 @@
         ],
         "name": "The Hope Tree",
         "type": "Natural Landmark",
-        "description": "A defiant miracle, this impossibly massive tree radiates a divine warmth, creating a sanctuary the Frostmaiden's chill cannot penetrate. Believed to be a blessing from a rival god, its magical leaves can heal the sick, making it a vital symbol of hope that is now threatened by factions seeking to control its power.",
+        "description": "A defiant miracle, this impossibly massive tree radiates a divine warmth, creating a sanctuary the Frostmaiden's chill cannot penetrate.",
         "summary": "The druidic focus of Sleetmond, a town known for sugar maples, fish, and Icebeach sheep.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/the-hope-tree"
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/the-hope-tree",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Believed to be a blessing from a rival god, its magical leaves can heal the sick, making it a vital symbol of hope that is now threatened by factions seeking to control its power."
+          }
+        ],
+        "tags": [
+          "Natural Landmark",
+          "IceBeach",
+          "Magic"
+        ]
       },
       {
         "coords": [
@@ -799,9 +1146,26 @@
         ],
         "name": "Thrawbreak",
         "type": "Hamlet",
-        "description": "Buried in the shadow of the Auruan mountains and surrounded by the ruins of failed fortifications, Thrawbreak is a town pickled in bitterness and beer. Its people, stubborn trappers cut off from the world, endure their isolation fueled by a tavern that never runs dry and the haunting tavern song, 'The Ferryman's Coin,' a dirge for the world that abandoned them.",
+        "description": "Buried in the shadow of the Auruan mountains and surrounded by the ruins of failed fortifications, Thrawbreak is a town pickled in bitterness and beer.",
         "summary": "A cut-off mountain town of ruined defenses, frozen docks, bitter people, and stubborn survival.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/thrawbreak"
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/thrawbreak",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Its people, stubborn trappers cut off from the world, endure their isolation fueled by a tavern that never runs dry and the haunting tavern song, 'The Ferryman's Coin,' a dirge for the world that abandoned them."
+          }
+        ],
+        "tags": [
+          "Hamlet",
+          "IceBeach",
+          "Harbor",
+          "Hospitality",
+          "Commerce",
+          "Mountain"
+        ]
       },
       {
         "coords": [
@@ -810,9 +1174,22 @@
         ],
         "name": "Whitedrift",
         "type": "Settlement",
-        "description": "Clinging to the mouth of the Curse Run, this unstable town is a dumping ground for former asylum inmates and other exiles. Paranoia is the local currency, and the tense peace is often broken by the sight of townsfolk arguing with a percived ghosts of their dead loved ones who whisper from the foul, glacial waters.",
+        "description": "Clinging to the mouth of the Curse Run, this unstable town is a dumping ground for former asylum inmates and other exiles.",
         "summary": "A rocky Curse Run town whose people are forced to serve the nearby Littlerock Mental Asylum.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/whitedrift"
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/whitedrift",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Paranoia is the local currency, and the tense peace is often broken by the sight of townsfolk arguing with a percived ghosts of their dead loved ones who whisper from the foul, glacial waters."
+          }
+        ],
+        "tags": [
+          "Settlement",
+          "IceBeach"
+        ]
       },
       {
         "coords": [
@@ -821,9 +1198,23 @@
         ],
         "name": "Winrich Fortress",
         "type": "Fortress",
-        "description": "Hewn from stone that drinks the light, this is the infamous seat of Winrich, the first mortal to achieve lichdom. Though heroes are said to have destroyed his echo, the fortress remains, its black walls glowing with a sickly, spectral light on moonless nights, a silent testament to the ancient evil born within.",
+        "description": "Hewn from stone that drinks the light, this is the infamous seat of Winrich, the first mortal to achieve lichdom.",
         "summary": "A former lich fortress, cleared and garrisoned after local heroes destroyed Winrich and his phylactery.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/winrich-fortress"
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/winrich-fortress",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Though heroes are said to have destroyed his echo, the fortress remains, its black walls glowing with a sickly, spectral light on moonless nights, a silent testament to the ancient evil born within."
+          }
+        ],
+        "tags": [
+          "Fortress",
+          "IceBeach",
+          "Seat of power"
+        ]
       },
       {
         "coords": [
@@ -832,8 +1223,24 @@
         ],
         "name": "Wynwood Peak",
         "type": "Mountain",
-        "description": "Choked by a forest of iron-hard wood, this peak's unnatural resilience is said to spring from an ancient dragon's grave. The crumbling tower of a wizard who went mad trying to master this power now haunts its slopes, a testament to the peak's untamed spirit.",
-        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/wynwood-peak"
+        "description": "Choked by a forest of iron-hard wood, this peak's unnatural resilience is said to spring from an ancient dragon's grave.",
+        "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/wynwood-peak",
+        "summary": "Choked by a forest of iron-hard wood, this peak's unnatural resilience is said to spring from an ancient dragon's grave.",
+        "properties": {
+          "Map": "IceBeach"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "The crumbling tower of a wizard who went mad trying to master this power now haunts its slopes, a testament to the peak's untamed spirit."
+          }
+        ],
+        "tags": [
+          "Mountain",
+          "IceBeach",
+          "Death",
+          "Wilderness"
+        ]
       }
     ],
     "regions": [
@@ -6744,6 +7151,7 @@
     "scalePixels": 7.8060520362,
     "scaleKilometers": 1,
     "blurb": "Southern Thalassia is a significant maritime region characterized by a series of islands formed and scared by the 'Night of Falling Stars,' an event wherein lunar and asteroidal fragments impacted the region, depositing exotic minerals and creating unique geological formations. This celestial deposition has resulted in altered atmospheric conditions, residual magical energies, and a notable biodiversity influenced by stellar radiation, making the region a focal point for historical study, resource acquisition (particularly rare minerals and energy concentrations), and contested maritime activity, including piracy, with various factions vying for control over these transformed territories.  This map is still under devlopment.",
+    "selectorDescription": "An unfinished maritime map of star-scarred islands and pirate waters.",
     "pointsOfInterest": [
       {
         "coords": [
@@ -6752,8 +7160,22 @@
         ],
         "name": "Cavaross",
         "type": "City",
-        "description": "Once a simple fishing village, Cavaross was reshaped into the fortified harbor for the Beccin Empire's main fleet. In the wake of a swift rebellion against its tyrannical governor, the city now breathes a cautious and uncertain air of newfound freedom.",
-        "wikiLink": ""
+        "description": "Once a simple fishing village, Cavaross was reshaped into the fortified harbor for the Beccin Empire's main fleet.",
+        "wikiLink": "",
+        "summary": "Once a simple fishing village, Cavaross was reshaped into the fortified harbor for the Beccin Empire's main fleet.",
+        "properties": {
+          "Map": "Southern Thalassia"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "In the wake of a swift rebellion against its tyrannical governor, the city now breathes a cautious and uncertain air of newfound freedom."
+          }
+        ],
+        "tags": [
+          "City",
+          "Southern Thalassia"
+        ]
       },
       {
         "coords": [
@@ -6762,8 +7184,23 @@
         ],
         "name": "Eastwatch",
         "type": "Town",
-        "description": "Originally founded as a strategic trading post and lookout, this seaside haven hosts a naval academy for the Argentum Compact with the quiet readiness of the Gilded Nation forces stationed there.  Orignialy called 'Port Fair Wind,' it was destoryed by Pirate Blackbeard in one of his notorius raids, razing the oringal settlment - a reclusive inventor was able to get word out for help saving the remaining peoples.",
-        "wikiLink": ""
+        "description": "Originally founded as a strategic trading post and lookout, this seaside haven hosts a naval academy for the Argentum Compact with the quiet readiness of the Gilded Nation forces stationed there.",
+        "wikiLink": "",
+        "summary": "Originally founded as a strategic trading post and lookout, this seaside haven hosts a naval academy for the Argentum Compact with the quiet readiness of the Gilded Nation...",
+        "properties": {
+          "Map": "Southern Thalassia"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Orignialy called 'Port Fair Wind,' it was destoryed by Pirate Blackbeard in one of his notorius raids, razing the oringal settlment - a reclusive inventor was able to get word out for help saving the remaining peoples."
+          }
+        ],
+        "tags": [
+          "Town",
+          "Southern Thalassia",
+          "Harbor"
+        ]
       },
       {
         "coords": [
@@ -6772,8 +7209,22 @@
         ],
         "name": "Fyllns Hold",
         "type": "Town",
-        "description": "An old coastal town whose very name whispers of a legendary adventurer's hidden riches from a time before the Falling Stars. While it serves as a simple rest stop for traders today, a persistent undercurrent of treasure hunting ensures the legend never dies.",
-        "wikiLink": ""
+        "description": "An old coastal town whose very name whispers of a legendary adventurer's hidden riches from a time before the Falling Stars.",
+        "wikiLink": "",
+        "summary": "An old coastal town whose very name whispers of a legendary adventurer's hidden riches from a time before the Falling Stars.",
+        "properties": {
+          "Map": "Southern Thalassia"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "While it serves as a simple rest stop for traders today, a persistent undercurrent of treasure hunting ensures the legend never dies."
+          }
+        ],
+        "tags": [
+          "Town",
+          "Southern Thalassia"
+        ]
       },
       {
         "coords": [
@@ -6782,8 +7233,22 @@
         ],
         "name": "Gales Rest",
         "type": "Hamlet",
-        "description": "Named for the unnatural calm of its cove, which offers a perfect haven from any storm, this town began as a simple resupply settlement. Today, it remains a vital sanctuary where even pirates find temporary, if uneasy, anchor.",
-        "wikiLink": ""
+        "description": "Named for the unnatural calm of its cove, which offers a perfect haven from any storm, this town began as a simple resupply settlement.",
+        "wikiLink": "",
+        "summary": "Named for the unnatural calm of its cove, which offers a perfect haven from any storm, this town began as a simple resupply settlement.",
+        "properties": {
+          "Map": "Southern Thalassia"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Today, it remains a vital sanctuary where even pirates find temporary, if uneasy, anchor."
+          }
+        ],
+        "tags": [
+          "Hamlet",
+          "Southern Thalassia"
+        ]
       },
       {
         "coords": [
@@ -6792,8 +7257,24 @@
         ],
         "name": "Golden Sands",
         "type": "Town",
-        "description": "The island's orignal name is now lost to time, and is a private paradise of soft beaches and rich plantations. It is an exclusive resort where even the field workers move with a leisurely swagger, serving as a sun-drenched playground for the elite of the Athenaeum.",
-        "wikiLink": ""
+        "description": "The island's orignal name is now lost to time, and is a private paradise of soft beaches and rich plantations.",
+        "wikiLink": "",
+        "summary": "The island's orignal name is now lost to time, and is a private paradise of soft beaches and rich plantations.",
+        "properties": {
+          "Map": "Southern Thalassia"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "It is an exclusive resort where even the field workers move with a leisurely swagger, serving as a sun-drenched playground for the elite of the Athenaeum."
+          }
+        ],
+        "tags": [
+          "Town",
+          "Southern Thalassia",
+          "Learning",
+          "Island"
+        ]
       },
       {
         "coords": [
@@ -6802,8 +7283,25 @@
         ],
         "name": "Moonshadow Cove",
         "type": "Temple",
-        "description": "Carved into the island in the shape of a perfect crescent, this ancient temple aligns with the moon. Though the resident cloister has dwindled, pilgrims and wanderers still navigate its labyrinthine halls, seeking the quiet divinity of the moon god Loron.",
-        "wikiLink": ""
+        "description": "Carved into the island in the shape of a perfect crescent, this ancient temple aligns with the moon.",
+        "wikiLink": "",
+        "summary": "Carved into the island in the shape of a perfect crescent, this ancient temple aligns with the moon.",
+        "properties": {
+          "Map": "Southern Thalassia"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Though the resident cloister has dwindled, pilgrims and wanderers still navigate its labyrinthine halls, seeking the quiet divinity of the moon god Loron."
+          }
+        ],
+        "tags": [
+          "Temple",
+          "Southern Thalassia",
+          "Gate",
+          "Sacred site",
+          "Island"
+        ]
       },
       {
         "coords": [
@@ -6812,8 +7310,23 @@
         ],
         "name": "New Gate",
         "type": "Town",
-        "description": "Built on one of the largest and most fertile islands in the region, this town grew from ambitious plantations into a bustling trade hub. The air is thick with the business of industry and the sweet smell of tropical fruits and sugar, all bound for the holds of waiting trade ships.",
-        "wikiLink": ""
+        "description": "Built on one of the largest and most fertile islands in the region, this town grew from ambitious plantations into a bustling trade hub.",
+        "wikiLink": "",
+        "summary": "Built on one of the largest and most fertile islands in the region, this town grew from ambitious plantations into a bustling trade hub.",
+        "properties": {
+          "Map": "Southern Thalassia"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "The air is thick with the business of industry and the sweet smell of tropical fruits and sugar, all bound for the holds of waiting trade ships."
+          }
+        ],
+        "tags": [
+          "Town",
+          "Southern Thalassia",
+          "Gate"
+        ]
       },
       {
         "coords": [
@@ -6822,8 +7335,24 @@
         ],
         "name": "Pyrthia",
         "type": "City",
-        "description": "Purpose-built from the ground up to be the Athenaeum's regional seat of power, this city of stark marble was designed to project authority. The air is heavy with an attitude of superiority, where 'magic is might' is not just a motto, but the foundation of the city's trade, research, lesiur, and culture.",
-        "wikiLink": ""
+        "description": "Purpose-built from the ground up to be the Athenaeum's regional seat of power, this city of stark marble was designed to project authority.",
+        "wikiLink": "",
+        "summary": "Purpose-built from the ground up to be the Athenaeum's regional seat of power, this city of stark marble was designed to project authority.",
+        "properties": {
+          "Map": "Southern Thalassia"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "The air is heavy with an attitude of superiority, where 'magic is might' is not just a motto, but the foundation of the city's trade, research, lesiur, and culture."
+          }
+        ],
+        "tags": [
+          "City",
+          "Southern Thalassia",
+          "Learning",
+          "Magic"
+        ]
       },
       {
         "coords": [
@@ -6832,8 +7361,24 @@
         ],
         "name": "Rusty Anchor",
         "type": "Fort",
-        "description": "Known only to pirates, this haven is built within the colossal, grounded hull of a legendary ironside and a surrounding patchwork of lashed-together ships. Beyond its notorious fighting pits, whispers draw the desperate to a merchant named 'Ink,' rumored to grant any desire... for a price.",
-        "wikiLink": ""
+        "description": "Known only to pirates, this haven is built within the colossal, grounded hull of a legendary ironside and a surrounding patchwork of lashed-together ships.",
+        "wikiLink": "",
+        "summary": "Known only to pirates, this haven is built within the colossal, grounded hull of a legendary ironside and a surrounding patchwork of lashed-together ships.",
+        "properties": {
+          "Map": "Southern Thalassia"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Beyond its notorious fighting pits, whispers draw the desperate to a merchant named 'Ink,' rumored to grant any desire... for a price."
+          }
+        ],
+        "tags": [
+          "Fort",
+          "Southern Thalassia",
+          "Commerce",
+          "Seat of power"
+        ]
       },
       {
         "coords": [
@@ -6842,8 +7387,21 @@
         ],
         "name": "Talking Stones",
         "type": "Point of Interest",
-        "description": "More a legend than a landmark, this remote beach is scattered with stones that are said to whisper when no one is listening. Scholars and lonely folk are drawn here, hoping to find a reseach buddy or a rock to talk to.  Some say the rocks here are more of smart pets then friends but still act as wonderful comapnions.",
-        "wikiLink": ""
+        "description": "More a legend than a landmark, this remote beach is scattered with stones that are said to whisper when no one is listening.",
+        "wikiLink": "",
+        "summary": "More a legend than a landmark, this remote beach is scattered with stones that are said to whisper when no one is listening.",
+        "properties": {
+          "Map": "Southern Thalassia"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Scholars and lonely folk are drawn here, hoping to find a reseach buddy or a rock to talk to. Some say the rocks here are more of smart pets then friends but still act as wonderful comapnions."
+          }
+        ],
+        "tags": [
+          "Southern Thalassia"
+        ]
       }
     ],
     "regions": [
@@ -7484,6 +8042,7 @@
     "scalePixels": 67,
     "scaleKilometers": 4.83,
     "blurb": "Imprisoned by mist, this land groans under an undying tyrant's shadow. Jagged peaks claw at a twilight sky; the ancient woods conceal secrets best left buried. Above all, Castle Ravenloft looms, a monument to sorrow. Here, despair stains the very soil, and all are ensnared by Strahd.",
+    "selectorDescription": "A mist-choked cursed land where Strahd's shadow still lingers.",
     "pointsOfInterest": [
       {
         "coords": [
@@ -7492,8 +8051,22 @@
         ],
         "name": "^",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Unlabeled location marker on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Unlabeled location marker on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Unlabeled marker",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7502,8 +8075,22 @@
         ],
         "name": "✓",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Unlabeled location marker on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Unlabeled location marker on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Unlabeled marker",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7512,8 +8099,22 @@
         ],
         "name": "🌌",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Unlabeled location marker on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Unlabeled location marker on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Unlabeled marker",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7522,8 +8123,22 @@
         ],
         "name": "🌑",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Unlabeled location marker on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Unlabeled location marker on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Unlabeled marker",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7532,8 +8147,22 @@
         ],
         "name": "🌕",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Unlabeled location marker on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Unlabeled location marker on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Unlabeled marker",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7542,8 +8171,22 @@
         ],
         "name": "🏛️",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Unlabeled location marker on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Unlabeled location marker on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Unlabeled marker",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7552,8 +8195,22 @@
         ],
         "name": "🐺",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Unlabeled location marker on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Unlabeled location marker on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Unlabeled marker",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7562,8 +8219,22 @@
         ],
         "name": "👻",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Unlabeled location marker on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Unlabeled location marker on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Unlabeled marker",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7572,8 +8243,22 @@
         ],
         "name": "🕷️",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Unlabeled location marker on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Unlabeled location marker on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Unlabeled marker",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7582,8 +8267,22 @@
         ],
         "name": "🦉",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Unlabeled location marker on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Unlabeled location marker on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Unlabeled marker",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7592,8 +8291,22 @@
         ],
         "name": "🧛",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Unlabeled location marker on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Unlabeled location marker on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Unlabeled marker",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7602,8 +8315,22 @@
         ],
         "name": "🧛‍♀️",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Unlabeled location marker on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Unlabeled location marker on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Unlabeled marker",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7612,8 +8339,22 @@
         ],
         "name": "🧟",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Unlabeled location marker on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Unlabeled location marker on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Unlabeled marker",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7622,8 +8363,22 @@
         ],
         "name": "🧿",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Unlabeled location marker on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Unlabeled location marker on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Unlabeled marker",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7632,8 +8387,22 @@
         ],
         "name": "🪶",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Unlabeled location marker on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Unlabeled location marker on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Unlabeled marker",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7642,8 +8411,21 @@
         ],
         "name": "Ag",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Ag is recorded as a marked location on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Ag is recorded as a marked location on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Ag is recorded as a marked location on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7652,8 +8434,21 @@
         ],
         "name": "Fe",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Fe is recorded as a marked location on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Fe is recorded as a marked location on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Fe is recorded as a marked location on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7663,7 +8458,22 @@
         "name": "Giant Crypt",
         "type": "Ruin",
         "description": "A Crypt found by Timithy the Dwain.",
-        "wikiLink": ""
+        "wikiLink": "",
+        "summary": "A Crypt found by Timithy the Dwain.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "A Crypt found by Timithy the Dwain."
+          }
+        ],
+        "tags": [
+          "Ruin",
+          "Cursed-Old-Lin",
+          "Death"
+        ]
       },
       {
         "coords": [
@@ -7672,8 +8482,22 @@
         ],
         "name": "Hob's Camp",
         "type": "Settlement",
-        "description": "",
-        "wikiLink": ""
+        "description": "Hob's Camp is recorded as a settlement on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Hob's Camp is recorded as a settlement on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Hob's Camp is recorded as a settlement on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Settlement",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7683,7 +8507,21 @@
         "name": "Knoll",
         "type": "Village",
         "description": "A farming town.",
-        "wikiLink": ""
+        "wikiLink": "",
+        "summary": "A farming town.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "A farming town."
+          }
+        ],
+        "tags": [
+          "Village",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7693,7 +8531,21 @@
         "name": "Norst",
         "type": "Village",
         "description": "An old Fishing village.",
-        "wikiLink": ""
+        "wikiLink": "",
+        "summary": "An old Fishing village.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "An old Fishing village."
+          }
+        ],
+        "tags": [
+          "Village",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7702,8 +8554,23 @@
         ],
         "name": "Old Gallows & Aasimars Grave",
         "type": "Ruin",
-        "description": "The Gallows here were built over the grave of a cleric who thought they could fight against Strauhd and win.  The Gallows were later burned and spirits set free.",
-        "wikiLink": ""
+        "description": "The Gallows here were built over the grave of a cleric who thought they could fight against Strauhd and win.",
+        "wikiLink": "",
+        "summary": "The Gallows here were built over the grave of a cleric who thought they could fight against Strauhd and win.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "The Gallows were later burned and spirits set free."
+          }
+        ],
+        "tags": [
+          "Ruin",
+          "Cursed-Old-Lin",
+          "Death"
+        ]
       },
       {
         "coords": [
@@ -7712,8 +8579,21 @@
         ],
         "name": "TG",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "TG is recorded as a marked location on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "TG is recorded as a marked location on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "TG is recorded as a marked location on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7723,7 +8603,21 @@
         "name": "Valdoria",
         "type": "City",
         "description": "The largest city in Old-Lin.",
-        "wikiLink": ""
+        "wikiLink": "",
+        "summary": "The largest city in Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "The largest city in Old-Lin."
+          }
+        ],
+        "tags": [
+          "City",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7732,8 +8626,21 @@
         ],
         "name": "X",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "X is recorded as a marked location on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "X is recorded as a marked location on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "X is recorded as a marked location on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7743,7 +8650,21 @@
         "name": "Zalesie",
         "type": "Hamlet",
         "description": "A small town.",
-        "wikiLink": ""
+        "wikiLink": "",
+        "summary": "A small town.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "A small town."
+          }
+        ],
+        "tags": [
+          "Hamlet",
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7752,8 +8673,21 @@
         ],
         "name": "Δ",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Δ is recorded as a marked location on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Δ is recorded as a marked location on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Δ is recorded as a marked location on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7762,8 +8696,21 @@
         ],
         "name": "ε",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "ε is recorded as a marked location on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "ε is recorded as a marked location on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "ε is recorded as a marked location on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7772,8 +8719,21 @@
         ],
         "name": "θ",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "θ is recorded as a marked location on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "θ is recorded as a marked location on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "θ is recorded as a marked location on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7782,8 +8742,21 @@
         ],
         "name": "Κ",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Κ is recorded as a marked location on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Κ is recorded as a marked location on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Κ is recorded as a marked location on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7792,8 +8765,21 @@
         ],
         "name": "Λ - ???",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Λ - ??? is recorded as a marked location on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Λ - ??? is recorded as a marked location on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Λ - ??? is recorded as a marked location on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7802,8 +8788,21 @@
         ],
         "name": "Λ - Lesser",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Λ - Lesser is recorded as a marked location on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Λ - Lesser is recorded as a marked location on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Λ - Lesser is recorded as a marked location on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7812,8 +8811,21 @@
         ],
         "name": "Μ",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Μ is recorded as a marked location on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Μ is recorded as a marked location on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Μ is recorded as a marked location on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7822,8 +8834,21 @@
         ],
         "name": "Ο",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Ο is recorded as a marked location on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Ο is recorded as a marked location on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Ο is recorded as a marked location on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7832,8 +8857,21 @@
         ],
         "name": "π",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "π is recorded as a marked location on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "π is recorded as a marked location on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "π is recorded as a marked location on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7842,8 +8880,21 @@
         ],
         "name": "Π",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Π is recorded as a marked location on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Π is recorded as a marked location on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Π is recorded as a marked location on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7852,8 +8903,21 @@
         ],
         "name": "𝛙",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "𝛙 is recorded as a marked location on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "𝛙 is recorded as a marked location on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "𝛙 is recorded as a marked location on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7862,8 +8926,21 @@
         ],
         "name": "Ψ",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "Ψ is recorded as a marked location on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "Ψ is recorded as a marked location on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Ψ is recorded as a marked location on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Cursed-Old-Lin"
+        ]
       },
       {
         "coords": [
@@ -7872,8 +8949,21 @@
         ],
         "name": "𖦹",
         "type": "Unknown",
-        "description": "",
-        "wikiLink": ""
+        "description": "𖦹 is recorded as a marked location on Cursed-Old-Lin.",
+        "wikiLink": "",
+        "summary": "𖦹 is recorded as a marked location on Cursed-Old-Lin.",
+        "properties": {
+          "Map": "Cursed-Old-Lin"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "𖦹 is recorded as a marked location on Cursed-Old-Lin."
+          }
+        ],
+        "tags": [
+          "Cursed-Old-Lin"
+        ]
       }
     ],
     "regions": [
@@ -11054,6 +12144,7 @@
     "scalePixels": 50,
     "scaleKilometers": 3600,
     "blurb": "Located on the southern side of the Ardoise Mountains and just off the old Chemin de Ronceval (Ronceval Road), Gelwood is a town defined by resilience. This revived frontier settlement is built upon the moss-covered stone foundations of a much older, forgotten settlement. In the last handful of years, hardy settlers from Rockdrift and Ironstream have begun to reclaim the ruins, building their homes and livelihoods amidst the ghosts of the past. It is now a burgeoning community of farmers, woodcutters, fur traders, and ambitious prospectors, all drawn by persistent tales of gold, platinum, and even diamonds hidden in the nearby mountains.",
+    "selectorDescription": "A frontier town rebuilt on old stone and drawing settlers and prospectors.",
     "pointsOfInterest": [],
     "regions": [
       {
@@ -11389,6 +12480,7 @@
     "scalePixels": 3,
     "scaleKilometers": 0.1225,
     "blurb": "This map is still a work in progress.",
+    "selectorDescription": "A work-in-progress regional map of Arfordir and nearby lands.",
     "pointsOfInterest": [],
     "regions": [
       {
@@ -11951,6 +13043,7 @@
     "scalePixels": 4080,
     "scaleKilometers": 13,
     "blurb": "",
+    "selectorDescription": "A hard-edged river-delta port of docks, districts, and imperial pressure.",
     "pointsOfInterest": [
       {
         "coords": [
@@ -11960,10 +13053,21 @@
         "name": "Baths of the Devine Mother",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "An oasis of pristine white marble and verdant greenery amidst the smog of Stomion, the Baths of the Divine Mother are a sanctuary dedicated to Pythia, the Primordial Lifegiver. Fed by the city's only remaining natural spring, the water is naturally warm and famed for its revitalizing properties. The interior is a humidity-filled paradise where exotic flora—blessed by the influence of Veridia—thrives under skylights and soft candlelight, defying the harsh industrial climate outside. A breathtaking statue of Pythia stands at the center of the main pool, her arms outstretched as if offering the waters to the bathers below.Operated by the Lifewardens and a quiet staff of attendants, the facility maintains a strict policy of equality; within these walls, nobles and merchants bathe side-by-side without segregation, weapons, or rank, though the clientele remains largely exclusive due to its location. Silence is heavily encouraged, allowing the sound of trickling water to dominate the air. High Warden Thyleesha currently manages the baths, though she grows increasingly anxious as recent industrial run-off from the neighboring districts threatens to taint the ancient, mysterious source of their holy spring.",
+        "description": "An oasis of pristine white marble and verdant greenery amidst the smog of Stomion, the Baths of the Divine Mother are a sanctuary dedicated to Pythia, the Primordial Lifegiver.",
         "summary": "A pristine, marble-clad sanctuary and bathhouse dedicated to Pythia, featuring lush gardens and a natural warm spring that serves as a quiet, neutral retreat for the city's elite.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Fed by the city's only remaining natural spring, the water is naturally warm and famed for its revitalizing properties. The interior is a humidity-filled paradise where exotic flora—blessed by the influence of Veridia—thrives under skylights and soft candlelight, defying the harsh industrial climate outside. A breathtaking statue of Pythia stands at the center of the main pool, her arms outstretched as if offering the waters to the bathers below. Operated by the Lifewardens and a quiet staff of attendants, the facility maintains a strict policy of equality; within these walls, nobles and merchants bathe side-by-side without segregation, weapons, or rank, though the clientele remains largely exclusive due to its location. Silence is heavily encouraged, allowing the sound of trickling water to dominate the air. High Warden Thyleesha currently manages the baths, though she grows increasingly anxious as recent industrial run-off from the neighboring districts threatens to taint the ancient, mysterious source of their holy spring."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -11973,10 +13077,22 @@
         "name": "Beccin Chancery Embasy",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "Constructed within what was once a public park, the Beccin Embassy is a monolithic palace of cold, solid stone that feels utterly alien amidst the weathered architecture of Oldfort. It serves as the headquarters for the Vardenheim Directorate and the seat of Overseer Intendant Verrick, the 'Hand of the Emperor.' Verrick is a 'Sanitized Tyrant' who views the occupation not as a war, but as a failing factory requiring correction; he wears pristine white gloves to metaphorically and literally keep the filth of the city at bay. The interior is chillingly cold and decorated with imposing propaganda of the Emperor. While the upper floors are a maze of dismissively polite bureaucracy where meetings are nearly impossible to secure, the lower levels house the Directorate's interrogation cells. It is guarded by a specialized detachment of the City Watch, ensuring that Verrick's industrial dismantling of the rebellion proceeds without interruption.",
+        "description": "Constructed within what was once a public park, the Beccin Embassy is a monolithic palace of cold, solid stone that feels utterly alien amidst the weathered architecture of Oldfort.",
         "summary": "The imposing stone headquarters of the Vardenheim Directorate, ruled by the clinical and ruthless Overseer Verrick, serving as the true center of Imperial control and secret police operations.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "It serves as the headquarters for the Vardenheim Directorate and the seat of Overseer Intendant Verrick, the 'Hand of the Emperor.' Verrick is a 'Sanitized Tyrant' who views the occupation not as a war, but as a failing factory requiring correction; he wears pristine white gloves to metaphorically and literally keep the filth of the city at bay. The interior is chillingly cold and decorated with imposing propaganda of the Emperor. While the upper floors are a maze of dismissively polite bureaucracy where meetings are nearly impossible to secure, the lower levels house the Directorate's interrogation cells. It is guarded by a specialized detachment of the City Watch, ensuring that Verrick's industrial dismantling of the rebellion proceeds without interruption."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Diplomacy"
+        ]
       },
       {
         "coords": [
@@ -11986,10 +13102,23 @@
         "name": "Breads and Dregs",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "A chaotic, warm, and wonderfully loud establishment that serves as the beating heart of Northgate's social scene. Breads and Dregs acts as both a premier bakery and a tavern, catering to weary travelers and locals alike. The air is permanently thick with the comforting scent of yeast and roasting grains, obscuring the smell of the city outside. They are famous for their 'Road Kits'—pre-wrapped ration packs of hardtack, dried meats, and cheese—and a legendary sourdough starter rumored to be over a century old and perhaps slightly sentient. The tavern offers lodging upstairs, and the common room is a dog-friendly haven where local bands play at night and sleepy wagon-drivers fuel up on strong coffee at dawn. It is a place of transit, where the 'dregs' refers affectionately to the bottom of a good cup of coffee or ale, shared among friends.",
+        "description": "A chaotic, warm, and wonderfully loud establishment that serves as the beating heart of Northgate's social scene.",
         "summary": "A popular bakery-tavern in Northgate offering lodging, strong coffee, and famous 'Road Kits' for travelers, known for its warm atmosphere and century-old sourdough starter.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Breads and Dregs acts as both a premier bakery and a tavern, catering to weary travelers and locals alike. The air is permanently thick with the comforting scent of yeast and roasting grains, obscuring the smell of the city outside. They are famous for their 'Road Kits'—pre-wrapped ration packs of hardtack, dried meats, and cheese—and a legendary sourdough starter rumored to be over a century old and perhaps slightly sentient. The tavern offers lodging upstairs, and the common room is a dog-friendly haven where local bands play at night and sleepy wagon-drivers fuel up on strong coffee at dawn. It is a place of transit, where the 'dregs' refers affectionately to the bottom of a good cup of coffee or ale, shared among friends."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Gate",
+          "Hospitality"
+        ]
       },
       {
         "coords": [
@@ -11999,10 +13128,23 @@
         "name": "Cat and Hound",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "The Cat and Hound is a warm, cozy sanctuary situated on a raised mezzanine level overlooking the street, its timbers vibrating gently with the rhythmic passing of nearby trains. Owned by the sisters Kallista and Eleni, the tavern is a beloved staple for the city's mid-level workers looking for a quiet evening. Kallista, a stoic veteran of the national army, is known as 'The Hound,' while the tavern's name serves as a quiet, melancholic memorial to her lost lover, a Felis—'The Cat'—who vanished during the war. While Kallista handles security and the heavy lifting, Eleni, who worked the floor under the previous owner, manages the patrons with practiced grace. They are famous for serving high-quality meals at unbeatable prices, a feat accomplished by the sisters personally scouring the markets at dawn to source fresh ingredients themselves. Open only from 4 PM to midnight, the tavern enforces strict rules against politics and magic, allowing patrons to enjoy the piano music and hearty stew while the owners secretly harbor sympathies for the rebellion.",
+        "description": "The Cat and Hound is a warm, cozy sanctuary situated on a raised mezzanine level overlooking the street, its timbers vibrating gently with the rhythmic passing of nearby trains.",
         "summary": "A cozy, evening-only tavern run by two sisters, offering cheap, hearty food and a welcoming atmosphere on a lowered building near the train tracks.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Owned by the sisters Kallista and Eleni, the tavern is a beloved staple for the city's mid-level workers looking for a quiet evening. Kallista, a stoic veteran of the national army, is known as 'The Hound,' while the tavern's name serves as a quiet, melancholic memorial to her lost lover, a Felis—'The Cat'—who vanished during the war. While Kallista handles security and the heavy lifting, Eleni, who worked the floor under the previous owner, manages the patrons with practiced grace. They are famous for serving high-quality meals at unbeatable prices, a feat accomplished by the sisters personally scouring the markets at dawn to source fresh ingredients themselves. Open only from 4 PM to midnight, the tavern enforces strict rules against politics and magic, allowing patrons to enjoy the piano music and hearty stew while the owners secretly harbor sympathies for the rebellion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Hospitality",
+          "Magic"
+        ]
       },
       {
         "coords": [
@@ -12012,10 +13154,22 @@
         "name": "Chimgate",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "Chimgate is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "Chimgate is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Chimgate is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Gate"
+        ]
       },
       {
         "coords": [
@@ -12025,10 +13179,25 @@
         "name": "Govenors Gate",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "Locally reviled as 'The Traitor's Arch,' the Governor's Gate is a structure of ancient, gorgeous Elven stonework that serves as the choke point between the city and the puppet administration on Aelindor's Isle. The gatehouse consists of two square, crenellated towers flanking a heavy, reinforced arched entry at the end of a long stone causeway. It is not manned by the elite Beccin Black Guard, but by a hand-picked detachment of the City Watch. These guards enforce a strict 'official business only' policy, processing visitors with invasive searches and mandatory escorts—unless, of course, one can pay the steep bribes they are known to accept. In the past, the gate was a gathering point for desperate refugees begging for aid, but the terrifying silhouette of the Beccin airship hovering just above the castle has largely scared them away, leaving the bridge eerily quiet.",
+        "description": "Locally reviled as 'The Traitor's Arch,' the Governor's Gate is a structure of ancient, gorgeous Elven stonework that serves as the choke point between the city and the puppet administration on Aelindor's Isle.",
         "summary": "An ancient, fortified Elven gatehouse guarding the bridge to Aelindor's Isle, manned by corrupt City Watch and nicknamed 'The Traitor's Arch'.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "The gatehouse consists of two square, crenellated towers flanking a heavy, reinforced arched entry at the end of a long stone causeway. It is not manned by the elite Beccin Black Guard, but by a hand-picked detachment of the City Watch. These guards enforce a strict 'official business only' policy, processing visitors with invasive searches and mandatory escorts—unless, of course, one can pay the steep bribes they are known to accept. In the past, the gate was a gathering point for desperate refugees begging for aid, but the terrifying silhouette of the Beccin airship hovering just above the castle has largely scared them away, leaving the bridge eerily quiet."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Gate",
+          "Seat of power",
+          "Island",
+          "Crossing"
+        ]
       },
       {
         "coords": [
@@ -12038,10 +13207,22 @@
         "name": "Governor's Castle",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "Commonly known as the Governor's Castle, this structure is historically Castle Aelindor, an ancient Elven fortress of elegant and sea-facing balconies. It is currently the seat of Magistrate Vael, the nervous and sweating face of the 'Traitor Elf' administration. Clad in an ill-fitting Beccin tunic that symbolizes her uncomfortable submission, Vael stands paralyzed between a populace that loathes her collaboration and an Empire that views her softness as an inefficiency. She rules in name only, reading decrees of quarantine and tax hikes to angry crowds from the safety of the castle walls, while the black shadow of a Beccin airship hovers perpetually overhead. Unknown to her, she is merely a puppet being groomed by Overseer Verrick.",
+        "description": "Commonly known as the Governor's Castle, this structure is historically Castle Aelindor, an ancient Elven fortress of elegant and sea-facing balconies.",
         "summary": "The ancient Elven Castle Aelindor, now the seat of the puppet Magistrate Vael, a collaborator trapped between a hateful populace and the ruthless Beccin Empire.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "It is currently the seat of Magistrate Vael, the nervous and sweating face of the 'Traitor Elf' administration. Clad in an ill-fitting Beccin tunic that symbolizes her uncomfortable submission, Vael stands paralyzed between a populace that loathes her collaboration and an Empire that views her softness as an inefficiency. She rules in name only, reading decrees of quarantine and tax hikes to angry crowds from the safety of the castle walls, while the black shadow of a Beccin airship hovers perpetually overhead. Unknown to her, she is merely a puppet being groomed by Overseer Verrick."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Seat of power"
+        ]
       },
       {
         "coords": [
@@ -12051,10 +13232,22 @@
         "name": "Hags Hovel",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "Within the chaotic sprawl of The Shacks lies Hags Hovel, a notorious dive bar built from the rusted hull of a scavenged tugboat that has been aggressively expanded with bolted-on scrap and driftwood. The establishment earns its name from its proprietor, an unpleasant and razor-tongued old woman whose eclectic collection of personal trinkets lines the grime-slicked walls. The roof is a sieve of leaks caught by a maze of buckets, and the air is thick with the smell of wet rot and desperation. Imperial patrols avoid the venue entirely, making it a sanctuary for the city's criminal element; while the house doesn't sell contraband, the patrons openly do. A back room hosts high-stakes gambling and hushed contracts, all enforced by 'Kiddo,' a massive Dragonborn bouncer who ensures that the lawlessness remains organized.",
+        "description": "Within the chaotic sprawl of The Shacks lies Hags Hovel, a notorious dive bar built from the rusted hull of a scavenged tugboat that has been aggressively expanded with bolted-on scrap and driftwood.",
         "summary": "A seedy tavern in The Shacks built from an expanded tugboat, run by a cantankerous old woman and guarded by a massive Dragonborn, serving as a safe haven for illicit deals.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "The establishment earns its name from its proprietor, an unpleasant and razor-tongued old woman whose eclectic collection of personal trinkets lines the grime-slicked walls. The roof is a sieve of leaks caught by a maze of buckets, and the air is thick with the smell of wet rot and desperation. Imperial patrols avoid the venue entirely, making it a sanctuary for the city's criminal element; while the house doesn't sell contraband, the patrons openly do. A back room hosts high-stakes gambling and hushed contracts, all enforced by 'Kiddo,' a massive Dragonborn bouncer who ensures that the lawlessness remains organized."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Hospitality"
+        ]
       },
       {
         "coords": [
@@ -12064,10 +13257,21 @@
         "name": "HARBOUR AUTHORITY",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "HARBOUR AUTHORITY is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "HARBOUR AUTHORITY is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "HARBOUR AUTHORITY is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12077,10 +13281,23 @@
         "name": "Hera Vlachouli's Institute of the Arcane",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "Formerly known as the Xylokoilo Lyceum (Ancient for 'Woodhollow'), this institution was rebranded to align with the modern sensibilities of the Beccin occupation. It is named after Hera Vlachouli, a figure sympathetic to the Empire, helping to ease the local populace's disdain for the wizarding class that largely fled the country. Led by Headmistress Elpida Tata, who walks a razor-thin line between Imperial loyalty and academic preservation, the Institute focuses on producing magically capable assets for the Beccin military. The curriculum is rigorous, strictly categorized, and heavily monitored; Wild Magic is treated as a dangerous pathology to be suppressed. Students wear robes blending classical Greek drapes with color-coded house linings. Failure is not an option—those who wash out are sent to 'remedial programs' from which they return noticeably simpler and mentally eroded. Beneath the school lies a sealed subterranean complex now known as 'The Deeproot,' rumored to hold secrets from the school's older, wilder days.",
+        "description": "Formerly known as the Xylokoilo Lyceum (Ancient for 'Woodhollow'), this institution was rebranded to align with the modern sensibilities of the Beccin occupation.",
         "summary": "A magic school formerly known as Xylokoilo, where students are strictly trained for military service and failure results in severe cognitive decline.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "It is named after Hera Vlachouli, a figure sympathetic to the Empire, helping to ease the local populace's disdain for the wizarding class that largely fled the country. Led by Headmistress Elpida Tata, who walks a razor-thin line between Imperial loyalty and academic preservation, the Institute focuses on producing magically capable assets for the Beccin military. The curriculum is rigorous, strictly categorized, and heavily monitored; Wild Magic is treated as a dangerous pathology to be suppressed. Students wear robes blending classical Greek drapes with color-coded house linings. Failure is not an option—those who wash out are sent to 'remedial programs' from which they return noticeably simpler and mentally eroded. Beneath the school lies a sealed subterranean complex now known as 'The Deeproot,' rumored to hold secrets from the school's older, wilder days."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Learning",
+          "Magic"
+        ]
       },
       {
         "coords": [
@@ -12090,10 +13307,22 @@
         "name": "House of Coin God",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "House of Coin God is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "House of Coin God is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "House of Coin God is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Commerce"
+        ]
       },
       {
         "coords": [
@@ -12103,10 +13332,23 @@
         "name": "House of the Lost and Wayward",
         "pronunciation": "",
         "type": "Temple",
-        "description": "",
-        "summary": "",
+        "description": "House of the Lost and Wayward is recorded as a temple on The Port City of Stomion.",
+        "summary": "House of the Lost and Wayward is recorded as a temple on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "House of the Lost and Wayward is recorded as a temple on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "Temple",
+          "The Port City of Stomion",
+          "Sacred site"
+        ]
       },
       {
         "coords": [
@@ -12116,10 +13358,22 @@
         "name": "Imperial Admirality",
         "pronunciation": "",
         "type": "Building",
-        "description": "",
-        "summary": "",
+        "description": "Imperial Admirality is recorded as a building on The Port City of Stomion.",
+        "summary": "Imperial Admirality is recorded as a building on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Imperial Admirality is recorded as a building on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "Building",
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12129,10 +13383,22 @@
         "name": "Imperial Offices",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "Imperial Offices is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "Imperial Offices is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Imperial Offices is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Seat of power"
+        ]
       },
       {
         "coords": [
@@ -12142,10 +13408,22 @@
         "name": "Imperial State Library",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "Imperial State Library is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "Imperial State Library is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Imperial State Library is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Learning"
+        ]
       },
       {
         "coords": [
@@ -12155,10 +13433,22 @@
         "name": "Iron Coffers' Hall",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "Iron Coffers' Hall is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "Iron Coffers' Hall is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Iron Coffers' Hall is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Commerce"
+        ]
       },
       {
         "coords": [
@@ -12168,10 +13458,22 @@
         "name": "Mayor's Manor",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "Mayor's Manor is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "Mayor's Manor is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Mayor's Manor is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Seat of power"
+        ]
       },
       {
         "coords": [
@@ -12182,9 +13484,20 @@
         "pronunciation": "",
         "type": "Point of Interest",
         "description": "A nice bee place.",
-        "summary": "",
+        "summary": "A nice bee place.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "A nice bee place."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12194,10 +13507,24 @@
         "name": "MERCHANT GATE",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "Rising above the smog of the lower city, Merchant's Hill is the residential enclave of Stomion's 'Old Money.' It is a neighborhood of fading but dignified elegance, home to wealthy regional merchants and ancient families who cling to the pre-occupation past. While the residents possess little actual political authority—having been stripped of real power by the Beccin administration—they maintain a stubborn veneer of influence through social exclusion and a culture that is 'snobby, but not overly rude.' \n\nThe district is visually defined by its unique lighting: rather than uniform municipal posts, the streets are illuminated by ornate, distinct oil lamps. Each lamp is commissioned and zealously maintained by the owner of the nearest manor as a fierce display of status and wealth. The area is not gated but is heavily patrolled by the City Watch, who politely ensure that the uninvited do not linger. Notable residents include Veylan Wollif, the envoy for the Iron Coffer. The district’s crown jewel is the Public Observatory, a place of quiet contemplation where the elite watch the stars, ignoring the industrial smoke rising from the districts below.",
+        "description": "Rising above the smog of the lower city, Merchant's Hill is the residential enclave of Stomion's 'Old Money.'",
         "summary": "Merchant's Hill is an elite residential district for the city's 'Old Money,' characterized by owner-maintained ornate street lamps, polite social exclusion, and the Public Observatory.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "It is a neighborhood of fading but dignified elegance, home to wealthy regional merchants and ancient families who cling to the pre-occupation past. While the residents possess little actual political authority—having been stripped of real power by the Beccin administration—they maintain a stubborn veneer of influence through social exclusion and a culture that is 'snobby, but not overly rude.' The district is visually defined by its unique lighting: rather than uniform municipal posts, the streets are illuminated by ornate, distinct oil lamps. Each lamp is commissioned and zealously maintained by the owner of the nearest manor as a fierce display of status and wealth. The area is not gated but is heavily patrolled by the City Watch, who politely ensure that the uninvited do not linger. Notable residents include Veylan Wollif, the envoy for the Iron Coffer. The district’s crown jewel is the Public Observatory, a place of quiet contemplation where the elite watch the stars, ignoring the industrial smoke rising from the districts below."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Gate",
+          "Commerce",
+          "Seat of power"
+        ]
       },
       {
         "coords": [
@@ -12207,10 +13534,22 @@
         "name": "Merchant Senate",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "Merchant Senate is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "Merchant Senate is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Merchant Senate is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Commerce"
+        ]
       },
       {
         "coords": [
@@ -12220,10 +13559,22 @@
         "name": "Oikos Atrium",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "Suspended between the central spires like a glittering jewel in a stone web, the Oikos Atrium is a colossal, crystalline geodesic dome that houses the last breath of the Old World. It serves as the private botanical conservatory and primary social salon for those in the Synedrion of Blood. Inside, the air is perfumed and perfectly humidified, maintained by complex weather wards that nurture flora extinct everywhere else in Eschatia. Silver-ferns from the Lost Age and glowing moon-blooming lotuses. It is here that 'The Season' takes place: a perpetual cycle of tea ceremonies, marriage negotiations, and high-stakes political maneuvering disguised as leisure. By ancient treaty, no violence is permitted within the glass, making it the only place where rival Great Houses can meet face-to-face to trade secrets.",
+        "description": "Suspended between the central spires like a glittering jewel in a stone web, the Oikos Atrium is a colossal, crystalline geodesic dome that houses the last breath of the Old World.",
         "summary": "A suspended glass conservatory preserving extinct magical flora, serving as the neutral social hub for the Great Houses' political maneuvering and high-society events.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "It serves as the private botanical conservatory and primary social salon for those in the Synedrion of Blood. Inside, the air is perfumed and perfectly humidified, maintained by complex weather wards that nurture flora extinct everywhere else in Eschatia. Silver-ferns from the Lost Age and glowing moon-blooming lotuses. It is here that 'The Season' takes place: a perpetual cycle of tea ceremonies, marriage negotiations, and high-stakes political maneuvering disguised as leisure. By ancient treaty, no violence is permitted within the glass, making it the only place where rival Great Houses can meet face-to-face to trade secrets."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Magic"
+        ]
       },
       {
         "coords": [
@@ -12234,9 +13585,21 @@
         "pronunciation": "",
         "type": "Point of Interest",
         "description": "City Goverment",
-        "summary": "",
+        "summary": "City Goverment",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "City Goverment"
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Seat of power"
+        ]
       },
       {
         "coords": [
@@ -12246,10 +13609,22 @@
         "name": "Old Gate",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "Old Gate is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "Old Gate is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Old Gate is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Gate"
+        ]
       },
       {
         "coords": [
@@ -12259,10 +13634,22 @@
         "name": "Ossurian Forges Embassy",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "Ossurian Forges Embassy is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "Ossurian Forges Embassy is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Ossurian Forges Embassy is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Diplomacy"
+        ]
       },
       {
         "coords": [
@@ -12272,10 +13659,21 @@
         "name": "Outdoor Theater",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "Outdoor Theater is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "Outdoor Theater is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Outdoor Theater is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12285,10 +13683,21 @@
         "name": "State Goverment Building",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "State Goverment Building is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "State Goverment Building is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "State Goverment Building is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12298,10 +13707,21 @@
         "name": "Station",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "Station is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "Station is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Station is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12311,10 +13731,21 @@
         "name": "THE ARTISAN'S GUILD",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "THE ARTISAN'S GUILD is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "THE ARTISAN'S GUILD is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "THE ARTISAN'S GUILD is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12324,10 +13755,22 @@
         "name": "THE ARTISAN'S MARKET",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "THE ARTISAN'S MARKET is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "THE ARTISAN'S MARKET is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "THE ARTISAN'S MARKET is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Commerce"
+        ]
       },
       {
         "coords": [
@@ -12337,10 +13780,21 @@
         "name": "The Bath of Some god",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "The Bath of Some god is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "The Bath of Some god is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "The Bath of Some god is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12350,10 +13804,21 @@
         "name": "THE GREAT WAREHOUSE",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "THE GREAT WAREHOUSE is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "THE GREAT WAREHOUSE is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "THE GREAT WAREHOUSE is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12363,10 +13828,21 @@
         "name": "THE HIGH BEACON",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "THE HIGH BEACON is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "THE HIGH BEACON is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "THE HIGH BEACON is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12376,10 +13852,21 @@
         "name": "The High Hammer of Matrix",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "The High Hammer of Matrix is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "The High Hammer of Matrix is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "The High Hammer of Matrix is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12389,10 +13876,21 @@
         "name": "The House of some other god?",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "The House of some other god? is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "The House of some other god? is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "The House of some other god? is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12402,10 +13900,21 @@
         "name": "THE JEWELER'S GUILD",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "THE JEWELER'S GUILD is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "THE JEWELER'S GUILD is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "THE JEWELER'S GUILD is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12415,10 +13924,22 @@
         "name": "The North Gate",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "The North Gate is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "The North Gate is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "The North Gate is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Gate"
+        ]
       },
       {
         "coords": [
@@ -12428,10 +13949,21 @@
         "name": "The Observatory",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "The Observatory is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "The Observatory is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "The Observatory is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12441,10 +13973,21 @@
         "name": "THE RAILDOCK",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "THE RAILDOCK is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "THE RAILDOCK is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "THE RAILDOCK is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12454,10 +13997,22 @@
         "name": "The Rested Raven",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "The Rested Raven is owned by an unmarried elven woman and her elven boyfriend. Both of the owners are law-abiding citizens with notable personality quirks. Before owning the tavern, he sailed around the world, while she studied to be a wizard. The inspiration for the tavern's name was a misinterpretation of another famous tavern's name. It is a tavern of modest quality.",
-        "summary": "",
+        "description": "The Rested Raven is owned by an unmarried elven woman and her elven boyfriend.",
+        "summary": "The Rested Raven is owned by an unmarried elven woman and her elven boyfriend.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Both of the owners are law-abiding citizens with notable personality quirks. Before owning the tavern, he sailed around the world, while she studied to be a wizard. The inspiration for the tavern's name was a misinterpretation of another famous tavern's name. It is a tavern of modest quality."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Hospitality"
+        ]
       },
       {
         "coords": [
@@ -12467,10 +14022,22 @@
         "name": "The Shop",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "Welcome to The Shop! Back in the glory days, this facility was a premier, open-floor smithy. Now? It’s a survival rig adapted for the grind. We stripped the layout and partitioned it into flats to house a crew of makers and their families. The main floor got squeezed, but it remains the beating heart of the operation: a high-traffic, communal fabrication zone where every discipline from leather-working to cold forging collides. We keep a resident fabricator on site, bunked in a solo unit. They machine the components, true the grinding wheels, and repair the communal gear. In exchange for keeping the shop running, the rest of the crew knows when to look the other way. If a shipment of non-standard, unregistered materials hits the loading dock? We didn't see a thing. The heat is high, and the quarters are tight. We don't act loud; we just hammer hard.",
+        "description": "Welcome to The Shop!",
         "summary": "A place of creators and workers.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Back in the glory days, this facility was a premier, open-floor smithy. Now? It’s a survival rig adapted for the grind. We stripped the layout and partitioned it into flats to house a crew of makers and their families. The main floor got squeezed, but it remains the beating heart of the operation: a high-traffic, communal fabrication zone where every discipline from leather-working to cold forging collides. We keep a resident fabricator on site, bunked in a solo unit. They machine the components, true the grinding wheels, and repair the communal gear. In exchange for keeping the shop running, the rest of the crew knows when to look the other way. If a shipment of non-standard, unregistered materials hits the loading dock? We didn't see a thing. The heat is high, and the quarters are tight. We don't act loud; we just hammer hard."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion",
+          "Harbor"
+        ]
       },
       {
         "coords": [
@@ -12481,9 +14048,20 @@
         "pronunciation": "",
         "type": "Point of Interest",
         "description": "Brothal",
-        "summary": "",
+        "summary": "Brothal",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Brothal"
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12493,10 +14071,21 @@
         "name": "THE WATERLOCK",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "THE WATERLOCK is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "THE WATERLOCK is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "THE WATERLOCK is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12506,10 +14095,21 @@
         "name": "The Watertowers",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "The Watertowers is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "The Watertowers is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "The Watertowers is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12519,10 +14119,21 @@
         "name": "Tourney Grounds",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "Tourney Grounds is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "Tourney Grounds is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Tourney Grounds is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12532,10 +14143,21 @@
         "name": "Wizard's Tower",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "",
-        "summary": "",
+        "description": "Wizard's Tower is recorded as a point of interest on The Port City of Stomion.",
+        "summary": "Wizard's Tower is recorded as a point of interest on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Wizard's Tower is recorded as a point of interest on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       },
       {
         "coords": [
@@ -12545,10 +14167,23 @@
         "name": "Wolgari Trading Company Dock and House of Trade",
         "pronunciation": "",
         "type": "Dock & Trading",
-        "description": "",
-        "summary": "",
+        "description": "Wolgari Trading Company Dock and House of Trade is recorded as a dock & trading on The Port City of Stomion.",
+        "summary": "Wolgari Trading Company Dock and House of Trade is recorded as a dock & trading on The Port City of Stomion.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Wolgari Trading Company Dock and House of Trade is recorded as a dock & trading on The Port City of Stomion."
+          }
+        ],
+        "tags": [
+          "Dock & Trading",
+          "The Port City of Stomion",
+          "Harbor"
+        ]
       },
       {
         "coords": [
@@ -12558,10 +14193,21 @@
         "name": "Woodhollow Farm",
         "pronunciation": "",
         "type": "Point of Interest",
-        "description": "The Woodhollow Farm, named the old name for the Rain family.  Ownership of the property is questionable but not many look into it.  It as a quiet retreat just outside the city by its current deed owner.",
-        "summary": "",
+        "description": "The Woodhollow Farm, named the old name for the Rain family.",
+        "summary": "The Woodhollow Farm, named the old name for the Rain family.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "The Port City of Stomion"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Ownership of the property is questionable but not many look into it. It as a quiet retreat just outside the city by its current deed owner."
+          }
+        ],
+        "tags": [
+          "The Port City of Stomion"
+        ]
       }
     ],
     "regions": [
@@ -24465,7 +26111,10 @@
         "tags": [
           "Capital",
           "Free port",
-          "Halfling politics"
+          "Halfling politics",
+          "Fair",
+          "Diplomacy",
+          "Harbor"
         ]
       },
       {
@@ -24476,10 +26125,22 @@
         "name": "Argyra",
         "pronunciation": "",
         "type": "Capital",
-        "description": "A city of breathtaking, ancient silver spires wrapped in a permanent gray fog (industrial smog mixed with coastal mist). It is terrifyingly quiet. The Elven Senate debates for months while the city starves under a literal 'Glass Ceiling' built by the Empire. Oppressive silence, beautiful architecture decaying, surveillance state.",
-        "summary": "",
+        "description": "A city of breathtaking, ancient silver spires wrapped in a permanent gray fog (industrial smog mixed with coastal mist).",
+        "summary": "A city of breathtaking, ancient silver spires wrapped in a permanent gray fog (industrial smog mixed with coastal mist).",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "It is terrifyingly quiet. The Elven Senate debates for months while the city starves under a literal 'Glass Ceiling' built by the Empire. Oppressive silence, beautiful architecture decaying, surveillance state."
+          }
+        ],
+        "tags": [
+          "Capital",
+          "Fair"
+        ]
       },
       {
         "coords": [
@@ -24504,7 +26165,10 @@
         ],
         "tags": [
           "Dome city",
-          "Sub Rosa legacy"
+          "Sub Rosa legacy",
+          "City",
+          "Fair",
+          "Gate"
         ]
       },
       {
@@ -24515,10 +26179,22 @@
         "name": "Ceremead",
         "pronunciation": "",
         "type": "Capital",
-        "description": "",
-        "summary": "",
+        "description": "Ceremead is recorded as a capital on Fair.",
+        "summary": "Ceremead is recorded as a capital on Fair.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Ceremead is recorded as a capital on Fair."
+          }
+        ],
+        "tags": [
+          "Capital",
+          "Fair"
+        ]
       },
       {
         "coords": [
@@ -24548,7 +26224,9 @@
         "tags": [
           "Magic",
           "Cataclysm",
-          "Reconstruction"
+          "Reconstruction",
+          "City",
+          "Fair"
         ]
       },
       {
@@ -24559,10 +26237,22 @@
         "name": "Fook & Took",
         "pronunciation": "",
         "type": "City",
-        "description": "The twin city that is a city-state of its own.  The cities recently split.",
+        "description": "The twin city that is a city-state of its own.",
         "summary": "Once a single hub, these recently divided twin cities now exist as wary, competing city-states.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "The cities recently split."
+          }
+        ],
+        "tags": [
+          "City",
+          "Fair"
+        ]
       },
       {
         "coords": [
@@ -24572,10 +26262,22 @@
         "name": "Gorá-Sirotá",
         "pronunciation": "",
         "type": "Mountain",
-        "description": "Gorá-Sirotá, the Orphan Mountain, rises in stark isolation from the plains, a peak where dragons are often seen locked in vicious combat. Common legend holds that they fight over the lost treasure of a dwarven kingdom that was long ago driven from the mountain. The other ledgeons are more primal: the mountain is an ancient and sacred draconic graveyard. The dwarves were not destroyed for their gold, but for the sacrilege of disturbing the hallowed bones within. The dragons of today continue their war not just for treasure, but for the instinctual right to claim the mountain as their final roost.",
+        "description": "Gorá-Sirotá, the Orphan Mountain, rises in stark isolation from the plains, a peak where dragons are often seen locked in vicious combat.",
         "summary": "Atop this lone mountain, dragons viciously battle for the right to claim it as their final roost.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Common legend holds that they fight over the lost treasure of a dwarven kingdom that was long ago driven from the mountain. The other ledgeons are more primal: the mountain is an ancient and sacred draconic graveyard. The dwarves were not destroyed for their gold, but for the sacrilege of disturbing the hallowed bones within. The dragons of today continue their war not just for treasure, but for the instinctual right to claim the mountain as their final roost."
+          }
+        ],
+        "tags": [
+          "Mountain",
+          "Fair"
+        ]
       },
       {
         "coords": [
@@ -24585,10 +26287,24 @@
         "name": "Harold-Ford",
         "pronunciation": "",
         "type": "City",
-        "description": "The sprawling capital of Harold-Ford, which once united warring peoples, stands shrouded in both river mist and a fanatical devotion to its grand temples. While the crown maintains a delicate peace over its contested history, the city's avenues are rife with tension fueled by a cold war with a rival empire.",
+        "description": "The sprawling capital of Harold-Ford, which once united warring peoples, stands shrouded in both river mist and a fanatical devotion to its grand temples.",
         "summary": "The sprawling capital navigates a tense cold war with a rival empire.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "While the crown maintains a delicate peace over its contested history, the city's avenues are rife with tension fueled by a cold war with a rival empire."
+          }
+        ],
+        "tags": [
+          "City",
+          "Fair",
+          "Capital",
+          "Gate"
+        ]
       },
       {
         "coords": [
@@ -24598,10 +26314,23 @@
         "name": "Katia",
         "pronunciation": "",
         "type": "Town",
-        "description": "Once a serene elven town nestled in an ancient forest at a river's mouth, Katia is now a stark symbol of imperial occupation. The old woods have been clear-cut for Beccin military operations, leaving the town simmering with quiet resentment under the watch of its unwelcome garrisons.",
+        "description": "Once a serene elven town nestled in an ancient forest at a river's mouth, Katia is now a stark symbol of imperial occupation.",
         "summary": "Once a serene elven town, Katia is now a stark symbol of occupation with its ancient forest clear-cut.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "The old woods have been clear-cut for Beccin military operations, leaving the town simmering with quiet resentment under the watch of its unwelcome garrisons."
+          }
+        ],
+        "tags": [
+          "Town",
+          "Fair",
+          "Wilderness"
+        ]
       },
       {
         "coords": [
@@ -24611,10 +26340,22 @@
         "name": "Kausis",
         "pronunciation": "",
         "type": "Town",
-        "description": "There is no day or night here, only the glow of the furnaces. Raw resources from the West are turned into weapons. The population is mostly indentured servants and Warforged prototypes.",
-        "summary": "",
+        "description": "There is no day or night here, only the glow of the furnaces.",
+        "summary": "There is no day or night here, only the glow of the furnaces.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Raw resources from the West are turned into weapons. The population is mostly indentured servants and Warforged prototypes."
+          }
+        ],
+        "tags": [
+          "Town",
+          "Fair"
+        ]
       },
       {
         "coords": [
@@ -24624,10 +26365,24 @@
         "name": "Mnemosyne",
         "pronunciation": "",
         "type": "Ruin",
-        "description": "Once the home of the Athenaeum wizards before they defected. Now, a ghost town of empty libraries and locked towers. The Empire forbids entry, claiming 'Magical Radiation' left behind by the traitors.",
-        "summary": "",
+        "description": "Once the home of the Athenaeum wizards before they defected.",
+        "summary": "Once the home of the Athenaeum wizards before they defected.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Now, a ghost town of empty libraries and locked towers. The Empire forbids entry, claiming 'Magical Radiation' left behind by the traitors."
+          }
+        ],
+        "tags": [
+          "Ruin",
+          "Fair",
+          "Learning",
+          "Magic"
+        ]
       },
       {
         "coords": [
@@ -24640,7 +26395,19 @@
         "description": "This jagged peak is the tallest point in the world.",
         "summary": "The jagged, ice-crowned peak of Morana's Fang is the tallest mountain in the known world.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "This jagged peak is the tallest point in the world."
+          }
+        ],
+        "tags": [
+          "Mountain",
+          "Fair"
+        ]
       },
       {
         "coords": [
@@ -24653,7 +26420,20 @@
         "description": "The seat of magical power and the death place of Arcana.",
         "summary": "This sacred mountain is the very seat of magical power and the fabled death place of a god.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "The seat of magical power and the death place of Arcana."
+          }
+        ],
+        "tags": [
+          "Mountain",
+          "Fair",
+          "Magic"
+        ]
       },
       {
         "coords": [
@@ -24663,10 +26443,23 @@
         "name": "Obol",
         "pronunciation": "",
         "type": "City",
-        "description": "A gambling and banking city built on a cluster of islands connected by bridges. Since the Empire banned Gold, Obol is the only place where 'Heavy Money' is still secretly traded under the table of the Iron Coffers. It is bright, loud, and desperate.",
-        "summary": "",
+        "description": "A gambling and banking city built on a cluster of islands connected by bridges.",
+        "summary": "A gambling and banking city built on a cluster of islands connected by bridges.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Since the Empire banned Gold, Obol is the only place where 'Heavy Money' is still secretly traded under the table of the Iron Coffers. It is bright, loud, and desperate."
+          }
+        ],
+        "tags": [
+          "City",
+          "Fair",
+          "Commerce"
+        ]
       },
       {
         "coords": [
@@ -24676,10 +26469,24 @@
         "name": "Rockdrift",
         "pronunciation": "",
         "type": "City",
-        "description": "As the mercantile capital of Arfordir, Rockdrift is better known as the 'Stonehearted City' , a bustling hub where coin is king and powerful guilds control all commerce. While the city celebrates the restoration of its queen , whispers of a newly discovered fortune have begun to quietly stir the ambitions of its most influential citizens.",
+        "description": "As the mercantile capital of Arfordir, Rockdrift is better known as the 'Stonehearted City' , a bustling hub where coin is king and powerful guilds control all commerce.",
         "summary": "Known as the 'Stonehearted City,' this mercantile capital is ruled by powerful, ambitious guilds.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "While the city celebrates the restoration of its queen , whispers of a newly discovered fortune have begun to quietly stir the ambitions of its most influential citizens."
+          }
+        ],
+        "tags": [
+          "City",
+          "Fair",
+          "Capital",
+          "Commerce"
+        ]
       },
       {
         "coords": [
@@ -24689,10 +26496,22 @@
         "name": "Sindel",
         "pronunciation": "",
         "type": "City",
-        "description": "",
-        "summary": "",
+        "description": "Sindel is recorded as a city on Fair.",
+        "summary": "Sindel is recorded as a city on Fair.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Sindel is recorded as a city on Fair."
+          }
+        ],
+        "tags": [
+          "City",
+          "Fair"
+        ]
       },
       {
         "coords": [
@@ -24702,10 +26521,25 @@
         "name": "Skjoldvik",
         "pronunciation": "",
         "type": "Capital",
-        "description": "Nestled at the head of a deep, fjord, the kingdom's capital rises in a vibrant cascade of color against the stark green and grey of the surrounding cliffs. Steeply pitched roofs of slate and painted timber in hues of deep crimson, rich ochre, and forest green line the bustling cobblestone streets, which all spiral down to a crescent-shaped harbor alive with the masts of merchant ships and fishing vessels. Presiding over it all from a high, stony bluff is the royal castle, its elegant spires and soaring towers a constant, graceful symbol of the kingdom's enduring prosperity.",
+        "description": "Nestled at the head of a deep, fjord, the kingdom's capital rises in a vibrant cascade of color against the stark green and grey of the surrounding cliffs.",
         "summary": "This vibrant capital rises in a cascade of colorful buildings against the stark cliffs of its fjord.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Steeply pitched roofs of slate and painted timber in hues of deep crimson, rich ochre, and forest green line the bustling cobblestone streets, which all spiral down to a crescent-shaped harbor alive with the masts of merchant ships and fishing vessels. Presiding over it all from a high, stony bluff is the royal castle, its elegant spires and soaring towers a constant, graceful symbol of the kingdom's enduring prosperity."
+          }
+        ],
+        "tags": [
+          "Capital",
+          "Fair",
+          "Commerce",
+          "Seat of power",
+          "Wilderness"
+        ]
       },
       {
         "coords": [
@@ -24715,10 +26549,23 @@
         "name": "Stomion",
         "pronunciation": "",
         "type": "City",
-        "description": "A massive, grim port city built into a river delta. Beccin 'Customs Officers' act as state-sponsored gangsters, demanding bribes to let fishing boats leave. The air smells of brine and unwashed bodies.",
-        "summary": "",
+        "description": "A massive, grim port city built into a river delta.",
+        "summary": "A massive, grim port city built into a river delta.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "Beccin 'Customs Officers' act as state-sponsored gangsters, demanding bribes to let fishing boats leave. The air smells of brine and unwashed bodies."
+          }
+        ],
+        "tags": [
+          "City",
+          "Fair",
+          "Harbor"
+        ]
       },
       {
         "coords": [
@@ -24728,10 +26575,22 @@
         "name": "Sucardia",
         "pronunciation": "",
         "type": "Capital",
-        "description": "",
-        "summary": "",
+        "description": "Sucardia is recorded as a capital on Fair.",
+        "summary": "Sucardia is recorded as a capital on Fair.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "Sucardia is recorded as a capital on Fair."
+          }
+        ],
+        "tags": [
+          "Capital",
+          "Fair"
+        ]
       },
       {
         "coords": [
@@ -24741,10 +26600,22 @@
         "name": "The Fractured Point",
         "pronunciation": "",
         "type": "City",
-        "description": "",
+        "description": "The city is built among towering, shattered spires of rock that jut sharply from the sea.",
         "summary": "The city is built among towering, shattered spires of rock that jut sharply from the sea.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "The city is built among towering, shattered spires of rock that jut sharply from the sea."
+          }
+        ],
+        "tags": [
+          "City",
+          "Fair"
+        ]
       },
       {
         "coords": [
@@ -24754,10 +26625,23 @@
         "name": "The Iron Throne of the Bash",
         "pronunciation": "",
         "type": "Capital",
-        "description": "",
+        "description": "From this imposing fortress, an immortal Empress rules over the islands of the Bash.",
         "summary": "From this imposing fortress, an immortal Empress rules over the islands of the Bash.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "At a glance",
+            "body": "From this imposing fortress, an immortal Empress rules over the islands of the Bash."
+          }
+        ],
+        "tags": [
+          "Capital",
+          "Fair",
+          "Seat of power"
+        ]
       },
       {
         "coords": [
@@ -24767,10 +26651,24 @@
         "name": "Vincuta",
         "pronunciation": "",
         "type": "Fortress",
-        "description": "A brutalist fortress carved into the side of the mountain. This is where Imperial Intelligence operates",
-        "summary": "",
+        "description": "A brutalist fortress carved into the side of the mountain.",
+        "summary": "A brutalist fortress carved into the side of the mountain.",
         "wikiLink": "",
-        "properties": {}
+        "properties": {
+          "Map": "Fair"
+        },
+        "detailSections": [
+          {
+            "heading": "Context",
+            "body": "This is where Imperial Intelligence operates"
+          }
+        ],
+        "tags": [
+          "Fortress",
+          "Fair",
+          "Seat of power",
+          "Mountain"
+        ]
       }
     ],
     "scaleUnits": 1.3,
