@@ -30,3 +30,7 @@
 ## 2026-06-08 - Icon-Only Button Characters Accessibility
 **Learning:** Using text characters (like '>', 'v', or '-') as makeshift icons inside buttons without explicit `aria-label` attributes results in screen readers reading the literal characters (e.g., "greater than") to users, causing confusion and poor UX.
 **Action:** When implementing icon-only buttons using text characters as symbols, always provide an explicit `aria-label` attribute to describe the action, use `aria-expanded` when acting as a toggle, and set `aria-hidden="true"` on disabled placeholder buttons that have no action.
+
+## 2026-06-20 - Dynamic Status Announcements
+**Learning:** Screen readers may fail to announce text that is dynamically injected via JavaScript into utility output containers (like status messages or export outcomes) unless explicitly instructed.
+**Action:** When implementing containers for dynamic status updates, always add `aria-live="polite"` and `aria-atomic="true"` to ensure the content changes are announced to assistive technologies without interrupting the user's current flow.
