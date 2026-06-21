@@ -202,8 +202,35 @@
             summary: base.summary || '',
             wikiLink: base.wikiLink || '',
             linkedMapId: base.linkedMapId || '',
-            properties: base.properties && typeof base.properties === 'object' ? cloneJson(base.properties) : {}
+            properties: base.properties && typeof base.properties === 'object' ? cloneJson(base.properties) : {},
+            detailSections: normalizeDetailSections(base.detailSections),
+            tags: normalizeTags(base.tags)
         };
+    }
+
+    function normalizeDetailSections(value) {
+        if (!Array.isArray(value)) return [];
+        return value
+            .map((section) => {
+                if (!section || typeof section !== 'object' || Array.isArray(section)) return null;
+                const heading = String(section.heading || '').trim();
+                const body = String(section.body || '').trim();
+                if (!heading && !body) return null;
+                return { heading, body };
+            })
+            .filter(Boolean);
+    }
+
+    function normalizeTags(value) {
+        if (!Array.isArray(value)) return [];
+        const seen = new Set();
+        return value
+            .map((tag) => String(tag || '').trim())
+            .filter((tag) => {
+                if (!tag || seen.has(tag.toLowerCase())) return false;
+                seen.add(tag.toLowerCase());
+                return true;
+            });
     }
 
     function normalizeRegion(region) {
@@ -966,10 +993,12 @@
         detectLineCollectionKey,
         filterMapTree,
         findMapRecursive,
+        normalizeDetailSections,
         normalizeLine,
         normalizeManifestTree,
         normalizePoint,
         normalizeRegion,
+        normalizeTags,
         resolveFeatureIndexFromSelection,
         createUnavailableMapEntry,
         createRepoFileBackedMapSource,

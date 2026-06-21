@@ -39,6 +39,15 @@ atlas.tree.forEach((rootNode) => walkTree(rootNode, (node) => {
 const mainContinent = atlas.tree.find((item) => item.id === 'main_continent');
 assert.ok(mainContinent);
 assert.equal(mainContinent.dataUrl, 'maps/Fair-Content.json');
+assert.deepEqual(mainContinent.tileSource, {
+    type: 'xyz',
+    urlTemplate: 'tile/main_continent/{z}/{x}/{y}.webp',
+    tileSize: 256,
+    minZoom: 1,
+    maxZoom: 5,
+    leafletNativeZoom: 0,
+    zoomOffset: 5
+});
 assertShortPlainText(mainContinent.selectorDescription || mainContinent.summary || mainContinent.description || mainContinent.blurb || '', 'main_continent selectorDescription');
 assert.ok(Array.isArray(mainContinent.children));
 assert.ok(mainContinent.children.length > 0);

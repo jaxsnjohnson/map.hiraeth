@@ -41,8 +41,12 @@ function createSpy(implementation = () => undefined) {
 }
 
 const populatePOIsOnMapSource = extractFunctionSource('populatePOIsOnMap');
+const getPoiMarkerAccessibleNameSource = extractFunctionSource('getPoiMarkerAccessibleName');
 let populatePOIsOnMap;
+let getPoiMarkerAccessibleName;
 
+// eslint-disable-next-line no-eval
+eval(`getPoiMarkerAccessibleName = ${getPoiMarkerAccessibleNameSource};`);
 // eslint-disable-next-line no-eval
 eval(`populatePOIsOnMap = ${populatePOIsOnMapSource}`);
 
@@ -74,6 +78,7 @@ describe('populatePOIsOnMap', () => {
 
         global.L = { marker: markerSpy };
         global.getPoiGroup = type => type;
+        global.getSidebarPlainText = value => String(value || '').replace(/<[^>]*>/g, '').trim();
         global.getPoiIcon = group => {
             if (group === 'trigger-error') throw new Error('Simulated exception');
             return group;
@@ -105,6 +110,10 @@ describe('populatePOIsOnMap', () => {
         populatePOIsOnMap({ width: 100, height: 100, name: 'Test Map' });
 
         assert.equal(markerSpy.calls.length, 2);
+        assert.equal(markerSpy.calls[0][1].title, 'Valid POI 1 marker');
+        assert.equal(markerSpy.calls[0][1].alt, 'Valid POI 1 marker');
+        assert.equal(markerSpy.calls[1][1].title, 'Valid POI 2 marker');
+        assert.equal(markerSpy.calls[1][1].alt, 'Valid POI 2 marker');
         assert.equal(global.allMapMarkers.length, 2);
         assert.equal(global.allMapMarkersById.size, 2);
         assert.equal(global.allMapMarkersByName.size, 2);

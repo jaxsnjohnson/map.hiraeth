@@ -21,6 +21,7 @@ let currentRoadGroup = null; // Holds currently displayed road layers (and lines
 
 let miniMapControl = null; // Global MiniMap control instance
 let miniMapControlMode = null;
+let miniMapControlMapId = null;
 const sessionStartedAt = Date.now();
 const UX_STORAGE_KEYS = {
     theme: 'theme',
@@ -83,6 +84,16 @@ const MOBILE_LAYOUT_QUERY_PARAM = 'mobileLayout';
 const MOBILE_LAYOUT_MODE_V2 = 'v2';
 const MOBILE_LAYOUT_MODE_LEGACY = 'legacy';
 const MOBILE_PANEL_MARGIN = 10;
+const SMOOTH_ZOOM_STEP = 0.5;
+const WHEEL_ZOOM_SNAP = 0;
+const SMOOTH_WHEEL_ZOOM_SENSITIVITY = 0.0024;
+const SMOOTH_WHEEL_MAX_DELTA = 0.45;
+const SMOOTH_WHEEL_EASE = 0.32;
+const SMOOTH_WHEEL_SETTLE_DELTA = 0.002;
+const SMOOTH_WHEEL_IDLE_MS = 120;
+const WHEEL_DELTA_LINE_HEIGHT = 16;
+const WHEEL_DELTA_PAGE_HEIGHT = 240;
+const SIDEBAR_TAB_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End']);
 
 if (typeof document !== 'undefined') {
     document.documentElement.classList.toggle('is-firefox', isFirefox);
@@ -94,6 +105,14 @@ function refreshLucideIcons() {
     }
 }
 
+function prefersReducedMotion() {
+    return !!(typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+
+function getZoomAnimationOptions() {
+    return { animate: !prefersReducedMotion() };
+}
+
 // --- Measurement Tool State ---
 let measurementLayerGroup; // Declare it here
 
@@ -103,7 +122,11 @@ const mapOptions = {
     minZoom: -4,
     maxZoom: 4,
     attributionControl: false,
-    zoomControl: false // Disable default zoom, using custom styled one
+    zoomControl: false, // Disable default zoom, using custom styled one
+    zoomSnap: WHEEL_ZOOM_SNAP,
+    zoomDelta: SMOOTH_ZOOM_STEP,
+    scrollWheelZoom: false,
+    zoomAnimation: !prefersReducedMotion()
 };
 
 if (isFirefox) {
@@ -115,15 +138,124 @@ if (isFirefox) {
 const map = L.map('map', mapOptions);
 
 let atmosphereLayer = null;
+let smoothWheelTargetZoom = null;
+let smoothWheelAnchorPoint = null;
+let smoothWheelFrameId = null;
+let smoothWheelIdleTimeoutId = null;
+
+function clampZoomLevel(zoom) {
+    if (!map || !Number.isFinite(zoom)) return zoom;
+    const minZoom = typeof map.getMinZoom === 'function' ? map.getMinZoom() : mapOptions.minZoom;
+    const maxZoom = typeof map.getMaxZoom === 'function' ? map.getMaxZoom() : mapOptions.maxZoom;
+    return Math.min(maxZoom, Math.max(minZoom, zoom));
+}
+
+function normalizeWheelDelta(event) {
+    let delta = Number(event.deltaY) || 0;
+    if (event.deltaMode === 1) {
+        delta *= WHEEL_DELTA_LINE_HEIGHT;
+    } else if (event.deltaMode === 2) {
+        delta *= Math.max(window.innerHeight || 0, WHEEL_DELTA_PAGE_HEIGHT);
+    }
+    return delta;
+}
+
+function scheduleSmoothWheelFrame() {
+    if (smoothWheelFrameId !== null) return;
+    const requestFrame = typeof requestAnimationFrame === 'function'
+        ? requestAnimationFrame
+        : (callback) => setTimeout(callback, 16);
+    smoothWheelFrameId = requestFrame(stepSmoothWheelZoom);
+}
+
+function stepSmoothWheelZoom() {
+    smoothWheelFrameId = null;
+    if (!map || smoothWheelTargetZoom === null || !smoothWheelAnchorPoint) return;
+
+    const currentZoom = map.getZoom();
+    const remainingZoom = smoothWheelTargetZoom - currentZoom;
+    const nextZoom = Math.abs(remainingZoom) <= SMOOTH_WHEEL_SETTLE_DELTA
+        ? smoothWheelTargetZoom
+        : currentZoom + (remainingZoom * SMOOTH_WHEEL_EASE);
+
+    map.setZoomAround(smoothWheelAnchorPoint, clampZoomLevel(nextZoom), { animate: false });
+
+    if (Math.abs(smoothWheelTargetZoom - map.getZoom()) > SMOOTH_WHEEL_SETTLE_DELTA) {
+        scheduleSmoothWheelFrame();
+    }
+}
+
+function endSmoothWheelZoom() {
+    if (smoothWheelFrameId !== null) {
+        const cancelFrame = typeof cancelAnimationFrame === 'function'
+            ? cancelAnimationFrame
+            : clearTimeout;
+        cancelFrame(smoothWheelFrameId);
+    }
+    smoothWheelFrameId = null;
+    smoothWheelIdleTimeoutId = null;
+
+    if (map && smoothWheelTargetZoom !== null && smoothWheelAnchorPoint) {
+        map.setZoomAround(smoothWheelAnchorPoint, clampZoomLevel(smoothWheelTargetZoom), { animate: false });
+    }
+
+    smoothWheelTargetZoom = null;
+    smoothWheelAnchorPoint = null;
+    endMapInteraction();
+}
+
+function handleSmoothWheelZoom(event) {
+    if (!map || typeof map.mouseEventToContainerPoint !== 'function') return;
+
+    event.preventDefault();
+
+    const wheelDelta = normalizeWheelDelta(event);
+    if (!wheelDelta) return;
+
+    beginMapInteraction();
+
+    const zoomDelta = Math.max(
+        -SMOOTH_WHEEL_MAX_DELTA,
+        Math.min(SMOOTH_WHEEL_MAX_DELTA, -wheelDelta * SMOOTH_WHEEL_ZOOM_SENSITIVITY)
+    );
+    const baseZoom = smoothWheelTargetZoom === null ? map.getZoom() : smoothWheelTargetZoom;
+    smoothWheelTargetZoom = clampZoomLevel(baseZoom + zoomDelta);
+    smoothWheelAnchorPoint = map.mouseEventToContainerPoint(event);
+
+    if (prefersReducedMotion()) {
+        if (smoothWheelFrameId !== null) {
+            const cancelFrame = typeof cancelAnimationFrame === 'function'
+                ? cancelAnimationFrame
+                : clearTimeout;
+            cancelFrame(smoothWheelFrameId);
+        }
+        smoothWheelFrameId = null;
+        if (smoothWheelIdleTimeoutId) clearTimeout(smoothWheelIdleTimeoutId);
+        smoothWheelIdleTimeoutId = null;
+        map.setZoomAround(smoothWheelAnchorPoint, smoothWheelTargetZoom, { animate: false });
+        smoothWheelTargetZoom = null;
+        smoothWheelAnchorPoint = null;
+        endMapInteraction();
+        return;
+    }
+
+    scheduleSmoothWheelFrame();
+
+    if (smoothWheelIdleTimeoutId) clearTimeout(smoothWheelIdleTimeoutId);
+    smoothWheelIdleTimeoutId = setTimeout(endSmoothWheelZoom, SMOOTH_WHEEL_IDLE_MS);
+}
+
+function zoomMapBy(delta) {
+    if (!map || typeof map.getZoom !== 'function' || typeof map.setZoom !== 'function') return;
+    map.setZoom(map.getZoom() + delta, getZoomAnimationOptions());
+}
 
 // Register map interaction listeners
 map.on('moveend zoomend', updateURLWithMapView);
 map.on('popupopen', refreshLucideIcons);
 let interactionCooldownId = null;
 const beginMapInteraction = () => {
-    if (mobileLayoutV2Enabled && isMobileLayoutActive) {
-        rootElement.classList.add('map-interacting');
-    }
+    rootElement.classList.add('map-interacting');
     if (interactionCooldownId) {
         clearTimeout(interactionCooldownId);
         interactionCooldownId = null;
@@ -138,6 +270,10 @@ const endMapInteraction = () => {
 map.on('movestart zoomstart', beginMapInteraction);
 map.on('moveend zoomend', endMapInteraction);
 
+if (map && map.getContainer && typeof map.getContainer().addEventListener === 'function') {
+    map.getContainer().addEventListener('wheel', handleSmoothWheelZoom, { passive: false });
+}
+
 // NOW Initialize measurementLayerGroup
 measurementLayerGroup = L.layerGroup().addTo(map);
 
@@ -147,8 +283,8 @@ let isMeasuringMultiPoint = false; // Tracks if multi-point mode is active
 let multiPointPath = []; // Array of L.LatLng objects for the current path
 let multiPointPolyline = null; // The L.Polyline layer for the drawn path
 let multiPointVertexMarkers = []; // Array of L.CircleMarker for vertices
-let multiPointSegmentTooltips = []; // Array of L.Tooltip for segment lengths (optional)
 let multiPointTotalTooltip = null; // L.Tooltip for the total path length
+let cachedMultiPointPixelDistance = 0; // Cached total distance of fixed segments
 let temporaryMouseMoveLine = null; // L.Polyline for the line from last point to cursor
 let temporaryMouseMoveTooltip = null; // L.Tooltip for the temporary line's length
 
@@ -502,9 +638,9 @@ function createPopupContent(data, type) {
         return headerHtml;
     }
 
-    const { mainContent, readMoreButton } = buildPopupMainContainer(safeSummary, fullContentInnerHtml, hasSummary, hasFullContent);
+    const { mainContent } = buildPopupMainContainer(safeSummary, fullContentInnerHtml, hasSummary, hasFullContent);
 
-    return headerHtml + mainContent + readMoreButton;
+    return headerHtml + mainContent;
 }
 
 function buildPopupHeader(data, type, safePronunciation) {
@@ -555,7 +691,6 @@ function buildPopupFullContent(data, safeDescription) {
 
 function buildPopupMainContainer(safeSummary, fullContentInnerHtml, hasSummary, hasFullContent) {
     let mainContent = '';
-    let readMoreButton = '';
 
     if (hasSummary) {
         mainContent = `
@@ -563,25 +698,16 @@ function buildPopupMainContainer(safeSummary, fullContentInnerHtml, hasSummary, 
                 <div class="popup-summary">
                     <p>${safeSummary}</p>
                 </div>
-                <div class="popup-full-content">
-                    ${fullContentInnerHtml}
-                </div>
             </div>
         `;
-        if (hasFullContent) {
-            readMoreButton = `<button type="button" class="popup-read-more" aria-expanded="false" onclick="togglePopupExpand(this)">Read More</button>`;
-        }
-    } else {
+    } else if (hasFullContent) {
         mainContent = `
             <div class="popup-content-container">
                 ${fullContentInnerHtml}
             </div>
         `;
-        if (hasFullContent) {
-            readMoreButton = `<button type="button" class="popup-read-more" aria-expanded="false" onclick="togglePopupExpand(this)">Read More</button>`;
-        }
     }
-    return { mainContent, readMoreButton };
+    return { mainContent, readMoreButton: '' };
 }
 
 // --- Auto-generate a reverse map for quick lookup (Type -> Group) ---
@@ -640,6 +766,7 @@ function getPoiIcon(groupName) {
 
 // --- More Global variables ---
 let currentImageLayer = null;
+let currentMapBaseLayerMode = 'image';
 let currentMapUnderlay = null;
 let currentMarkerGroup = null; // Holds currently *visible* markers
 let allMapMarkers = []; // Holds *all* markers for the loaded map
@@ -657,7 +784,6 @@ let currentSidebarState = 'o';
 let markersVisible = true; // <--- THIS SHOULD BE TRUE FOR VISIBLE BY DEFAULT
 let currentLatLonBounds = null;
 let coordsLocked = false;
-let lockedCoords = null;
 const transitionDuration = 300; // ms for sidebar animation
 let filtersPanelVisible = false; // State for combined filter panel visibility
 
@@ -724,6 +850,9 @@ function getVisibleEncounterTables(mapObj) {
 const container = document.querySelector('.container');
 const sidebar = document.getElementById('sidebar');
 const mapListElement = document.getElementById('map-list');
+const sidebarTabs = document.getElementById('sidebar-tabs');
+const sidebarMapPanel = document.getElementById('sidebar-map-panel');
+const sidebarPoiPanel = document.getElementById('sidebar-poi-panel');
 const toggleBtn = document.getElementById('toggle-sidebar-btn');
 const mapChooserElement = document.getElementById('map-chooser');
 const mapChooserGrid = document.getElementById('map-chooser-grid');
@@ -733,7 +862,6 @@ const mobileToolsLauncherBtn = document.getElementById('mobile-tools-launcher-bt
 const mobileSheetLauncherBtn = document.getElementById('mobile-sheet-launcher-btn');
 const mobileSearchLauncherBtn = document.getElementById('mobile-search-launcher-btn');
 const themeToggle = document.getElementById('theme-checkbox');
-const themeSwitchWrapper = themeToggle ? themeToggle.closest('.theme-switch-wrapper') : null;
 const bodyElement = document.body;
 const mapElement = document.getElementById('map'); // Get map div
 const mapContainerElement = document.getElementById('map-container');
@@ -878,6 +1006,9 @@ const hasPriorPreferenceState =
 advancedControlsUnlocked = storedAdvancedControlsFlag === 'true' ||
     (storedAdvancedControlsFlag === null && storedOnboardingFlag === null && hasPriorPreferenceState);
 coordsDisplayEnabled = safeGetStorage(UX_STORAGE_KEYS.coordsVisible) === 'true';
+let currentSidebarTab = 'maps';
+let selectedSidebarFeature = null;
+let selectedSidebarFeatureType = '';
 
 
 // --- Helper Functions ---
@@ -1327,6 +1458,7 @@ function removeMiniMapControl() {
     miniMapControl.remove();
     miniMapControl = null;
     miniMapControlMode = null;
+    miniMapControlMapId = null;
 }
 
 function syncMiniMapControl() {
@@ -1334,8 +1466,15 @@ function syncMiniMapControl() {
         removeMiniMapControl();
         return;
     }
+    if (map && Object.prototype.hasOwnProperty.call(map, '_loaded') && !map._loaded) {
+        if (typeof map.whenReady === 'function') {
+            map.whenReady(() => syncMiniMapControl());
+        }
+        return;
+    }
     const nextMode = isMobileLayoutActive ? 'mobile' : 'desktop';
-    if (miniMapControl && miniMapControlMode !== nextMode) {
+    const nextMapId = String(currentMapData?.id || '').trim();
+    if (miniMapControl && (miniMapControlMode !== nextMode || miniMapControlMapId !== nextMapId)) {
         removeMiniMapControl();
     }
     if (miniMapControl) return;
@@ -1377,6 +1516,7 @@ function syncMiniMapControl() {
         mapOptions: { minZoom: -100, crs: L.CRS.Simple, zoomSnap: 0, zoomDelta: 0 }
     }).addTo(map);
     miniMapControlMode = nextMode;
+    miniMapControlMapId = nextMapId;
 }
 
 function updateMobileLayoutState() {
@@ -1679,6 +1819,363 @@ function shouldIgnoreMapPointerEvent(event) {
     return false;
 }
 
+function normalizeSidebarTab(value) {
+    return ['maps', 'details'].includes(value) ? value : 'maps';
+}
+
+function createSidebarTextElement(tagName, className, text) {
+    const element = document.createElement(tagName);
+    if (className) element.className = className;
+    element.textContent = text;
+    return element;
+}
+
+function clearSidebarElement(element) {
+    if (!element) return;
+    if (typeof element.replaceChildren === 'function') {
+        element.replaceChildren();
+        return;
+    }
+    element.innerHTML = '';
+}
+
+function getSidebarPlainText(value) {
+    return stripHtml(String(value || '')).replace(/\s+/g, ' ').trim();
+}
+
+function truncateSidebarText(value, maxLength = 220) {
+    const text = getSidebarPlainText(value);
+    if (text.length <= maxLength) return text;
+    return `${text.slice(0, Math.max(0, maxLength - 1)).trim()}...`;
+}
+
+function getSidebarFeatureTitle(feature) {
+    return String(feature?.name || feature?.id || 'Selected feature').trim();
+}
+
+function getSidebarFeatureTypeLabel(feature, type) {
+    if (type === 'poi') return getPoiGroup(feature?.type) || feature?.type || 'POI';
+    if (type === 'region') return feature?.value || feature?.type || 'Region';
+    if (type === 'line') return feature?.type || 'Line';
+    return 'Feature';
+}
+
+function getSidebarFeatureKicker(feature, type) {
+    const typeLabel = getSidebarFeatureTypeLabel(feature, type);
+    if (type === 'poi') return `POI / ${typeLabel}`;
+    if (type === 'region') return `Region / ${typeLabel}`;
+    if (type === 'line') return `Line / ${typeLabel}`;
+    return typeLabel;
+}
+
+function appendSidebarMetaRow(parent, label, value) {
+    const text = String(value || '').trim();
+    if (!text) return;
+    const row = document.createElement('div');
+    row.className = 'sidebar-detail-meta-row';
+    row.appendChild(createSidebarTextElement('span', 'sidebar-detail-meta-label', label));
+    row.appendChild(createSidebarTextElement('span', 'sidebar-detail-meta-value', text));
+    parent.appendChild(row);
+}
+
+function getFeaturePrimitiveProperties(feature) {
+    const properties = feature?.properties;
+    if (!properties || typeof properties !== 'object' || Array.isArray(properties)) return [];
+    return Object.entries(properties)
+        .filter(([, value]) => value !== null && value !== undefined && typeof value !== 'object');
+}
+
+function getSidebarFeatureProperties(feature) {
+    return getFeaturePrimitiveProperties(feature).slice(0, 8);
+}
+
+function getFeatureDetailSections(feature) {
+    const sections = Array.isArray(feature?.detailSections) ? feature.detailSections : [];
+    return sections
+        .map((section) => {
+            if (!section || typeof section !== 'object' || Array.isArray(section)) return null;
+            const heading = getSidebarPlainText(section.heading);
+            const body = getSidebarPlainText(section.body);
+            if (!heading && !body) return null;
+            return { heading, body };
+        })
+        .filter(Boolean);
+}
+
+function getFeatureTags(feature) {
+    if (!Array.isArray(feature?.tags)) return [];
+    const seen = new Set();
+    return feature.tags
+        .map((tag) => getSidebarPlainText(tag))
+        .filter((tag) => {
+            const key = tag.toLowerCase();
+            if (!tag || seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+}
+
+function getFeatureSearchDetailText(feature) {
+    const detailSectionText = getFeatureDetailSections(feature)
+        .map((section) => `${section.heading} ${section.body}`)
+        .join(' ');
+    const tagText = getFeatureTags(feature).join(' ');
+    const propertyText = getFeaturePrimitiveProperties(feature)
+        .map(([key, value]) => `${key} ${String(value)}`)
+        .join(' ');
+    return [
+        feature?.summary || '',
+        feature?.description || '',
+        detailSectionText,
+        tagText,
+        propertyText
+    ].join(' ');
+}
+
+function buildSidebarFeatureDetailModel(feature, type) {
+    if (!feature) return null;
+    const summary = getSidebarPlainText(feature.summary);
+    const description = getSidebarPlainText(feature.description);
+    const linkedMap = resolveLinkedMapData(feature);
+    const metaRows = [
+        ['Type', feature.type || getSidebarFeatureTypeLabel(feature, type)],
+        ['Linked map', linkedMap?.name || ''],
+        ['ID', feature.id || ''],
+        ...getSidebarFeatureProperties(feature)
+    ].filter(([, value]) => String(value || '').trim());
+
+    return {
+        title: getSidebarFeatureTitle(feature),
+        kicker: getSidebarFeatureKicker(feature, type),
+        summary,
+        description: description && description !== summary ? description : '',
+        metaRows,
+        sections: getFeatureDetailSections(feature),
+        tags: getFeatureTags(feature),
+        linkedMap
+    };
+}
+
+function appendSidebarTextSection(parent, title, body) {
+    if (!body) return;
+    const section = document.createElement('section');
+    section.className = 'sidebar-detail-section';
+    if (title) {
+        section.appendChild(createSidebarTextElement('h3', 'sidebar-detail-section-title', title));
+    }
+    section.appendChild(createSidebarTextElement('p', 'sidebar-detail-section-body', body));
+    parent.appendChild(section);
+}
+
+function appendSidebarTags(parent, tags) {
+    if (!Array.isArray(tags) || tags.length === 0) return;
+    const tagList = document.createElement('div');
+    tagList.className = 'sidebar-detail-tags';
+    tags.forEach((tag) => {
+        tagList.appendChild(createSidebarTextElement('span', 'sidebar-detail-tag', tag));
+    });
+    parent.appendChild(tagList);
+}
+
+function findSidebarFeatureLayer(feature, type) {
+    if (!feature) return null;
+    const id = String(feature.id || '').trim();
+    const name = String(feature.name || '').trim();
+    if (type === 'poi') {
+        return (id && allMapMarkersById.get(id)) || (name && allMapMarkersByName.get(name)) || null;
+    }
+    if (type === 'region') {
+        return (id && allMapRegionsById.get(id)) || (name && allMapRegionsByName.get(name)) || null;
+    }
+    if (type === 'line') {
+        return (id && allMapLinesById.get(id)) || (name && allMapLinesByName.get(name)) || null;
+    }
+    return null;
+}
+
+function getPoiMarkerAccessibleName(point) {
+    const rawName = getSidebarPlainText(point?.name || point?.id || 'Unnamed POI');
+    return `${rawName || 'Unnamed POI'} marker`;
+}
+
+function focusSidebarSelectedFeature() {
+    const layer = findSidebarFeatureLayer(selectedSidebarFeature, selectedSidebarFeatureType);
+    if (!layer || !map) return;
+
+    if (typeof layer.getLatLng === 'function') {
+        map.flyTo(layer.getLatLng(), Math.max(map.getZoom(), 1));
+    } else if (typeof layer.getBounds === 'function') {
+        map.fitBounds(layer.getBounds(), { maxZoom: Math.max(map.getZoom(), 1) });
+    }
+    if (typeof layer.openPopup === 'function' && layer.getPopup && layer.getPopup()) {
+        layer.openPopup();
+    } else if (typeof layer.openPopup === 'function') {
+        layer.openPopup();
+    }
+}
+
+function renderSidebarEmptyFeature(parent) {
+    parent.appendChild(createSidebarTextElement('p', 'sidebar-detail-empty', 'No location selected.'));
+}
+
+function renderSidebarFeaturePanel() {
+    if (!sidebarPoiPanel) return;
+    clearSidebarElement(sidebarPoiPanel);
+
+    if (!selectedSidebarFeature) {
+        renderSidebarEmptyFeature(sidebarPoiPanel);
+        return;
+    }
+
+    const detailModel = buildSidebarFeatureDetailModel(selectedSidebarFeature, selectedSidebarFeatureType);
+    if (!detailModel) {
+        renderSidebarEmptyFeature(sidebarPoiPanel);
+        return;
+    }
+
+    const header = document.createElement('header');
+    header.className = 'sidebar-detail-header';
+    header.appendChild(createSidebarTextElement('span', 'sidebar-detail-kicker', detailModel.kicker));
+    header.appendChild(createSidebarTextElement('h2', 'sidebar-detail-title', detailModel.title));
+    sidebarPoiPanel.appendChild(header);
+
+    if (detailModel.summary) {
+        sidebarPoiPanel.appendChild(createSidebarTextElement('p', 'sidebar-detail-summary', truncateSidebarText(detailModel.summary, 240)));
+    }
+
+    const meta = document.createElement('div');
+    meta.className = 'sidebar-detail-meta';
+    detailModel.metaRows.forEach(([key, value]) => {
+        appendSidebarMetaRow(meta, key, value);
+    });
+    if (meta.children.length > 0) {
+        sidebarPoiPanel.appendChild(meta);
+    }
+
+    appendSidebarTextSection(sidebarPoiPanel, 'Overview', detailModel.description);
+    detailModel.sections.forEach((section) => {
+        appendSidebarTextSection(sidebarPoiPanel, section.heading, section.body);
+    });
+    appendSidebarTags(sidebarPoiPanel, detailModel.tags);
+
+    const actions = document.createElement('div');
+    actions.className = 'sidebar-detail-actions';
+    const focusButton = document.createElement('button');
+    focusButton.type = 'button';
+    focusButton.innerHTML = '<i class="ui-icon" data-lucide="crosshair" aria-hidden="true"></i><span>Focus</span>';
+    focusButton.addEventListener('click', focusSidebarSelectedFeature);
+    actions.appendChild(focusButton);
+
+    const linkedMap = detailModel.linkedMap;
+    if (linkedMap) {
+        const linkedButton = document.createElement('button');
+        linkedButton.type = 'button';
+        linkedButton.innerHTML = '<i class="ui-icon" data-lucide="map" aria-hidden="true"></i><span>Open Map</span>';
+        linkedButton.addEventListener('click', () => {
+            navigateToMap(linkedMap.id, { preResolvedMap: linkedMap });
+        });
+        actions.appendChild(linkedButton);
+    }
+    sidebarPoiPanel.appendChild(actions);
+}
+
+function setSidebarTab(tab) {
+    currentSidebarTab = normalizeSidebarTab(tab);
+    syncSidebarPanels();
+}
+
+function getSidebarTabButtons() {
+    return sidebarTabs ? Array.from(sidebarTabs.querySelectorAll('[data-sidebar-tab]')) : [];
+}
+
+function syncSidebarTabButtons() {
+    if (!sidebarTabs) return;
+    getSidebarTabButtons().forEach((button) => {
+        const active = button.dataset.sidebarTab === currentSidebarTab;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-selected', active ? 'true' : 'false');
+        button.tabIndex = active ? 0 : -1;
+    });
+}
+
+function getSidebarPanelVisibility() {
+    return {
+        maps: currentSidebarTab === 'maps',
+        details: currentSidebarTab === 'details'
+    };
+}
+
+function syncSidebarPanels() {
+    if (sidebar) {
+        sidebar.classList.toggle('has-sidebar-feature', !!selectedSidebarFeature);
+    }
+
+    const visibility = getSidebarPanelVisibility();
+    setElementHiddenState(sidebarTabs, false);
+    setElementHiddenState(sidebarMapPanel, !visibility.maps);
+    setElementHiddenState(sidebarPoiPanel, !visibility.details);
+
+    renderSidebarFeaturePanel();
+    syncSidebarTabButtons();
+    refreshLucideIcons();
+}
+
+function setSidebarSelectedFeature(feature, type) {
+    selectedSidebarFeature = feature || null;
+    selectedSidebarFeatureType = feature ? type : '';
+    if (selectedSidebarFeature) {
+        currentSidebarTab = 'details';
+    }
+    syncSidebarPanels();
+    if (selectedSidebarFeature && isMobileLayoutActive) {
+        openMobileSheet({
+            mode: MOBILE_SURFACE_MODE_ATLAS,
+            focusSearch: false,
+            triggerButton: mobileSheetLauncherBtn
+        });
+    }
+}
+
+function initializeSidebarTabs() {
+    if (sidebarTabs) {
+        sidebarTabs.addEventListener('click', (event) => {
+            const target = event.target instanceof Element ? event.target : null;
+            const button = target?.closest('[data-sidebar-tab]');
+            if (!button) return;
+            setSidebarTab(button.dataset.sidebarTab);
+        });
+        sidebarTabs.addEventListener('keydown', (event) => {
+            if (!SIDEBAR_TAB_KEYS.has(event.key)) return;
+
+            const tabButtons = getSidebarTabButtons();
+            if (tabButtons.length === 0) return;
+
+            const target = event.target instanceof Element ? event.target : null;
+            const currentButton = target?.closest('[data-sidebar-tab]');
+            if (!currentButton || !sidebarTabs.contains(currentButton)) return;
+
+            event.preventDefault();
+
+            const currentIndex = Math.max(0, tabButtons.indexOf(currentButton));
+            let nextIndex = currentIndex;
+            if (event.key === 'Home') {
+                nextIndex = 0;
+            } else if (event.key === 'End') {
+                nextIndex = tabButtons.length - 1;
+            } else {
+                const direction = event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1;
+                nextIndex = (currentIndex + direction + tabButtons.length) % tabButtons.length;
+            }
+
+            const nextButton = tabButtons[nextIndex];
+            if (!nextButton) return;
+            setSidebarTab(nextButton.dataset.sidebarTab);
+            nextButton.focus();
+        });
+    }
+    syncSidebarPanels();
+}
+
 function getPreferredMapImageUrl(mapInfo) {
     if (!mapInfo) return '';
     const variants = mapInfo && typeof mapInfo.imageVariants === 'object' ? mapInfo.imageVariants : null;
@@ -1706,6 +2203,94 @@ function getPreferredMapImageUrl(mapInfo) {
         }
     }
     return defaultUrl;
+}
+
+function parsePositiveInteger(value, fallbackValue) {
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : fallbackValue;
+}
+
+function parseNonNegativeInteger(value, fallbackValue) {
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed >= 0 ? parsed : fallbackValue;
+}
+
+function parseFiniteNumber(value, fallbackValue) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallbackValue;
+}
+
+function getMapTileSource(mapInfo) {
+    const source = mapInfo && mapInfo.tileSource;
+    if (!source || typeof source !== 'object' || Array.isArray(source)) return null;
+
+    const type = String(source.type || 'xyz').trim().toLowerCase();
+    const urlTemplate = String(source.urlTemplate || '').trim();
+    if (type !== 'xyz' || !urlTemplate) return null;
+    if (!urlTemplate.includes('{z}') || !urlTemplate.includes('{x}') || !urlTemplate.includes('{y}')) {
+        return null;
+    }
+
+    const maxZoom = parseNonNegativeInteger(source.maxZoom, null);
+    if (!Number.isInteger(maxZoom)) return null;
+    const minZoom = parseNonNegativeInteger(source.minZoom, Math.max(0, maxZoom - Math.abs(mapOptions.minZoom || 0)));
+    if (minZoom > maxZoom) return null;
+
+    const leafletNativeZoom = parseFiniteNumber(source.leafletNativeZoom, 0);
+    const zoomOffset = parseFiniteNumber(source.zoomOffset, maxZoom - leafletNativeZoom);
+    return {
+        type,
+        urlTemplate,
+        tileSize: parsePositiveInteger(source.tileSize, 256),
+        minZoom,
+        maxZoom,
+        leafletNativeZoom,
+        zoomOffset,
+        minNativeZoom: parseFiniteNumber(source.minNativeZoom, minZoom - zoomOffset),
+        maxNativeZoom: parseFiniteNumber(source.maxNativeZoom, leafletNativeZoom)
+    };
+}
+
+function createSimpleCrsTileLayer(urlTemplate, options) {
+    const SimpleCrsTileLayer = L.TileLayer.extend({
+        getTileUrl(coords) {
+            const normalizedCoords = L.extend({}, coords, {
+                y: coords.y < 0 ? -coords.y - 1 : coords.y
+            });
+            return L.TileLayer.prototype.getTileUrl.call(this, normalizedCoords);
+        }
+    });
+    return new SimpleCrsTileLayer(urlTemplate, options);
+}
+
+function createMapBaseLayer(selectedMap, mapImageUrl, bounds) {
+    const tileSource = getMapTileSource(selectedMap);
+    if (tileSource && L.TileLayer) {
+        const urlTemplate = typeof withAssetVersion === 'function'
+            ? withAssetVersion(tileSource.urlTemplate)
+            : tileSource.urlTemplate;
+        return {
+            mode: 'tile',
+            layer: createSimpleCrsTileLayer(urlTemplate, {
+                tileSize: tileSource.tileSize,
+                minZoom: mapOptions.minZoom,
+                maxZoom: mapOptions.maxZoom,
+                minNativeZoom: tileSource.minNativeZoom,
+                maxNativeZoom: tileSource.maxNativeZoom,
+                zoomOffset: tileSource.zoomOffset,
+                bounds: L.latLngBounds(bounds),
+                noWrap: true,
+                keepBuffer: 2,
+                updateWhenIdle: isMobileLayoutActive,
+                className: 'map-tile-layer'
+            })
+        };
+    }
+
+    return {
+        mode: 'image',
+        layer: L.imageOverlay(mapImageUrl, bounds)
+    };
 }
 
 function getMiniMapImageUrl(mapInfo) {
@@ -2122,7 +2707,7 @@ function setMapAtmosphere(rawConfig) {
 }
 
 function shouldAnimateThemeTransition() {
-    return !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    return !prefersReducedMotion();
 }
 
 function parseCssDurationToMs(rawValue) {
@@ -2663,6 +3248,11 @@ function prefetchImageAsset(url) {
     drainPrefetchImageQueue();
 }
 
+function prefetchMapImageAsset(mapInfo) {
+    if (!mapInfo || getMapTileSource(mapInfo)) return;
+    prefetchImageAsset(getPreferredMapImageUrl(mapInfo));
+}
+
 function drainPrefetchImageQueue() {
     if (prefetchImageInFlight || prefetchImageQueue.length === 0) return;
     const nextUrl = prefetchImageQueue.shift();
@@ -2718,7 +3308,7 @@ function schedulePostLoadPrefetch(mapDefinition) {
         const currentManifest = findMapRecursive(mapData, mapDefinition.id);
         if (currentManifest) {
             prefetchJsonAsset(getMapDataUrl(currentManifest));
-            prefetchImageAsset(getPreferredMapImageUrl(currentManifest));
+            prefetchMapImageAsset(currentManifest);
         }
 
         collectLinkedMapPrefetchCandidates(mapDefinition)
@@ -2728,7 +3318,7 @@ function schedulePostLoadPrefetch(mapDefinition) {
                 if (!candidateEntry) return;
                 prefetchJsonAsset(getMapDataUrl(candidateEntry));
                 if (index === 0) {
-                    prefetchImageAsset(getPreferredMapImageUrl(candidateEntry));
+                    prefetchMapImageAsset(candidateEntry);
                 }
             });
     });
@@ -3307,6 +3897,13 @@ function selectSearchResult(index = activeSearchResultIndex) {
     setSearchScope(SEARCH_SCOPE_MAP);
     closeSearchResults();
     closeMobileSheet({ restoreFocus: false });
+    if (selectedSidebarFeature && isMobileLayoutActive) {
+        openMobileSheet({
+            mode: MOBILE_SURFACE_MODE_ATLAS,
+            focusSearch: false,
+            triggerButton: mobileSheetLauncherBtn
+        });
+    }
     updateActiveFilterChips();
     syncMobileExploreVisibility();
 }
@@ -3395,6 +3992,8 @@ function renderSearchResults(term, results) {
 
         const searchRegex = term ? new RegExp(escapeRegExp(term), 'gi') : null;
 
+        const fragment = document.createDocumentFragment();
+
         results.forEach((result, index) => {
             const resultItem = document.createElement('div');
             resultItem.className = 'search-result-item';
@@ -3434,8 +4033,10 @@ function renderSearchResults(term, results) {
                 }
             });
 
-            searchResultsContainer.appendChild(resultItem);
+            fragment.appendChild(resultItem);
         });
+
+        searchResultsContainer.appendChild(fragment);
     }
 
     searchResultsContainer.style.display = 'block';
@@ -3506,7 +4107,7 @@ function searchMapMarkers(searchTerm, results, allPoiGroupsChecked, activeSpecif
             // object allocations during map load and pure category filtering.
             if (searchContext.normalizedPrimary === null) {
                 searchContext.normalizedPrimary = normalizeSearchValue(poi.name);
-                searchContext.normalizedSecondary = normalizeSearchValue(`${poi.summary || ''} ${poi.description || ''}`);
+                searchContext.normalizedSecondary = normalizeSearchValue(getFeatureSearchDetailText(poi));
             }
             match = computePrecomputedSearchMatch(searchTerm, searchContext.normalizedPrimary, searchContext.normalizedSecondary);
         }
@@ -3672,7 +4273,7 @@ function searchAtlasIndex(searchTerm, results) {
             const match = computePrecomputedSearchMatch(
                 searchTerm,
                 entry._normalizedName ?? normalizeSearchValue(entry.name),
-                entry._normalizedSearchContent ?? normalizeSearchValue(`${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''}`)
+                entry._normalizedSearchContent ?? normalizeSearchValue(`${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''} ${entry.searchText || ''}`)
             );
 
             if (!match.matched) continue;
@@ -4064,12 +4665,12 @@ function populatePOIFilters(pointsOfInterest) {
         poiHeader.textContent = getConfigValue('taxonomy.labels.poiTypes', 'POI Types:');
         dynamicFiltersContainer.appendChild(poiHeader);
     }
-    const relevantGroups = new Set();
-    pointsOfInterest.forEach(poi => {
-        const group = getPoiGroup(poi.type);
-        relevantGroups.add(group);
-    });
-    const sortedGroups = Array.from(relevantGroups).sort();
+    const relevantGroupsObj = Object.create(null);
+    for (let i = 0; i < pointsOfInterest.length; i++) {
+        const group = getPoiGroup(pointsOfInterest[i].type);
+        if (group !== undefined && group !== null) relevantGroupsObj[group] = true;
+    }
+    const sortedGroups = Object.keys(relevantGroupsObj).sort();
     const fragment = document.createDocumentFragment();
     sortedGroups.forEach(groupName => {
         if (!groupName || (poiTypeGroups[groupName] && poiTypeGroups[groupName].length === 0)) return;
@@ -4092,38 +4693,50 @@ function populatePOIFilters(pointsOfInterest) {
     dynamicFiltersContainer.appendChild(fragment);
 }
 
+const filterGroupsCache = new WeakMap();
+
 function getOrGenerateRegionFilterGroups(regions, selectedMap) {
     // Check if explicit filter groups exist, otherwise auto-generate from data
     let regionFilterGroups = selectedMap.filterGroups && selectedMap.filterGroups.Regions;
 
     // Auto-generation fallback
     if (!regionFilterGroups) {
-        const tempGroups = {};
-        regions.forEach(region => {
-            // If region has type and value, group by type
-            if (region.type && region.value) {
-                if (!tempGroups[region.type]) {
-                    tempGroups[region.type] = new Set();
-                }
-                tempGroups[region.type].add(region.value);
-            }
-            // Fallback: If region just has 'type' but no 'value'
-            else if (region.type && region.name) {
-                if (!tempGroups[region.type]) {
-                    tempGroups[region.type] = new Set();
-                }
-                tempGroups[region.type].add(region.name);
-                if (!region.value) region.value = region.name;
-            }
-        });
+        if (filterGroupsCache.has(regions)) {
+            return filterGroupsCache.get(regions);
+        }
 
-        // Convert Sets to Arrays for processing
-        if (Object.keys(tempGroups).length > 0) {
-            regionFilterGroups = {};
-            for (const key in tempGroups) {
-                regionFilterGroups[key] = Array.from(tempGroups[key]).sort();
+        const tempGroups = Object.create(null);
+        for (let i = 0; i < regions.length; i++) {
+            const region = regions[i];
+            const type = region.type;
+            if (!type) continue;
+
+            const value = region.value || region.name;
+            if (!value) continue;
+
+            if (!region.value && region.name) {
+                region.value = region.name;
+            }
+
+            let group = tempGroups[type];
+            if (!group) {
+                group = Object.create(null);
+                tempGroups[type] = group;
+            }
+
+            group[value] = true;
+        }
+
+        const keys = Object.keys(tempGroups);
+        if (keys.length > 0) {
+            regionFilterGroups = Object.create(null);
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
+                regionFilterGroups[key] = Object.keys(tempGroups[key]).sort();
             }
         }
+
+        filterGroupsCache.set(regions, regionFilterGroups);
     }
 
     return regionFilterGroups;
@@ -4191,15 +4804,18 @@ function populateRegionFilters(regions, selectedMap, hasPOIs) {
     const regionFilterGroups = getOrGenerateRegionFilterGroups(regions, selectedMap);
 
     if (regionFilterGroups && Object.keys(regionFilterGroups).length > 0) {
+        // ⚡ Bolt: Batch DOM insertions using DocumentFragment to prevent costly layout thrashing and reflows.
+        const fragment = document.createDocumentFragment();
+
         if (hasPOIs) {
             const divider = document.createElement('hr');
             divider.style.margin = '10px 0';
             divider.style.borderColor = 'var(--glass-border)';
-            dynamicFiltersContainer.appendChild(divider);
+            fragment.appendChild(divider);
         }
         const regionHeader = document.createElement('h3');
         regionHeader.textContent = "Region Types:";
-        dynamicFiltersContainer.appendChild(regionHeader);
+        fragment.appendChild(regionHeader);
 
         for (const groupName in regionFilterGroups) {
             if (Object.hasOwnProperty.call(regionFilterGroups, groupName)) {
@@ -4207,26 +4823,48 @@ function populateRegionFilters(regions, selectedMap, hasPOIs) {
                 if (!Array.isArray(values) || values.length === 0) continue;
 
                 const groupContainer = createRegionFilterGroupDOM(groupName, values);
-                dynamicFiltersContainer.appendChild(groupContainer);
+                fragment.appendChild(groupContainer);
             }
         }
+        dynamicFiltersContainer.appendChild(fragment);
     }
 }
 
+// ⚡ Bolt: Cache derived unique line types by map data reference to achieve O(1) retrieval on UI updates.
+const lineTypesCache = new WeakMap();
+
 function populateLineFilters(lines, hasPOIs, hasRegions) {
+    // ⚡ Bolt: Batch DOM insertions using DocumentFragment to prevent costly layout thrashing and reflows.
+    const fragment = document.createDocumentFragment();
+
     if (hasPOIs || hasRegions) { // Add divider if other filters are present
         const divider = document.createElement('hr');
         divider.style.margin = '10px 0';
         divider.style.borderColor = 'var(--glass-border)';
-        dynamicFiltersContainer.appendChild(divider);
+        fragment.appendChild(divider);
     }
 
     const lineHeader = document.createElement('h3');
     lineHeader.textContent = "Line Types:";
-    dynamicFiltersContainer.appendChild(lineHeader);
+    fragment.appendChild(lineHeader);
 
     const allLines = lines;
-    const lineTypes = [...new Set(allLines.map(r => r.type || "Unnamed Road Type").filter(Boolean))].sort();
+    let lineTypes;
+
+    if (lineTypesCache.has(allLines)) {
+        lineTypes = lineTypesCache.get(allLines);
+    } else {
+        // ⚡ Bolt: Optimized unique value extraction using Object.create(null) instead of allocating Set instances and chained array methods.
+        const uniqueTypes = Object.create(null);
+        for (let i = 0; i < allLines.length; i++) {
+            const type = allLines[i].type || "Unnamed Road Type";
+            if (type) {
+                uniqueTypes[type] = true;
+            }
+        }
+        lineTypes = Object.keys(uniqueTypes).sort();
+        lineTypesCache.set(allLines, lineTypes);
+    }
 
     lineTypes.forEach(type => {
         const filterId = `filter-line-${(type || "untyped").replace(/\s+/g, '-').toLowerCase()}`;
@@ -4245,8 +4883,9 @@ function populateLineFilters(lines, hasPOIs, hasRegions) {
 
         div.appendChild(checkbox);
         div.appendChild(label);
-        dynamicFiltersContainer.appendChild(div);
+        fragment.appendChild(div);
     });
+    dynamicFiltersContainer.appendChild(fragment);
 }
 
 const sharedLinkOpenSessionKeys = new Set();
@@ -4767,6 +5406,7 @@ function checkAndFocusFeature() {
 
 // --- Map View URL State Management ---
 let viewUpdateTimeout;
+initializeSidebarTabs();
 // --- Map Chooser Back Button ---
 const sidebarBackToChooserBtn = document.getElementById('sidebar-back-to-chooser');
 if (sidebarBackToChooserBtn) {
@@ -4881,6 +5521,7 @@ function resetMapState() {
     if (currentRoadGroup) map.removeLayer(currentRoadGroup);
 
     currentImageLayer = null;
+    currentMapBaseLayerMode = 'image';
     currentMapUnderlay = null;
     currentMarkerGroup = null;
     currentRegionGroup = null;
@@ -4894,6 +5535,7 @@ function resetMapState() {
     allMapLines = [];
     allMapLinesById.clear();
     allMapLinesByName.clear();
+    setSidebarSelectedFeature(null, '');
 }
 
 function populatePOIsOnMap(selectedMap) {
@@ -4905,13 +5547,21 @@ function populatePOIsOnMap(selectedMap) {
         try {
             if (point.coords && point.coords.length === 2 && !isNaN(point.coords[0]) && !isNaN(point.coords[1])) {
                 if (point.coords[0] >= 0 && point.coords[0] <= mapHeight && point.coords[1] >= 0 && point.coords[1] <= mapWidth) {
+                    const markerLabel = getPoiMarkerAccessibleName(point);
                     const marker = L.marker(point.coords, {
-                        icon: getPoiIcon(getPoiGroup(point.type))
+                        icon: getPoiIcon(getPoiGroup(point.type)),
+                        title: markerLabel,
+                        alt: markerLabel
                     });
                     if (marker) {
                         marker.poiData = point;
                         marker.bindPopup(createPopupContent(point, 'poi'), { minWidth: 250 });
                         marker.bindTooltip(createPoiTooltipContent(point), getPoiTooltipOptions());
+                        if (typeof marker.on === 'function') {
+                            marker.on('popupopen', () => {
+                                setSidebarSelectedFeature(point, 'poi');
+                            });
+                        }
                         attachPoiTooltipBehavior(marker);
                         allMapMarkers.push(marker);
                         if (point.id && !allMapMarkersById.has(point.id)) {
@@ -4958,7 +5608,10 @@ function finalizeMapUI(requestedMapId, selectedMap) {
     updateCurrentControlVisibility(selectedMap);
     updateActiveFilterChips();
 
-    mapListElement.querySelectorAll('.active').forEach(item => item.classList.remove('active'));
+    const activeItems = mapListElement.getElementsByClassName('active');
+    while (activeItems.length > 0) {
+        activeItems[0].classList.remove('active');
+    }
     const activeMapItem = document.querySelector(`#map-list .map-item[data-map-id="${requestedMapId}"]`);
     const activeFolderHeader = document.querySelector(`#map-list .folder-header[data-map-id="${requestedMapId}"]`);
     if (activeMapItem) {
@@ -4985,6 +5638,7 @@ function finalizeMapUI(requestedMapId, selectedMap) {
     safeSetStorage(UX_STORAGE_KEYS.lastMapId, requestedMapId);
     loadingMapId = null;
     schedulePostLoadPrefetch(selectedMap);
+    syncSidebarPanels();
 
     if (!isEmbeddedView && window.innerWidth <= MOBILE_LAYOUT_BREAKPOINT && !container.classList.contains('sidebar-collapsed')) {
         setSidebarState('c', false);
@@ -5005,6 +5659,7 @@ function abortMapLoad(options = {}) {
     loadingProgressInterval = null;
     currentlyLoadedMapId = null;
     currentMapData = null;
+    syncSidebarPanels();
     setMapAtmosphere(null);
     toggleMarkersBtn.style.display = 'none';
     measureToolBtn.style.display = 'none';
@@ -5124,6 +5779,7 @@ function finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileI
         mapId: requestedMapId,
         mapName: selectedMap.name,
         imageVariant: usingAlternateMobileImage ? 'mobile' : 'default',
+        baseLayer: currentMapBaseLayerMode,
         durationMs: Math.round(performance.now() - loadStartedAt)
     });
     clampFloatingPanels();
@@ -5196,7 +5852,6 @@ function setupMapLayers(selectedMap, requestedMapId, mapImageUrl, updateHash) {
 
     const mapHeight = selectedMap.height;
     const mapWidth = selectedMap.width;
-    prefetchedImageUrls.add(withAssetVersion(mapImageUrl));
 
     if (isNaN(mapHeight) || isNaN(mapWidth) || !mapImageUrl) {
         console.error(`Invalid dimensions or missing imageUrl for map ID ${requestedMapId}`);
@@ -5214,14 +5869,19 @@ function setupMapLayers(selectedMap, requestedMapId, mapImageUrl, updateHash) {
         interactive: false,
         pane: 'tilePane'
     });
-    currentImageLayer = L.imageOverlay(mapImageUrl, currentBounds);
+    const baseLayer = createMapBaseLayer(selectedMap, mapImageUrl, currentBounds);
+    currentImageLayer = baseLayer.layer;
+    currentMapBaseLayerMode = baseLayer.mode;
+    if (currentMapBaseLayerMode === 'image') {
+        prefetchedImageUrls.add(withAssetVersion(mapImageUrl));
+    }
     return true;
 }
 
 function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingAlternateMobileImage, loadStartedAt, updateHash }) {
-    const preloadImg = new Image();
     let loadingComplete = false;
     let loadingTimeout = null;
+    let fallbackStarted = false;
 
     function finishLoading() {
         if (loadingComplete) return;
@@ -5230,9 +5890,7 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
         finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileImage, loadStartedAt);
     }
 
-    preloadImg.onload = finishLoading;
-    currentImageLayer.on('load', finishLoading);
-    currentImageLayer.on('error', function () {
+    function abortImageLoad() {
         if (loadingComplete) return;
         loadingComplete = true;
         clearTimeout(loadingTimeout);
@@ -5242,7 +5900,26 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
         currentImageLayer = null;
         currentMapUnderlay = null;
         abortMapLoad({ reason: 'image_error', requestedMapId, message: `Could not load "${selectedMap.name}" image. Check the image path and press Retry.`, updateHash, showRetry: true });
-    });
+    }
+
+    function attachImageFallback() {
+        if (loadingComplete || fallbackStarted) return;
+        fallbackStarted = true;
+        const fallbackLayer = L.imageOverlay(mapImageUrl, currentBounds);
+        const preloadImg = new Image();
+        if (currentImageLayer) {
+            map.removeLayer(currentImageLayer);
+        }
+        currentImageLayer = fallbackLayer;
+        currentMapBaseLayerMode = 'image';
+        prefetchedImageUrls.add(withAssetVersion(mapImageUrl));
+        currentImageLayer.on('load', finishLoading);
+        currentImageLayer.on('error', abortImageLoad);
+        preloadImg.onload = finishLoading;
+        preloadImg.onerror = abortImageLoad;
+        preloadImg.src = mapImageUrl;
+        currentImageLayer.addTo(map);
+    }
 
     loadingTimeout = setTimeout(() => {
         console.warn('Loading fallback timer triggered.');
@@ -5250,8 +5927,21 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
     }, 8000);
 
     currentMapUnderlay.addTo(map);
-    preloadImg.src = mapImageUrl;
-    currentImageLayer.addTo(map);
+
+    if (currentMapBaseLayerMode === 'tile') {
+        currentImageLayer.on('load', finishLoading);
+        currentImageLayer.on('tileerror', function (event) {
+            if (loadingComplete) return;
+            const failedTileUrl = event && event.tile ? event.tile.currentSrc || event.tile.src : '';
+            console.warn('Tile layer failed to load; falling back to full map image:', failedTileUrl || selectedMap.id || selectedMap.name);
+            attachImageFallback();
+        });
+        currentImageLayer.addTo(map);
+        map.fitBounds(currentBounds, { animate: false });
+        return;
+    }
+
+    attachImageFallback();
 }
 
 async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
@@ -5321,6 +6011,11 @@ function addRegionsToMap(mapId) {
         }
 
         polygon.regionData = region; // Store data for filtering
+        if (typeof polygon.on === 'function') {
+            polygon.on('popupopen', () => {
+                setSidebarSelectedFeature(region, 'region');
+            });
+        }
         currentRegionGroup.addLayer(polygon);
         polygon.bringToBack(); // Ensure regions are behind markers
         allMapRegions.push(polygon);
@@ -5984,6 +6679,11 @@ function addRoadsToMap(mapId) {
         }
 
         polyline.roadData = road; // Store data for filtering
+        if (typeof polyline.on === 'function') {
+            polyline.on('popupopen', () => {
+                setSidebarSelectedFeature(road, 'line');
+            });
+        }
         currentRoadGroup.addLayer(polyline);
         allMapLines.push(polyline);
         if (road.id && !allMapLinesById.has(road.id)) {
@@ -6116,22 +6816,6 @@ if (toggleSoundBtn) {
 themePreference = resolveThemePreference();
 applyTheme(resolveEffectiveTheme(themePreference), { animate: false });
 
-// --- NEW: Expand/Collapse Popup Logic ---
-function togglePopupExpand(button) {
-    const container = button.previousElementSibling;
-    const isExpanded = container.classList.contains('expanded');
-
-    if (isExpanded) {
-        container.classList.remove('expanded');
-        button.textContent = 'Read More';
-        button.setAttribute('aria-expanded', 'false');
-    } else {
-        container.classList.add('expanded');
-        button.textContent = 'Read Less';
-        button.setAttribute('aria-expanded', 'true');
-    }
-}
-
 function getMapPixelDimensions(bounds) {
     return {
         width: bounds[1][1],
@@ -6156,7 +6840,6 @@ function updateCoordinates(e) {
     if (!currentLatLonBounds || !currentBounds) return;
 
     const { lat, lon } = projectMapPointToLatLon(e.latlng, currentLatLonBounds, currentBounds);
-    lockedCoords = { lat, lon };
     updateCoordinateDisplay(lat, lon);
 }
 
@@ -6332,7 +7015,7 @@ if (customZoomInBtn) {
     customZoomInBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         unlockAdvancedControls('zoom_in');
-        map.zoomIn();
+        zoomMapBy(SMOOTH_ZOOM_STEP);
     });
 }
 
@@ -6340,7 +7023,7 @@ if (customZoomOutBtn) {
     customZoomOutBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         unlockAdvancedControls('zoom_out');
-        map.zoomOut();
+        zoomMapBy(-SMOOTH_ZOOM_STEP);
     });
 }
 
@@ -6597,6 +7280,7 @@ function toggleMeasurementTool() {
         // Clear previous measurement layers (if any)
         measurementLayerGroup.clearLayers();
         multiPointPath = [];
+        cachedMultiPointPixelDistance = 0;
         multiPointVertexMarkers = [];
         if (multiPointPolyline) map.removeLayer(multiPointPolyline);
         multiPointPolyline = null;
@@ -6623,6 +7307,12 @@ function handleMultiPointMeasureClick(e) {
 
     const clickPoint = e.latlng;
     multiPointPath.push(clickPoint);
+
+    if (multiPointPath.length >= 2) {
+        cachedMultiPointPixelDistance += map.distance(multiPointPath[multiPointPath.length - 2], multiPointPath[multiPointPath.length - 1]);
+    } else {
+        cachedMultiPointPixelDistance = 0;
+    }
 
     // Add a vertex marker
     const vertexMarker = L.circleMarker(clickPoint, {
@@ -6715,12 +7405,7 @@ function updateMeasurementTooltips() {
         typeof scaleKmValue === 'number' && scaleKmValue > 0;
 
     // Calculate total pixel distance
-    let totalPixelDistance = 0;
-    if (multiPointPath.length >= 2) {
-        for (let i = 0; i < multiPointPath.length - 1; i++) {
-            totalPixelDistance += map.distance(multiPointPath[i], multiPointPath[i + 1]);
-        }
-    }
+    let totalPixelDistance = cachedMultiPointPixelDistance;
 
     // --- Build the Tooltip Content String ---
     let tooltipContent = '';
@@ -6790,6 +7475,7 @@ function finalizeMultiPointMeasure(makePermanent = true) {
         if (temporaryMouseMoveLine) measurementLayerGroup.removeLayer(temporaryMouseMoveLine);
         if (temporaryMouseMoveTooltip) map.removeLayer(temporaryMouseMoveTooltip);
         multiPointPath = [];
+        cachedMultiPointPixelDistance = 0;
         multiPointVertexMarkers = [];
         multiPointPolyline = null;
         multiPointTotalTooltip = null;
@@ -6823,6 +7509,7 @@ function finalizeMultiPointMeasure(makePermanent = true) {
         if (multiPointTotalTooltip) map.removeLayer(multiPointTotalTooltip);
         multiPointTotalTooltip = null;
         multiPointPath = [];
+        cachedMultiPointPixelDistance = 0;
         multiPointVertexMarkers = [];
     } else {
         // Path and markers are already on measurementLayerGroup.
@@ -7072,11 +7759,11 @@ function setupKeyboardAndModalLogic() {
         switch (e.key.toLowerCase()) {
             case '+':
             case '=':
-                if (map) map.zoomIn();
+                if (map) zoomMapBy(SMOOTH_ZOOM_STEP);
                 e.preventDefault();
                 return true;
             case '-':
-                if (map) map.zoomOut();
+                if (map) zoomMapBy(-SMOOTH_ZOOM_STEP);
                 e.preventDefault();
                 return true;
             case 's':
@@ -7165,7 +7852,7 @@ async function loadMapData() {
         for (let i = 0; i < atlasSearchIndex.length; i++) {
             const entry = atlasSearchIndex[i];
             entry._normalizedName = normalizeSearchValue(entry.name);
-            entry._normalizedSearchContent = normalizeSearchValue(`${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''}`);
+            entry._normalizedSearchContent = normalizeSearchValue(`${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''} ${entry.searchText || ''}`);
         }
 
         if (loadingIndicator && loadingIndicator.querySelector('.progress-bar')) {
@@ -7386,16 +8073,16 @@ function handleNoMapFallback(effectiveSidebarState) {
     isInitializing = false;
 }
 
-function finalizeAppInitialization(mapToLoadData) {
+function finalizeAppInitialization(mapToLoadData, mapIdToLoad = '') {
     // Initialize sound state (after theme is applied)
     // This will now check for embed mode internally
     initializeSoundState();
 
-    // Set the correct initial history state *after* loading the map
-    const correctInitialHash = generateHash(currentlyLoadedMapId, currentSidebarState);
+    const loadedMapId = currentlyLoadedMapId || String(mapIdToLoad || mapToLoadData?.id || '').trim();
+    const correctInitialHash = generateHash(loadedMapId, currentSidebarState);
     const currentSearch = window.location.search; // Get current search params like ?embed=true
     const finalUrl = buildAppUrlWithHash(correctInitialHash, currentSearch);
-    history.replaceState({ mapId: currentlyLoadedMapId, sidebarState: currentSidebarState }, mapToLoadData?.name || '', finalUrl);
+    history.replaceState({ mapId: loadedMapId, sidebarState: currentSidebarState }, mapToLoadData?.name || '', finalUrl);
 
     initializeOnboardingState();
 
@@ -7435,7 +8122,7 @@ function initializeApp() {
         return; // Stop initialization
     }
 
-    finalizeAppInitialization(mapToLoadData);
+    finalizeAppInitialization(mapToLoadData, mapIdToLoad);
 }
 
 // --- Start the application by loading data ---

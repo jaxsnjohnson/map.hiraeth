@@ -2,6 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { generateTiles } = require('./generate_tiles.js');
 
 const repoRoot = path.resolve(__dirname, '..');
 const outputDir = path.join(repoRoot, 'dist');
@@ -214,6 +215,7 @@ function buildPagesBundle() {
     runtimeAssetFiles.forEach(copyFile);
     runtimeDirectories.forEach(copyDirectory);
     copyPublicMapAssets();
+    generateTiles({ repoRoot, outputDir: path.join(outputDir, 'tile') });
 
     fs.writeFileSync(path.join(outputDir, '.nojekyll'), '');
     removeIgnoredAssetFiles(outputDir);

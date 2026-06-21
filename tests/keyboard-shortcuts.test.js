@@ -36,14 +36,13 @@ global.aboutModal = {
 global.aboutModalVisible = false;
 
 global.map = {
-    zoomIn: () => { global.mapZoomedIn = true; },
-    zoomOut: () => { global.mapZoomedOut = true; },
     closePopup: () => { global.popupClosed = true; },
     getPanes: () => ({ popupPane: { firstChild: global.hasPopup } })
 };
 global.hasPopup = false;
 global.mapZoomedIn = false;
 global.mapZoomedOut = false;
+global.zoomMapDeltas = [];
 global.popupClosed = false;
 
 global.toggleBtn = { click: () => { global.sidebarToggled = true; } };
@@ -115,6 +114,12 @@ global.window = {
 global.requestAnimationFrame = global.window.requestAnimationFrame;
 const origSetTimeout = global.setTimeout;
 global.setTimeout = global.window.setTimeout;
+const SMOOTH_ZOOM_STEP = 0.5;
+function zoomMapBy(delta) {
+    global.zoomMapDeltas.push(delta);
+    if (delta > 0) global.mapZoomedIn = true;
+    if (delta < 0) global.mapZoomedOut = true;
+}
 
 // Evaluate the block
 eval(block + "\nsetupKeyboardAndModalLogic();");
@@ -150,12 +155,14 @@ evt = createEvent('+');
 addedListener(evt);
 assert.ok(evt.isPrevented());
 assert.ok(global.mapZoomedIn);
+assert.equal(global.zoomMapDeltas.at(-1), SMOOTH_ZOOM_STEP);
 
 // Test - shortcut
 evt = createEvent('-');
 addedListener(evt);
 assert.ok(evt.isPrevented());
 assert.ok(global.mapZoomedOut);
+assert.equal(global.zoomMapDeltas.at(-1), -SMOOTH_ZOOM_STEP);
 
 // Test s shortcut
 evt = createEvent('s');

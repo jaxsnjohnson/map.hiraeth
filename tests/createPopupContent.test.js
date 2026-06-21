@@ -85,6 +85,32 @@ assert.ok(
     'pronunciation should not render raw HTML'
 );
 
+const compactSummaryHtml = createPopupContent(
+    {
+        name: 'Compact Detail',
+        type: 'Capital',
+        summary: 'Short map popup summary.',
+        description: 'Long drawer-only description.'
+    },
+    'poi'
+);
+assert.ok(
+    compactSummaryHtml.includes('Short map popup summary.'),
+    'compact popup should include summary text'
+);
+assert.ok(
+    !compactSummaryHtml.includes('Long drawer-only description.'),
+    'compact popup should not duplicate drawer-only description when summary exists'
+);
+assert.ok(
+    !compactSummaryHtml.includes('Read More'),
+    'compact popup should not render a Read More expander'
+);
+assert.ok(
+    !compactSummaryHtml.includes('popup-read-more'),
+    'compact popup should not render the old read-more class'
+);
+
 const javascriptLinkHtml = createPopupContent(
     {
         name: 'Unsafe Link',

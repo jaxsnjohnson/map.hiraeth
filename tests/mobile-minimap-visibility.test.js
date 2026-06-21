@@ -40,6 +40,7 @@ global.isMobileLayoutActive = true;
 global.mobileLayoutV2Enabled = true;
 global.currentBounds = [[0, 0], [1200, 2400]];
 global.currentMapData = {
+    id: 'default',
     width: 2400,
     height: 1200,
     imageUrl: 'maps/default.webp'
@@ -78,9 +79,16 @@ global.L = {
         }
     }
 };
-global.map = {};
+global.pendingMiniMapReady = null;
+global.map = {
+    _loaded: false,
+    whenReady(callback) {
+        global.pendingMiniMapReady = callback;
+    }
+};
 global.miniMapControl = null;
 global.miniMapControlMode = null;
+global.miniMapControlMapId = null;
 
 // eslint-disable-next-line no-eval
 eval(snippets);
@@ -92,10 +100,17 @@ assert.equal(getMiniMapImageUrl({ imageUrl: '' }), '');
 
 assert.equal(shouldShowMiniMap(), true);
 syncMiniMapControl();
+assert.equal(global.miniMapControl, null);
+assert.equal(global.createdControls, 0);
+assert.equal(typeof global.pendingMiniMapReady, 'function');
+
+global.map._loaded = true;
+global.pendingMiniMapReady();
 assert.ok(global.miniMapControl);
 assert.equal(global.createdControls, 1);
 assert.equal(global.miniMapControl.layer.url, 'maps/default.mini.webp');
 assert.equal(global.miniMapControl.options.width, 132);
+assert.equal(global.miniMapControlMapId, 'default');
 
 global.isMobileLayoutActive = false;
 assert.equal(shouldShowMiniMap(), true);
@@ -116,6 +131,20 @@ global.isMobileLayoutActive = false;
 syncMiniMapControl();
 assert.ok(global.miniMapControl);
 assert.equal(global.createdControls, 4);
+
+const mapChangeControl = global.miniMapControl;
+global.currentMapData = {
+    id: 'second-map',
+    width: 2400,
+    height: 1200,
+    imageUrl: 'maps/second.webp'
+};
+syncMiniMapControl();
+assert.equal(mapChangeControl.removed, true);
+assert.ok(global.miniMapControl);
+assert.equal(global.createdControls, 5);
+assert.equal(global.miniMapControl.layer.url, 'maps/second.mini.webp');
+assert.equal(global.miniMapControlMapId, 'second-map');
 
 global.isEmbeddedView = true;
 syncMiniMapControl();

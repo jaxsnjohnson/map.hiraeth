@@ -13,6 +13,15 @@
   "scalePixels": 1,
   "scaleKilometers": 1.3,
   "imageUrl": "maps/Fair-Content.webp",
+  "tileSource": {
+    "type": "xyz",
+    "urlTemplate": "tile/main_continent/{z}/{x}/{y}.webp",
+    "tileSize": 256,
+    "minZoom": 1,
+    "maxZoom": 5,
+    "leafletNativeZoom": 0,
+    "zoomOffset": 5
+  },
   "filterGroups": {
     "Regions": {
       "Political": [
@@ -7154,7 +7163,29 @@
       "description": "Apsley is the principal city and political heart of the Commonwealth of Half Height, rising in bright tiers of stone, stucco, and retaining walls from its busy docks to its sunlit upper terraces. Long admired as a free-port miracle, the city is known for its ministries, merchant houses, embassies, legal arcades, and the great gondola-funicular spine that binds its heights together. Yet Apsley’s prosperity rests upon a deep social divide: the upper wards enjoy ceremony, comfort, and influence, while the lower districts bear the burdens of freight, customs, industry, and unrest. Its culture is shaped by halfling household politics, public hospitality, and reputation-driven commerce, giving the city a reputation for both generosity and quiet coercion. To admirers, Apsley is proof that disciplined law and trade can secure independence in a dangerous world; to critics, it is a city of polished facades sustained by patronage, inequality, and carefully managed disorder.",
       "summary": "Apsley is the cliffside capital of the Commonwealth of Half Height, famed for its trade, wealth, and white-stone terraces.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Nation": "Commonwealth of Half Height",
+        "Known for": "Free-port trade, ministries, legal arcades",
+        "Primary tension": "Upper-ward wealth over lower-district labor"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Apsley rises in bright terraces from its harbor, with civic offices, embassies, and merchant houses stacked above the docks."
+        },
+        {
+          "heading": "Current tensions",
+          "body": "Its prosperity depends on a managed divide between ceremonial upper wards and freight-heavy lower districts where customs work, industry, and unrest concentrate."
+        }
+      ],
+      "tags": [
+        "Capital",
+        "Free port",
+        "Halfling politics",
+        "Fair",
+        "Diplomacy",
+        "Harbor"
+      ]
     },
     {
       "coords": [
@@ -7164,10 +7195,22 @@
       "name": "Argyra",
       "pronunciation": "",
       "type": "Capital",
-      "description": "A city of breathtaking, ancient silver spires wrapped in a permanent gray fog (industrial smog mixed with coastal mist). It is terrifyingly quiet. The Elven Senate debates for months while the city starves under a literal 'Glass Ceiling' built by the Empire. Oppressive silence, beautiful architecture decaying, surveillance state.",
-      "summary": "",
+      "description": "A city of breathtaking, ancient silver spires wrapped in a permanent gray fog (industrial smog mixed with coastal mist).",
+      "summary": "A city of breathtaking, ancient silver spires wrapped in a permanent gray fog (industrial smog mixed with coastal mist).",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "Context",
+          "body": "It is terrifyingly quiet. The Elven Senate debates for months while the city starves under a literal 'Glass Ceiling' built by the Empire. Oppressive silence, beautiful architecture decaying, surveillance state."
+        }
+      ],
+      "tags": [
+        "Capital",
+        "Fair"
+      ]
     },
     {
       "coords": [
@@ -7181,8 +7224,22 @@
       "summary": "This city thrives inside a winter-defying dome, a beacon of prosperity won in legendary battles.",
       "wikiLink": "",
       "properties": {
-        "Population": "15,000"
-      }
+        "Population": "15,000",
+        "Defining feature": "Winter-defying dome"
+      },
+      "detailSections": [
+        {
+          "heading": "Legacy",
+          "body": "Castgate's present prosperity is inseparable from the battles that preserved the city against divine winter and undead siege."
+        }
+      ],
+      "tags": [
+        "Dome city",
+        "Sub Rosa legacy",
+        "City",
+        "Fair",
+        "Gate"
+      ]
     },
     {
       "coords": [
@@ -7192,10 +7249,22 @@
       "name": "Ceremead",
       "pronunciation": "",
       "type": "Capital",
-      "description": "",
-      "summary": "",
+      "description": "Ceremead is recorded as a capital on Fair.",
+      "summary": "Ceremead is recorded as a capital on Fair.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Ceremead is recorded as a capital on Fair."
+        }
+      ],
+      "tags": [
+        "Capital",
+        "Fair"
+      ]
     },
     {
       "coords": [
@@ -7208,7 +7277,27 @@
       "description": "The marble metropolis of Delphi, a jewel on the shore of a sacred lake, is still reeling from the 'Slip'—a magical cataclysm that recently tore through its heart. Now, the air is thick not only with the dust of reconstruction, but with the renewed, ruthless ambitions of its magical elite.",
       "summary": "Following a magical cataclysm, the marble city of Delphi rebuilds, fueled by ruthless ambition.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Known for": "Marble academies, sacred lake, magical politics",
+        "Recent event": "The Slip"
+      },
+      "detailSections": [
+        {
+          "heading": "After the Slip",
+          "body": "Reconstruction has become a political weapon as Delphi's magical elite compete to shape what rises from the damaged districts."
+        },
+        {
+          "heading": "Atmosphere",
+          "body": "Dust, lake mist, and ambition hang over a city trying to look eternal while its foundations are still unsettled."
+        }
+      ],
+      "tags": [
+        "Magic",
+        "Cataclysm",
+        "Reconstruction",
+        "City",
+        "Fair"
+      ]
     },
     {
       "coords": [
@@ -7218,10 +7307,22 @@
       "name": "Fook & Took",
       "pronunciation": "",
       "type": "City",
-      "description": "The twin city that is a city-state of its own.  The cities recently split.",
+      "description": "The twin city that is a city-state of its own.",
       "summary": "Once a single hub, these recently divided twin cities now exist as wary, competing city-states.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "Context",
+          "body": "The cities recently split."
+        }
+      ],
+      "tags": [
+        "City",
+        "Fair"
+      ]
     },
     {
       "coords": [
@@ -7231,10 +7332,22 @@
       "name": "Gorá-Sirotá",
       "pronunciation": "",
       "type": "Mountain",
-      "description": "Gorá-Sirotá, the Orphan Mountain, rises in stark isolation from the plains, a peak where dragons are often seen locked in vicious combat. Common legend holds that they fight over the lost treasure of a dwarven kingdom that was long ago driven from the mountain. The other ledgeons are more primal: the mountain is an ancient and sacred draconic graveyard. The dwarves were not destroyed for their gold, but for the sacrilege of disturbing the hallowed bones within. The dragons of today continue their war not just for treasure, but for the instinctual right to claim the mountain as their final roost.",
+      "description": "Gorá-Sirotá, the Orphan Mountain, rises in stark isolation from the plains, a peak where dragons are often seen locked in vicious combat.",
       "summary": "Atop this lone mountain, dragons viciously battle for the right to claim it as their final roost.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "Context",
+          "body": "Common legend holds that they fight over the lost treasure of a dwarven kingdom that was long ago driven from the mountain. The other ledgeons are more primal: the mountain is an ancient and sacred draconic graveyard. The dwarves were not destroyed for their gold, but for the sacrilege of disturbing the hallowed bones within. The dragons of today continue their war not just for treasure, but for the instinctual right to claim the mountain as their final roost."
+        }
+      ],
+      "tags": [
+        "Mountain",
+        "Fair"
+      ]
     },
     {
       "coords": [
@@ -7244,10 +7357,24 @@
       "name": "Harold-Ford",
       "pronunciation": "",
       "type": "City",
-      "description": "The sprawling capital of Harold-Ford, which once united warring peoples, stands shrouded in both river mist and a fanatical devotion to its grand temples. While the crown maintains a delicate peace over its contested history, the city's avenues are rife with tension fueled by a cold war with a rival empire.",
+      "description": "The sprawling capital of Harold-Ford, which once united warring peoples, stands shrouded in both river mist and a fanatical devotion to its grand temples.",
       "summary": "The sprawling capital navigates a tense cold war with a rival empire.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "Context",
+          "body": "While the crown maintains a delicate peace over its contested history, the city's avenues are rife with tension fueled by a cold war with a rival empire."
+        }
+      ],
+      "tags": [
+        "City",
+        "Fair",
+        "Capital",
+        "Gate"
+      ]
     },
     {
       "coords": [
@@ -7257,10 +7384,23 @@
       "name": "Katia",
       "pronunciation": "",
       "type": "Town",
-      "description": "Once a serene elven town nestled in an ancient forest at a river's mouth, Katia is now a stark symbol of imperial occupation. The old woods have been clear-cut for Beccin military operations, leaving the town simmering with quiet resentment under the watch of its unwelcome garrisons.",
+      "description": "Once a serene elven town nestled in an ancient forest at a river's mouth, Katia is now a stark symbol of imperial occupation.",
       "summary": "Once a serene elven town, Katia is now a stark symbol of occupation with its ancient forest clear-cut.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "Context",
+          "body": "The old woods have been clear-cut for Beccin military operations, leaving the town simmering with quiet resentment under the watch of its unwelcome garrisons."
+        }
+      ],
+      "tags": [
+        "Town",
+        "Fair",
+        "Wilderness"
+      ]
     },
     {
       "coords": [
@@ -7270,10 +7410,22 @@
       "name": "Kausis",
       "pronunciation": "",
       "type": "Town",
-      "description": "There is no day or night here, only the glow of the furnaces. Raw resources from the West are turned into weapons. The population is mostly indentured servants and Warforged prototypes.",
-      "summary": "",
+      "description": "There is no day or night here, only the glow of the furnaces.",
+      "summary": "There is no day or night here, only the glow of the furnaces.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "Context",
+          "body": "Raw resources from the West are turned into weapons. The population is mostly indentured servants and Warforged prototypes."
+        }
+      ],
+      "tags": [
+        "Town",
+        "Fair"
+      ]
     },
     {
       "coords": [
@@ -7283,10 +7435,24 @@
       "name": "Mnemosyne",
       "pronunciation": "",
       "type": "Ruin",
-      "description": "Once the home of the Athenaeum wizards before they defected. Now, a ghost town of empty libraries and locked towers. The Empire forbids entry, claiming 'Magical Radiation' left behind by the traitors.",
-      "summary": "",
+      "description": "Once the home of the Athenaeum wizards before they defected.",
+      "summary": "Once the home of the Athenaeum wizards before they defected.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "Context",
+          "body": "Now, a ghost town of empty libraries and locked towers. The Empire forbids entry, claiming 'Magical Radiation' left behind by the traitors."
+        }
+      ],
+      "tags": [
+        "Ruin",
+        "Fair",
+        "Learning",
+        "Magic"
+      ]
     },
     {
       "coords": [
@@ -7299,7 +7465,19 @@
       "description": "This jagged peak is the tallest point in the world.",
       "summary": "The jagged, ice-crowned peak of Morana's Fang is the tallest mountain in the known world.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "This jagged peak is the tallest point in the world."
+        }
+      ],
+      "tags": [
+        "Mountain",
+        "Fair"
+      ]
     },
     {
       "coords": [
@@ -7312,7 +7490,20 @@
       "description": "The seat of magical power and the death place of Arcana.",
       "summary": "This sacred mountain is the very seat of magical power and the fabled death place of a god.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "The seat of magical power and the death place of Arcana."
+        }
+      ],
+      "tags": [
+        "Mountain",
+        "Fair",
+        "Magic"
+      ]
     },
     {
       "coords": [
@@ -7322,10 +7513,23 @@
       "name": "Obol",
       "pronunciation": "",
       "type": "City",
-      "description": "A gambling and banking city built on a cluster of islands connected by bridges. Since the Empire banned Gold, Obol is the only place where 'Heavy Money' is still secretly traded under the table of the Iron Coffers. It is bright, loud, and desperate.",
-      "summary": "",
+      "description": "A gambling and banking city built on a cluster of islands connected by bridges.",
+      "summary": "A gambling and banking city built on a cluster of islands connected by bridges.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "Context",
+          "body": "Since the Empire banned Gold, Obol is the only place where 'Heavy Money' is still secretly traded under the table of the Iron Coffers. It is bright, loud, and desperate."
+        }
+      ],
+      "tags": [
+        "City",
+        "Fair",
+        "Commerce"
+      ]
     },
     {
       "coords": [
@@ -7335,10 +7539,24 @@
       "name": "Rockdrift",
       "pronunciation": "",
       "type": "City",
-      "description": "As the mercantile capital of Arfordir, Rockdrift is better known as the 'Stonehearted City' , a bustling hub where coin is king and powerful guilds control all commerce. While the city celebrates the restoration of its queen , whispers of a newly discovered fortune have begun to quietly stir the ambitions of its most influential citizens.",
+      "description": "As the mercantile capital of Arfordir, Rockdrift is better known as the 'Stonehearted City' , a bustling hub where coin is king and powerful guilds control all commerce.",
       "summary": "Known as the 'Stonehearted City,' this mercantile capital is ruled by powerful, ambitious guilds.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "Context",
+          "body": "While the city celebrates the restoration of its queen , whispers of a newly discovered fortune have begun to quietly stir the ambitions of its most influential citizens."
+        }
+      ],
+      "tags": [
+        "City",
+        "Fair",
+        "Capital",
+        "Commerce"
+      ]
     },
     {
       "coords": [
@@ -7348,10 +7566,22 @@
       "name": "Sindel",
       "pronunciation": "",
       "type": "City",
-      "description": "",
-      "summary": "",
+      "description": "Sindel is recorded as a city on Fair.",
+      "summary": "Sindel is recorded as a city on Fair.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Sindel is recorded as a city on Fair."
+        }
+      ],
+      "tags": [
+        "City",
+        "Fair"
+      ]
     },
     {
       "coords": [
@@ -7361,10 +7591,25 @@
       "name": "Skjoldvik",
       "pronunciation": "",
       "type": "Capital",
-      "description": "Nestled at the head of a deep, fjord, the kingdom's capital rises in a vibrant cascade of color against the stark green and grey of the surrounding cliffs. Steeply pitched roofs of slate and painted timber in hues of deep crimson, rich ochre, and forest green line the bustling cobblestone streets, which all spiral down to a crescent-shaped harbor alive with the masts of merchant ships and fishing vessels. Presiding over it all from a high, stony bluff is the royal castle, its elegant spires and soaring towers a constant, graceful symbol of the kingdom's enduring prosperity.",
+      "description": "Nestled at the head of a deep, fjord, the kingdom's capital rises in a vibrant cascade of color against the stark green and grey of the surrounding cliffs.",
       "summary": "This vibrant capital rises in a cascade of colorful buildings against the stark cliffs of its fjord.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "Context",
+          "body": "Steeply pitched roofs of slate and painted timber in hues of deep crimson, rich ochre, and forest green line the bustling cobblestone streets, which all spiral down to a crescent-shaped harbor alive with the masts of merchant ships and fishing vessels. Presiding over it all from a high, stony bluff is the royal castle, its elegant spires and soaring towers a constant, graceful symbol of the kingdom's enduring prosperity."
+        }
+      ],
+      "tags": [
+        "Capital",
+        "Fair",
+        "Commerce",
+        "Seat of power",
+        "Wilderness"
+      ]
     },
     {
       "coords": [
@@ -7374,10 +7619,23 @@
       "name": "Stomion",
       "pronunciation": "",
       "type": "City",
-      "description": "A massive, grim port city built into a river delta. Beccin 'Customs Officers' act as state-sponsored gangsters, demanding bribes to let fishing boats leave. The air smells of brine and unwashed bodies.",
-      "summary": "",
+      "description": "A massive, grim port city built into a river delta.",
+      "summary": "A massive, grim port city built into a river delta.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "Context",
+          "body": "Beccin 'Customs Officers' act as state-sponsored gangsters, demanding bribes to let fishing boats leave. The air smells of brine and unwashed bodies."
+        }
+      ],
+      "tags": [
+        "City",
+        "Fair",
+        "Harbor"
+      ]
     },
     {
       "coords": [
@@ -7387,10 +7645,22 @@
       "name": "Sucardia",
       "pronunciation": "",
       "type": "Capital",
-      "description": "",
-      "summary": "",
+      "description": "Sucardia is recorded as a capital on Fair.",
+      "summary": "Sucardia is recorded as a capital on Fair.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Sucardia is recorded as a capital on Fair."
+        }
+      ],
+      "tags": [
+        "Capital",
+        "Fair"
+      ]
     },
     {
       "coords": [
@@ -7400,10 +7670,22 @@
       "name": "The Fractured Point",
       "pronunciation": "",
       "type": "City",
-      "description": "",
+      "description": "The city is built among towering, shattered spires of rock that jut sharply from the sea.",
       "summary": "The city is built among towering, shattered spires of rock that jut sharply from the sea.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "The city is built among towering, shattered spires of rock that jut sharply from the sea."
+        }
+      ],
+      "tags": [
+        "City",
+        "Fair"
+      ]
     },
     {
       "coords": [
@@ -7413,10 +7695,23 @@
       "name": "The Iron Throne of the Bash",
       "pronunciation": "",
       "type": "Capital",
-      "description": "",
+      "description": "From this imposing fortress, an immortal Empress rules over the islands of the Bash.",
       "summary": "From this imposing fortress, an immortal Empress rules over the islands of the Bash.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "From this imposing fortress, an immortal Empress rules over the islands of the Bash."
+        }
+      ],
+      "tags": [
+        "Capital",
+        "Fair",
+        "Seat of power"
+      ]
     },
     {
       "coords": [
@@ -7426,10 +7721,24 @@
       "name": "Vincuta",
       "pronunciation": "",
       "type": "Fortress",
-      "description": "A brutalist fortress carved into the side of the mountain. This is where Imperial Intelligence operates",
-      "summary": "",
+      "description": "A brutalist fortress carved into the side of the mountain.",
+      "summary": "A brutalist fortress carved into the side of the mountain.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Fair"
+      },
+      "detailSections": [
+        {
+          "heading": "Context",
+          "body": "This is where Imperial Intelligence operates"
+        }
+      ],
+      "tags": [
+        "Fortress",
+        "Fair",
+        "Seat of power",
+        "Mountain"
+      ]
     }
   ],
   "scaleUnits": 1.3,

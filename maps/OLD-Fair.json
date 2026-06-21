@@ -4,6 +4,15 @@
     "width": 6560,
     "height": 5040,
     "imageUrl": "maps/OLD-Fair.webp",
+    "tileSource": {
+      "type": "xyz",
+      "urlTemplate": "tile/OLD-Fair/{z}/{x}/{y}.webp",
+      "tileSize": 256,
+      "minZoom": 1,
+      "maxZoom": 5,
+      "leafletNativeZoom": 0,
+      "zoomOffset": 5
+    },
     "scalePixels": 1,
     "scaleKilometers": 1,
   "blurb": "This map was made in 2015, while it has been fleshed out, kingdoms come and went, a lot of imagination started here.",

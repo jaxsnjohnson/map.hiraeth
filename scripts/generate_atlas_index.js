@@ -14,6 +14,36 @@ function stripHtml(value) {
         .trim();
 }
 
+function getPrimitivePropertyText(properties) {
+    if (!properties || typeof properties !== 'object' || Array.isArray(properties)) return '';
+    return Object.entries(properties)
+        .filter(([, value]) => value !== null && value !== undefined && typeof value !== 'object')
+        .map(([key, value]) => `${key} ${String(value)}`)
+        .join(' ');
+}
+
+function getDetailSectionText(sections) {
+    if (!Array.isArray(sections)) return '';
+    return sections
+        .map((section) => {
+            if (!section || typeof section !== 'object' || Array.isArray(section)) return '';
+            return `${section.heading || ''} ${section.body || ''}`;
+        })
+        .join(' ');
+}
+
+function getTagText(tags) {
+    return Array.isArray(tags) ? tags.join(' ') : '';
+}
+
+function buildFeatureSearchText(feature) {
+    return stripHtml([
+        getDetailSectionText(feature?.detailSections),
+        getTagText(feature?.tags),
+        getPrimitivePropertyText(feature?.properties)
+    ].join(' '));
+}
+
 function hasInlinePayload(item) {
     return Boolean(
         item &&
@@ -155,7 +185,8 @@ function buildSearchEntriesForMap(context, item) {
         (Array.isArray(item.points) ? item.points : []);
     points.forEach((point, index) => {
         if (!point || !point.name) return;
-        addSearchEntry(context, {
+        const searchText = buildFeatureSearchText(point);
+        const searchEntry = {
             kind: 'poi',
             id: `poi:${item.id}:${point.id || index}`,
             itemId: point.id || point.name,
@@ -166,7 +197,9 @@ function buildSearchEntriesForMap(context, item) {
             description: stripHtml(point.description || ''),
             typeLabel: point.type || 'POI',
             visibility: String(point.visibility || 'public').toLowerCase()
-        });
+        };
+        if (searchText) searchEntry.searchText = searchText;
+        addSearchEntry(context, searchEntry);
     });
 
     const regions = Array.isArray(item.regions) ? item.regions : [];
@@ -270,6 +303,7 @@ function mergeMapDefinitions(indexItem, sourceItem) {
         'smallImageUrl',
         'imageUrlSmall',
         'imageVariants',
+        'tileSource',
         'latLonBounds',
         'scalePixels',
         'scaleKilometers',
@@ -365,6 +399,7 @@ function toManifestItem(context, item, origin) {
         'smallImageUrl',
         'imageUrlSmall',
         'imageVariants',
+        'tileSource',
         'latLonBounds',
         'scalePixels',
         'scaleKilometers',

@@ -4,6 +4,15 @@
   "width": 8192,
   "height": 6144,
   "imageUrl": "maps/Cursed-Old-Lin.webp",
+  "tileSource": {
+    "type": "xyz",
+    "urlTemplate": "tile/Cursed-Old-Lin/{z}/{x}/{y}.webp",
+    "tileSize": 256,
+    "minZoom": 1,
+    "maxZoom": 5,
+    "leafletNativeZoom": 0,
+    "zoomOffset": 5
+  },
   "scalePixels": 67,
   "scaleKilometers": 4.83,
   "blurb": "Imprisoned by mist, this land groans under an undying tyrant's shadow. Jagged peaks claw at a twilight sky; the ancient woods conceal secrets best left buried. Above all, Castle Ravenloft looms, a monument to sorrow. Here, despair stains the very soil, and all are ensnared by Strahd.",
@@ -16,8 +25,22 @@
       ],
       "name": "^",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Unlabeled location marker on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Unlabeled location marker on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Unlabeled marker",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -26,8 +49,22 @@
       ],
       "name": "✓",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Unlabeled location marker on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Unlabeled location marker on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Unlabeled marker",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -36,8 +73,22 @@
       ],
       "name": "🌌",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Unlabeled location marker on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Unlabeled location marker on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Unlabeled marker",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -46,8 +97,22 @@
       ],
       "name": "🌑",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Unlabeled location marker on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Unlabeled location marker on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Unlabeled marker",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -56,8 +121,22 @@
       ],
       "name": "🌕",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Unlabeled location marker on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Unlabeled location marker on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Unlabeled marker",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -66,8 +145,22 @@
       ],
       "name": "🏛️",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Unlabeled location marker on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Unlabeled location marker on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Unlabeled marker",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -76,8 +169,22 @@
       ],
       "name": "🐺",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Unlabeled location marker on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Unlabeled location marker on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Unlabeled marker",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -86,8 +193,22 @@
       ],
       "name": "👻",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Unlabeled location marker on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Unlabeled location marker on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Unlabeled marker",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -96,8 +217,22 @@
       ],
       "name": "🕷️",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Unlabeled location marker on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Unlabeled location marker on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Unlabeled marker",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -106,8 +241,22 @@
       ],
       "name": "🦉",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Unlabeled location marker on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Unlabeled location marker on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Unlabeled marker",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -116,8 +265,22 @@
       ],
       "name": "🧛",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Unlabeled location marker on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Unlabeled location marker on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Unlabeled marker",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -126,8 +289,22 @@
       ],
       "name": "🧛‍♀️",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Unlabeled location marker on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Unlabeled location marker on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Unlabeled marker",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -136,8 +313,22 @@
       ],
       "name": "🧟",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Unlabeled location marker on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Unlabeled location marker on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Unlabeled marker",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -146,8 +337,22 @@
       ],
       "name": "🧿",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Unlabeled location marker on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Unlabeled location marker on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Unlabeled marker",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -156,8 +361,22 @@
       ],
       "name": "🪶",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Unlabeled location marker on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Unlabeled location marker on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Unlabeled location marker on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Unlabeled marker",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -166,8 +385,21 @@
       ],
       "name": "Ag",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Ag is recorded as a marked location on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Ag is recorded as a marked location on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Ag is recorded as a marked location on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -176,8 +408,21 @@
       ],
       "name": "Fe",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Fe is recorded as a marked location on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Fe is recorded as a marked location on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Fe is recorded as a marked location on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -187,7 +432,22 @@
       "name": "Giant Crypt",
       "type": "Ruin",
       "description": "A Crypt found by Timithy the Dwain.",
-      "wikiLink": ""
+      "wikiLink": "",
+      "summary": "A Crypt found by Timithy the Dwain.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "A Crypt found by Timithy the Dwain."
+        }
+      ],
+      "tags": [
+        "Ruin",
+        "Cursed-Old-Lin",
+        "Death"
+      ]
     },
     {
       "coords": [
@@ -196,8 +456,22 @@
       ],
       "name": "Hob's Camp",
       "type": "Settlement",
-      "description": "",
-      "wikiLink": ""
+      "description": "Hob's Camp is recorded as a settlement on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Hob's Camp is recorded as a settlement on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Hob's Camp is recorded as a settlement on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Settlement",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -207,7 +481,21 @@
       "name": "Knoll",
       "type": "Village",
       "description": "A farming town.",
-      "wikiLink": ""
+      "wikiLink": "",
+      "summary": "A farming town.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "A farming town."
+        }
+      ],
+      "tags": [
+        "Village",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -217,7 +505,21 @@
       "name": "Norst",
       "type": "Village",
       "description": "An old Fishing village.",
-      "wikiLink": ""
+      "wikiLink": "",
+      "summary": "An old Fishing village.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "An old Fishing village."
+        }
+      ],
+      "tags": [
+        "Village",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -226,8 +528,23 @@
       ],
       "name": "Old Gallows & Aasimars Grave",
       "type": "Ruin",
-      "description": "The Gallows here were built over the grave of a cleric who thought they could fight against Strauhd and win.  The Gallows were later burned and spirits set free.",
-      "wikiLink": ""
+      "description": "The Gallows here were built over the grave of a cleric who thought they could fight against Strauhd and win.",
+      "wikiLink": "",
+      "summary": "The Gallows here were built over the grave of a cleric who thought they could fight against Strauhd and win.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "Context",
+          "body": "The Gallows were later burned and spirits set free."
+        }
+      ],
+      "tags": [
+        "Ruin",
+        "Cursed-Old-Lin",
+        "Death"
+      ]
     },
     {
       "coords": [
@@ -236,8 +553,21 @@
       ],
       "name": "TG",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "TG is recorded as a marked location on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "TG is recorded as a marked location on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "TG is recorded as a marked location on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -247,7 +577,21 @@
       "name": "Valdoria",
       "type": "City",
       "description": "The largest city in Old-Lin.",
-      "wikiLink": ""
+      "wikiLink": "",
+      "summary": "The largest city in Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "The largest city in Old-Lin."
+        }
+      ],
+      "tags": [
+        "City",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -256,8 +600,21 @@
       ],
       "name": "X",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "X is recorded as a marked location on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "X is recorded as a marked location on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "X is recorded as a marked location on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -267,7 +624,21 @@
       "name": "Zalesie",
       "type": "Hamlet",
       "description": "A small town.",
-      "wikiLink": ""
+      "wikiLink": "",
+      "summary": "A small town.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "A small town."
+        }
+      ],
+      "tags": [
+        "Hamlet",
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -276,8 +647,21 @@
       ],
       "name": "Δ",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Δ is recorded as a marked location on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Δ is recorded as a marked location on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Δ is recorded as a marked location on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -286,8 +670,21 @@
       ],
       "name": "ε",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "ε is recorded as a marked location on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "ε is recorded as a marked location on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "ε is recorded as a marked location on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -296,8 +693,21 @@
       ],
       "name": "θ",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "θ is recorded as a marked location on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "θ is recorded as a marked location on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "θ is recorded as a marked location on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -306,8 +716,21 @@
       ],
       "name": "Κ",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Κ is recorded as a marked location on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Κ is recorded as a marked location on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Κ is recorded as a marked location on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -316,8 +739,21 @@
       ],
       "name": "Λ - ???",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Λ - ??? is recorded as a marked location on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Λ - ??? is recorded as a marked location on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Λ - ??? is recorded as a marked location on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -326,8 +762,21 @@
       ],
       "name": "Λ - Lesser",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Λ - Lesser is recorded as a marked location on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Λ - Lesser is recorded as a marked location on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Λ - Lesser is recorded as a marked location on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -336,8 +785,21 @@
       ],
       "name": "Μ",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Μ is recorded as a marked location on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Μ is recorded as a marked location on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Μ is recorded as a marked location on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -346,8 +808,21 @@
       ],
       "name": "Ο",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Ο is recorded as a marked location on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Ο is recorded as a marked location on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Ο is recorded as a marked location on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -356,8 +831,21 @@
       ],
       "name": "π",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "π is recorded as a marked location on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "π is recorded as a marked location on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "π is recorded as a marked location on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -366,8 +854,21 @@
       ],
       "name": "Π",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Π is recorded as a marked location on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Π is recorded as a marked location on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Π is recorded as a marked location on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -376,8 +877,21 @@
       ],
       "name": "𝛙",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "𝛙 is recorded as a marked location on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "𝛙 is recorded as a marked location on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "𝛙 is recorded as a marked location on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -386,8 +900,21 @@
       ],
       "name": "Ψ",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "Ψ is recorded as a marked location on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "Ψ is recorded as a marked location on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Ψ is recorded as a marked location on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Cursed-Old-Lin"
+      ]
     },
     {
       "coords": [
@@ -396,8 +923,21 @@
       ],
       "name": "𖦹",
       "type": "Unknown",
-      "description": "",
-      "wikiLink": ""
+      "description": "𖦹 is recorded as a marked location on Cursed-Old-Lin.",
+      "wikiLink": "",
+      "summary": "𖦹 is recorded as a marked location on Cursed-Old-Lin.",
+      "properties": {
+        "Map": "Cursed-Old-Lin"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "𖦹 is recorded as a marked location on Cursed-Old-Lin."
+        }
+      ],
+      "tags": [
+        "Cursed-Old-Lin"
+      ]
     }
   ],
   "regions": [

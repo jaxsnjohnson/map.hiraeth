@@ -1,8 +1,8 @@
 {
     "id": "OLD-Icebeach-Map",
     "name": "Icebeach 2022",
-    "width": 4032,
-    "height": 3024,
+    "width": 3750,
+    "height": 2500,
     "imageUrl": "maps/OLD-Icebeach-Map.webp",
     "scalePixels": 1,
     "scaleKilometers": 1,

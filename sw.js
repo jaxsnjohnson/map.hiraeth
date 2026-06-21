@@ -124,6 +124,10 @@ async function staleWhileRevalidate(request, cacheName) {
     return cached || networkPromise;
 }
 
+function isVersionedShellRequest(url) {
+    return url.searchParams.has('v');
+}
+
 self.addEventListener('fetch', (event) => {
     const { request } = event;
     if (request.method !== 'GET') return;
@@ -155,7 +159,15 @@ self.addEventListener('fetch', (event) => {
 
     if (
         url.pathname.endsWith('.css') ||
-        url.pathname.endsWith('.js') ||
+        url.pathname.endsWith('.js')
+    ) {
+        event.respondWith(isVersionedShellRequest(url)
+            ? staleWhileRevalidate(request, SHELL_CACHE)
+            : networkFirst(request, SHELL_CACHE));
+        return;
+    }
+
+    if (
         url.pathname === '/' ||
         url.pathname.endsWith('.html')
     ) {

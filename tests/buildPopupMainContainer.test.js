@@ -20,16 +20,16 @@ const fs = require('node:fs');
     let result = buildPopupMainContainer('A safe summary', '<p>Full content</p>', true, true);
     assert.ok(result.mainContent.includes('<div class="popup-summary">'), 'Should contain summary container');
     assert.ok(result.mainContent.includes('<p>A safe summary</p>'), 'Should contain safe summary');
-    assert.ok(result.mainContent.includes('<div class="popup-full-content">'), 'Should contain full content container');
-    assert.ok(result.mainContent.includes('<p>Full content</p>'), 'Should contain full content inner HTML');
-    assert.ok(result.readMoreButton.includes('<button type="button" class="popup-read-more" aria-expanded="false" onclick="togglePopupExpand(this)">Read More</button>'), 'Should contain read more button');
+    assert.ok(!result.mainContent.includes('<div class="popup-full-content">'), 'Should not contain duplicate full content container');
+    assert.ok(!result.mainContent.includes('<p>Full content</p>'), 'Should not duplicate drawer detail in compact popup');
+    assert.equal(result.readMoreButton, '', 'Read more button should be empty');
 
     // test case 2: hasSummary = true, hasFullContent = false
     result = buildPopupMainContainer('A safe summary', '<p>Full content</p>', true, false);
     assert.ok(result.mainContent.includes('<div class="popup-summary">'), 'Should contain summary container');
     assert.ok(result.mainContent.includes('<p>A safe summary</p>'), 'Should contain safe summary');
-    assert.ok(result.mainContent.includes('<div class="popup-full-content">'), 'Should contain full content container');
-    assert.ok(result.mainContent.includes('<p>Full content</p>'), 'Should contain full content inner HTML');
+    assert.ok(!result.mainContent.includes('<div class="popup-full-content">'), 'Should not contain full content container');
+    assert.ok(!result.mainContent.includes('<p>Full content</p>'), 'Should not include unused full content HTML');
     assert.equal(result.readMoreButton, '', 'Read more button should be empty');
 
     // test case 3: hasSummary = false, hasFullContent = true
@@ -38,14 +38,14 @@ const fs = require('node:fs');
     assert.ok(!result.mainContent.includes('<p>A safe summary</p>'), 'Should NOT contain safe summary');
     assert.ok(!result.mainContent.includes('<div class="popup-full-content">'), 'Should NOT contain full content container');
     assert.ok(result.mainContent.includes('<p>Full content</p>'), 'Should contain full content inner HTML');
-    assert.ok(result.readMoreButton.includes('<button type="button" class="popup-read-more" aria-expanded="false" onclick="togglePopupExpand(this)">Read More</button>'), 'Should contain read more button');
+    assert.equal(result.readMoreButton, '', 'Read more button should be empty');
 
     // test case 4: hasSummary = false, hasFullContent = false
     result = buildPopupMainContainer('A safe summary', '<p>Full content</p>', false, false);
     assert.ok(!result.mainContent.includes('<div class="popup-summary">'), 'Should NOT contain summary container');
     assert.ok(!result.mainContent.includes('<p>A safe summary</p>'), 'Should NOT contain safe summary');
     assert.ok(!result.mainContent.includes('<div class="popup-full-content">'), 'Should NOT contain full content container');
-    assert.ok(result.mainContent.includes('<p>Full content</p>'), 'Should contain full content inner HTML');
+    assert.equal(result.mainContent, '', 'Should not render an empty content wrapper');
     assert.equal(result.readMoreButton, '', 'Read more button should be empty');
 
     console.log('buildPopupMainContainer tests passed');

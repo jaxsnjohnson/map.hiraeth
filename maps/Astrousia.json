@@ -4,6 +4,15 @@
   "width": 7308,
   "height": 8192,
   "imageUrl": "maps/Astrousia.webp",
+  "tileSource": {
+    "type": "xyz",
+    "urlTemplate": "tile/Astrousia/{z}/{x}/{y}.webp",
+    "tileSize": 256,
+    "minZoom": 1,
+    "maxZoom": 5,
+    "leafletNativeZoom": 0,
+    "zoomOffset": 5
+  },
   "scalePixels": 1,
   "scaleKilometers": 1,
   "blurb": "This map is still a work in progress.",

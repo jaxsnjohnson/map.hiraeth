@@ -17,10 +17,23 @@
       "name": "Athenaeum Embasy & Minterals House",
       "pronunciation": "",
       "type": "Point of Interest",
-      "description": "",
-      "summary": "",
+      "description": "Athenaeum Embasy & Minterals House is recorded as a point of interest on Castgate.",
+      "summary": "Athenaeum Embasy & Minterals House is recorded as a point of interest on Castgate.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Castgate"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Athenaeum Embasy & Minterals House is recorded as a point of interest on Castgate."
+        }
+      ],
+      "tags": [
+        "Castgate",
+        "Diplomacy",
+        "Learning"
+      ]
     },
     {
       "coords": [
@@ -31,9 +44,21 @@
       "pronunciation": "",
       "type": "Landmark",
       "description": "An imposing column of polished obsidian, this monument was rededicated to commemorate the townspeople and adventurers who died during the devastating attack by The Cave Mother.",
-      "summary": "",
+      "summary": "An imposing column of polished obsidian, this monument was rededicated to commemorate the townspeople and adventurers who died during the devastating attack by The Cave Mother.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Castgate"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "An imposing column of polished obsidian, this monument was rededicated to commemorate the townspeople and adventurers who died during the devastating attack by The Cave Mother."
+        }
+      ],
+      "tags": [
+        "Landmark",
+        "Castgate"
+      ]
     },
     {
       "coords": [
@@ -44,9 +69,22 @@
       "pronunciation": "",
       "type": "Landmark",
       "description": "Attached to the popular tea house, the Chai en' Steep Inn provides a cozy atmosphere for travelers, offering comfortable lodging with soft bedding and lantern-lit hallways.",
-      "summary": "",
+      "summary": "Attached to the popular tea house, the Chai en' Steep Inn provides a cozy atmosphere for travelers, offering comfortable lodging with soft bedding and lantern-lit hallways.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate#bkmrk-fireside-newt-%26-chai",
-      "properties": {}
+      "properties": {
+        "Map": "Castgate"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Attached to the popular tea house, the Chai en' Steep Inn provides a cozy atmosphere for travelers, offering comfortable lodging with soft bedding and lantern-lit hallways."
+        }
+      ],
+      "tags": [
+        "Landmark",
+        "Castgate",
+        "Hospitality"
+      ]
     },
     {
       "coords": [
@@ -56,10 +94,22 @@
       "name": "Dwarf Brewery",
       "pronunciation": "",
       "type": "Point of Interest",
-      "description": "",
-      "summary": "",
+      "description": "Dwarf Brewery is recorded as a point of interest on Castgate.",
+      "summary": "Dwarf Brewery is recorded as a point of interest on Castgate.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Castgate"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Dwarf Brewery is recorded as a point of interest on Castgate."
+        }
+      ],
+      "tags": [
+        "Castgate",
+        "Hospitality"
+      ]
     },
     {
       "coords": [
@@ -69,10 +119,23 @@
       "name": "Frostviel",
       "pronunciation": "",
       "type": "Temple",
-      "description": "This grand temple, built from pale stone with stained-glass windows, is a place of worship dedicated to the deity Matrix. It also serves as a sanctuary, offering food and shelter to those in need.",
-      "summary": "",
+      "description": "This grand temple, built from pale stone with stained-glass windows, is a place of worship dedicated to the deity Matrix.",
+      "summary": "This grand temple, built from pale stone with stained-glass windows, is a place of worship dedicated to the deity Matrix.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate#bkmrk-frostviel---temple-t",
-      "properties": {}
+      "properties": {
+        "Map": "Castgate"
+      },
+      "detailSections": [
+        {
+          "heading": "Context",
+          "body": "It also serves as a sanctuary, offering food and shelter to those in need."
+        }
+      ],
+      "tags": [
+        "Temple",
+        "Castgate",
+        "Sacred site"
+      ]
     },
     {
       "coords": [
@@ -82,10 +145,22 @@
       "name": "School for Adventures",
       "pronunciation": "",
       "type": "Point of Interest",
-      "description": "",
-      "summary": "",
+      "description": "School for Adventures is recorded as a point of interest on Castgate.",
+      "summary": "School for Adventures is recorded as a point of interest on Castgate.",
       "wikiLink": "",
-      "properties": {}
+      "properties": {
+        "Map": "Castgate"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "School for Adventures is recorded as a point of interest on Castgate."
+        }
+      ],
+      "tags": [
+        "Castgate",
+        "Learning"
+      ]
     },
     {
       "coords": [
@@ -95,10 +170,23 @@
       "name": "The Crystal Needle",
       "pronunciation": "",
       "type": "Landmark",
-      "description": "This elegant spire of clear quartz hums with magical energy and serves as a meeting place for scholars and mages. Some believe it helps channel power to the town's protective Firmament.",
-      "summary": "",
+      "description": "This elegant spire of clear quartz hums with magical energy and serves as a meeting place for scholars and mages.",
+      "summary": "This elegant spire of clear quartz hums with magical energy and serves as a meeting place for scholars and mages.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate#bkmrk-the-crystal-needle",
-      "properties": {}
+      "properties": {
+        "Map": "Castgate"
+      },
+      "detailSections": [
+        {
+          "heading": "Context",
+          "body": "Some believe it helps channel power to the town's protective Firmament."
+        }
+      ],
+      "tags": [
+        "Landmark",
+        "Castgate",
+        "Magic"
+      ]
     },
     {
       "coords": [
@@ -108,10 +196,23 @@
       "name": "The Fireside Newt",
       "pronunciation": "",
       "type": "Tavern",
-      "description": "This enchanting waterside tea house is a tranquil retreat where patrons can watch whimsical, color-changing Firenewts that bask in tabletop hearths and indicate the perfect tea temperature. Its proprietor, Tessan, is famous for brewing teas that can soothe ailments.",
-      "summary": "",
+      "description": "This enchanting waterside tea house is a tranquil retreat where patrons can watch whimsical, color-changing Firenewts that bask in tabletop hearths and indicate the perfect tea temperature.",
+      "summary": "This enchanting waterside tea house is a tranquil retreat where patrons can watch whimsical, color-changing Firenewts that bask in tabletop hearths and indicate the perfect tea...",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate#bkmrk-fireside-newt-%26-chai",
-      "properties": {}
+      "properties": {
+        "Map": "Castgate"
+      },
+      "detailSections": [
+        {
+          "heading": "Context",
+          "body": "Its proprietor, Tessan, is famous for brewing teas that can soothe ailments."
+        }
+      ],
+      "tags": [
+        "Tavern",
+        "Castgate",
+        "Hospitality"
+      ]
     },
     {
       "coords": [
@@ -121,10 +222,22 @@
       "name": "The Frozen Rose",
       "pronunciation": "",
       "type": "Point of Interest",
-      "description": "Once a derelict tavern, this building was revitalized by the adventuring party Sub Rosa and transformed into a thriving hub for adventurers and locals. Featuring frosted glass windows and a carved white rose emblem, the tavern is run by the quiet barkeep Thorn and serves as an informal guildhall for The Argentum Compact. Its walls are decorated with trophies from Sub Rosa’s adventures, making it a symbol of the town’s enduring resilience.",
-      "summary": "",
+      "description": "Once a derelict tavern, this building was revitalized by the adventuring party Sub Rosa and transformed into a thriving hub for adventurers and locals.",
+      "summary": "Once a derelict tavern, this building was revitalized by the adventuring party Sub Rosa and transformed into a thriving hub for adventurers and locals.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate#bkmrk-the-frozen-rose",
-      "properties": {}
+      "properties": {
+        "Map": "Castgate"
+      },
+      "detailSections": [
+        {
+          "heading": "Context",
+          "body": "Featuring frosted glass windows and a carved white rose emblem, the tavern is run by the quiet barkeep Thorn and serves as an informal guildhall for The Argentum Compact. Its walls are decorated with trophies from Sub Rosa’s adventures, making it a symbol of the town’s enduring resilience."
+        }
+      ],
+      "tags": [
+        "Castgate",
+        "Hospitality"
+      ]
     },
     {
       "coords": [
@@ -135,9 +248,21 @@
       "pronunciation": "",
       "type": "Landmark",
       "description": "Located on the edge of town, this carved stone archway is a somber monument marking the gravesite of those who died during the eternal winter.",
-      "summary": "",
+      "summary": "Located on the edge of town, this carved stone archway is a somber monument marking the gravesite of those who died during the eternal winter.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate#bkmrk-the-mourning-arch",
-      "properties": {}
+      "properties": {
+        "Map": "Castgate"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "Located on the edge of town, this carved stone archway is a somber monument marking the gravesite of those who died during the eternal winter."
+        }
+      ],
+      "tags": [
+        "Landmark",
+        "Castgate"
+      ]
     },
     {
       "coords": [
@@ -148,9 +273,23 @@
       "pronunciation": "",
       "type": "Landmark",
       "description": "This sacred shrine at the heart of Casgate's main square is a stone lantern with an eternal flame that allows people of all languages to understand one another while nearby.",
-      "summary": "",
+      "summary": "This sacred shrine at the heart of Casgate's main square is a stone lantern with an eternal flame that allows people of all languages to understand one another while nearby.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate#bkmrk-shrine-of-hestia",
-      "properties": {}
+      "properties": {
+        "Map": "Castgate"
+      },
+      "detailSections": [
+        {
+          "heading": "At a glance",
+          "body": "This sacred shrine at the heart of Casgate's main square is a stone lantern with an eternal flame that allows people of all languages to understand one another while nearby."
+        }
+      ],
+      "tags": [
+        "Landmark",
+        "Castgate",
+        "Gate",
+        "Sacred site"
+      ]
     }
   ],
   "regions": [

@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
 const indexSource = fs.readFileSync('index.html', 'utf8');
+const appSource = fs.readFileSync('js/app.js', 'utf8');
 const styleSource = fs.readFileSync('css/style.css', 'utf8');
 
 assert.match(indexSource, /id="mobile-info-help-btn"/);
@@ -64,5 +65,8 @@ assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-sear
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.leaflet-control-minimap \{[\s\S]*display: block !important;[\s\S]*margin-bottom: calc\(var\(--safe-bottom\) \+ 78px\) !important;/m);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.container\.mobile-search-card-open \.leaflet-control-minimap,/);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.container\.mobile-surface-atlas \.leaflet-control-minimap \{[\s\S]*opacity: 0 !important;[\s\S]*pointer-events: none !important;/m);
+
+assert.match(appSource, /if \(selectedSidebarFeature && isMobileLayoutActive\) \{[\s\S]*openMobileSheet\(\{[\s\S]*mode: MOBILE_SURFACE_MODE_ATLAS,/m);
+assert.match(appSource, /function selectSearchResult\(index = activeSearchResultIndex\) \{[\s\S]*closeMobileSheet\(\{ restoreFocus: false \}\);[\s\S]*if \(selectedSidebarFeature && isMobileLayoutActive\) \{[\s\S]*mode: MOBILE_SURFACE_MODE_ATLAS,/m);
 
 console.log('mobile shell markup checks passed');
