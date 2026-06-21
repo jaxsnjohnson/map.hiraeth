@@ -141,6 +141,27 @@ function collectTileJobs(root = repoRoot) {
     return Array.from(jobsById.values());
 }
 
+function resolveImageMagickBinary(options = {}) {
+    const commandRunner = options.commandRunner || spawnSync;
+    const preferredBinary = String(options.preferredBinary ?? process.env.MAGICK_BINARY ?? '').trim();
+    const candidates = preferredBinary ? [preferredBinary] : ['magick', 'convert'];
+    const failures = [];
+
+    for (const candidate of candidates) {
+        const result = commandRunner(candidate, ['-version'], { stdio: 'pipe', encoding: 'utf8' });
+        if (!result.error && result.status === 0) return candidate;
+        const reason = result.error
+            ? result.error.message
+            : `exited with ${result.status}`;
+        failures.push(`${candidate}: ${reason}`);
+    }
+
+    if (preferredBinary) {
+        throw new Error(`Configured ImageMagick binary "${preferredBinary}" is not available (${failures.join('; ')}).`);
+    }
+    throw new Error(`Could not find an ImageMagick command. Tried ${candidates.join(', ')}. Install ImageMagick or set MAGICK_BINARY.`);
+}
+
 function runMagick(args, label, magickBinary) {
     const result = spawnSync(magickBinary, args, { stdio: 'pipe', encoding: 'utf8' });
     if (result.error) {
@@ -202,7 +223,6 @@ function shouldSkipTileGeneration() {
 function generateTiles(options = {}) {
     const root = path.resolve(options.repoRoot || repoRoot);
     const outputDir = path.resolve(options.outputDir || path.join(root, 'dist', 'tile'));
-    const magickBinary = options.magickBinary || process.env.MAGICK_BINARY || 'magick';
     const logger = options.logger || console;
 
     if (shouldSkipTileGeneration()) {
@@ -214,6 +234,9 @@ function generateTiles(options = {}) {
         ? new Set(options.mapIds.map((mapId) => String(mapId).trim()).filter(Boolean))
         : null;
     const jobs = collectTileJobs(root).filter((job) => !requestedMapIds || requestedMapIds.has(job.mapId));
+    const magickBinary = jobs.length > 0
+        ? resolveImageMagickBinary({ preferredBinary: options.magickBinary ?? process.env.MAGICK_BINARY })
+        : '';
 
     fs.rmSync(outputDir, { recursive: true, force: true });
     fs.mkdirSync(outputDir, { recursive: true });
@@ -278,5 +301,6 @@ module.exports = {
     collectTileJobs,
     computeTileLevelPlan,
     generateTiles,
-    normalizeTileSource
+    normalizeTileSource,
+    resolveImageMagickBinary
 };
