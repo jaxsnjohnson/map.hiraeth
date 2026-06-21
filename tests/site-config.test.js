@@ -25,6 +25,14 @@ assert.equal(resolved.theme.tokens.dark['--font-family-main'], resolved.theme.fo
 assert.equal(resolved.features.lowQualityMode, undefined);
 assert.equal(resolved.performance.lowQualityMode, false);
 
+const changelogPanel = resolved.copy.help.tabs.find((panel) => panel.id === 'changelog');
+assert.ok(changelogPanel, 'changelog info panel should exist');
+assert.match(changelogPanel.html, new RegExp(`>v${resolved.assets.version}<`), 'changelog should show the current asset version');
+assert.equal(
+    (changelogPanel.html.match(/title="Current release"/g) || []).length,
+    1,
+    'changelog should have exactly one current release marker'
+);
 
 assert.notDeepStrictEqual(
     AppConfig.validateConfig({ theme: { tokens: { light: { '--bg-primary': 'not a valid color value' } } } }),
