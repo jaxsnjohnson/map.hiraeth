@@ -75,6 +75,59 @@ function assertPositiveNumber(value, context) {
     }
 }
 
+function assertPositiveInteger(value, context) {
+    const parsed = Number(value);
+    if (!Number.isInteger(parsed) || parsed <= 0) {
+        addError(`${context}: expected a positive integer`);
+    }
+}
+
+function assertNonNegativeInteger(value, context) {
+    const parsed = Number(value);
+    if (!Number.isInteger(parsed) || parsed < 0) {
+        addError(`${context}: expected a non-negative integer`);
+    }
+}
+
+function validateTileSource(tileSource, context) {
+    if (tileSource === undefined) return;
+    if (!tileSource || typeof tileSource !== 'object' || Array.isArray(tileSource)) {
+        addError(`${context}: expected an object`);
+        return;
+    }
+
+    const type = String(tileSource.type || 'xyz').trim().toLowerCase();
+    if (type !== 'xyz') {
+        addError(`${context}.type: expected "xyz"`);
+    }
+
+    assertNonEmptyString(tileSource.urlTemplate, `${context}.urlTemplate`);
+    const urlTemplate = String(tileSource.urlTemplate || '').trim();
+    if (urlTemplate && (!urlTemplate.includes('{z}') || !urlTemplate.includes('{x}') || !urlTemplate.includes('{y}'))) {
+        addError(`${context}.urlTemplate: expected {z}, {x}, and {y} tokens`);
+    }
+    if (urlTemplate && !isSafeRelativePath(urlTemplate.replace(/\{[zxy]\}/g, '0'))) {
+        addError(`${context}.urlTemplate: expected a safe repository-relative tile path template`);
+    }
+
+    assertPositiveInteger(tileSource.tileSize, `${context}.tileSize`);
+    assertNonNegativeInteger(tileSource.minZoom, `${context}.minZoom`);
+    assertNonNegativeInteger(tileSource.maxZoom, `${context}.maxZoom`);
+
+    if (Number.isInteger(Number(tileSource.minZoom)) &&
+        Number.isInteger(Number(tileSource.maxZoom)) &&
+        Number(tileSource.minZoom) > Number(tileSource.maxZoom)) {
+        addError(`${context}: minZoom must be less than or equal to maxZoom`);
+    }
+
+    if (tileSource.leafletNativeZoom !== undefined && !Number.isFinite(Number(tileSource.leafletNativeZoom))) {
+        addError(`${context}.leafletNativeZoom: expected a finite number`);
+    }
+    if (tileSource.zoomOffset !== undefined && !Number.isFinite(Number(tileSource.zoomOffset))) {
+        addError(`${context}.zoomOffset: expected a finite number`);
+    }
+}
+
 function assertCoordinatePair(value, context) {
     if (!Array.isArray(value) || value.length !== 2) {
         addError(`${context}: expected [y, x] coordinate pair`);
@@ -179,6 +232,7 @@ function validateMapDocument(mapDocument, context) {
             });
         }
     }
+    validateTileSource(mapDocument.tileSource, `${context}.tileSource`);
 
     validateFeatureArray(mapDocument, 'pointsOfInterest', validatePoint, context);
     validateFeatureArray(mapDocument, 'regions', validateRegion, context);
@@ -244,6 +298,7 @@ function validateAtlasNode(node, context) {
         assertPositiveNumber(node.width, `${context}.width`);
         assertPositiveNumber(node.height, `${context}.height`);
     }
+    validateTileSource(node.tileSource, `${context}.tileSource`);
     if (node.children !== undefined) {
         if (!Array.isArray(node.children)) {
             addError(`${context}.children: expected an array`);

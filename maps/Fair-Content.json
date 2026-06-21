@@ -13,6 +13,15 @@
   "scalePixels": 1,
   "scaleKilometers": 1.3,
   "imageUrl": "maps/Fair-Content.webp",
+  "tileSource": {
+    "type": "xyz",
+    "urlTemplate": "tile/main_continent/{z}/{x}/{y}.webp",
+    "tileSize": 256,
+    "minZoom": 1,
+    "maxZoom": 5,
+    "leafletNativeZoom": 0,
+    "zoomOffset": 5
+  },
   "filterGroups": {
     "Regions": {
       "Political": [

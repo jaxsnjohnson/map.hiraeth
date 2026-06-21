@@ -21,6 +21,7 @@ let currentRoadGroup = null; // Holds currently displayed road layers (and lines
 
 let miniMapControl = null; // Global MiniMap control instance
 let miniMapControlMode = null;
+let miniMapControlMapId = null;
 const sessionStartedAt = Date.now();
 const UX_STORAGE_KEYS = {
     theme: 'theme',
@@ -740,6 +741,7 @@ function getPoiIcon(groupName) {
 
 // --- More Global variables ---
 let currentImageLayer = null;
+let currentMapBaseLayerMode = 'image';
 let currentMapUnderlay = null;
 let currentMarkerGroup = null; // Holds currently *visible* markers
 let allMapMarkers = []; // Holds *all* markers for the loaded map
@@ -1433,6 +1435,7 @@ function removeMiniMapControl() {
     miniMapControl.remove();
     miniMapControl = null;
     miniMapControlMode = null;
+    miniMapControlMapId = null;
 }
 
 function syncMiniMapControl() {
@@ -1447,7 +1450,8 @@ function syncMiniMapControl() {
         return;
     }
     const nextMode = isMobileLayoutActive ? 'mobile' : 'desktop';
-    if (miniMapControl && miniMapControlMode !== nextMode) {
+    const nextMapId = String(currentMapData?.id || '').trim();
+    if (miniMapControl && (miniMapControlMode !== nextMode || miniMapControlMapId !== nextMapId)) {
         removeMiniMapControl();
     }
     if (miniMapControl) return;
@@ -1489,6 +1493,7 @@ function syncMiniMapControl() {
         mapOptions: { minZoom: -100, crs: L.CRS.Simple, zoomSnap: 0, zoomDelta: 0 }
     }).addTo(map);
     miniMapControlMode = nextMode;
+    miniMapControlMapId = nextMapId;
 }
 
 function updateMobileLayoutState() {
@@ -2137,6 +2142,94 @@ function getPreferredMapImageUrl(mapInfo) {
         }
     }
     return defaultUrl;
+}
+
+function parsePositiveInteger(value, fallbackValue) {
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : fallbackValue;
+}
+
+function parseNonNegativeInteger(value, fallbackValue) {
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed >= 0 ? parsed : fallbackValue;
+}
+
+function parseFiniteNumber(value, fallbackValue) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallbackValue;
+}
+
+function getMapTileSource(mapInfo) {
+    const source = mapInfo && mapInfo.tileSource;
+    if (!source || typeof source !== 'object' || Array.isArray(source)) return null;
+
+    const type = String(source.type || 'xyz').trim().toLowerCase();
+    const urlTemplate = String(source.urlTemplate || '').trim();
+    if (type !== 'xyz' || !urlTemplate) return null;
+    if (!urlTemplate.includes('{z}') || !urlTemplate.includes('{x}') || !urlTemplate.includes('{y}')) {
+        return null;
+    }
+
+    const maxZoom = parseNonNegativeInteger(source.maxZoom, null);
+    if (!Number.isInteger(maxZoom)) return null;
+    const minZoom = parseNonNegativeInteger(source.minZoom, Math.max(0, maxZoom - Math.abs(mapOptions.minZoom || 0)));
+    if (minZoom > maxZoom) return null;
+
+    const leafletNativeZoom = parseFiniteNumber(source.leafletNativeZoom, 0);
+    const zoomOffset = parseFiniteNumber(source.zoomOffset, maxZoom - leafletNativeZoom);
+    return {
+        type,
+        urlTemplate,
+        tileSize: parsePositiveInteger(source.tileSize, 256),
+        minZoom,
+        maxZoom,
+        leafletNativeZoom,
+        zoomOffset,
+        minNativeZoom: parseFiniteNumber(source.minNativeZoom, minZoom - zoomOffset),
+        maxNativeZoom: parseFiniteNumber(source.maxNativeZoom, leafletNativeZoom)
+    };
+}
+
+function createSimpleCrsTileLayer(urlTemplate, options) {
+    const SimpleCrsTileLayer = L.TileLayer.extend({
+        getTileUrl(coords) {
+            const normalizedCoords = L.extend({}, coords, {
+                y: coords.y < 0 ? -coords.y - 1 : coords.y
+            });
+            return L.TileLayer.prototype.getTileUrl.call(this, normalizedCoords);
+        }
+    });
+    return new SimpleCrsTileLayer(urlTemplate, options);
+}
+
+function createMapBaseLayer(selectedMap, mapImageUrl, bounds) {
+    const tileSource = getMapTileSource(selectedMap);
+    if (tileSource && L.TileLayer) {
+        const urlTemplate = typeof withAssetVersion === 'function'
+            ? withAssetVersion(tileSource.urlTemplate)
+            : tileSource.urlTemplate;
+        return {
+            mode: 'tile',
+            layer: createSimpleCrsTileLayer(urlTemplate, {
+                tileSize: tileSource.tileSize,
+                minZoom: mapOptions.minZoom,
+                maxZoom: mapOptions.maxZoom,
+                minNativeZoom: tileSource.minNativeZoom,
+                maxNativeZoom: tileSource.maxNativeZoom,
+                zoomOffset: tileSource.zoomOffset,
+                bounds: L.latLngBounds(bounds),
+                noWrap: true,
+                keepBuffer: 2,
+                updateWhenIdle: isMobileLayoutActive,
+                className: 'map-tile-layer'
+            })
+        };
+    }
+
+    return {
+        mode: 'image',
+        layer: L.imageOverlay(mapImageUrl, bounds)
+    };
 }
 
 function getMiniMapImageUrl(mapInfo) {
@@ -3094,6 +3187,11 @@ function prefetchImageAsset(url) {
     drainPrefetchImageQueue();
 }
 
+function prefetchMapImageAsset(mapInfo) {
+    if (!mapInfo || getMapTileSource(mapInfo)) return;
+    prefetchImageAsset(getPreferredMapImageUrl(mapInfo));
+}
+
 function drainPrefetchImageQueue() {
     if (prefetchImageInFlight || prefetchImageQueue.length === 0) return;
     const nextUrl = prefetchImageQueue.shift();
@@ -3149,7 +3247,7 @@ function schedulePostLoadPrefetch(mapDefinition) {
         const currentManifest = findMapRecursive(mapData, mapDefinition.id);
         if (currentManifest) {
             prefetchJsonAsset(getMapDataUrl(currentManifest));
-            prefetchImageAsset(getPreferredMapImageUrl(currentManifest));
+            prefetchMapImageAsset(currentManifest);
         }
 
         collectLinkedMapPrefetchCandidates(mapDefinition)
@@ -3159,7 +3257,7 @@ function schedulePostLoadPrefetch(mapDefinition) {
                 if (!candidateEntry) return;
                 prefetchJsonAsset(getMapDataUrl(candidateEntry));
                 if (index === 0) {
-                    prefetchImageAsset(getPreferredMapImageUrl(candidateEntry));
+                    prefetchMapImageAsset(candidateEntry);
                 }
             });
     });
@@ -5320,6 +5418,7 @@ function resetMapState() {
     if (currentRoadGroup) map.removeLayer(currentRoadGroup);
 
     currentImageLayer = null;
+    currentMapBaseLayerMode = 'image';
     currentMapUnderlay = null;
     currentMarkerGroup = null;
     currentRegionGroup = null;
@@ -5571,6 +5670,7 @@ function finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileI
         mapId: requestedMapId,
         mapName: selectedMap.name,
         imageVariant: usingAlternateMobileImage ? 'mobile' : 'default',
+        baseLayer: currentMapBaseLayerMode,
         durationMs: Math.round(performance.now() - loadStartedAt)
     });
     clampFloatingPanels();
@@ -5643,7 +5743,6 @@ function setupMapLayers(selectedMap, requestedMapId, mapImageUrl, updateHash) {
 
     const mapHeight = selectedMap.height;
     const mapWidth = selectedMap.width;
-    prefetchedImageUrls.add(withAssetVersion(mapImageUrl));
 
     if (isNaN(mapHeight) || isNaN(mapWidth) || !mapImageUrl) {
         console.error(`Invalid dimensions or missing imageUrl for map ID ${requestedMapId}`);
@@ -5661,14 +5760,19 @@ function setupMapLayers(selectedMap, requestedMapId, mapImageUrl, updateHash) {
         interactive: false,
         pane: 'tilePane'
     });
-    currentImageLayer = L.imageOverlay(mapImageUrl, currentBounds);
+    const baseLayer = createMapBaseLayer(selectedMap, mapImageUrl, currentBounds);
+    currentImageLayer = baseLayer.layer;
+    currentMapBaseLayerMode = baseLayer.mode;
+    if (currentMapBaseLayerMode === 'image') {
+        prefetchedImageUrls.add(withAssetVersion(mapImageUrl));
+    }
     return true;
 }
 
 function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingAlternateMobileImage, loadStartedAt, updateHash }) {
-    const preloadImg = new Image();
     let loadingComplete = false;
     let loadingTimeout = null;
+    let fallbackStarted = false;
 
     function finishLoading() {
         if (loadingComplete) return;
@@ -5677,9 +5781,7 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
         finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileImage, loadStartedAt);
     }
 
-    preloadImg.onload = finishLoading;
-    currentImageLayer.on('load', finishLoading);
-    currentImageLayer.on('error', function () {
+    function abortImageLoad() {
         if (loadingComplete) return;
         loadingComplete = true;
         clearTimeout(loadingTimeout);
@@ -5689,7 +5791,26 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
         currentImageLayer = null;
         currentMapUnderlay = null;
         abortMapLoad({ reason: 'image_error', requestedMapId, message: `Could not load "${selectedMap.name}" image. Check the image path and press Retry.`, updateHash, showRetry: true });
-    });
+    }
+
+    function attachImageFallback() {
+        if (loadingComplete || fallbackStarted) return;
+        fallbackStarted = true;
+        const fallbackLayer = L.imageOverlay(mapImageUrl, currentBounds);
+        const preloadImg = new Image();
+        if (currentImageLayer) {
+            map.removeLayer(currentImageLayer);
+        }
+        currentImageLayer = fallbackLayer;
+        currentMapBaseLayerMode = 'image';
+        prefetchedImageUrls.add(withAssetVersion(mapImageUrl));
+        currentImageLayer.on('load', finishLoading);
+        currentImageLayer.on('error', abortImageLoad);
+        preloadImg.onload = finishLoading;
+        preloadImg.onerror = abortImageLoad;
+        preloadImg.src = mapImageUrl;
+        currentImageLayer.addTo(map);
+    }
 
     loadingTimeout = setTimeout(() => {
         console.warn('Loading fallback timer triggered.');
@@ -5697,8 +5818,21 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
     }, 8000);
 
     currentMapUnderlay.addTo(map);
-    preloadImg.src = mapImageUrl;
-    currentImageLayer.addTo(map);
+
+    if (currentMapBaseLayerMode === 'tile') {
+        currentImageLayer.on('load', finishLoading);
+        currentImageLayer.on('tileerror', function (event) {
+            if (loadingComplete) return;
+            const failedTileUrl = event && event.tile ? event.tile.currentSrc || event.tile.src : '';
+            console.warn('Tile layer failed to load; falling back to full map image:', failedTileUrl || selectedMap.id || selectedMap.name);
+            attachImageFallback();
+        });
+        currentImageLayer.addTo(map);
+        map.fitBounds(currentBounds, { animate: false });
+        return;
+    }
+
+    attachImageFallback();
 }
 
 async function loadMap(mapId, updateHash = true, preResolvedMap = null) {

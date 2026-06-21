@@ -51,6 +51,15 @@ fs.writeFileSync(path.join(mapsDir, 'file-backed-map.json'), `${JSON.stringify({
     width: 100,
     height: 100,
     imageUrl: 'maps/file-backed-map.webp',
+    tileSource: {
+        type: 'xyz',
+        urlTemplate: 'tile/file-backed-map/{z}/{x}/{y}.webp',
+        tileSize: 256,
+        minZoom: 0,
+        maxZoom: 1,
+        leafletNativeZoom: 0,
+        zoomOffset: 1
+    },
     pointsOfInterest: [
         {
             name: 'File POI',
@@ -96,6 +105,15 @@ const fileBacked = folder.children.find((item) => item.id === 'file-backed-map')
 assert.ok(fileBacked);
 assert.equal(fileBacked.dataUrl, 'maps/file-backed-map.json');
 assert.equal(fileBacked.group, 'Countries');
+assert.deepEqual(fileBacked.tileSource, {
+    type: 'xyz',
+    urlTemplate: 'tile/file-backed-map/{z}/{x}/{y}.webp',
+    tileSize: 256,
+    minZoom: 0,
+    maxZoom: 1,
+    leafletNativeZoom: 0,
+    zoomOffset: 1
+});
 
 const inlineMap = folder.children.find((item) => item.id === 'inline-map');
 assert.ok(inlineMap);

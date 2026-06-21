@@ -31,4 +31,10 @@ assert.equal(
     'public map asset collector should only return map asset paths'
 );
 
+assert.equal(
+    publicMapAssets.some((assetPath) => assetPath.startsWith('tile/')),
+    false,
+    'generated tile paths should not be copied from the source tree'
+);
+
 console.log('Pages bundle map asset collection checks passed');

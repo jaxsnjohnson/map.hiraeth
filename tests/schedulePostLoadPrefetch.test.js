@@ -37,6 +37,7 @@ global.findMapRecursive = (data, id) => {
 global.prefetchJsonAsset = () => {};
 global.getMapDataUrl = () => {};
 global.prefetchImageAsset = () => {};
+global.prefetchMapImageAsset = () => {};
 global.getPreferredMapImageUrl = () => {};
 global.collectLinkedMapPrefetchCandidates = () => ({ slice: () => ({ forEach: () => {} }) });
 global.getPerformanceNumber = () => 3;

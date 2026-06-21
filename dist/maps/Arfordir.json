@@ -5,6 +5,15 @@
   "width": 7456,
   "height": 8192,
   "imageUrl": "maps/Arfordir.webp",
+  "tileSource": {
+    "type": "xyz",
+    "urlTemplate": "tile/Arfordir/{z}/{x}/{y}.webp",
+    "tileSize": 256,
+    "minZoom": 1,
+    "maxZoom": 5,
+    "leafletNativeZoom": 0,
+    "zoomOffset": 5
+  },
   "scalePixels": 3,
   "scaleKilometers": 0.1225,
   "blurb": "This map is still a work in progress.",

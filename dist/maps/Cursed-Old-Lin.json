@@ -4,6 +4,15 @@
   "width": 8192,
   "height": 6144,
   "imageUrl": "maps/Cursed-Old-Lin.webp",
+  "tileSource": {
+    "type": "xyz",
+    "urlTemplate": "tile/Cursed-Old-Lin/{z}/{x}/{y}.webp",
+    "tileSize": 256,
+    "minZoom": 1,
+    "maxZoom": 5,
+    "leafletNativeZoom": 0,
+    "zoomOffset": 5
+  },
   "scalePixels": 67,
   "scaleKilometers": 4.83,
   "blurb": "Imprisoned by mist, this land groans under an undying tyrant's shadow. Jagged peaks claw at a twilight sky; the ancient woods conceal secrets best left buried. Above all, Castle Ravenloft looms, a monument to sorrow. Here, despair stains the very soil, and all are ensnared by Strahd.",

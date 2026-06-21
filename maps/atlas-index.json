@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-21T00:33:26.802Z",
+  "generatedAt": "2026-06-21T01:06:10.063Z",
   "tree": [
     {
       "type": "folder",
@@ -8,6 +8,15 @@
       "width": 8192,
       "height": 6144,
       "imageUrl": "maps/Fair-Content.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/main_continent/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 1,
+        "maxZoom": 5,
+        "leafletNativeZoom": 0,
+        "zoomOffset": 5
+      },
       "latLonBounds": {
         "north": 73,
         "south": 1.24,
@@ -61,6 +70,15 @@
           "width": 8192,
           "height": 6144,
           "imageUrl": "maps/southern-thalassia.webp",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/southern-thalassia/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 1,
+            "maxZoom": 5,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 5
+          },
           "scalePixels": 7.8060520362,
           "scaleKilometers": 1,
           "blurb": "Southern Thalassia is a significant maritime region characterized by a series of islands formed and scared by the 'Night of Falling Stars,' an event wherein lunar and asteroidal fragments impacted the region, depositing exotic minerals and creating unique geological formations. This celestial deposition has resulted in altered atmospheric conditions, residual magical energies, and a notable biodiversity influenced by stellar radiation, making the region a focal point for historical study, resource acquisition (particularly rare minerals and energy concentrations), and contested maritime activity, including piracy, with various factions vying for control over these transformed territories.  This map is still under devlopment.",
@@ -73,6 +91,15 @@
           "width": 8192,
           "height": 6144,
           "imageUrl": "maps/Cursed-Old-Lin.webp",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/Cursed-Old-Lin/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 1,
+            "maxZoom": 5,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 5
+          },
           "scalePixels": 67,
           "scaleKilometers": 4.83,
           "blurb": "Imprisoned by mist, this land groans under an undying tyrant's shadow. Jagged peaks claw at a twilight sky; the ancient woods conceal secrets best left buried. Above all, Castle Ravenloft looms, a monument to sorrow. Here, despair stains the very soil, and all are ensnared by Strahd.",
@@ -86,6 +113,15 @@
           "width": 7456,
           "height": 8192,
           "imageUrl": "maps/Arfordir.webp",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/Arfordir/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 1,
+            "maxZoom": 5,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 5
+          },
           "scalePixels": 3,
           "scaleKilometers": 0.1225,
           "blurb": "This map is still a work in progress.",
@@ -156,6 +192,15 @@
           "width": 6560,
           "height": 5040,
           "imageUrl": "maps/OLD-Fair.webp",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/OLD-Fair/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 1,
+            "maxZoom": 5,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 5
+          },
           "scalePixels": 1,
           "scaleKilometers": 1,
           "blurb": "This map was made in 2015, while it has been fleshed out, kingdoms come and went, a lot of imagination started here.",
@@ -312,6 +357,15 @@
           "width": 7308,
           "height": 8192,
           "imageUrl": "maps/Astrousia.webp",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/Astrousia/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 1,
+            "maxZoom": 5,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 5
+          },
           "scalePixels": 1,
           "scaleKilometers": 1,
           "blurb": "This map is still a work in progress.",
