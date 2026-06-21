@@ -260,7 +260,7 @@
         const base = line && typeof line === 'object' ? cloneJson(line) : {};
         return {
             ...base,
-            id: base.id || `line-${Math.random().toString(36).slice(2, 10)}`,
+            id: base.id || `line-${crypto.randomUUID()}`,
             name: base.name || '',
             pronunciation: base.pronunciation || '',
             type: base.type || '',
@@ -462,55 +462,64 @@
         });
     }
 
-    async function createRepoFileBackedMapSource(entries, options = {}) {
+    function assertRepoFileEntries(entries) {
         if (!Array.isArray(entries) || entries.length === 0) {
             throw new Error('No files were provided for the repo folder.');
         }
+    }
 
-        const readText = typeof options.readText === 'function'
-            ? options.readText
-            : async (entry) => {
-                if (!entry || typeof entry !== 'object') {
-                    throw new Error('Missing repo file entry.');
-                }
-                if (typeof entry.text === 'string') return entry.text;
-                if (typeof entry.text === 'function') return entry.text();
-                if (entry.file && typeof entry.file.text === 'function') return entry.file.text();
-                throw new Error(`Could not read "${normalizeRepoEntryPath(entry)}".`);
-            };
+    function createRepoEntryTextReader(options = {}) {
+        if (typeof options.readText === 'function') return options.readText;
 
+        return async (entry) => {
+            if (!entry || typeof entry !== 'object') {
+                throw new Error('Missing repo file entry.');
+            }
+            if (typeof entry.text === 'string') return entry.text;
+            if (typeof entry.text === 'function') return entry.text();
+            if (entry.file && typeof entry.file.text === 'function') return entry.file.text();
+            throw new Error(`Could not read "${normalizeRepoEntryPath(entry)}".`);
+        };
+    }
+
+    function buildRepoEntryAliasIndex(entries) {
         const entryByAlias = new Map();
-        const jsonCache = new Map();
 
         entries.forEach((entry) => {
             indexRepoEntryAliases(entryByAlias, entry);
         });
 
-        function getFileEntry(relativePath) {
-            const normalizedPath = String(relativePath || '')
-                .replace(/\\/g, '/')
-                .replace(/^\.?\//, '')
-                .replace(/\/+/g, '/')
-                .trim();
-            if (!normalizedPath) {
-                throw new Error('Missing required file path.');
-            }
+        return entryByAlias;
+    }
+
+    function normalizeRepoLookupPath(relativePath, missingPathMessage) {
+        const normalizedPath = String(relativePath || '')
+            .replace(/\\/g, '/')
+            .replace(/^\.?\//, '')
+            .replace(/\/+/g, '/')
+            .trim();
+        if (!normalizedPath) {
+            throw new Error(missingPathMessage);
+        }
+        return normalizedPath;
+    }
+
+    function createRepoFileResolver(entryByAlias) {
+        return function getFileEntry(relativePath) {
+            const normalizedPath = normalizeRepoLookupPath(relativePath, 'Missing required file path.');
             const entry = entryByAlias.get(normalizedPath);
             if (!entry) {
                 throw new Error(`Missing required file: ${normalizedPath}`);
             }
             return entry;
-        }
+        };
+    }
 
-        async function loadJsonByPath(relativePath) {
-            const normalizedPath = String(relativePath || '')
-                .replace(/\\/g, '/')
-                .replace(/^\.?\//, '')
-                .replace(/\/+/g, '/')
-                .trim();
-            if (!normalizedPath) {
-                throw new Error('Missing JSON file path.');
-            }
+    function createRepoJsonLoader(getFileEntry, readText) {
+        const jsonCache = new Map();
+
+        return async function loadJsonByPath(relativePath) {
+            const normalizedPath = normalizeRepoLookupPath(relativePath, 'Missing JSON file path.');
 
             if (!jsonCache.has(normalizedPath)) {
                 jsonCache.set(normalizedPath, Promise.resolve().then(async () => {
@@ -525,49 +534,72 @@
             }
 
             return cloneJson(await jsonCache.get(normalizedPath));
-        }
+        };
+    }
 
-        function resolveImageEntry(mapData) {
-            return getFileEntry(getRequiredMapImageUrl(mapData));
-        }
-
-        const manifestDocument = await loadJsonByPath('maps/maps.json');
-        const manifest = buildManifestTreeFromDocument(manifestDocument);
+    function assertRepoManifestDocument(manifestDocument, manifest) {
         if (
             (!Array.isArray(manifestDocument?.maps) && !Array.isArray(manifestDocument)) ||
             manifest.length === 0
         ) {
             throw new Error('maps/maps.json must contain manifest entries.');
         }
+    }
 
-        let browseTree;
+    async function loadRepoManifestTree(loadJsonByPath) {
+        const manifestDocument = await loadJsonByPath('maps/maps.json');
+        const manifest = buildManifestTreeFromDocument(manifestDocument);
+        assertRepoManifestDocument(manifestDocument, manifest);
+        return manifest;
+    }
+
+    function resolveRepoManifestDataUrl(mapId, manifestNode) {
+        return String(manifestNode?.dataUrl || buildDefaultMapDataUrl(mapId)).trim();
+    }
+
+    async function hydrateRepoBrowseTreeFromManifest(manifest, loadJsonByPath) {
+        return hydrateFileBackedManifestTree(
+            manifest,
+            async (mapId, manifestNode) => loadJsonByPath(resolveRepoManifestDataUrl(mapId, manifestNode)),
+            {
+                resolveDataUrl: resolveRepoManifestDataUrl
+            }
+        );
+    }
+
+    async function loadRepoBrowseTree(manifest, loadJsonByPath) {
         try {
             const atlas = await loadJsonByPath('maps/atlas-index.json');
-            browseTree = normalizeManifestTree(Array.isArray(atlas?.tree) ? atlas.tree : []);
+            return normalizeManifestTree(Array.isArray(atlas?.tree) ? atlas.tree : []);
         } catch (error) {
-            browseTree = await hydrateFileBackedManifestTree(
-                manifest,
-                async (mapId, manifestNode) => loadJsonByPath(
-                    String(manifestNode?.dataUrl || buildDefaultMapDataUrl(mapId)).trim()
-                ),
-                {
-                    resolveDataUrl: (mapId, manifestNode) => String(
-                        manifestNode?.dataUrl || buildDefaultMapDataUrl(mapId)
-                    ).trim()
-                }
-            );
+            return hydrateRepoBrowseTreeFromManifest(manifest, loadJsonByPath);
         }
+    }
+
+    function createRepoMapDocumentResolver(loadJsonByPath) {
+        return (mapData) => resolveFileBackedMapDocument(mapData, {
+            loadJsonByPath,
+            resolveDefaultDataUrl: buildDefaultMapDataUrl
+        });
+    }
+
+    async function createRepoFileBackedMapSource(entries, options = {}) {
+        assertRepoFileEntries(entries);
+
+        const readText = createRepoEntryTextReader(options);
+        const entryByAlias = buildRepoEntryAliasIndex(entries);
+        const getFileEntry = createRepoFileResolver(entryByAlias);
+        const loadJsonByPath = createRepoJsonLoader(getFileEntry, readText);
+        const manifest = await loadRepoManifestTree(loadJsonByPath);
+        const browseTree = await loadRepoBrowseTree(manifest, loadJsonByPath);
 
         return {
             kind: 'repo-folder',
             baseManifest: normalizeManifestTree(manifest),
             browseTree,
             loadJsonByPath,
-            resolveMapDocument: (mapData) => resolveFileBackedMapDocument(mapData, {
-                loadJsonByPath,
-                resolveDefaultDataUrl: buildDefaultMapDataUrl
-            }),
-            resolveImageEntry
+            resolveMapDocument: createRepoMapDocumentResolver(loadJsonByPath),
+            resolveImageEntry: (mapData) => getFileEntry(getRequiredMapImageUrl(mapData))
         };
     }
 

@@ -621,19 +621,31 @@
     }
 
     function parseCoordinatePairs(value, minimumPoints) {
-        const rows = String(value || '')
-            .split('\n')
-            .map((row) => row.trim())
-            .filter(Boolean);
-        const parsedRows = rows.map((row) => {
-            const parts = row.split(',').map((segment) => segment.trim());
-            if (parts.length !== 2) {
+        const lines = String(value || '').split('\n');
+        const parsedRows = [];
+
+        for (let i = 0; i < lines.length; i++) {
+            const row = lines[i].trim();
+            if (!row) continue;
+
+            const commaIndex = row.indexOf(',');
+            if (commaIndex === -1) {
                 throw new Error('Each coordinate row must contain exactly two values.');
             }
-            const first = roundCoordinate(parts[0]);
-            const second = roundCoordinate(parts[1]);
-            return [first, second];
-        });
+
+            const part1 = row.slice(0, commaIndex).trim();
+            const part2 = row.slice(commaIndex + 1).trim();
+
+            if (part2.indexOf(',') !== -1) {
+                throw new Error('Each coordinate row must contain exactly two values.');
+            }
+
+            const first = roundCoordinate(part1);
+            const second = roundCoordinate(part2);
+
+            parsedRows.push([first, second]);
+        }
+
         if (parsedRows.length < minimumPoints) {
             throw new Error(`At least ${minimumPoints} coordinate rows are required.`);
         }

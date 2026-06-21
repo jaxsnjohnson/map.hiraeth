@@ -258,8 +258,8 @@ let isMeasuringMultiPoint = false; // Tracks if multi-point mode is active
 let multiPointPath = []; // Array of L.LatLng objects for the current path
 let multiPointPolyline = null; // The L.Polyline layer for the drawn path
 let multiPointVertexMarkers = []; // Array of L.CircleMarker for vertices
-let multiPointSegmentTooltips = []; // Array of L.Tooltip for segment lengths (optional)
 let multiPointTotalTooltip = null; // L.Tooltip for the total path length
+let cachedMultiPointPixelDistance = 0; // Cached total distance of fixed segments
 let temporaryMouseMoveLine = null; // L.Polyline for the line from last point to cursor
 let temporaryMouseMoveTooltip = null; // L.Tooltip for the temporary line's length
 
@@ -759,7 +759,6 @@ let currentSidebarState = 'o';
 let markersVisible = true; // <--- THIS SHOULD BE TRUE FOR VISIBLE BY DEFAULT
 let currentLatLonBounds = null;
 let coordsLocked = false;
-let lockedCoords = null;
 const transitionDuration = 300; // ms for sidebar animation
 let filtersPanelVisible = false; // State for combined filter panel visibility
 
@@ -838,7 +837,6 @@ const mobileToolsLauncherBtn = document.getElementById('mobile-tools-launcher-bt
 const mobileSheetLauncherBtn = document.getElementById('mobile-sheet-launcher-btn');
 const mobileSearchLauncherBtn = document.getElementById('mobile-search-launcher-btn');
 const themeToggle = document.getElementById('theme-checkbox');
-const themeSwitchWrapper = themeToggle ? themeToggle.closest('.theme-switch-wrapper') : null;
 const bodyElement = document.body;
 const mapElement = document.getElementById('map'); // Get map div
 const mapContainerElement = document.getElementById('map-container');
@@ -3931,6 +3929,8 @@ function renderSearchResults(term, results) {
 
         const searchRegex = term ? new RegExp(escapeRegExp(term), 'gi') : null;
 
+        const fragment = document.createDocumentFragment();
+
         results.forEach((result, index) => {
             const resultItem = document.createElement('div');
             resultItem.className = 'search-result-item';
@@ -3970,8 +3970,10 @@ function renderSearchResults(term, results) {
                 }
             });
 
-            searchResultsContainer.appendChild(resultItem);
+            fragment.appendChild(resultItem);
         });
+
+        searchResultsContainer.appendChild(fragment);
     }
 
     searchResultsContainer.style.display = 'block';
@@ -4600,12 +4602,12 @@ function populatePOIFilters(pointsOfInterest) {
         poiHeader.textContent = getConfigValue('taxonomy.labels.poiTypes', 'POI Types:');
         dynamicFiltersContainer.appendChild(poiHeader);
     }
-    const relevantGroups = new Set();
-    pointsOfInterest.forEach(poi => {
-        const group = getPoiGroup(poi.type);
-        relevantGroups.add(group);
-    });
-    const sortedGroups = Array.from(relevantGroups).sort();
+    const relevantGroupsObj = Object.create(null);
+    for (let i = 0; i < pointsOfInterest.length; i++) {
+        const group = getPoiGroup(pointsOfInterest[i].type);
+        if (group !== undefined && group !== null) relevantGroupsObj[group] = true;
+    }
+    const sortedGroups = Object.keys(relevantGroupsObj).sort();
     const fragment = document.createDocumentFragment();
     sortedGroups.forEach(groupName => {
         if (!groupName || (poiTypeGroups[groupName] && poiTypeGroups[groupName].length === 0)) return;
@@ -4628,38 +4630,50 @@ function populatePOIFilters(pointsOfInterest) {
     dynamicFiltersContainer.appendChild(fragment);
 }
 
+const filterGroupsCache = new WeakMap();
+
 function getOrGenerateRegionFilterGroups(regions, selectedMap) {
     // Check if explicit filter groups exist, otherwise auto-generate from data
     let regionFilterGroups = selectedMap.filterGroups && selectedMap.filterGroups.Regions;
 
     // Auto-generation fallback
     if (!regionFilterGroups) {
-        const tempGroups = {};
-        regions.forEach(region => {
-            // If region has type and value, group by type
-            if (region.type && region.value) {
-                if (!tempGroups[region.type]) {
-                    tempGroups[region.type] = new Set();
-                }
-                tempGroups[region.type].add(region.value);
-            }
-            // Fallback: If region just has 'type' but no 'value'
-            else if (region.type && region.name) {
-                if (!tempGroups[region.type]) {
-                    tempGroups[region.type] = new Set();
-                }
-                tempGroups[region.type].add(region.name);
-                if (!region.value) region.value = region.name;
-            }
-        });
+        if (filterGroupsCache.has(regions)) {
+            return filterGroupsCache.get(regions);
+        }
 
-        // Convert Sets to Arrays for processing
-        if (Object.keys(tempGroups).length > 0) {
-            regionFilterGroups = {};
-            for (const key in tempGroups) {
-                regionFilterGroups[key] = Array.from(tempGroups[key]).sort();
+        const tempGroups = Object.create(null);
+        for (let i = 0; i < regions.length; i++) {
+            const region = regions[i];
+            const type = region.type;
+            if (!type) continue;
+
+            const value = region.value || region.name;
+            if (!value) continue;
+
+            if (!region.value && region.name) {
+                region.value = region.name;
+            }
+
+            let group = tempGroups[type];
+            if (!group) {
+                group = Object.create(null);
+                tempGroups[type] = group;
+            }
+
+            group[value] = true;
+        }
+
+        const keys = Object.keys(tempGroups);
+        if (keys.length > 0) {
+            regionFilterGroups = Object.create(null);
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
+                regionFilterGroups[key] = Object.keys(tempGroups[key]).sort();
             }
         }
+
+        filterGroupsCache.set(regions, regionFilterGroups);
     }
 
     return regionFilterGroups;
@@ -4727,15 +4741,18 @@ function populateRegionFilters(regions, selectedMap, hasPOIs) {
     const regionFilterGroups = getOrGenerateRegionFilterGroups(regions, selectedMap);
 
     if (regionFilterGroups && Object.keys(regionFilterGroups).length > 0) {
+        // ⚡ Bolt: Batch DOM insertions using DocumentFragment to prevent costly layout thrashing and reflows.
+        const fragment = document.createDocumentFragment();
+
         if (hasPOIs) {
             const divider = document.createElement('hr');
             divider.style.margin = '10px 0';
             divider.style.borderColor = 'var(--glass-border)';
-            dynamicFiltersContainer.appendChild(divider);
+            fragment.appendChild(divider);
         }
         const regionHeader = document.createElement('h3');
         regionHeader.textContent = "Region Types:";
-        dynamicFiltersContainer.appendChild(regionHeader);
+        fragment.appendChild(regionHeader);
 
         for (const groupName in regionFilterGroups) {
             if (Object.hasOwnProperty.call(regionFilterGroups, groupName)) {
@@ -4743,26 +4760,48 @@ function populateRegionFilters(regions, selectedMap, hasPOIs) {
                 if (!Array.isArray(values) || values.length === 0) continue;
 
                 const groupContainer = createRegionFilterGroupDOM(groupName, values);
-                dynamicFiltersContainer.appendChild(groupContainer);
+                fragment.appendChild(groupContainer);
             }
         }
+        dynamicFiltersContainer.appendChild(fragment);
     }
 }
 
+// ⚡ Bolt: Cache derived unique line types by map data reference to achieve O(1) retrieval on UI updates.
+const lineTypesCache = new WeakMap();
+
 function populateLineFilters(lines, hasPOIs, hasRegions) {
+    // ⚡ Bolt: Batch DOM insertions using DocumentFragment to prevent costly layout thrashing and reflows.
+    const fragment = document.createDocumentFragment();
+
     if (hasPOIs || hasRegions) { // Add divider if other filters are present
         const divider = document.createElement('hr');
         divider.style.margin = '10px 0';
         divider.style.borderColor = 'var(--glass-border)';
-        dynamicFiltersContainer.appendChild(divider);
+        fragment.appendChild(divider);
     }
 
     const lineHeader = document.createElement('h3');
     lineHeader.textContent = "Line Types:";
-    dynamicFiltersContainer.appendChild(lineHeader);
+    fragment.appendChild(lineHeader);
 
     const allLines = lines;
-    const lineTypes = [...new Set(allLines.map(r => r.type || "Unnamed Road Type").filter(Boolean))].sort();
+    let lineTypes;
+
+    if (lineTypesCache.has(allLines)) {
+        lineTypes = lineTypesCache.get(allLines);
+    } else {
+        // ⚡ Bolt: Optimized unique value extraction using Object.create(null) instead of allocating Set instances and chained array methods.
+        const uniqueTypes = Object.create(null);
+        for (let i = 0; i < allLines.length; i++) {
+            const type = allLines[i].type || "Unnamed Road Type";
+            if (type) {
+                uniqueTypes[type] = true;
+            }
+        }
+        lineTypes = Object.keys(uniqueTypes).sort();
+        lineTypesCache.set(allLines, lineTypes);
+    }
 
     lineTypes.forEach(type => {
         const filterId = `filter-line-${(type || "untyped").replace(/\s+/g, '-').toLowerCase()}`;
@@ -4781,8 +4820,9 @@ function populateLineFilters(lines, hasPOIs, hasRegions) {
 
         div.appendChild(checkbox);
         div.appendChild(label);
-        dynamicFiltersContainer.appendChild(div);
+        fragment.appendChild(div);
     });
+    dynamicFiltersContainer.appendChild(fragment);
 }
 
 const sharedLinkOpenSessionKeys = new Set();
@@ -5502,7 +5542,10 @@ function finalizeMapUI(requestedMapId, selectedMap) {
     updateCurrentControlVisibility(selectedMap);
     updateActiveFilterChips();
 
-    mapListElement.querySelectorAll('.active').forEach(item => item.classList.remove('active'));
+    const activeItems = mapListElement.getElementsByClassName('active');
+    while (activeItems.length > 0) {
+        activeItems[0].classList.remove('active');
+    }
     const activeMapItem = document.querySelector(`#map-list .map-item[data-map-id="${requestedMapId}"]`);
     const activeFolderHeader = document.querySelector(`#map-list .folder-header[data-map-id="${requestedMapId}"]`);
     if (activeMapItem) {
@@ -6731,7 +6774,6 @@ function updateCoordinates(e) {
     if (!currentLatLonBounds || !currentBounds) return;
 
     const { lat, lon } = projectMapPointToLatLon(e.latlng, currentLatLonBounds, currentBounds);
-    lockedCoords = { lat, lon };
     updateCoordinateDisplay(lat, lon);
 }
 
@@ -7172,6 +7214,7 @@ function toggleMeasurementTool() {
         // Clear previous measurement layers (if any)
         measurementLayerGroup.clearLayers();
         multiPointPath = [];
+        cachedMultiPointPixelDistance = 0;
         multiPointVertexMarkers = [];
         if (multiPointPolyline) map.removeLayer(multiPointPolyline);
         multiPointPolyline = null;
@@ -7198,6 +7241,12 @@ function handleMultiPointMeasureClick(e) {
 
     const clickPoint = e.latlng;
     multiPointPath.push(clickPoint);
+
+    if (multiPointPath.length >= 2) {
+        cachedMultiPointPixelDistance += map.distance(multiPointPath[multiPointPath.length - 2], multiPointPath[multiPointPath.length - 1]);
+    } else {
+        cachedMultiPointPixelDistance = 0;
+    }
 
     // Add a vertex marker
     const vertexMarker = L.circleMarker(clickPoint, {
@@ -7290,12 +7339,7 @@ function updateMeasurementTooltips() {
         typeof scaleKmValue === 'number' && scaleKmValue > 0;
 
     // Calculate total pixel distance
-    let totalPixelDistance = 0;
-    if (multiPointPath.length >= 2) {
-        for (let i = 0; i < multiPointPath.length - 1; i++) {
-            totalPixelDistance += map.distance(multiPointPath[i], multiPointPath[i + 1]);
-        }
-    }
+    let totalPixelDistance = cachedMultiPointPixelDistance;
 
     // --- Build the Tooltip Content String ---
     let tooltipContent = '';
@@ -7365,6 +7409,7 @@ function finalizeMultiPointMeasure(makePermanent = true) {
         if (temporaryMouseMoveLine) measurementLayerGroup.removeLayer(temporaryMouseMoveLine);
         if (temporaryMouseMoveTooltip) map.removeLayer(temporaryMouseMoveTooltip);
         multiPointPath = [];
+        cachedMultiPointPixelDistance = 0;
         multiPointVertexMarkers = [];
         multiPointPolyline = null;
         multiPointTotalTooltip = null;
@@ -7398,6 +7443,7 @@ function finalizeMultiPointMeasure(makePermanent = true) {
         if (multiPointTotalTooltip) map.removeLayer(multiPointTotalTooltip);
         multiPointTotalTooltip = null;
         multiPointPath = [];
+        cachedMultiPointPixelDistance = 0;
         multiPointVertexMarkers = [];
     } else {
         // Path and markers are already on measurementLayerGroup.

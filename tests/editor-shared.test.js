@@ -723,6 +723,55 @@ assert.equal(
         /Map "missing-image-url" is missing an imageUrl\./
     );
 
+    const repoReadCounts = new Map();
+    const cachedJsonSource = await createRepoFileBackedMapSource([
+        {
+            path: 'maps/maps.json',
+            text: JSON.stringify([
+                {
+                    id: 'cached-map',
+                    order: 0,
+                    dataUrl: 'maps/cached-map.json'
+                }
+            ])
+        },
+        {
+            path: 'maps/atlas-index.json',
+            text: JSON.stringify({
+                tree: [
+                    {
+                        id: 'cached-map',
+                        name: 'Cached Map',
+                        imageUrl: 'maps/cached-map.webp',
+                        dataUrl: 'maps/cached-map.json'
+                    }
+                ]
+            })
+        },
+        {
+            path: 'maps/cached-map.json',
+            text: JSON.stringify({
+                id: 'cached-map',
+                name: 'Cached Map',
+                imageUrl: 'maps/cached-map.webp'
+            })
+        },
+        {
+            path: 'maps/cached-map.webp',
+            text: 'unused'
+        }
+    ], {
+        readText: async (entry) => {
+            repoReadCounts.set(entry.path, (repoReadCounts.get(entry.path) || 0) + 1);
+            return entry.text;
+        }
+    });
+    const firstCachedMap = await cachedJsonSource.loadJsonByPath('maps/cached-map.json');
+    firstCachedMap.name = 'Mutated Map';
+    const secondCachedMap = await cachedJsonSource.loadJsonByPath('./maps/cached-map.json');
+    assert.equal(secondCachedMap.name, 'Cached Map');
+    assert.equal(repoReadCounts.get('maps/cached-map.json'), 1);
+
     assert.deepEqual(buildManifestTreeFromFlatEntries(null), []);
     assert.deepEqual(buildManifestTreeFromFlatEntries(undefined), []);
     assert.deepEqual(buildManifestTreeFromFlatEntries({}), []);
