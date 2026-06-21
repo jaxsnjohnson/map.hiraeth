@@ -393,6 +393,61 @@ details[open] .map-editor-section-header h2::before {
     font-weight: 700;
 }
 
+.map-editor-detail-sections {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 10px;
+    border: 1px solid var(--editor-panel-border);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--bg-secondary) 52%, transparent);
+}
+
+.map-editor-detail-sections legend {
+    padding: 0 4px;
+    color: var(--text-secondary);
+    font-weight: 700;
+}
+
+.map-editor-detail-section-empty {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+}
+
+.map-editor-detail-section-list {
+    display: grid;
+    gap: 10px;
+}
+
+.map-editor-detail-section-row {
+    display: grid;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid color-mix(in srgb, var(--editor-panel-border) 76%, transparent);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--bg-primary) 70%, transparent);
+}
+
+.map-editor-detail-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.map-editor-detail-section-header h4 {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.map-editor-detail-section-add,
+.map-editor-detail-section-remove {
+    justify-self: start;
+    min-height: 32px;
+    padding: 6px 10px;
+}
+
 .map-editor-form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

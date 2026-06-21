@@ -12,7 +12,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 
-    <script src="js/app-config.js?v=0.1.20"></script>
+    <script src="js/app-config.js?v=0.1.21"></script>
     <script>
         window.APP_ASSET_VERSION = window.AppConfig ? window.AppConfig.get("assets.version", "0") : "0";
         window.THEME_STORAGE_KEYS = {
@@ -136,11 +136,11 @@
 
     <div class="container">
         <div id="sidebar">
-            <div id="sidebar-tabs" class="sidebar-tabs" role="tablist" aria-label="Sidebar sections">
-                <button type="button" data-sidebar-tab="maps" role="tab" aria-selected="true">Maps</button>
-                <button type="button" data-sidebar-tab="details" role="tab" aria-selected="false">POI Detail</button>
+            <div id="sidebar-tabs" class="sidebar-tabs" role="tablist" aria-label="Sidebar sections" aria-orientation="horizontal">
+                <button id="sidebar-tab-maps" type="button" data-sidebar-tab="maps" role="tab" aria-selected="true" aria-controls="sidebar-map-panel" tabindex="0">Maps</button>
+                <button id="sidebar-tab-details" type="button" data-sidebar-tab="details" role="tab" aria-selected="false" aria-controls="sidebar-poi-panel" tabindex="-1">POI Detail</button>
             </div>
-            <section id="sidebar-map-panel" class="sidebar-map-panel" aria-label="Map selection">
+            <section id="sidebar-map-panel" class="sidebar-map-panel" role="tabpanel" aria-labelledby="sidebar-tab-maps">
                 <button id="sidebar-back-to-chooser" class="sidebar-back-btn" title="Return to Map Chooser" aria-label="Return to Map Chooser">
                     <i class="ui-icon" data-lucide="arrow-left" aria-hidden="true"></i>
                     <span class="sidebar-back-title">Select Map</span>
@@ -148,7 +148,7 @@
                 <ul id="map-list">
                 </ul>
             </section>
-            <section id="sidebar-poi-panel" class="sidebar-poi-panel" aria-live="polite" aria-label="Selected feature details"></section>
+            <section id="sidebar-poi-panel" class="sidebar-poi-panel" role="tabpanel" aria-labelledby="sidebar-tab-details" aria-live="polite" hidden></section>
             <div class="theme-switch-wrapper">
                 <label class="theme-switch" for="theme-checkbox">
                     <input type="checkbox" id="theme-checkbox" aria-label="Switch to dark theme" title="Switch to dark theme" />

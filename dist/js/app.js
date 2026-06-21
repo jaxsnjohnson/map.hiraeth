@@ -85,7 +85,6 @@ const MOBILE_LAYOUT_MODE_V2 = 'v2';
 const MOBILE_LAYOUT_MODE_LEGACY = 'legacy';
 const MOBILE_PANEL_MARGIN = 10;
 const SMOOTH_ZOOM_STEP = 0.5;
-const SMOOTH_ZOOM_OPTIONS = { animate: true };
 const WHEEL_ZOOM_SNAP = 0;
 const SMOOTH_WHEEL_ZOOM_SENSITIVITY = 0.0024;
 const SMOOTH_WHEEL_MAX_DELTA = 0.45;
@@ -94,6 +93,7 @@ const SMOOTH_WHEEL_SETTLE_DELTA = 0.002;
 const SMOOTH_WHEEL_IDLE_MS = 120;
 const WHEEL_DELTA_LINE_HEIGHT = 16;
 const WHEEL_DELTA_PAGE_HEIGHT = 240;
+const SIDEBAR_TAB_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End']);
 
 if (typeof document !== 'undefined') {
     document.documentElement.classList.toggle('is-firefox', isFirefox);
@@ -103,6 +103,14 @@ function refreshLucideIcons() {
     if (window.lucide && typeof window.lucide.createIcons === 'function') {
         window.lucide.createIcons();
     }
+}
+
+function prefersReducedMotion() {
+    return !!(typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+
+function getZoomAnimationOptions() {
+    return { animate: !prefersReducedMotion() };
 }
 
 // --- Measurement Tool State ---
@@ -118,7 +126,7 @@ const mapOptions = {
     zoomSnap: WHEEL_ZOOM_SNAP,
     zoomDelta: SMOOTH_ZOOM_STEP,
     scrollWheelZoom: false,
-    zoomAnimation: true
+    zoomAnimation: !prefersReducedMotion()
 };
 
 if (isFirefox) {
@@ -214,6 +222,23 @@ function handleSmoothWheelZoom(event) {
     smoothWheelTargetZoom = clampZoomLevel(baseZoom + zoomDelta);
     smoothWheelAnchorPoint = map.mouseEventToContainerPoint(event);
 
+    if (prefersReducedMotion()) {
+        if (smoothWheelFrameId !== null) {
+            const cancelFrame = typeof cancelAnimationFrame === 'function'
+                ? cancelAnimationFrame
+                : clearTimeout;
+            cancelFrame(smoothWheelFrameId);
+        }
+        smoothWheelFrameId = null;
+        if (smoothWheelIdleTimeoutId) clearTimeout(smoothWheelIdleTimeoutId);
+        smoothWheelIdleTimeoutId = null;
+        map.setZoomAround(smoothWheelAnchorPoint, smoothWheelTargetZoom, { animate: false });
+        smoothWheelTargetZoom = null;
+        smoothWheelAnchorPoint = null;
+        endMapInteraction();
+        return;
+    }
+
     scheduleSmoothWheelFrame();
 
     if (smoothWheelIdleTimeoutId) clearTimeout(smoothWheelIdleTimeoutId);
@@ -222,7 +247,7 @@ function handleSmoothWheelZoom(event) {
 
 function zoomMapBy(delta) {
     if (!map || typeof map.getZoom !== 'function' || typeof map.setZoom !== 'function') return;
-    map.setZoom(map.getZoom() + delta, SMOOTH_ZOOM_OPTIONS);
+    map.setZoom(map.getZoom() + delta, getZoomAnimationOptions());
 }
 
 // Register map interaction listeners
@@ -1968,6 +1993,11 @@ function findSidebarFeatureLayer(feature, type) {
     return null;
 }
 
+function getPoiMarkerAccessibleName(point) {
+    const rawName = getSidebarPlainText(point?.name || point?.id || 'Unnamed POI');
+    return `${rawName || 'Unnamed POI'} marker`;
+}
+
 function focusSidebarSelectedFeature() {
     const layer = findSidebarFeatureLayer(selectedSidebarFeature, selectedSidebarFeatureType);
     if (!layer || !map) return;
@@ -2054,12 +2084,17 @@ function setSidebarTab(tab) {
     syncSidebarPanels();
 }
 
+function getSidebarTabButtons() {
+    return sidebarTabs ? Array.from(sidebarTabs.querySelectorAll('[data-sidebar-tab]')) : [];
+}
+
 function syncSidebarTabButtons() {
     if (!sidebarTabs) return;
-    sidebarTabs.querySelectorAll('[data-sidebar-tab]').forEach((button) => {
+    getSidebarTabButtons().forEach((button) => {
         const active = button.dataset.sidebarTab === currentSidebarTab;
         button.classList.toggle('active', active);
         button.setAttribute('aria-selected', active ? 'true' : 'false');
+        button.tabIndex = active ? 0 : -1;
     });
 }
 
@@ -2108,6 +2143,34 @@ function initializeSidebarTabs() {
             const button = target?.closest('[data-sidebar-tab]');
             if (!button) return;
             setSidebarTab(button.dataset.sidebarTab);
+        });
+        sidebarTabs.addEventListener('keydown', (event) => {
+            if (!SIDEBAR_TAB_KEYS.has(event.key)) return;
+
+            const tabButtons = getSidebarTabButtons();
+            if (tabButtons.length === 0) return;
+
+            const target = event.target instanceof Element ? event.target : null;
+            const currentButton = target?.closest('[data-sidebar-tab]');
+            if (!currentButton || !sidebarTabs.contains(currentButton)) return;
+
+            event.preventDefault();
+
+            const currentIndex = Math.max(0, tabButtons.indexOf(currentButton));
+            let nextIndex = currentIndex;
+            if (event.key === 'Home') {
+                nextIndex = 0;
+            } else if (event.key === 'End') {
+                nextIndex = tabButtons.length - 1;
+            } else {
+                const direction = event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1;
+                nextIndex = (currentIndex + direction + tabButtons.length) % tabButtons.length;
+            }
+
+            const nextButton = tabButtons[nextIndex];
+            if (!nextButton) return;
+            setSidebarTab(nextButton.dataset.sidebarTab);
+            nextButton.focus();
         });
     }
     syncSidebarPanels();
@@ -2644,7 +2707,7 @@ function setMapAtmosphere(rawConfig) {
 }
 
 function shouldAnimateThemeTransition() {
-    return !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    return !prefersReducedMotion();
 }
 
 function parseCssDurationToMs(rawValue) {
@@ -5484,8 +5547,11 @@ function populatePOIsOnMap(selectedMap) {
         try {
             if (point.coords && point.coords.length === 2 && !isNaN(point.coords[0]) && !isNaN(point.coords[1])) {
                 if (point.coords[0] >= 0 && point.coords[0] <= mapHeight && point.coords[1] >= 0 && point.coords[1] <= mapWidth) {
+                    const markerLabel = getPoiMarkerAccessibleName(point);
                     const marker = L.marker(point.coords, {
-                        icon: getPoiIcon(getPoiGroup(point.type))
+                        icon: getPoiIcon(getPoiGroup(point.type)),
+                        title: markerLabel,
+                        alt: markerLabel
                     });
                     if (marker) {
                         marker.poiData = point;

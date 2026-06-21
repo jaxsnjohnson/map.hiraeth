@@ -738,6 +738,96 @@
             .filter(Boolean);
     }
 
+    function getDetailSections(feature) {
+        if (!Array.isArray(feature.detailSections)) feature.detailSections = [];
+        return feature.detailSections;
+    }
+
+    function getDetailSectionsFromForm() {
+        return Array.from(dom.featureForm.querySelectorAll('[data-detail-section-row]'))
+            .map((row) => {
+                const heading = row.querySelector('[data-detail-section-field="heading"]')?.value.trim() || '';
+                const body = row.querySelector('[data-detail-section-field="body"]')?.value.trim() || '';
+                if (!heading && !body) return null;
+                return { heading, body };
+            })
+            .filter(Boolean);
+    }
+
+    function createDetailSectionControl(section, index) {
+        const row = document.createElement('div');
+        row.className = 'map-editor-detail-section-row';
+        row.dataset.detailSectionRow = String(index);
+
+        const headingId = `detail-section-${index}-heading`;
+        const bodyId = `detail-section-${index}-body`;
+        const titleId = `detail-section-${index}-title`;
+
+        const header = document.createElement('div');
+        header.className = 'map-editor-detail-section-header';
+
+        const title = document.createElement('h4');
+        title.id = titleId;
+        title.textContent = `Section ${index + 1}`;
+        header.appendChild(title);
+
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'map-editor-detail-section-remove';
+        removeButton.dataset.action = 'remove-detail-section';
+        removeButton.dataset.detailSectionIndex = String(index);
+        removeButton.setAttribute('aria-label', `Remove detail section ${index + 1}`);
+        removeButton.textContent = 'Remove';
+        header.appendChild(removeButton);
+        row.appendChild(header);
+
+        const headingLabel = document.createElement('label');
+        headingLabel.setAttribute('for', headingId);
+        headingLabel.textContent = 'Section Heading';
+        const headingInput = document.createElement('input');
+        headingInput.id = headingId;
+        headingInput.type = 'text';
+        headingInput.dataset.field = 'detailSections';
+        headingInput.dataset.detailSectionField = 'heading';
+        headingInput.value = section.heading || '';
+        headingLabel.appendChild(headingInput);
+        row.appendChild(headingLabel);
+
+        const bodyLabel = document.createElement('label');
+        bodyLabel.setAttribute('for', bodyId);
+        bodyLabel.textContent = 'Section Body';
+        const bodyTextarea = document.createElement('textarea');
+        bodyTextarea.id = bodyId;
+        bodyTextarea.rows = 4;
+        bodyTextarea.dataset.field = 'detailSections';
+        bodyTextarea.dataset.detailSectionField = 'body';
+        bodyTextarea.value = section.body || '';
+        bodyLabel.appendChild(bodyTextarea);
+        row.appendChild(bodyLabel);
+
+        row.setAttribute('role', 'group');
+        row.setAttribute('aria-labelledby', titleId);
+        return row;
+    }
+
+    function renderDetailSectionControls(feature) {
+        const list = dom.featureForm.querySelector('[data-detail-section-list]');
+        const empty = dom.featureForm.querySelector('[data-detail-section-empty]');
+        if (!list || !empty) return;
+
+        const sections = getDetailSections(feature);
+        list.innerHTML = '';
+        empty.hidden = sections.length > 0;
+        sections.forEach((section, index) => {
+            list.appendChild(createDetailSectionControl(section, index));
+        });
+    }
+
+    function getPointMarkerAccessibleName(point, index) {
+        const name = String(point?.name || point?.id || `POI ${index + 1}`).trim();
+        return `${name || `POI ${index + 1}`} marker`;
+    }
+
     function renderFeatureInspector() {
         const feature = getSelectedFeature();
         dom.featureForm.innerHTML = '';
@@ -762,7 +852,12 @@
                 <label>Description<textarea data-field="description" rows="4"></textarea></label>
                 <label>Key Facts<textarea data-field="propertiesText" rows="5" placeholder="Nation: Commonwealth of Half Height&#10;Known for: Trade and white-stone terraces"></textarea></label>
                 <label>Tags<textarea data-field="tags" rows="3" placeholder="One tag per line, or comma-separated"></textarea></label>
-                <label>Detail Sections<textarea data-field="detailSections" rows="8" placeholder="At a glance&#10;Short focused detail block.&#10;&#10;Current tensions&#10;Another focused detail block."></textarea></label>
+                <fieldset class="map-editor-detail-sections" data-field="detailSections">
+                    <legend>Detail Sections</legend>
+                    <p class="map-editor-detail-section-empty" data-detail-section-empty>No detail sections yet.</p>
+                    <div class="map-editor-detail-section-list" data-detail-section-list></div>
+                    <button type="button" class="map-editor-detail-section-add" data-action="add-detail-section">Add Detail Section</button>
+                </fieldset>
                 <label>Wiki Link<input data-field="wikiLink" type="text"></label>
                 <label>Linked Map ID<input data-field="linkedMapId" type="text"></label>
                 <div class="map-editor-form-grid">
@@ -781,7 +876,7 @@
             dom.featureForm.querySelector('[data-field="description"]').value = feature.description || '';
             dom.featureForm.querySelector('[data-field="propertiesText"]').value = stringifyKeyFacts(feature.properties || {});
             dom.featureForm.querySelector('[data-field="tags"]').value = stringifyTags(feature.tags || []);
-            dom.featureForm.querySelector('[data-field="detailSections"]').value = stringifyDetailSections(feature.detailSections || []);
+            renderDetailSectionControls(feature);
             dom.featureForm.querySelector('[data-field="wikiLink"]').value = feature.wikiLink || '';
             dom.featureForm.querySelector('[data-field="linkedMapId"]').value = feature.linkedMapId || '';
             dom.featureForm.querySelector('[data-field="coordY"]').value = feature.coords?.[0] ?? '';
@@ -872,7 +967,7 @@
                 } else if (field === 'tags') {
                     feature.tags = parseTags(event.target.value);
                 } else if (field === 'detailSections') {
-                    feature.detailSections = parseDetailSections(event.target.value);
+                    feature.detailSections = getDetailSectionsFromForm();
                 } else if (field === 'properties') {
                     feature.properties = parseJsonObject(event.target.value);
                     const keyFactsField = dom.featureForm.querySelector('[data-field="propertiesText"]');
@@ -1111,8 +1206,11 @@
     function renderPointsLayer() {
         getCurrentPoints().forEach((point, index) => {
             if (!Array.isArray(point.coords) || point.coords.length !== 2) return;
+            const markerLabel = getPointMarkerAccessibleName(point, index);
             const marker = L.marker(point.coords, {
-                draggable: true
+                draggable: true,
+                title: markerLabel,
+                alt: markerLabel
             });
             marker.on('click', () => selectFeature('points', index));
             marker.on('drag', (event) => {
@@ -1532,6 +1630,33 @@
         });
 
         dom.featureForm.addEventListener('change', updateSelectedFeatureFromForm);
+        dom.featureForm.addEventListener('click', (event) => {
+            const target = event.target instanceof Element ? event.target : null;
+            const button = target?.closest('[data-action]');
+            if (!button || !dom.featureForm.contains(button)) return;
+
+            const feature = getSelectedFeature();
+            if (!feature || state.selectedFeature.mode !== 'points') return;
+
+            if (button.dataset.action === 'add-detail-section') {
+                event.preventDefault();
+                const sections = getDetailSections(feature);
+                sections.push({ heading: '', body: '' });
+                renderFeatureInspector();
+                const newIndex = sections.length - 1;
+                const headingInput = dom.featureForm.querySelector(`[data-detail-section-row="${newIndex}"] [data-detail-section-field="heading"]`);
+                if (headingInput) headingInput.focus();
+                setSelectionStatus('Added detail section.');
+            } else if (button.dataset.action === 'remove-detail-section') {
+                event.preventDefault();
+                const index = Number.parseInt(button.dataset.detailSectionIndex, 10);
+                const sections = getDetailSections(feature);
+                if (!Number.isInteger(index) || index < 0 || index >= sections.length) return;
+                sections.splice(index, 1);
+                renderFeatureInspector();
+                setSelectionStatus('Removed detail section.');
+            }
+        });
 
         // ⚡ Bolt: Debounce input handling to prevent UI lag on every keystroke
         const debouncedUpdateSelectedFeatureFromForm = debounce((event) => {
