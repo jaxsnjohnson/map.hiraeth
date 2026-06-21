@@ -56,6 +56,7 @@ const sandbox = {
     Promise: Promise,
     JSON: JSON,
     document: {
+        createDocumentFragment: () => createMockElement('document-fragment'),
         createElement: createMockElement,
         createTextNode: (text) => ({ nodeType: 3, textContent: text }),
         addEventListener: () => {},
@@ -107,7 +108,7 @@ tableEntries.length = 0;
 tableEntries.push({ weight: 2, result: 'Goblin' });
 sandbox.renderEncounterTableList('test-table');
 assert.strictEqual(appendedNodes.length, 1);
-const goblinNode = appendedNodes[0];
+const goblinNode = appendedNodes[0].childNodes[0];
 assert.strictEqual(goblinNode.className, 'list-item');
 assert.strictEqual(goblinNode.childNodes[0].textContent, 'x2');
 assert.strictEqual(goblinNode.childNodes[0].className, 'encounter-weight');
@@ -119,7 +120,7 @@ tableEntries.length = 0;
 tableEntries.push({ weight: '<img src=x onerror=alert(1)>', result: '<script>alert("xss")</script>' });
 sandbox.renderEncounterTableList('test-table');
 assert.strictEqual(appendedNodes.length, 1);
-const maliciousNode = appendedNodes[0];
+const maliciousNode = appendedNodes[0].childNodes[0];
 assert.strictEqual(maliciousNode.childNodes[0].textContent, 'x<img src=x onerror=alert(1)>');
 assert.strictEqual(maliciousNode.childNodes[1].textContent, ' <script>alert("xss")</script>');
 assert.strictEqual(maliciousNode.innerHTML, '', 'Should not use innerHTML');

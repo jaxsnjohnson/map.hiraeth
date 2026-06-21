@@ -3154,6 +3154,7 @@ function renderFilterChips(chips) {
         return;
     }
 
+    const fragment = document.createDocumentFragment();
     chips.forEach(chip => {
         const chipEl = document.createElement('span');
         chipEl.className = 'active-filter-chip';
@@ -3169,8 +3170,9 @@ function renderFilterChips(chips) {
         });
 
         chipEl.appendChild(clearBtn);
-        activeFiltersContainer.appendChild(chipEl);
+        fragment.appendChild(chipEl);
     });
+    activeFiltersContainer.appendChild(fragment);
 
     activeFiltersContainer.style.display = 'flex';
 }
@@ -3777,6 +3779,7 @@ function renderRouteSteps(activeStepId) {
     // ⚡ Bolt: Use O(1) Map lookup instead of O(N) Array.find
     const route = currentRoutesById.get(selectedRouteId);
     if (!route) return;
+    const fragment = document.createDocumentFragment();
     route.steps.forEach(step => {
         const div = document.createElement('div');
         div.className = 'list-item';
@@ -3785,8 +3788,9 @@ function renderRouteSteps(activeStepId) {
         div.addEventListener('click', () => {
             startRoute(route.id, step.id);
         });
-        routeStepList.appendChild(div);
+        fragment.appendChild(div);
     });
+    routeStepList.appendChild(fragment);
 }
 
 function updateRouteUrl(routeId, stepId) {
@@ -3920,6 +3924,7 @@ function renderEncounterTableList(tableId) {
         encounterTableList.appendChild(item);
         return;
     }
+    const fragment = document.createDocumentFragment();
     table.entries.forEach((entry, index) => {
         const item = document.createElement('div');
         item.className = 'list-item';
@@ -3932,8 +3937,9 @@ function renderEncounterTableList(tableId) {
 
         item.appendChild(weightSpan);
         item.appendChild(document.createTextNode(` ${result}`));
-        encounterTableList.appendChild(item);
+        fragment.appendChild(item);
     });
+    encounterTableList.appendChild(fragment);
 }
 
 function initializeGMPillDrag() {
