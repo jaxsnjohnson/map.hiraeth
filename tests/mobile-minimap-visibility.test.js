@@ -78,7 +78,13 @@ global.L = {
         }
     }
 };
-global.map = {};
+global.pendingMiniMapReady = null;
+global.map = {
+    _loaded: false,
+    whenReady(callback) {
+        global.pendingMiniMapReady = callback;
+    }
+};
 global.miniMapControl = null;
 global.miniMapControlMode = null;
 
@@ -92,6 +98,12 @@ assert.equal(getMiniMapImageUrl({ imageUrl: '' }), '');
 
 assert.equal(shouldShowMiniMap(), true);
 syncMiniMapControl();
+assert.equal(global.miniMapControl, null);
+assert.equal(global.createdControls, 0);
+assert.equal(typeof global.pendingMiniMapReady, 'function');
+
+global.map._loaded = true;
+global.pendingMiniMapReady();
 assert.ok(global.miniMapControl);
 assert.equal(global.createdControls, 1);
 assert.equal(global.miniMapControl.layer.url, 'maps/default.mini.webp');

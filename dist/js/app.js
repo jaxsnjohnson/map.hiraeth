@@ -1440,6 +1440,12 @@ function syncMiniMapControl() {
         removeMiniMapControl();
         return;
     }
+    if (map && Object.prototype.hasOwnProperty.call(map, '_loaded') && !map._loaded) {
+        if (typeof map.whenReady === 'function') {
+            map.whenReady(() => syncMiniMapControl());
+        }
+        return;
+    }
     const nextMode = isMobileLayoutActive ? 'mobile' : 'desktop';
     if (miniMapControl && miniMapControlMode !== nextMode) {
         removeMiniMapControl();
@@ -7821,16 +7827,16 @@ function handleNoMapFallback(effectiveSidebarState) {
     isInitializing = false;
 }
 
-function finalizeAppInitialization(mapToLoadData) {
+function finalizeAppInitialization(mapToLoadData, mapIdToLoad = '') {
     // Initialize sound state (after theme is applied)
     // This will now check for embed mode internally
     initializeSoundState();
 
-    // Set the correct initial history state *after* loading the map
-    const correctInitialHash = generateHash(currentlyLoadedMapId, currentSidebarState);
+    const loadedMapId = currentlyLoadedMapId || String(mapIdToLoad || mapToLoadData?.id || '').trim();
+    const correctInitialHash = generateHash(loadedMapId, currentSidebarState);
     const currentSearch = window.location.search; // Get current search params like ?embed=true
     const finalUrl = buildAppUrlWithHash(correctInitialHash, currentSearch);
-    history.replaceState({ mapId: currentlyLoadedMapId, sidebarState: currentSidebarState }, mapToLoadData?.name || '', finalUrl);
+    history.replaceState({ mapId: loadedMapId, sidebarState: currentSidebarState }, mapToLoadData?.name || '', finalUrl);
 
     initializeOnboardingState();
 
@@ -7870,7 +7876,7 @@ function initializeApp() {
         return; // Stop initialization
     }
 
-    finalizeAppInitialization(mapToLoadData);
+    finalizeAppInitialization(mapToLoadData, mapIdToLoad);
 }
 
 // --- Start the application by loading data ---

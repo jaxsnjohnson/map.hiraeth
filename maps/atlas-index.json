@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T21:14:34.487Z",
+  "generatedAt": "2026-06-21T00:33:26.802Z",
   "tree": [
     {
       "type": "folder",
@@ -35,8 +35,10 @@
           },
           "scalePixels": 3,
           "scaleKilometers": 1,
-          "blurb": "A detailed view of the <a href='https://www.hiraeth.wiki/books/players-guide-to-icebeach' target='_blank' rel='noopener noreferrer'>Icebeach region</a>, known for its harsh climate and resilient settlements.",
-          "selectorDescription": "A harsh northern region of frozen coasts, settlements, and old threats.",
+          "blurb": "A detailed view of the <a href='https://www.hiraeth.wiki/books/players-guide-to-icebeach' target='_blank' rel='noopener noreferrer'>Icebeach region</a>, a northern arctic frontier of auroras, survival towns, glacier ruins, and post-winter scars.",
+          "selectorDescription": "A frozen northern frontier of auroras, survival towns, glacier ruins, and post-winter scars.",
+          "summary": "A northern arctic tundra of frozen coasts, hard frontier villages, auroras, and old dangers left behind by the Endless Winter.",
+          "description": "Icebeach lies far northwest of Fair, where coastal towns cling to frozen beaches and the habitable world gives way to permafrost, glacier, and polar sea. Nine years after the Endless Winter broke, its people remain split between the Frozen, hardened survivors of the long dark, and the Thawed, newcomers drawn by trade, mining, wine, fish, and other opportunities exposed by the melt.",
           "dataUrl": "maps/IceBeach.json",
           "children": [
             {
@@ -199,8 +201,8 @@
         {
           "id": "OLD-Icebeach-Map",
           "name": "Icebeach 2022",
-          "width": 4032,
-          "height": 3024,
+          "width": 3750,
+          "height": 2500,
           "imageUrl": "maps/OLD-Icebeach-Map.webp",
           "scalePixels": 1,
           "scaleKilometers": 1,
@@ -581,8 +583,8 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "IceBeach",
-      "summary": "A harsh northern region of frozen coasts, settlements, and old threats.",
-      "description": "",
+      "summary": "A frozen northern frontier of auroras, survival towns, glacier ruins, and post-winter scars.",
+      "description": "Icebeach lies far northwest of Fair, where coastal towns cling to frozen beaches and the habitable world gives way to permafrost, glacier, and polar sea. Nine years after the Endless Winter broke, its people remain split between the Frozen, hardened survivors of the long dark, and the Thawed, newcomers drawn by trade, mining, wine, fish, and other opportunities exposed by the melt.",
       "typeLabel": "Map",
       "visibility": "public"
     },
@@ -593,11 +595,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Castgate",
-      "summary": "Icebeach's largest native town, a walled fishing, shepherding, mining, and shipbuilding settlement warmed by old magic.",
-      "description": "Encased within a dome that holds the winter at bay, Castgate's picturesque beauty was earned through legendary battles against a goddess and an undead horde.",
+      "summary": "Icebeach's sheltered trade hub, warmed by the rebuilt Firmament and divided between old survivors and wealthy newcomers.",
+      "description": "Castgate is a paradox in the north: a humid, flower-scented town beneath a magical dome while salt, ice, wind, mines, and political ambition press against the barrier outside.",
       "typeLabel": "City",
       "visibility": "public",
-      "searchText": "Context Though its streets bustle with prosperity from gems and ships, the common folk work in the shadow of the very magic that shelters them. City IceBeach Gate Magic Map IceBeach"
+      "searchText": "The Firmament The dome was first built by Averios Calytheron, shattered during Morena's assault in the Eternal Winter, and rebuilt after the thaw. Inside, it mimics a clear blue sky and turns Castgate into a tropical-seeming refuge against the polar night. Tension The comfort of the dome has become a social fault line. Locals remember survival, Sub Rosa, and old losses, while the Thawed, southern merchants, Athenaeum agents, and wealthy visitors increasingly treat the town as opportunity. Notable places The Frozen Rose anchors adventuring and Sub Rosa memory; Bleak's Stand memorializes the dead; the Shrine of Hestia, Frostviel, the Crystal Needle, the Groves of Hope's Rebirth, and the docks all give the town more than a single civic center. City IceBeach Firmament Harbor Gemstone mines Athenaeum Sub Rosa Reconstruction Map IceBeach Guide spelling Casgate Shelter The Firmament Industries Shipbuilding, fishing, gemstone mining, trade Leadership Tolin Stillgrove shaped the reconstruction era"
     },
     {
       "kind": "poi",
@@ -606,11 +608,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Flamore",
-      "summary": "A remote mountain school where the Flamore family pushed magical research into IceBeach's cold secrets.",
-      "description": "Once a secret college where forbidden magic summoned angels and raised the dead, Flamore was annihilated in a necromantic cataclysm of its own making.",
+      "summary": "A ruined mountain school whose experiments turned from celestial study toward forbidden glacier secrets.",
+      "description": "Flamore's School of Experimental Wizardry began as a remote magical redoubt and later became a school, but its turn toward forbidden research under the mountains ended in catastrophe.",
       "typeLabel": "Ruin",
       "visibility": "public",
-      "searchText": "Context Now, its crumbling ruins radiate a palpable corruption, twisting any creature who strays too close into a monstrous thing that craves only flesh and warmth. Ruin IceBeach Learning Magic Mountain Map IceBeach"
+      "searchText": "History The Flamore family built the castle as a private redoubt before Gilded Nations backing formalized it as a school. It originally studied the heavens under Nyx, then shifted toward darker research after a strange timeline-crossing event. The incident Exploration beneath the castle uncovered vile tombs, glacier-connected cave systems, and an artifact called the orbit of subnecromancy. Containment failed, zombifying the people inside the wards. Current status The ruins remain a warning against academic arrogance, glacier-delving, and treating cosmic horror as a research opportunity. Ruin IceBeach Wizard school Forbidden magic Nyx Winrich Glacier Undead Mountain Map IceBeach Full name Flamore's School of Experimental Wizardry Founded Castle around 10 BEC; school around 15 BEC Incident Cataclysm around 74 BEC Status Ruined, zombie-infested, unsafe"
     },
     {
       "kind": "poi",
@@ -619,11 +621,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Fractured Point",
-      "summary": "A walled crag town and trade center where lantern-lit streets face relentless icefield winds.",
-      "description": "Perched on a wind-scoured spike of rock, Fractured Point greets visitors with the festive dance of colored lanterns.",
+      "summary": "A walled crag town, lighthouse, trade stop, and first arrival point for many visitors to Icebeach.",
+      "description": "Fractured Point perches above rocky shores where stained-glass lanterns fight the wind and a castle beacon watches the icefield plains.",
       "typeLabel": "Capital",
       "visibility": "public",
-      "searchText": "Context Yet this light is a fleeting warmth in a town where the ceaseless gales have eroded all friendliness, leaving only a grim haven for opportunistic traders who bar the gates at sundown. Capital IceBeach Gate Map IceBeach"
+      "searchText": "At a glance The town can look festive from a distance, with colored lanterns twisting over narrow streets, but the wind has worn away much of its welcome. Local mood Common folk carry the suffering of winter, while traders and the wealthy maintain cheer and opportunity. The settlement is practical, suspicious, and strict about closing its gates at sundown. Capital IceBeach Gateway Trade Beacon Foaming Runs Map IceBeach Role Gateway town and trade center Defenses Walls, gates closed at sundown, castle beacon Nearby Foaming Runs"
     },
     {
       "kind": "poi",
@@ -632,11 +634,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Gernerum",
-      "summary": "The scorched wreckage of Gernerum is a monument to its fiery end, a tragic grave for a town that once birthed heroes.",
-      "description": "The scorched wreckage of Gernerum is a monument to its fiery end, a tragic grave for a town that once birthed heroes.",
+      "summary": "A destroyed town remembered for its famous Icebeach figures and its fiery end after a mechanical dragon battle.",
+      "description": "Gernerum is gone, leaving ruins, ash, and stories of a settlement that once shaped Icebeach before disaster consumed it.",
       "typeLabel": "Village",
       "visibility": "public",
-      "searchText": "Context Locals now shun the ruins, whispering that the only survivor is a timeless hag who wanders the ash, bearing a fragile-looking form that conceals a truly catastrophic power. Village IceBeach Death Map IceBeach"
+      "searchText": "Memory The guide remembers Gernerum as the childhood home or early refuge of figures tied to Icebeach history, including Thorn and Sylva Frostglade. Rumor Its only survivor is said to be the vile hag of the north, leaving the ruin with more dread than closure. Village IceBeach Ruins Mechanical dragon Death Hag Map IceBeach Status Destroyed Cause Battle with a mechanical dragon Known for Home of notable Icebeach figures"
     },
     {
       "kind": "poi",
@@ -645,11 +647,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Houlen Top",
-      "summary": "The southern breadbasket of Icebeach, farming grains and root vegetables between the Blom Rill and Coldriver.",
-      "description": "The fertile valley of Houlen Top serves as the breadbasket of the north, but its farmers are a guarded people who shun outsiders.",
+      "summary": "The southern agricultural anomaly of Icebeach, where unwalled farmsteads produce grains and massive root vegetables.",
+      "description": "Marked here as Houlen Top and described in the guide as Howlentop, this fertile valley feeds the north while keeping outsiders at the edge of town.",
       "typeLabel": "Town",
       "visibility": "public",
-      "searchText": "Context A primal, territorial instinct lies just beneath their civilized surface, suggesting the town's name is a warning as much as a label. Town IceBeach Map IceBeach"
+      "searchText": "People The residents are physically imposing, guarded, and communal. They work with synchronized efficiency and rarely let strangers past the Border Market. Local oddities Full-moon curfews, refusal to handle silver, and the disappearance of predators or bandits make the town feel less undefended than it first appears. Town IceBeach Agriculture Border Market Full moon Silver Map IceBeach Guide spelling Howlentop Role Breadbasket of Icebeach Location Between the Wynwood and Coldriver Defenses Unwalled; locals trust the valley more than stone"
     },
     {
       "kind": "poi",
@@ -658,11 +660,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Icemoor",
-      "summary": "Icebeach's smallest settlement, built around a watchtower overlooking the Winrich Glacier and its fortress.",
-      "description": "From its lonely tower, the watchmen of Icemoor once guarded against horrors seeping from the Winrich Glacier.",
+      "summary": "An almost-abandoned watchtower settlement facing the Winrich Glacier and its fortress.",
+      "description": "Icemoor is marked as a town on southern maps, but most cabins stand empty after families fled the glacier during the Eternal Winter.",
       "typeLabel": "Settlement",
       "visibility": "public",
-      "searchText": "Context Now, with the settlement all but abandoned, a few grim, half-mad old men remain, their prophetic whispers lost on the wind as they maintain a forgotten vigil against the whispering, soul-filled waters. Settlement IceBeach Seat of power Map IceBeach"
+      "searchText": "The Watchers A skeleton crew of elderly holdouts maintains the tower and watches for movement from the glacier. They believe the silence is a trick and keep magical warning devices ready, though who receives those alerts is contested. Last stop For adventurers, Icemoor is the final warm meal before the white wastes. The Watchers record names in a ledger and expect most travelers never to return. Settlement IceBeach Watchtower Old Guard Winrich Glacier Abandoned Map IceBeach Status Mostly abandoned Watch Winrich Glacier and Winrich Fortress Residents The Old Guard, also called Custodians of the View"
     },
     {
       "kind": "poi",
@@ -671,11 +673,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Little Rock Mentle Asylam",
-      "summary": "A Gilded Nations asylum off Whitedrift for dangerous inmates deemed untreatable by stronger nations.",
-      "description": "Carved into an isolated shard of rock, this asylum is where the Gilded Nations dispose of their most hardened criminals.",
+      "summary": "A grim Gilded Nations asylum for criminals and dangerous minds deemed too risky for ordinary prisons.",
+      "description": "Little Rock Mental Asylum is a remote containment institution where stone, sea, wards, and despair are all part of the security design.",
       "typeLabel": "Asylum",
       "visibility": "public",
-      "searchText": "Context Whispers persist of inmates suspended in pocket dimensions of pure void, a fate perhaps inspired by the one prisoner said to have simply unwoven reality to escape. Asylum IceBeach Map IceBeach"
+      "searchText": "Containment The asylum is described as the final destination for criminals, rogue mages, masterminds, killers, and political threats too dangerous to release or execute. Reputation Escape is treated as functionally impossible, and the place is said to leave no one unchanged even if they survive long enough to leave. Asylum IceBeach Gilded Nations Prison Wards Whitedrift Map IceBeach Guide spelling Little Rock Mental Asylum Role High-security asylum and prison Authority Gilded Nations Security Physical walls, wards, psychic dampening, guards and constructs"
     },
     {
       "kind": "poi",
@@ -684,11 +686,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Morana's Fang",
-      "summary": "Morana's Fang is Cyndamile, the tallest mountain, kept cold by Morana to bar the non-faithful from the gods.",
-      "description": "Claimed by the Goddess of Winter herself, this jagged peak is the tallest point in the world, a place where the veil to the divine thins to a whisper.",
+      "summary": "The tallest peak in the world, sacred to the Goddess of Winter and guarded by mysterious Icewind Sentinels.",
+      "description": "Morana's Fang is a brutal pilgrimage mountain where the veil to divine and spirit realms thins near the Stillness Summit.",
       "typeLabel": "Mountain",
       "visibility": "public",
-      "searchText": "Context Those few who survive the brutal, sentinel-guarded ascent return forever changed, haunted by the mountain's crushing silence and the cryptic visions granted at its summit. Mountain IceBeach Map IceBeach"
+      "searchText": "The climb The route crosses ice cliffs, wind-scoured ridges, deep crevasses, and the hunting grounds of cold-born monsters. The mountain tests endurance, resolve, and spirit rather than offering ordinary instruction. Sacred danger Legends say the summit once allowed direct communion with gods or spirits. Now it offers only cryptic visions, whispers on the wind, or encounters with servants of powers that still listen from the cold. Mountain IceBeach Morana Pilgrimage Icewind Sentinels Divine veil Map IceBeach Also known as Cyndamile Landmark Tallest mountain Summit Stillness Summit Guardians Icewind Sentinels"
     },
     {
       "kind": "poi",
@@ -697,11 +699,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Mt. Solaria",
-      "summary": "Ironically named Mt.",
-      "description": "Ironically named Mt.",
+      "summary": "A geothermal mountain of steam vents, salmon runs, failed mines, old tombs, and dragon rumors.",
+      "description": "Mt. Solaria is a mountain of contradictions, with warmth venting through the cold and legends of an ancient wyrm beneath the gray sky.",
       "typeLabel": "Mountain",
       "visibility": "public",
-      "searchText": "Context Solaria vents geothermal steam, believed to be the slumbering breath of the destructive dragon that claims tribute from the lands below. This strange warmth creates a perilous allure, drawing the desperate to its slopes, which are littered with the failed mines and forgotten tombs of those who previously challenged its master(s). Mountain IceBeach Map IceBeach"
+      "searchText": "Geothermal lure Steam vents and sudden thaws draw desperate settlers, fishers, and scholars despite avalanches, predators, and the fear that the dragon may stir. Old scars The slopes hold abandoned mines and ancient tomb facades, with rumors of cave-ins, territorial beasts, dragon cults, giant-kin remains, and draugr guarding mountain secrets. Mountain IceBeach Geothermal Dragon Sleetmond Salmon Mines Tombs Map IceBeach Features Steam vents, caldera, salmon streams, mines, tombs Rumor Dragon lair or slumbering wyrm breath Wildlife Sleetmond Salmon spawning runs"
     },
     {
       "kind": "poi",
@@ -710,11 +712,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Ottiker",
-      "summary": "An immigrant wine town on Sleetmond Lake, now cut off from deliveries by conflict with local druids.",
-      "description": "The immigrant town of Ottiker defies the ice, using geothermal waters to produce renowned wine on the shores of Sleetmond Lake.",
+      "summary": "A wine settlement on Sleetmond Lake, called Niror by locals and Ottiken by newer immigrants.",
+      "description": "The town marked here as Ottiker is described in the guide as Niror or Ottiken, a frost-wine settlement caught between immigrant ambition and a bitter druidic feud.",
       "typeLabel": "Town",
       "visibility": "public",
-      "searchText": "Context Yet this fragile prosperity, born from a distant homeland, has angered local druids, and now the flow of wine has stopped as the town prepares for a fight. Town IceBeach Map IceBeach"
+      "searchText": "Identity Astrousian and Last Elven State immigrants have reshaped the town, creating a visible clash between older local identity and new architecture, labor, and commerce. Wine conflict Niror Red has become valuable after the thaw, but shipments spike or fail when the feud with druids interferes. The injured Wyrm-Speaker governs through loyalists and a growing mercenary guard. Town IceBeach Niror Ottiken Wine Druids Dragonborn Map IceBeach Guide names Niror; Ottiken Industry Ice wine Leadership White Dragonborn Speaker Conflict Cold war with neighboring druids"
     },
     {
       "kind": "poi",
@@ -723,11 +725,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Quilt",
-      "summary": "Icebeach's smallest town, farming fish through winter and making dyed quilts from Icebeach sheep wool.",
-      "description": "The tiny hamlet of Quilt weaves its history into its namesake craft, with intricate patterns telling stories of survival against the endless winter.",
+      "summary": "A tiny Foaming Loch town of fish farming, dyed wool, and survival textiles warmed by nearby geothermal vents.",
+      "description": "Quilt is a dockside maker-town whose fish farms and heavy Icesheep quilts depend on the Foaming Burrow keeping local waters alive.",
       "typeLabel": "Hamlet",
       "visibility": "public",
-      "searchText": "Context This hardy community owes its existence to the geothermal 'Foaming Burrow,' which churns the loch's waters, allowing them to farm fish. Hamlet IceBeach Map IceBeach"
+      "searchText": "The artisan economy Quilt exports heavy, colorful textiles woven from Icesheep wool. In the south, genuine Quilt tapestry has become a status symbol as much as survival gear. Geothermal dependence The town thrived through the Eternal Winter because nearby warm vents kept the waters usable, making the Burrow both a resource and something locals protect fiercely. Hamlet IceBeach Foaming Loch Aquaculture Icesheep Textiles Foaming Burrow Map IceBeach Size Smallest recognized Icebeach town Industries Aquaculture, dyed wool, quilts and tapestries Nearby The Foaming Burrow"
     },
     {
       "kind": "poi",
@@ -736,11 +738,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Shiverwallow",
-      "summary": "Icebeach's largest fishing town, now ice-fishing from a harbor whose fleet is frozen in place.",
-      "description": "The largest fishing fleet in the north now sits frozen in its own harbor, the ships trapped like flies in amber.",
+      "summary": "A fortified fishing town at the Chillfolk River, now operating its recovered fleet and winter ice camps.",
+      "description": "Shiverwallow is a hard-working harbor of palisades, breakwaters, fish, smoke, and people shaped by years of frozen-sea survival.",
       "typeLabel": "Village",
       "visibility": "public",
-      "searchText": "Context A great wooden wall, once meant to guard against sea threats, now seems to mock the town's grim resilience as its fishers abandon their useless vessels to huddle over holes in the ice. Village IceBeach Map IceBeach"
+      "searchText": "Fleet reborn During the Eternal Winter the harbor froze solid, trapping ships and forcing camps onto the ice. Nine years later, the fleet is free again and the harbor is a forest of masts, nets, crews, and salted catch. Ice Walkers When winter sea ice returns, part of the population still migrates onto the floes to hunt seals and ice-whales, a tradition admired and feared even by other locals. Village IceBeach Fishing Harbor Ice Walkers Chillfolk River Map IceBeach Location Mouth of the Chillfolk River Industry Fishing fleet, salting, ice camps Defenses Wooden palisade and fortified breakwater"
     },
     {
       "kind": "poi",
@@ -749,11 +751,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Sleetmond",
-      "summary": "A druidic lakeside town centered on the Hope Tree, sugar maples, fish, and Icebeach sheep.",
-      "description": "Centered around the Hope Tree, whose power holds the winters at bay, Sleetmond is a place of unsettling druidic ways.",
+      "summary": "A druidic lakeside settlement of sugar maples, fish, Icesheep, and the Hope Tree.",
+      "description": "Sleetmond is a small town on Sleetmond Lake where druids and rangers tend the Hope Tree, sugar maple orchards, fish, and unusually warm Icesheep wool.",
       "typeLabel": "Settlement",
       "visibility": "public",
-      "searchText": "Context Its people, seemingly immune to the cold, harvest from an impossible sugar maple orchard, their strange resilience making them an object of deep distrust to the frozen world outside. Settlement IceBeach Map IceBeach"
+      "searchText": "Druidic practice The town is notable for druidic traditions centered on the Hope Tree. Its people and practices are strange enough that many outsiders and even some natives distrust them. Survival economy Sugar maples, lake fish, and Icebeach sheep make Sleetmond more self-sufficient than many northern settlements. Settlement IceBeach Druids Hope Tree Sugar maples Icesheep Sleetmond Lake Map IceBeach Population Less than five hundred Food Sugar maples, fish, mutton Landmark The Hope Tree"
     },
     {
       "kind": "poi",
@@ -762,11 +764,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "The Foaming Burrow",
-      "summary": "A giant-era burial mound at the headwaters of the Foaming River.",
-      "description": "A network of steam vents and geysers, the Foaming Burrow is the geothermal heart that keeps the surrounding lands and river and downstream lakes from freezing solid.",
+      "summary": "A geothermal cave network southeast of Quilt that feeds the Foaming Loch and Foaming Runs.",
+      "description": "The Foaming Burrow is not one cave but a network of steam vents, hot springs, and heated tunnels beneath a snow-free patch of ground.",
       "typeLabel": "Cavern",
       "visibility": "public",
-      "searchText": "Context Legends claim elemental guardians protect this lush, snow-free oasis. Cavern IceBeach Map IceBeach"
+      "searchText": "Ecology Fire-resistant creatures, salamanders, magmin, druids, and elemental guardians are all plausible inhabitants of its hot chambers. Local tie Its heat keeps downstream waters from freezing and even supplies the Firenewt tea pets used by the Fireside Newt and Chai en' Steep Inn. Cavern IceBeach Geothermal Foaming Loch Foaming Runs Quilt Firenewts Map IceBeach Feature Steam vents, hot springs, heated tunnels Feeds Foaming Loch and Foaming Runs Nearby Quilt"
     },
     {
       "kind": "poi",
@@ -775,11 +777,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "The Hope Tree",
-      "summary": "The druidic focus of Sleetmond, a town known for sugar maples, fish, and Icebeach sheep.",
-      "description": "A defiant miracle, this impossibly massive tree radiates a divine warmth, creating a sanctuary the Frostmaiden's chill cannot penetrate.",
+      "summary": "A warm, green-gold miracle tree that anchors Sleetmond and resists Morana's winter.",
+      "description": "The Hope Tree rises impossibly in the frozen north, radiating warmth, safety, and restorative magic where Morana's cold should rule.",
       "typeLabel": "Natural Landmark",
       "visibility": "public",
-      "searchText": "Context Believed to be a blessing from a rival god, its magical leaves can heal the sick, making it a vital symbol of hope that is now threatened by factions seeking to control its power. Natural Landmark IceBeach Magic Map IceBeach"
+      "searchText": "Sacred theories Most locals treat it as a blessing of Hestia, though other stories name Pythia, Bethtox, or an old divine confrontation with Morana as the reason the cold fails here. Restorative power Its leaves remain green and gold and can be brewed into healing teas, making the tree a symbol of community and a resource no sane local would willingly harm. Natural Landmark IceBeach Magic Hestia Pythia Bethtox Sleetmond Healing Map IceBeach Associated Sleetmond Possible patrons Hestia, Pythia, or Bethtox Uses Restorative leaves and sanctuary warmth"
     },
     {
       "kind": "poi",
@@ -788,11 +790,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Thrawbreak",
-      "summary": "A cut-off mountain town of ruined defenses, frozen docks, bitter people, and stubborn survival.",
-      "description": "Buried in the shadow of the Auruan mountains and surrounded by the ruins of failed fortifications, Thrawbreak is a town pickled in bitterness and beer.",
+      "summary": "A remote mountain hamlet of ruined defenses, frozen docks, hard beer, and cut-off resentment.",
+      "description": "Thrawbreak began as a mountaineer camp below the Auruan mountains and now survives between failed fortifications, a frozen harbor, and one known pass.",
       "typeLabel": "Hamlet",
       "visibility": "public",
-      "searchText": "Context Its people, stubborn trappers cut off from the world, endure their isolation fueled by a tavern that never runs dry and the haunting tavern song, 'The Ferryman's Coin,' a dirge for the world that abandoned them. Hamlet IceBeach Harbor Hospitality Commerce Mountain Map IceBeach"
+      "searchText": "Isolation With the ferry from Whitedrift shut down, Thrawbreak is cut off by mountains, ice, and snow. Its people believe the rest of the world abandoned them. Local trouble Recent mysterious break-ins and the speaker's drunken night patrols add paranoia to a town already surviving on stubbornness and a tavern that never seems to run dry. Hamlet IceBeach Mountain Frozen harbor Arcton Keep Martian's Revenge Ikx Map IceBeach Route Martian's Revenge pass Defenses Ruined palisade and Arcton Keep Speaker Ikx, a red Dragonborn"
     },
     {
       "kind": "poi",
@@ -801,11 +803,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Whitedrift",
-      "summary": "A rocky Curse Run town whose people are forced to serve the nearby Littlerock Mental Asylum.",
-      "description": "Clinging to the mouth of the Curse Run, this unstable town is a dumping ground for former asylum inmates and other exiles.",
+      "summary": "A rocky Curse Run settlement watching the glacier, the fortress, and the asylum nearby.",
+      "description": "Whitedrift clings to the mouth of the Curse Run, fed by Winrich Glacier melt, and carries the instability of people stationed too close to horror for too long.",
       "typeLabel": "Settlement",
       "visibility": "public",
-      "searchText": "Context Paranoia is the local currency, and the tense peace is often broken by the sight of townsfolk arguing with a percived ghosts of their dead loved ones who whisper from the foul, glacial waters. Settlement IceBeach Map IceBeach"
+      "searchText": "Population Some residents are assigned to keep watch on the glacier and fortress, while others are said to be escapees or castoffs from the asylum. Atmosphere The settlement feels unstable by design: a cold rock town where glacial water, institutional shadow, and paranoia all meet. Settlement IceBeach Curse Run Winrich Glacier Little Rock Mental Asylum Watch Map IceBeach Waterway Curse Run Watch Winrich Glacier and Winrich Fortress Nearby Little Rock Mental Asylum"
     },
     {
       "kind": "poi",
@@ -814,11 +816,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Winrich Fortress",
-      "summary": "A former lich fortress, cleared and garrisoned after local heroes destroyed Winrich and his phylactery.",
-      "description": "Hewn from stone that drinks the light, this is the infamous seat of Winrich, the first mortal to achieve lichdom.",
+      "summary": "The black-stone ruin of Winrich, remembered as perhaps the first mortal lich.",
+      "description": "Winrich Fortress drinks light from the glacier wind and remains a decaying monument to ancient necromancy, traps, undead, and deliberate misdirection.",
       "typeLabel": "Fortress",
       "visibility": "public",
-      "searchText": "Context Though heroes are said to have destroyed his echo, the fortress remains, its black walls glowing with a sickly, spectral light on moonless nights, a silent testament to the ancient evil born within. Fortress IceBeach Seat of power Map IceBeach"
+      "searchText": "Purpose Legends claim the fortress stood over a dark confluence called the soul well, but some scholars think Winrich built it as a decoy to hide his true phylactery and treasures elsewhere. Current danger The ruin is shunned for lesser undead, undetonated traps, psychic residue, and periodic spectral light similar to the glow reported inside Winrich Glacier. Fortress IceBeach Winrich Lich Necromancy Undead Soul well Map IceBeach Founder Winrich Reputation First mortal lich Material Basalt-like black stone Phenomenon Sickly green-blue glow on darkest nights"
     },
     {
       "kind": "poi",
@@ -827,11 +829,11 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Wynwood Peak",
-      "summary": "Choked by a forest of iron-hard wood, this peak's unnatural resilience is said to spring from an ancient dragon's grave.",
-      "description": "Choked by a forest of iron-hard wood, this peak's unnatural resilience is said to spring from an ancient dragon's grave.",
+      "summary": "A smaller but treacherous peak covered in iron-hard woods and haunted by dragon-mound stories.",
+      "description": "Wynwood Peak is less imposing in height than other mountains but feared for unnatural timber, difficult slopes, and the lingering evil of a ruined wizard tower.",
       "typeLabel": "Mountain",
       "visibility": "public",
-      "searchText": "Context The crumbling tower of a wizard who went mad trying to master this power now haunts its slopes, a testament to the peak's untamed spirit. Mountain IceBeach Death Wilderness Map IceBeach"
+      "searchText": "Wynwood timber The trees are said to resist axe and saw, with roots that anchor into stone and wood that may carry protective magic from an ancient dragon burial. The tower A wizard drawn by the peak's rumored energies went mad and evil here. Though defeated, the tower remains feared for haunting and a hostile spirit bound to the mountain. Mountain IceBeach Wynwood Dragon mound Wizard tower Wilderness Map IceBeach Feature Unnaturally dense resilient forest Rumor Dragon mound or ancient wyrm burial Landmark Crumbling wizard tower"
     },
     {
       "kind": "region",
@@ -840,8 +842,8 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Ded Moros Forest",
-      "summary": "",
-      "description": "",
+      "summary": "A grim woodland of petrified trees, old curse stories, and creatures adapted to stone-like forest remains.",
+      "description": "Ded Moros Forest is not dead so much as unnaturally preserved, with gray stone trees, fossilized leaves, sharp branches, and roots that turn the forest floor into a maze.",
       "typeLabel": "terrain",
       "visibility": "public"
     },
@@ -852,8 +854,8 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Frostmaple Grove",
-      "summary": "",
-      "description": "",
+      "summary": "An ancient wild heartwood of unnaturally large frostmaples, sweet air, and slumbering treant guardians.",
+      "description": "Frostmaple Grove is believed to be the primordial source of Sleetmond's sugar maple orchards, with gold-touched leaves and thick old bark even in deep winter.",
       "typeLabel": "terrain",
       "visibility": "public"
     },
@@ -888,8 +890,8 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Starcaller's Grove",
-      "summary": "",
-      "description": "The northern kingdom known for its harsh climate",
+      "summary": "A bright-sky standing-stone grove where auroras, stars, and divination feel unusually near.",
+      "description": "Starcaller's Grove stands apart from the snow drifts, with clearer skies, brighter stars, vibrant auroras, and moss-covered stones arranged in old patterns.",
       "typeLabel": "terrain",
       "visibility": "public"
     },
@@ -900,8 +902,8 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "The Foaming Runs",
-      "summary": "",
-      "description": "",
+      "summary": "A turbulent river course of rapids, foam, steam, and geothermal vents fed from a cave source.",
+      "description": "The Foaming Runs are marked by churning whitewater where icy river flow meets underground heat, producing dangerous steam and foam.",
       "typeLabel": "terrain",
       "visibility": "public"
     },
@@ -912,8 +914,8 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "The Frigid Plains",
-      "summary": "",
-      "description": "",
+      "summary": "A vast wind-scoured tundra of whiteouts, monster hunts, hidden battlefields, and haunted snow.",
+      "description": "The Frigid Plains are featureless and dangerous, with sudden whiteouts that punish poor navigation and expose travelers to the worst open tundra conditions.",
       "typeLabel": "terrain",
       "visibility": "public"
     },
@@ -924,8 +926,8 @@
       "mapId": "IceBeach",
       "mapName": "IceBeach",
       "name": "Winrich Glacier",
-      "summary": "",
-      "description": "This Glacier glows a soft sicky green and blue and is said to hold acient horrors.",
+      "summary": "A sickly green-blue glacier tied to Winrich, old necromancy, and horrors still preserved in the ice.",
+      "description": "Winrich Glacier dominates Icebeach fear: a frozen mass associated with the first lich, dark ruins, and the sense that silence from the ice is never truly safe.",
       "typeLabel": "terrain",
       "visibility": "public"
     },

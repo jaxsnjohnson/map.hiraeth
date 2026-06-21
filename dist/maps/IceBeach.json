@@ -31,8 +31,8 @@
       "speed": 50
     }
   ],
-  "blurb": "A detailed view of the <a href='https://www.hiraeth.wiki/books/players-guide-to-icebeach' target='_blank' rel='noopener noreferrer'>Icebeach region</a>, known for its harsh climate and resilient settlements.",
-  "selectorDescription": "A harsh northern region of frozen coasts, settlements, and old threats.",
+  "blurb": "A detailed view of the <a href='https://www.hiraeth.wiki/books/players-guide-to-icebeach' target='_blank' rel='noopener noreferrer'>Icebeach region</a>, a northern arctic frontier of auroras, survival towns, glacier ruins, and post-winter scars.",
+  "selectorDescription": "A frozen northern frontier of auroras, survival towns, glacier ruins, and post-winter scars.",
   "pointsOfInterest": [
     {
       "coords": [
@@ -41,23 +41,39 @@
       ],
       "name": "Castgate",
       "type": "City",
-      "description": "Encased within a dome that holds the winter at bay, Castgate's picturesque beauty was earned through legendary battles against a goddess and an undead horde.",
-      "summary": "Icebeach's largest native town, a walled fishing, shepherding, mining, and shipbuilding settlement warmed by old magic.",
+      "description": "Castgate is a paradox in the north: a humid, flower-scented town beneath a magical dome while salt, ice, wind, mines, and political ambition press against the barrier outside.",
+      "summary": "Icebeach's sheltered trade hub, warmed by the rebuilt Firmament and divided between old survivors and wealthy newcomers.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/casgate",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Guide spelling": "Casgate",
+        "Shelter": "The Firmament",
+        "Industries": "Shipbuilding, fishing, gemstone mining, trade",
+        "Leadership": "Tolin Stillgrove shaped the reconstruction era"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "Though its streets bustle with prosperity from gems and ships, the common folk work in the shadow of the very magic that shelters them."
+          "heading": "The Firmament",
+          "body": "The dome was first built by Averios Calytheron, shattered during Morena's assault in the Eternal Winter, and rebuilt after the thaw. Inside, it mimics a clear blue sky and turns Castgate into a tropical-seeming refuge against the polar night."
+        },
+        {
+          "heading": "Tension",
+          "body": "The comfort of the dome has become a social fault line. Locals remember survival, Sub Rosa, and old losses, while the Thawed, southern merchants, Athenaeum agents, and wealthy visitors increasingly treat the town as opportunity."
+        },
+        {
+          "heading": "Notable places",
+          "body": "The Frozen Rose anchors adventuring and Sub Rosa memory; Bleak's Stand memorializes the dead; the Shrine of Hestia, Frostviel, the Crystal Needle, the Groves of Hope's Rebirth, and the docks all give the town more than a single civic center."
         }
       ],
       "tags": [
         "City",
         "IceBeach",
-        "Gate",
-        "Magic"
+        "Firmament",
+        "Harbor",
+        "Gemstone mines",
+        "Athenaeum",
+        "Sub Rosa",
+        "Reconstruction"
       ]
     },
     {
@@ -67,23 +83,38 @@
       ],
       "name": "Flamore",
       "type": "Ruin",
-      "description": "Once a secret college where forbidden magic summoned angels and raised the dead, Flamore was annihilated in a necromantic cataclysm of its own making.",
-      "summary": "A remote mountain school where the Flamore family pushed magical research into IceBeach's cold secrets.",
+      "description": "Flamore's School of Experimental Wizardry began as a remote magical redoubt and later became a school, but its turn toward forbidden research under the mountains ended in catastrophe.",
+      "summary": "A ruined mountain school whose experiments turned from celestial study toward forbidden glacier secrets.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/flamores-school-of-experimental-wizardry",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Full name": "Flamore's School of Experimental Wizardry",
+        "Founded": "Castle around 10 BEC; school around 15 BEC",
+        "Incident": "Cataclysm around 74 BEC",
+        "Status": "Ruined, zombie-infested, unsafe"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "Now, its crumbling ruins radiate a palpable corruption, twisting any creature who strays too close into a monstrous thing that craves only flesh and warmth."
+          "heading": "History",
+          "body": "The Flamore family built the castle as a private redoubt before Gilded Nations backing formalized it as a school. It originally studied the heavens under Nyx, then shifted toward darker research after a strange timeline-crossing event."
+        },
+        {
+          "heading": "The incident",
+          "body": "Exploration beneath the castle uncovered vile tombs, glacier-connected cave systems, and an artifact called the orbit of subnecromancy. Containment failed, zombifying the people inside the wards."
+        },
+        {
+          "heading": "Current status",
+          "body": "The ruins remain a warning against academic arrogance, glacier-delving, and treating cosmic horror as a research opportunity."
         }
       ],
       "tags": [
         "Ruin",
         "IceBeach",
-        "Learning",
-        "Magic",
+        "Wizard school",
+        "Forbidden magic",
+        "Nyx",
+        "Winrich Glacier",
+        "Undead",
         "Mountain"
       ]
     },
@@ -94,22 +125,32 @@
       ],
       "name": "Fractured Point",
       "type": "Capital",
-      "description": "Perched on a wind-scoured spike of rock, Fractured Point greets visitors with the festive dance of colored lanterns.",
-      "summary": "A walled crag town and trade center where lantern-lit streets face relentless icefield winds.",
+      "description": "Fractured Point perches above rocky shores where stained-glass lanterns fight the wind and a castle beacon watches the icefield plains.",
+      "summary": "A walled crag town, lighthouse, trade stop, and first arrival point for many visitors to Icebeach.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/the-fractured-point",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Role": "Gateway town and trade center",
+        "Defenses": "Walls, gates closed at sundown, castle beacon",
+        "Nearby": "Foaming Runs"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "Yet this light is a fleeting warmth in a town where the ceaseless gales have eroded all friendliness, leaving only a grim haven for opportunistic traders who bar the gates at sundown."
+          "heading": "At a glance",
+          "body": "The town can look festive from a distance, with colored lanterns twisting over narrow streets, but the wind has worn away much of its welcome."
+        },
+        {
+          "heading": "Local mood",
+          "body": "Common folk carry the suffering of winter, while traders and the wealthy maintain cheer and opportunity. The settlement is practical, suspicious, and strict about closing its gates at sundown."
         }
       ],
       "tags": [
         "Capital",
         "IceBeach",
-        "Gate"
+        "Gateway",
+        "Trade",
+        "Beacon",
+        "Foaming Runs"
       ]
     },
     {
@@ -119,22 +160,32 @@
       ],
       "name": "Gernerum",
       "type": "Village",
-      "description": "The scorched wreckage of Gernerum is a monument to its fiery end, a tragic grave for a town that once birthed heroes.",
+      "description": "Gernerum is gone, leaving ruins, ash, and stories of a settlement that once shaped Icebeach before disaster consumed it.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/gernerum",
-      "summary": "The scorched wreckage of Gernerum is a monument to its fiery end, a tragic grave for a town that once birthed heroes.",
+      "summary": "A destroyed town remembered for its famous Icebeach figures and its fiery end after a mechanical dragon battle.",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Status": "Destroyed",
+        "Cause": "Battle with a mechanical dragon",
+        "Known for": "Home of notable Icebeach figures"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "Locals now shun the ruins, whispering that the only survivor is a timeless hag who wanders the ash, bearing a fragile-looking form that conceals a truly catastrophic power."
+          "heading": "Memory",
+          "body": "The guide remembers Gernerum as the childhood home or early refuge of figures tied to Icebeach history, including Thorn and Sylva Frostglade."
+        },
+        {
+          "heading": "Rumor",
+          "body": "Its only survivor is said to be the vile hag of the north, leaving the ruin with more dread than closure."
         }
       ],
       "tags": [
         "Village",
         "IceBeach",
-        "Death"
+        "Ruins",
+        "Mechanical dragon",
+        "Death",
+        "Hag"
       ]
     },
     {
@@ -144,21 +195,33 @@
       ],
       "name": "Houlen Top",
       "type": "Town",
-      "description": "The fertile valley of Houlen Top serves as the breadbasket of the north, but its farmers are a guarded people who shun outsiders.",
-      "summary": "The southern breadbasket of Icebeach, farming grains and root vegetables between the Blom Rill and Coldriver.",
+      "description": "Marked here as Houlen Top and described in the guide as Howlentop, this fertile valley feeds the north while keeping outsiders at the edge of town.",
+      "summary": "The southern agricultural anomaly of Icebeach, where unwalled farmsteads produce grains and massive root vegetables.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/howlentop",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Guide spelling": "Howlentop",
+        "Role": "Breadbasket of Icebeach",
+        "Location": "Between the Wynwood and Coldriver",
+        "Defenses": "Unwalled; locals trust the valley more than stone"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "A primal, territorial instinct lies just beneath their civilized surface, suggesting the town's name is a warning as much as a label."
+          "heading": "People",
+          "body": "The residents are physically imposing, guarded, and communal. They work with synchronized efficiency and rarely let strangers past the Border Market."
+        },
+        {
+          "heading": "Local oddities",
+          "body": "Full-moon curfews, refusal to handle silver, and the disappearance of predators or bandits make the town feel less undefended than it first appears."
         }
       ],
       "tags": [
         "Town",
-        "IceBeach"
+        "IceBeach",
+        "Agriculture",
+        "Border Market",
+        "Full moon",
+        "Silver"
       ]
     },
     {
@@ -168,22 +231,32 @@
       ],
       "name": "Icemoor",
       "type": "Settlement",
-      "description": "From its lonely tower, the watchmen of Icemoor once guarded against horrors seeping from the Winrich Glacier.",
-      "summary": "Icebeach's smallest settlement, built around a watchtower overlooking the Winrich Glacier and its fortress.",
+      "description": "Icemoor is marked as a town on southern maps, but most cabins stand empty after families fled the glacier during the Eternal Winter.",
+      "summary": "An almost-abandoned watchtower settlement facing the Winrich Glacier and its fortress.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/icemoor",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Status": "Mostly abandoned",
+        "Watch": "Winrich Glacier and Winrich Fortress",
+        "Residents": "The Old Guard, also called Custodians of the View"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "Now, with the settlement all but abandoned, a few grim, half-mad old men remain, their prophetic whispers lost on the wind as they maintain a forgotten vigil against the whispering, soul-filled waters."
+          "heading": "The Watchers",
+          "body": "A skeleton crew of elderly holdouts maintains the tower and watches for movement from the glacier. They believe the silence is a trick and keep magical warning devices ready, though who receives those alerts is contested."
+        },
+        {
+          "heading": "Last stop",
+          "body": "For adventurers, Icemoor is the final warm meal before the white wastes. The Watchers record names in a ledger and expect most travelers never to return."
         }
       ],
       "tags": [
         "Settlement",
         "IceBeach",
-        "Seat of power"
+        "Watchtower",
+        "Old Guard",
+        "Winrich Glacier",
+        "Abandoned"
       ]
     },
     {
@@ -193,21 +266,33 @@
       ],
       "name": "Little Rock Mentle Asylam",
       "type": "Asylum",
-      "description": "Carved into an isolated shard of rock, this asylum is where the Gilded Nations dispose of their most hardened criminals.",
-      "summary": "A Gilded Nations asylum off Whitedrift for dangerous inmates deemed untreatable by stronger nations.",
+      "description": "Little Rock Mental Asylum is a remote containment institution where stone, sea, wards, and despair are all part of the security design.",
+      "summary": "A grim Gilded Nations asylum for criminals and dangerous minds deemed too risky for ordinary prisons.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/little-rock-mental-asylum",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Guide spelling": "Little Rock Mental Asylum",
+        "Role": "High-security asylum and prison",
+        "Authority": "Gilded Nations",
+        "Security": "Physical walls, wards, psychic dampening, guards and constructs"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "Whispers persist of inmates suspended in pocket dimensions of pure void, a fate perhaps inspired by the one prisoner said to have simply unwoven reality to escape."
+          "heading": "Containment",
+          "body": "The asylum is described as the final destination for criminals, rogue mages, masterminds, killers, and political threats too dangerous to release or execute."
+        },
+        {
+          "heading": "Reputation",
+          "body": "Escape is treated as functionally impossible, and the place is said to leave no one unchanged even if they survive long enough to leave."
         }
       ],
       "tags": [
         "Asylum",
-        "IceBeach"
+        "IceBeach",
+        "Gilded Nations",
+        "Prison",
+        "Wards",
+        "Whitedrift"
       ]
     },
     {
@@ -217,21 +302,33 @@
       ],
       "name": "Morana's Fang",
       "type": "Mountain",
-      "description": "Claimed by the Goddess of Winter herself, this jagged peak is the tallest point in the world, a place where the veil to the divine thins to a whisper.",
-      "summary": "Morana's Fang is Cyndamile, the tallest mountain, kept cold by Morana to bar the non-faithful from the gods.",
+      "description": "Morana's Fang is a brutal pilgrimage mountain where the veil to divine and spirit realms thins near the Stillness Summit.",
+      "summary": "The tallest peak in the world, sacred to the Goddess of Winter and guarded by mysterious Icewind Sentinels.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/moranas-fang",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Also known as": "Cyndamile",
+        "Landmark": "Tallest mountain",
+        "Summit": "Stillness Summit",
+        "Guardians": "Icewind Sentinels"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "Those few who survive the brutal, sentinel-guarded ascent return forever changed, haunted by the mountain's crushing silence and the cryptic visions granted at its summit."
+          "heading": "The climb",
+          "body": "The route crosses ice cliffs, wind-scoured ridges, deep crevasses, and the hunting grounds of cold-born monsters. The mountain tests endurance, resolve, and spirit rather than offering ordinary instruction."
+        },
+        {
+          "heading": "Sacred danger",
+          "body": "Legends say the summit once allowed direct communion with gods or spirits. Now it offers only cryptic visions, whispers on the wind, or encounters with servants of powers that still listen from the cold."
         }
       ],
       "tags": [
         "Mountain",
-        "IceBeach"
+        "IceBeach",
+        "Morana",
+        "Pilgrimage",
+        "Icewind Sentinels",
+        "Divine veil"
       ]
     },
     {
@@ -241,21 +338,33 @@
       ],
       "name": "Mt. Solaria",
       "type": "Mountain",
-      "description": "Ironically named Mt.",
+      "description": "Mt. Solaria is a mountain of contradictions, with warmth venting through the cold and legends of an ancient wyrm beneath the gray sky.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/mt-solaria",
-      "summary": "Ironically named Mt.",
+      "summary": "A geothermal mountain of steam vents, salmon runs, failed mines, old tombs, and dragon rumors.",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Features": "Steam vents, caldera, salmon streams, mines, tombs",
+        "Rumor": "Dragon lair or slumbering wyrm breath",
+        "Wildlife": "Sleetmond Salmon spawning runs"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "Solaria vents geothermal steam, believed to be the slumbering breath of the destructive dragon that claims tribute from the lands below. This strange warmth creates a perilous allure, drawing the desperate to its slopes, which are littered with the failed mines and forgotten tombs of those who previously challenged its master(s)."
+          "heading": "Geothermal lure",
+          "body": "Steam vents and sudden thaws draw desperate settlers, fishers, and scholars despite avalanches, predators, and the fear that the dragon may stir."
+        },
+        {
+          "heading": "Old scars",
+          "body": "The slopes hold abandoned mines and ancient tomb facades, with rumors of cave-ins, territorial beasts, dragon cults, giant-kin remains, and draugr guarding mountain secrets."
         }
       ],
       "tags": [
         "Mountain",
-        "IceBeach"
+        "IceBeach",
+        "Geothermal",
+        "Dragon",
+        "Sleetmond Salmon",
+        "Mines",
+        "Tombs"
       ]
     },
     {
@@ -265,21 +374,34 @@
       ],
       "name": "Ottiker",
       "type": "Town",
-      "description": "The immigrant town of Ottiker defies the ice, using geothermal waters to produce renowned wine on the shores of Sleetmond Lake.",
-      "summary": "An immigrant wine town on Sleetmond Lake, now cut off from deliveries by conflict with local druids.",
+      "description": "The town marked here as Ottiker is described in the guide as Niror or Ottiken, a frost-wine settlement caught between immigrant ambition and a bitter druidic feud.",
+      "summary": "A wine settlement on Sleetmond Lake, called Niror by locals and Ottiken by newer immigrants.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/niror",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Guide names": "Niror; Ottiken",
+        "Industry": "Ice wine",
+        "Leadership": "White Dragonborn Speaker",
+        "Conflict": "Cold war with neighboring druids"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "Yet this fragile prosperity, born from a distant homeland, has angered local druids, and now the flow of wine has stopped as the town prepares for a fight."
+          "heading": "Identity",
+          "body": "Astrousian and Last Elven State immigrants have reshaped the town, creating a visible clash between older local identity and new architecture, labor, and commerce."
+        },
+        {
+          "heading": "Wine conflict",
+          "body": "Niror Red has become valuable after the thaw, but shipments spike or fail when the feud with druids interferes. The injured Wyrm-Speaker governs through loyalists and a growing mercenary guard."
         }
       ],
       "tags": [
         "Town",
-        "IceBeach"
+        "IceBeach",
+        "Niror",
+        "Ottiken",
+        "Wine",
+        "Druids",
+        "Dragonborn"
       ]
     },
     {
@@ -289,21 +411,33 @@
       ],
       "name": "Quilt",
       "type": "Hamlet",
-      "description": "The tiny hamlet of Quilt weaves its history into its namesake craft, with intricate patterns telling stories of survival against the endless winter.",
-      "summary": "Icebeach's smallest town, farming fish through winter and making dyed quilts from Icebeach sheep wool.",
+      "description": "Quilt is a dockside maker-town whose fish farms and heavy Icesheep quilts depend on the Foaming Burrow keeping local waters alive.",
+      "summary": "A tiny Foaming Loch town of fish farming, dyed wool, and survival textiles warmed by nearby geothermal vents.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/quilt",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Size": "Smallest recognized Icebeach town",
+        "Industries": "Aquaculture, dyed wool, quilts and tapestries",
+        "Nearby": "The Foaming Burrow"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "This hardy community owes its existence to the geothermal 'Foaming Burrow,' which churns the loch's waters, allowing them to farm fish."
+          "heading": "The artisan economy",
+          "body": "Quilt exports heavy, colorful textiles woven from Icesheep wool. In the south, genuine Quilt tapestry has become a status symbol as much as survival gear."
+        },
+        {
+          "heading": "Geothermal dependence",
+          "body": "The town thrived through the Eternal Winter because nearby warm vents kept the waters usable, making the Burrow both a resource and something locals protect fiercely."
         }
       ],
       "tags": [
         "Hamlet",
-        "IceBeach"
+        "IceBeach",
+        "Foaming Loch",
+        "Aquaculture",
+        "Icesheep",
+        "Textiles",
+        "Foaming Burrow"
       ]
     },
     {
@@ -313,21 +447,32 @@
       ],
       "name": "Shiverwallow",
       "type": "Village",
-      "description": "The largest fishing fleet in the north now sits frozen in its own harbor, the ships trapped like flies in amber.",
-      "summary": "Icebeach's largest fishing town, now ice-fishing from a harbor whose fleet is frozen in place.",
+      "description": "Shiverwallow is a hard-working harbor of palisades, breakwaters, fish, smoke, and people shaped by years of frozen-sea survival.",
+      "summary": "A fortified fishing town at the Chillfolk River, now operating its recovered fleet and winter ice camps.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/shiverwallow",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Location": "Mouth of the Chillfolk River",
+        "Industry": "Fishing fleet, salting, ice camps",
+        "Defenses": "Wooden palisade and fortified breakwater"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "A great wooden wall, once meant to guard against sea threats, now seems to mock the town's grim resilience as its fishers abandon their useless vessels to huddle over holes in the ice."
+          "heading": "Fleet reborn",
+          "body": "During the Eternal Winter the harbor froze solid, trapping ships and forcing camps onto the ice. Nine years later, the fleet is free again and the harbor is a forest of masts, nets, crews, and salted catch."
+        },
+        {
+          "heading": "Ice Walkers",
+          "body": "When winter sea ice returns, part of the population still migrates onto the floes to hunt seals and ice-whales, a tradition admired and feared even by other locals."
         }
       ],
       "tags": [
         "Village",
-        "IceBeach"
+        "IceBeach",
+        "Fishing",
+        "Harbor",
+        "Ice Walkers",
+        "Chillfolk River"
       ]
     },
     {
@@ -337,21 +482,33 @@
       ],
       "name": "Sleetmond",
       "type": "Settlement",
-      "description": "Centered around the Hope Tree, whose power holds the winters at bay, Sleetmond is a place of unsettling druidic ways.",
-      "summary": "A druidic lakeside town centered on the Hope Tree, sugar maples, fish, and Icebeach sheep.",
+      "description": "Sleetmond is a small town on Sleetmond Lake where druids and rangers tend the Hope Tree, sugar maple orchards, fish, and unusually warm Icesheep wool.",
+      "summary": "A druidic lakeside settlement of sugar maples, fish, Icesheep, and the Hope Tree.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/sleetmond",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Population": "Less than five hundred",
+        "Food": "Sugar maples, fish, mutton",
+        "Landmark": "The Hope Tree"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "Its people, seemingly immune to the cold, harvest from an impossible sugar maple orchard, their strange resilience making them an object of deep distrust to the frozen world outside."
+          "heading": "Druidic practice",
+          "body": "The town is notable for druidic traditions centered on the Hope Tree. Its people and practices are strange enough that many outsiders and even some natives distrust them."
+        },
+        {
+          "heading": "Survival economy",
+          "body": "Sugar maples, lake fish, and Icebeach sheep make Sleetmond more self-sufficient than many northern settlements."
         }
       ],
       "tags": [
         "Settlement",
-        "IceBeach"
+        "IceBeach",
+        "Druids",
+        "Hope Tree",
+        "Sugar maples",
+        "Icesheep",
+        "Sleetmond Lake"
       ]
     },
     {
@@ -361,21 +518,33 @@
       ],
       "name": "The Foaming Burrow",
       "type": "Cavern",
-      "description": "A network of steam vents and geysers, the Foaming Burrow is the geothermal heart that keeps the surrounding lands and river and downstream lakes from freezing solid.",
-      "summary": "A giant-era burial mound at the headwaters of the Foaming River.",
+      "description": "The Foaming Burrow is not one cave but a network of steam vents, hot springs, and heated tunnels beneath a snow-free patch of ground.",
+      "summary": "A geothermal cave network southeast of Quilt that feeds the Foaming Loch and Foaming Runs.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/the-foaming-burrow",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Feature": "Steam vents, hot springs, heated tunnels",
+        "Feeds": "Foaming Loch and Foaming Runs",
+        "Nearby": "Quilt"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "Legends claim elemental guardians protect this lush, snow-free oasis."
+          "heading": "Ecology",
+          "body": "Fire-resistant creatures, salamanders, magmin, druids, and elemental guardians are all plausible inhabitants of its hot chambers."
+        },
+        {
+          "heading": "Local tie",
+          "body": "Its heat keeps downstream waters from freezing and even supplies the Firenewt tea pets used by the Fireside Newt and Chai en' Steep Inn."
         }
       ],
       "tags": [
         "Cavern",
-        "IceBeach"
+        "IceBeach",
+        "Geothermal",
+        "Foaming Loch",
+        "Foaming Runs",
+        "Quilt",
+        "Firenewts"
       ]
     },
     {
@@ -385,22 +554,34 @@
       ],
       "name": "The Hope Tree",
       "type": "Natural Landmark",
-      "description": "A defiant miracle, this impossibly massive tree radiates a divine warmth, creating a sanctuary the Frostmaiden's chill cannot penetrate.",
-      "summary": "The druidic focus of Sleetmond, a town known for sugar maples, fish, and Icebeach sheep.",
+      "description": "The Hope Tree rises impossibly in the frozen north, radiating warmth, safety, and restorative magic where Morana's cold should rule.",
+      "summary": "A warm, green-gold miracle tree that anchors Sleetmond and resists Morana's winter.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/the-hope-tree",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Associated": "Sleetmond",
+        "Possible patrons": "Hestia, Pythia, or Bethtox",
+        "Uses": "Restorative leaves and sanctuary warmth"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "Believed to be a blessing from a rival god, its magical leaves can heal the sick, making it a vital symbol of hope that is now threatened by factions seeking to control its power."
+          "heading": "Sacred theories",
+          "body": "Most locals treat it as a blessing of Hestia, though other stories name Pythia, Bethtox, or an old divine confrontation with Morana as the reason the cold fails here."
+        },
+        {
+          "heading": "Restorative power",
+          "body": "Its leaves remain green and gold and can be brewed into healing teas, making the tree a symbol of community and a resource no sane local would willingly harm."
         }
       ],
       "tags": [
         "Natural Landmark",
         "IceBeach",
-        "Magic"
+        "Magic",
+        "Hestia",
+        "Pythia",
+        "Bethtox",
+        "Sleetmond",
+        "Healing"
       ]
     },
     {
@@ -410,25 +591,33 @@
       ],
       "name": "Thrawbreak",
       "type": "Hamlet",
-      "description": "Buried in the shadow of the Auruan mountains and surrounded by the ruins of failed fortifications, Thrawbreak is a town pickled in bitterness and beer.",
-      "summary": "A cut-off mountain town of ruined defenses, frozen docks, bitter people, and stubborn survival.",
+      "description": "Thrawbreak began as a mountaineer camp below the Auruan mountains and now survives between failed fortifications, a frozen harbor, and one known pass.",
+      "summary": "A remote mountain hamlet of ruined defenses, frozen docks, hard beer, and cut-off resentment.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/thrawbreak",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Route": "Martian's Revenge pass",
+        "Defenses": "Ruined palisade and Arcton Keep",
+        "Speaker": "Ikx, a red Dragonborn"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "Its people, stubborn trappers cut off from the world, endure their isolation fueled by a tavern that never runs dry and the haunting tavern song, 'The Ferryman's Coin,' a dirge for the world that abandoned them."
+          "heading": "Isolation",
+          "body": "With the ferry from Whitedrift shut down, Thrawbreak is cut off by mountains, ice, and snow. Its people believe the rest of the world abandoned them."
+        },
+        {
+          "heading": "Local trouble",
+          "body": "Recent mysterious break-ins and the speaker's drunken night patrols add paranoia to a town already surviving on stubbornness and a tavern that never seems to run dry."
         }
       ],
       "tags": [
         "Hamlet",
         "IceBeach",
-        "Harbor",
-        "Hospitality",
-        "Commerce",
-        "Mountain"
+        "Mountain",
+        "Frozen harbor",
+        "Arcton Keep",
+        "Martian's Revenge",
+        "Ikx"
       ]
     },
     {
@@ -438,21 +627,32 @@
       ],
       "name": "Whitedrift",
       "type": "Settlement",
-      "description": "Clinging to the mouth of the Curse Run, this unstable town is a dumping ground for former asylum inmates and other exiles.",
-      "summary": "A rocky Curse Run town whose people are forced to serve the nearby Littlerock Mental Asylum.",
+      "description": "Whitedrift clings to the mouth of the Curse Run, fed by Winrich Glacier melt, and carries the instability of people stationed too close to horror for too long.",
+      "summary": "A rocky Curse Run settlement watching the glacier, the fortress, and the asylum nearby.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/whitedrift",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Waterway": "Curse Run",
+        "Watch": "Winrich Glacier and Winrich Fortress",
+        "Nearby": "Little Rock Mental Asylum"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "Paranoia is the local currency, and the tense peace is often broken by the sight of townsfolk arguing with a percived ghosts of their dead loved ones who whisper from the foul, glacial waters."
+          "heading": "Population",
+          "body": "Some residents are assigned to keep watch on the glacier and fortress, while others are said to be escapees or castoffs from the asylum."
+        },
+        {
+          "heading": "Atmosphere",
+          "body": "The settlement feels unstable by design: a cold rock town where glacial water, institutional shadow, and paranoia all meet."
         }
       ],
       "tags": [
         "Settlement",
-        "IceBeach"
+        "IceBeach",
+        "Curse Run",
+        "Winrich Glacier",
+        "Little Rock Mental Asylum",
+        "Watch"
       ]
     },
     {
@@ -462,22 +662,34 @@
       ],
       "name": "Winrich Fortress",
       "type": "Fortress",
-      "description": "Hewn from stone that drinks the light, this is the infamous seat of Winrich, the first mortal to achieve lichdom.",
-      "summary": "A former lich fortress, cleared and garrisoned after local heroes destroyed Winrich and his phylactery.",
+      "description": "Winrich Fortress drinks light from the glacier wind and remains a decaying monument to ancient necromancy, traps, undead, and deliberate misdirection.",
+      "summary": "The black-stone ruin of Winrich, remembered as perhaps the first mortal lich.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/winrich-fortress",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Founder": "Winrich",
+        "Reputation": "First mortal lich",
+        "Material": "Basalt-like black stone",
+        "Phenomenon": "Sickly green-blue glow on darkest nights"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "Though heroes are said to have destroyed his echo, the fortress remains, its black walls glowing with a sickly, spectral light on moonless nights, a silent testament to the ancient evil born within."
+          "heading": "Purpose",
+          "body": "Legends claim the fortress stood over a dark confluence called the soul well, but some scholars think Winrich built it as a decoy to hide his true phylactery and treasures elsewhere."
+        },
+        {
+          "heading": "Current danger",
+          "body": "The ruin is shunned for lesser undead, undetonated traps, psychic residue, and periodic spectral light similar to the glow reported inside Winrich Glacier."
         }
       ],
       "tags": [
         "Fortress",
         "IceBeach",
-        "Seat of power"
+        "Winrich",
+        "Lich",
+        "Necromancy",
+        "Undead",
+        "Soul well"
       ]
     },
     {
@@ -487,22 +699,31 @@
       ],
       "name": "Wynwood Peak",
       "type": "Mountain",
-      "description": "Choked by a forest of iron-hard wood, this peak's unnatural resilience is said to spring from an ancient dragon's grave.",
+      "description": "Wynwood Peak is less imposing in height than other mountains but feared for unnatural timber, difficult slopes, and the lingering evil of a ruined wizard tower.",
       "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/wynwood-peak",
-      "summary": "Choked by a forest of iron-hard wood, this peak's unnatural resilience is said to spring from an ancient dragon's grave.",
+      "summary": "A smaller but treacherous peak covered in iron-hard woods and haunted by dragon-mound stories.",
       "properties": {
-        "Map": "IceBeach"
+        "Map": "IceBeach",
+        "Feature": "Unnaturally dense resilient forest",
+        "Rumor": "Dragon mound or ancient wyrm burial",
+        "Landmark": "Crumbling wizard tower"
       },
       "detailSections": [
         {
-          "heading": "Context",
-          "body": "The crumbling tower of a wizard who went mad trying to master this power now haunts its slopes, a testament to the peak's untamed spirit."
+          "heading": "Wynwood timber",
+          "body": "The trees are said to resist axe and saw, with roots that anchor into stone and wood that may carry protective magic from an ancient dragon burial."
+        },
+        {
+          "heading": "The tower",
+          "body": "A wizard drawn by the peak's rumored energies went mad and evil here. Though defeated, the tower remains feared for haunting and a hostile spirit bound to the mountain."
         }
       ],
       "tags": [
         "Mountain",
         "IceBeach",
-        "Death",
+        "Wynwood",
+        "Dragon mound",
+        "Wizard tower",
         "Wilderness"
       ]
     }
@@ -511,12 +732,12 @@
     {
       "id": "region-ded-moros-forest",
       "name": "Ded Moros Forest",
-      "description": "",
+      "description": "Ded Moros Forest is not dead so much as unnaturally preserved, with gray stone trees, fossilized leaves, sharp branches, and roots that turn the forest floor into a maze.",
       "type": "terrain",
       "color": "#33aa33",
       "fillColor": "#33aa33",
       "fillOpacity": 0.1,
-      "wikiLink": "",
+      "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/ded-moros-forest",
       "coordinates": [
         [
           2760,
@@ -2074,17 +2295,32 @@
           2758,
           3125
         ]
+      ],
+      "summary": "A grim woodland of petrified trees, old curse stories, and creatures adapted to stone-like forest remains.",
+      "detailSections": [
+        {
+          "heading": "Threats",
+          "body": "The guide ties its condition to an ancient curse or magical catastrophe, perhaps connected to Winrich. Stone-skinned predators, sorrowful spirits, and other adapted creatures may lurk in its silence."
+        }
+      ],
+      "tags": [
+        "Forest",
+        "IceBeach",
+        "Petrified forest",
+        "Curse",
+        "Winrich",
+        "Wilderness"
       ]
     },
     {
       "id": "region-frostmaple-grove",
       "name": "Frostmaple Grove",
-      "description": "",
+      "description": "Frostmaple Grove is believed to be the primordial source of Sleetmond's sugar maple orchards, with gold-touched leaves and thick old bark even in deep winter.",
       "type": "terrain",
       "color": "#33aa33",
       "fillColor": "#33aa33",
       "fillOpacity": 0.2,
-      "wikiLink": "",
+      "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/frostmaple-grove",
       "coordinates": [
         [
           2247,
@@ -3346,6 +3582,21 @@
           2247,
           3023
         ]
+      ],
+      "summary": "An ancient wild heartwood of unnaturally large frostmaples, sweet air, and slumbering treant guardians.",
+      "detailSections": [
+        {
+          "heading": "Lore",
+          "body": "Treants are said to guard the grove, and sap drawn from its oldest trees may have restorative or life-extending properties beyond ordinary food."
+        }
+      ],
+      "tags": [
+        "Grove",
+        "IceBeach",
+        "Frostmaple",
+        "Treants",
+        "Sugar maple",
+        "Restorative sap"
       ]
     },
     {
@@ -4683,7 +4934,7 @@
     {
       "id": "region-starcaller's-grove",
       "name": "Starcaller's Grove",
-      "description": "The northern kingdom known for its harsh climate",
+      "description": "Starcaller's Grove stands apart from the snow drifts, with clearer skies, brighter stars, vibrant auroras, and moss-covered stones arranged in old patterns.",
       "type": "terrain",
       "color": "#3388ff",
       "fillColor": "#3388ff",
@@ -4714,17 +4965,33 @@
           3360,
           4522
         ]
+      ],
+      "summary": "A bright-sky standing-stone grove where auroras, stars, and divination feel unusually near.",
+      "detailSections": [
+        {
+          "heading": "Pilgrimage",
+          "body": "Druids, northern wanderers, and seers come seeking enhanced divination, communion with sky spirits, Nyx, or signs of thin places between worlds."
+        }
+      ],
+      "tags": [
+        "Grove",
+        "IceBeach",
+        "Standing stones",
+        "Aurora",
+        "Divination",
+        "Nyx",
+        "Seers"
       ]
     },
     {
       "id": "region-the-foaming-runs",
       "name": "The Foaming Runs",
-      "description": "",
+      "description": "The Foaming Runs are marked by churning whitewater where icy river flow meets underground heat, producing dangerous steam and foam.",
       "type": "terrain",
       "color": "#94e3fe",
       "fillColor": "#caf0fe",
       "fillOpacity": 0.1,
-      "wikiLink": "",
+      "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/the-foaming-runs",
       "coordinates": [
         [
           1139,
@@ -5270,17 +5537,32 @@
           1143,
           4037
         ]
+      ],
+      "summary": "A turbulent river course of rapids, foam, steam, and geothermal vents fed from a cave source.",
+      "detailSections": [
+        {
+          "heading": "Travel hazard",
+          "body": "The river is especially treacherous near lakes, caves, and vent-fed sections, where hot plumes and violent rapids complicate crossing or navigation."
+        }
+      ],
+      "tags": [
+        "River",
+        "IceBeach",
+        "Rapids",
+        "Geothermal",
+        "Foaming Burrow",
+        "Travel hazard"
       ]
     },
     {
       "id": "region-the-frigid-plains",
       "name": "The Frigid Plains",
-      "description": "",
+      "description": "The Frigid Plains are featureless and dangerous, with sudden whiteouts that punish poor navigation and expose travelers to the worst open tundra conditions.",
       "type": "terrain",
       "color": "#53d5fd",
       "fillColor": "#94e3fe",
       "fillOpacity": 0.1,
-      "wikiLink": "",
+      "wikiLink": "https://www.hiraeth.wiki/books/players-guide-to-icebeach/page/the-frigid-plains",
       "coordinates": [
         [
           2102,
@@ -5934,12 +6216,27 @@
           2110,
           2497
         ]
+      ],
+      "summary": "A vast wind-scoured tundra of whiteouts, monster hunts, hidden battlefields, and haunted snow.",
+      "detailSections": [
+        {
+          "heading": "Hidden dangers",
+          "body": "The plains are hunting grounds for massive Ice Tundra Beasts and burrowing monsters like remorhazes. Shifting snow can reveal ancient battlefields and spectral remnants."
+        }
+      ],
+      "tags": [
+        "Tundra",
+        "IceBeach",
+        "Whiteout",
+        "Remorhaz",
+        "Ice Tundra Beasts",
+        "Battlefields"
       ]
     },
     {
       "id": "region-winrich-glacier",
       "name": "Winrich Glacier",
-      "description": "This Glacier glows a soft sicky green and blue and is said to hold acient horrors.",
+      "description": "Winrich Glacier dominates Icebeach fear: a frozen mass associated with the first lich, dark ruins, and the sense that silence from the ice is never truly safe.",
       "type": "terrain",
       "color": "#33aa33",
       "fillColor": "#33aa33",
@@ -6402,7 +6699,53 @@
           3685,
           3683
         ]
+      ],
+      "summary": "A sickly green-blue glacier tied to Winrich, old necromancy, and horrors still preserved in the ice.",
+      "detailSections": [
+        {
+          "heading": "Why it matters",
+          "body": "Icemoor watches it, Whitedrift lives with its meltwater, Flamore delved toward its horrors, and Winrich Fortress still echoes its unnatural glow."
+        }
+      ],
+      "tags": [
+        "Glacier",
+        "IceBeach",
+        "Winrich",
+        "Lich",
+        "Necromancy",
+        "Icemoor",
+        "Whitedrift"
       ]
     }
+  ],
+  "summary": "A northern arctic tundra of frozen coasts, hard frontier villages, auroras, and old dangers left behind by the Endless Winter.",
+  "description": "Icebeach lies far northwest of Fair, where coastal towns cling to frozen beaches and the habitable world gives way to permafrost, glacier, and polar sea. Nine years after the Endless Winter broke, its people remain split between the Frozen, hardened survivors of the long dark, and the Thawed, newcomers drawn by trade, mining, wine, fish, and other opportunities exposed by the melt.",
+  "properties": {
+    "Region": "Northwestern Fair",
+    "Climate": "Arctic tundra, frozen coasts, severe winter darkness",
+    "Recent history": "Nine years since the Endless Winter ended",
+    "Peoples": "Frozen survivors and Thawed newcomers"
+  },
+  "detailSections": [
+    {
+      "heading": "Environment",
+      "body": "Icebeach is defined by ice sheets on its beaches, brutal cold, blizzards, avalanches, and long seasonal extremes. Summer can bring sleepless midnight sun, while deep winter brings the Long Night, blue-hour twilight, auroras, light pillars, diamond dust, sun dogs, and deceptive sea mirages."
+    },
+    {
+      "heading": "Settlements",
+      "body": "Its towns survive through strict necessity rather than shared comfort. Some compete during brief summers, but the settlements maintain a survival pact against the lethal cold, monsters of the north, and the old magical threats still buried in glacier and ruin."
+    },
+    {
+      "heading": "Travel",
+      "body": "Travel is a struggle against mountains, tundra, snow, ice, and visibility. Dogsleds, snowshoes, ferries, passes, and local guides can matter more than coin when weather cuts roads apart or the whiteout separates a party."
+    }
+  ],
+  "tags": [
+    "Icebeach",
+    "Arctic tundra",
+    "Endless Winter",
+    "Aurora",
+    "Frontier villages",
+    "Survival"
   ]
 }
