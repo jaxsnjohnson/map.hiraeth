@@ -34,3 +34,7 @@
 ## 2024-05-24 - Add aria-live to dynamic utility outputs
 **Learning:** Screen readers will not announce dynamic text updates in utility output containers unless aria-live="polite" and aria-atomic="true" are added to the target elements.
 **Action:** When creating containers for dynamic text updates injected via JavaScript, always add aria-live="polite" and aria-atomic="true".
+
+## 2024-06-19 - Ensure complete dynamic region readouts
+**Learning:** Screen readers might miss partial updates to dynamic utility output containers (like search results or map options) if `aria-live="polite"` is used without `aria-atomic="true"`.
+**Action:** When creating or modifying dynamic regions that inject complete sets of content (like lists or grids) via JavaScript, always pair `aria-live="polite"` with `aria-atomic="true"` to ensure the screen reader announces the entire updated content instead of just the changed nodes.
