@@ -129,3 +129,7 @@
 ## 2024-06-25 - Cache Region Filter Groups
 **Learning:** Automatically generating region filter groups involves iterating through potentially thousands of region entries, sorting, and array manipulation. Re-running this multiple times when the regions data pointer is stable causes performance degradation on render paths.
 **Action:** Use a `WeakMap` to cache the derived filter groups object by using the `regions` array as the key, guaranteeing stable cache hits without memory leaks. Furthermore, tracking unique values initially into a plain object `Object.create(null)` bypasses the `Set` conversion overhead (`Array.from(set).sort()`).
+
+## 2024-05-10 - Mocking DocumentFragment in legacy node:vm tests
+**Learning:** When using `DocumentFragment` to optimize DOM insertions in codebases tested with legacy custom mock DOM objects (e.g., `createMockElement` mimicking browser APIs), simple mocks don't natively "dissolve" fragments upon `appendChild` like real browsers do. If `document.createDocumentFragment` is unmocked, it causes `TypeError`. If it's mocked as a regular node, it stays in the mock DOM tree, breaking assertions that look for direct children.
+**Action:** When introducing `DocumentFragment`, verify the test suite's `document` mock. Ensure `createDocumentFragment` is mocked to return a mock fragment node, and proactively update any `childNodes` test assertions that check elements appended from the fragment to account for the fragment acting as a wrapper node in the simplistic mock implementation.
