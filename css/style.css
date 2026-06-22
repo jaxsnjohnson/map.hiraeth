@@ -1799,6 +1799,10 @@ body.embedded-view #share-relay-coachmark {
     transform: scale(1.05); /* Subtle scale effect */
     box-shadow: 0 4px 8px var(--shadow-color);
 }
+.map-control-button:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
 
 /* --- Zoom Buttons (Custom) --- */
 #custom-zoom-in, #custom-zoom-out, #help-btn {
@@ -3632,6 +3636,9 @@ html.mobile-layout-v2.map-interacting #map-blurb {
     background: color-mix(in srgb, var(--highlight-bg) 82%, var(--bg-primary) 18%);
     border-color: color-mix(in srgb, var(--text-secondary) 28%, var(--glass-border) 72%);
     color: var(--text-primary);
+}
+.sidebar-back-btn:active {
+    transform: scale(0.96);
 }
 
 .sidebar-back-btn .ui-icon {
