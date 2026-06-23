@@ -265,5 +265,11 @@ if (require.main === module) {
 
 module.exports = {
     buildPagesBundle,
-    collectPublicMapAssetFiles
+    collectPublicMapAssetFiles,
+    countFiles,
+    forbiddenPublicFiles: [...forbiddenPublicFiles],
+    ignoredAssetFileNames: [...ignoredAssetFileNames],
+    runtimeAssetFiles: [...runtimeAssetFiles],
+    runtimeDirectories: [...runtimeDirectories],
+    runtimeFiles: [...runtimeFiles]
 };

@@ -1,18 +1,31 @@
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
 const {
     assertLoopbackBindHost,
+    classifyChangedFilePath,
+    compareLiveSourcesToDist,
     createEditorServer,
+    getChangedFileGroups,
+    getPublishReadiness,
     isAllowedEditorWriteRequest,
     isLoopbackHost,
+    resolvePreviewRequestPath,
     resolveMapTargetPath,
     validateAtlasManifestDocument,
     validateMapDocument
 } = require('../scripts/editor_server.js');
 
 const repoRoot = path.join(os.tmpdir(), 'map-editor-server-test');
+fs.rmSync(repoRoot, { recursive: true, force: true });
+fs.mkdirSync(path.join(repoRoot, 'dist'), { recursive: true });
+fs.writeFileSync(path.join(repoRoot, 'dist', 'index.html'), '<!doctype html><title>Preview</title>');
+fs.mkdirSync(path.join(repoRoot, 'css'), { recursive: true });
+fs.mkdirSync(path.join(repoRoot, 'dist', 'css'), { recursive: true });
+fs.mkdirSync(path.join(repoRoot, 'maps'), { recursive: true });
+fs.mkdirSync(path.join(repoRoot, 'dist', 'maps'), { recursive: true });
 
 assert.equal(isLoopbackHost('127.0.0.1'), true);
 assert.equal(isLoopbackHost('127.10.20.30'), true);
@@ -72,6 +85,55 @@ assert.equal(
     resolveMapTargetPath(repoRoot, { mapId: 'IceBeach' }).relativePath,
     'maps/IceBeach.json'
 );
+
+assert.equal(
+    path.relative(repoRoot, resolvePreviewRequestPath(repoRoot, '/preview/')).split(path.sep).join('/'),
+    'dist/index.html'
+);
+assert.equal(resolvePreviewRequestPath(repoRoot, '/preview/../package.json'), null);
+
+const readiness = getPublishReadiness(repoRoot);
+assert.equal(readiness.pagesBundle.built, true);
+assert.ok(Array.isArray(readiness.changedFiles));
+assert.ok(Array.isArray(readiness.changedFileGroups));
+assert.ok(Array.isArray(readiness.warnings));
+
+assert.equal(classifyChangedFilePath('maps/Astrousia.json'), 'Map data');
+assert.equal(classifyChangedFilePath('dist/maps/atlas-index.json'), 'Pages bundle');
+assert.equal(classifyChangedFilePath('map-editor.html'), 'Editor-only');
+assert.equal(classifyChangedFilePath('scripts/build_pages.js'), 'CI/scripts');
+assert.equal(classifyChangedFilePath('readme.md'), 'Unrelated');
+
+const groupedFiles = getChangedFileGroups([
+    ' M maps/Astrousia.json',
+    ' M dist/maps/atlas-index.json',
+    ' M js/map-editor.js',
+    '?? scripts/publish_check.js',
+    ' D readme.md'
+]);
+assert.deepEqual(groupedFiles.map((group) => group.label), [
+    'Map data',
+    'Pages bundle',
+    'Editor-only',
+    'CI/scripts',
+    'Unrelated'
+]);
+
+fs.writeFileSync(path.join(repoRoot, 'css', 'style.css'), 'new css');
+fs.writeFileSync(path.join(repoRoot, 'dist', 'css', 'style.css'), 'old css');
+let drift = compareLiveSourcesToDist(repoRoot, ['css/style.css']);
+assert.equal(drift.mismatches.length, 1);
+assert.equal(drift.mismatches[0].source, 'css/style.css');
+fs.writeFileSync(path.join(repoRoot, 'dist', 'css', 'style.css'), 'new css');
+drift = compareLiveSourcesToDist(repoRoot, ['css/style.css']);
+assert.equal(drift.mismatches.length, 0);
+
+fs.writeFileSync(path.join(repoRoot, 'maps', 'maps.json'), '[]');
+fs.writeFileSync(path.join(repoRoot, 'maps', 'atlas-index.json'), '{"tree":[]}');
+fs.writeFileSync(path.join(repoRoot, 'dist', 'maps', 'atlas-index.json'), '{"tree":[{"id":"old"}]}');
+drift = compareLiveSourcesToDist(repoRoot, ['maps/maps.json']);
+assert.equal(drift.mismatches.length, 1);
+assert.equal(drift.mismatches[0].source, 'maps/atlas-index.json');
 
 [
     { dataUrl: '../secrets.json' },

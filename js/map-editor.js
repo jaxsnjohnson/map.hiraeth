@@ -33,7 +33,17 @@
         lineLayer: null,
         vertexLayer: null,
         draftLayer: null,
-        localSaveAvailable: false
+        localSaveAvailable: false,
+        editorDirty: false,
+        publishReadiness: {
+            items: {},
+            changedFiles: [],
+            changedFileGroups: [],
+            warnings: [],
+            previewUrl: '',
+            topStatus: 'Needs Build',
+            buildJob: null
+        }
     };
 
     const dom = {
@@ -68,6 +78,17 @@
         saveAtlasStructureButton: document.getElementById('save-atlas-structure-btn'),
         exportCurrentMapButton: document.getElementById('export-current-map-btn'),
         exportAtlasStructureButton: document.getElementById('export-atlas-structure-btn'),
+        buildLivePreviewButton: document.getElementById('build-live-preview-btn'),
+        livePreviewLink: document.getElementById('live-preview-link'),
+        publishReadinessChip: document.getElementById('publish-readiness-chip'),
+        publishReadinessTitle: document.getElementById('publish-readiness-title'),
+        publishReadinessSummary: document.getElementById('publish-readiness-summary'),
+        publishReadinessList: document.getElementById('publish-readiness-list'),
+        publishActionList: document.getElementById('publish-action-list'),
+        publishBuildProgress: document.getElementById('publish-build-progress'),
+        publishChangedFileGroups: document.getElementById('publish-changed-file-groups'),
+        publishChangedFiles: document.getElementById('publish-changed-files'),
+        publishWarningList: document.getElementById('publish-warning-list'),
         chooseMapButton: document.getElementById('editor-choose-map-btn'),
         mapSettingsInputs: {
             name: document.getElementById('map-name-input'),
@@ -279,6 +300,265 @@
         dom.exportStatus.style.color = isError ? '#dc2626' : '';
     }
 
+    const publishReadinessItems = [
+        ['saveServer', 'Save server connected'],
+        ['currentMapSaved', 'Editor changes saved'],
+        ['atlasRegenerated', 'Atlas regenerated'],
+        ['dataValidation', 'Data validation passed'],
+        ['pagesBundle', 'Pages bundle built']
+    ];
+
+    function getReadinessItem(key) {
+        if (!state.publishReadiness.items[key]) {
+            state.publishReadiness.items[key] = {
+                status: 'pending',
+                detail: 'Not checked.'
+            };
+        }
+        return state.publishReadiness.items[key];
+    }
+
+    function setReadinessItem(key, status, detail = '') {
+        state.publishReadiness.items[key] = {
+            status,
+            detail: String(detail || '').trim()
+        };
+        renderPublishReadiness();
+    }
+
+    function getReadinessStateLabel(status) {
+        if (status === 'pass') return 'Pass';
+        if (status === 'warn') return 'Warning';
+        if (status === 'fail') return 'Fail';
+        if (status === 'running') return 'Running';
+        return 'Pending';
+    }
+
+    function getPublishTopStatus() {
+        const statuses = publishReadinessItems.map(([key]) => getReadinessItem(key).status);
+        if (statuses.includes('fail')) return 'Failed';
+        if (state.editorDirty || getReadinessItem('currentMapSaved').status === 'warn') return 'Needs Save';
+        if (getReadinessItem('pagesBundle').status !== 'pass') return 'Needs Build';
+        return 'Ready';
+    }
+
+    function getPublishSummary(topStatus) {
+        if (topStatus === 'Ready') return 'The editor changes are saved and the Pages bundle matches the live source.';
+        if (topStatus === 'Needs Save') return 'Save the current editor changes before building or publishing.';
+        if (topStatus === 'Needs Build') return 'Build the live preview to regenerate and verify the Pages bundle.';
+        return 'Resolve the failed readiness check before publishing.';
+    }
+
+    function getPublishActions(topStatus) {
+        if (topStatus === 'Ready') {
+            return state.publishReadiness.previewUrl
+                ? ['Open the live preview and review the public page.']
+                : ['Build a live preview before opening a publish PR.'];
+        }
+        if (topStatus === 'Needs Save') return ['Save current map changes.'];
+        if (topStatus === 'Needs Build') return ['Build live preview to refresh dist/.'];
+        const failedItems = publishReadinessItems
+            .map(([key, label]) => ({ label, item: getReadinessItem(key) }))
+            .filter(({ item }) => item.status === 'fail');
+        if (failedItems.length === 0) return ['Review the failed readiness message.'];
+        return failedItems.map(({ label, item }) => `${label}: ${item.detail || 'needs attention'}`);
+    }
+
+    function renderPublishActions(topStatus) {
+        if (!dom.publishActionList) return;
+        dom.publishActionList.textContent = '';
+        getPublishActions(topStatus).forEach((action) => {
+            const row = document.createElement('li');
+            row.textContent = action;
+            dom.publishActionList.appendChild(row);
+        });
+    }
+
+    function renderChangedFileGroups() {
+        if (!dom.publishChangedFileGroups) return;
+        dom.publishChangedFileGroups.textContent = '';
+        const groups = Array.isArray(state.publishReadiness.changedFileGroups)
+            ? state.publishReadiness.changedFileGroups
+            : [];
+        if (groups.length === 0) {
+            const row = document.createElement('p');
+            row.className = 'map-editor-placeholder';
+            row.textContent = 'No changed files.';
+            dom.publishChangedFileGroups.appendChild(row);
+            return;
+        }
+
+        groups.forEach((group) => {
+            const details = document.createElement('details');
+            details.className = 'map-editor-file-group';
+            details.open = group.label !== 'Unrelated';
+
+            const summary = document.createElement('summary');
+            const label = document.createElement('strong');
+            const count = document.createElement('span');
+            label.textContent = group.label;
+            count.textContent = `${group.count} file${group.count === 1 ? '' : 's'}`;
+            summary.append(label, count);
+
+            const list = document.createElement('ul');
+            (group.files || []).slice(0, 20).forEach((file) => {
+                const item = document.createElement('li');
+                item.textContent = `${file.status || ''} ${file.path || file.raw || ''}`.trim();
+                list.appendChild(item);
+            });
+            if ((group.files || []).length > 20) {
+                const item = document.createElement('li');
+                item.textContent = `...and ${group.files.length - 20} more`;
+                list.appendChild(item);
+            }
+
+            details.append(summary, list);
+            dom.publishChangedFileGroups.appendChild(details);
+        });
+    }
+
+    function renderBuildProgress() {
+        if (!dom.publishBuildProgress) return;
+        const job = state.publishReadiness.buildJob;
+        dom.publishBuildProgress.hidden = !job;
+        dom.publishBuildProgress.textContent = '';
+        if (!job) return;
+
+        const title = document.createElement('strong');
+        title.textContent = job.status === 'complete'
+            ? 'Live preview ready'
+            : (job.status === 'failed' ? 'Preview build failed' : `Building: ${job.step || 'Queued'}`);
+
+        const steps = document.createElement('ol');
+        (job.steps || []).forEach((step) => {
+            const row = document.createElement('li');
+            row.textContent = `${getReadinessStateLabel(step.status)}: ${step.label}`;
+            steps.appendChild(row);
+        });
+
+        dom.publishBuildProgress.append(title, steps);
+        const recentOutput = Array.isArray(job.recentOutput) ? job.recentOutput.slice(-2).join(' ') : '';
+        if (recentOutput) {
+            const output = document.createElement('span');
+            output.textContent = recentOutput;
+            dom.publishBuildProgress.appendChild(output);
+        }
+    }
+
+    function renderPublishReadiness() {
+        if (!dom.publishReadinessList) return;
+
+        dom.publishReadinessList.textContent = '';
+        publishReadinessItems.forEach(([key, label]) => {
+            const item = getReadinessItem(key);
+            const row = document.createElement('li');
+            const stateLabel = document.createElement('span');
+            const detail = document.createElement('span');
+            stateLabel.className = `map-editor-readiness-state ${item.status}`;
+            stateLabel.textContent = getReadinessStateLabel(item.status);
+            detail.textContent = item.detail ? `${label}: ${item.detail}` : label;
+            row.append(stateLabel, detail);
+            dom.publishReadinessList.appendChild(row);
+        });
+
+        const topStatus = getPublishTopStatus();
+        state.publishReadiness.topStatus = topStatus;
+        if (dom.publishReadinessChip) {
+            dom.publishReadinessChip.textContent = topStatus;
+        }
+        if (dom.publishReadinessTitle) dom.publishReadinessTitle.textContent = topStatus;
+        if (dom.publishReadinessSummary) dom.publishReadinessSummary.textContent = getPublishSummary(topStatus);
+        renderPublishActions(topStatus);
+        renderBuildProgress();
+        renderChangedFileGroups();
+
+        if (dom.publishChangedFiles) {
+            const files = state.publishReadiness.changedFiles || [];
+            const visibleFiles = files.slice(0, 20);
+            dom.publishChangedFiles.textContent = visibleFiles.length
+                ? `${visibleFiles.join('\n')}${files.length > visibleFiles.length ? `\n...and ${files.length - visibleFiles.length} more` : ''}`
+                : 'No changed files.';
+        }
+
+        if (dom.publishWarningList) {
+            dom.publishWarningList.textContent = '';
+            const warnings = state.publishReadiness.warnings || [];
+            if (warnings.length === 0) {
+                const row = document.createElement('li');
+                const stateLabel = document.createElement('span');
+                const detail = document.createElement('span');
+                stateLabel.className = 'map-editor-readiness-state pass';
+                stateLabel.textContent = 'Pass';
+                detail.textContent = 'No warnings.';
+                row.append(stateLabel, detail);
+                dom.publishWarningList.appendChild(row);
+            } else {
+                warnings.forEach((warning) => {
+                    const row = document.createElement('li');
+                    const stateLabel = document.createElement('span');
+                    const detail = document.createElement('span');
+                    stateLabel.className = 'map-editor-readiness-state warn';
+                    stateLabel.textContent = 'Warning';
+                    detail.textContent = warning;
+                    row.append(stateLabel, detail);
+                    dom.publishWarningList.appendChild(row);
+                });
+            }
+        }
+
+        if (dom.livePreviewLink) {
+            dom.livePreviewLink.hidden = !state.publishReadiness.previewUrl;
+            if (state.publishReadiness.previewUrl) {
+                dom.livePreviewLink.href = state.publishReadiness.previewUrl;
+            }
+        }
+        refreshBuildPreviewButtonState();
+    }
+
+    function applyServerReadiness(readiness) {
+        if (!readiness || typeof readiness !== 'object') return;
+        state.publishReadiness.changedFiles = Array.isArray(readiness.changedFiles) ? readiness.changedFiles : [];
+        state.publishReadiness.changedFileGroups = Array.isArray(readiness.changedFileGroups) ? readiness.changedFileGroups : [];
+        state.publishReadiness.warnings = Array.isArray(readiness.warnings) ? readiness.warnings : [];
+        state.publishReadiness.serverTopStatus = String(readiness.topStatus || '').trim();
+
+        const bundle = readiness.pagesBundle || {};
+        if (bundle.built) {
+            if (!bundle.stale && !state.publishReadiness.previewUrl) {
+                state.publishReadiness.previewUrl = '/preview/';
+            }
+            setReadinessItem(
+                'pagesBundle',
+                bundle.stale ? 'warn' : 'pass',
+                bundle.stale
+                    ? `Built, but dist/ does not match live source (${bundle.fileCount || 0} files).`
+                    : `Built (${bundle.fileCount || 0} files).`
+            );
+        } else {
+            setReadinessItem('pagesBundle', 'warn', 'dist/ has not been built.');
+        }
+        renderPublishReadiness();
+    }
+
+    function markCurrentMapDirty(detail = 'Unsaved editor changes.') {
+        if (!state.currentMap) return;
+        state.editorDirty = true;
+        setReadinessItem('currentMapSaved', 'warn', detail);
+    }
+
+    function refreshBuildPreviewButtonState() {
+        if (!dom.buildLivePreviewButton) return;
+        const runningBuild = state.publishReadiness.buildJob?.status === 'running';
+        const disabled = !state.localSaveAvailable || state.editorDirty || runningBuild;
+        dom.buildLivePreviewButton.disabled = disabled;
+        let title = 'Build dist/ and preview the exact Pages bundle.';
+        if (!state.localSaveAvailable) title = 'Run npm run editor to enable preview builds.';
+        else if (state.editorDirty) title = 'Save current map changes before building preview.';
+        else if (runningBuild) title = 'Preview build is running.';
+        dom.buildLivePreviewButton.title = title;
+        dom.buildLivePreviewButton.setAttribute('aria-disabled', String(disabled));
+    }
+
     function setLocalSaveAvailability(available, message = '') {
         state.localSaveAvailable = Boolean(available);
         const title = state.localSaveAvailable
@@ -290,6 +570,7 @@
             button.title = title;
             button.setAttribute('aria-disabled', String(!state.localSaveAvailable));
         });
+        refreshBuildPreviewButtonState();
     }
 
     function setMapEmptyState({ hidden, title = '', copy = '', detail = '' }) {
@@ -989,6 +1270,7 @@
             setSelectionStatus(`Updated ${state.selectedFeature.mode.slice(0, -1)} fields.`);
             renderFeatureLists();
             renderMapLayers(false);
+            markCurrentMapDirty('Feature fields changed.');
         } catch (error) {
             setSelectionStatus(error.message || 'Could not apply feature changes.');
         }
@@ -1138,6 +1420,7 @@
                 renderMapLayers(false);
                 renderFeatureInspector();
                 renderFeatureLists();
+                markCurrentMapDirty('Geometry changed.');
                 setSelectionStatus('Updated geometry vertex.');
             });
             state.vertexLayer.addLayer(handle);
@@ -1219,6 +1502,7 @@
             marker.on('dragend', () => {
                 renderFeatureInspector();
                 renderFeatureLists();
+                markCurrentMapDirty('POI position changed.');
                 setSelectionStatus(`Moved POI "${point.name || `POI ${index + 1}`}".`);
             });
             state.pointLayer.addLayer(marker);
@@ -1323,6 +1607,7 @@
             clearDrawMode();
             state.featureListState.type = 'regions';
             selectFeature('regions', getCurrentRegions().length - 1);
+            markCurrentMapDirty('New region not saved.');
             setSelectionStatus('Created a new region.');
             return;
         }
@@ -1348,6 +1633,7 @@
         clearDrawMode();
         state.featureListState.type = 'lines';
         selectFeature('lines', getCurrentLines().length - 1);
+        markCurrentMapDirty('New line not saved.');
         setSelectionStatus('Created a new line.');
     }
 
@@ -1371,6 +1657,7 @@
             clearDrawMode();
             state.featureListState.type = 'points';
             selectFeature('points', getCurrentPoints().length - 1);
+            markCurrentMapDirty('New POI not saved.');
             setSelectionStatus('Added a new POI.');
             return;
         }
@@ -1392,6 +1679,7 @@
         deselectFeature();
         renderFeatureLists();
         renderMapLayers(false);
+        markCurrentMapDirty('Deleted feature not saved.');
         setSelectionStatus('Deleted the selected feature.');
     }
 
@@ -1502,9 +1790,15 @@
                 document: exportedDocument
             });
             setExportStatus(`Saved ${result.saved} and regenerated ${result.atlas}.`);
+            state.editorDirty = false;
+            setReadinessItem('currentMapSaved', 'pass', `Saved ${result.saved}.`);
+            setReadinessItem('atlasRegenerated', 'pass', `Regenerated ${result.atlas}.`);
+            setReadinessItem('dataValidation', 'pass', 'Validation passed.');
+            applyServerReadiness(result.readiness);
         } catch (error) {
             console.error(error);
             setExportStatus(error.message || 'Could not save the current map.', true);
+            setReadinessItem('currentMapSaved', 'fail', error.message || 'Save failed.');
         }
     }
 
@@ -1535,9 +1829,82 @@
                 document: exportedManifest
             });
             setExportStatus(`Saved ${result.saved} and regenerated ${result.atlas}.`);
+            setReadinessItem('atlasRegenerated', 'pass', `Regenerated ${result.atlas}.`);
+            setReadinessItem('dataValidation', 'pass', 'Validation passed.');
+            applyServerReadiness(result.readiness);
         } catch (error) {
             console.error(error);
             setExportStatus(error.message || 'Could not save maps.json.', true);
+            setReadinessItem('atlasRegenerated', 'fail', error.message || 'Atlas save failed.');
+        }
+    }
+
+    function delay(milliseconds) {
+        return new Promise((resolve) => {
+            setTimeout(resolve, milliseconds);
+        });
+    }
+
+    async function fetchPreviewBuildStatus(statusUrl) {
+        const response = await fetch(statusUrl, { cache: 'no-store' });
+        let result = null;
+        try {
+            result = await response.json();
+        } catch (error) {
+            result = null;
+        }
+        if (!response.ok || !result) {
+            throw new Error(result?.error || `Preview status failed with HTTP ${response.status}.`);
+        }
+        return result;
+    }
+
+    async function waitForPreviewBuild(statusUrl) {
+        let lastResult = null;
+        for (;;) {
+            await delay(900);
+            const result = await fetchPreviewBuildStatus(statusUrl);
+            lastResult = result;
+            state.publishReadiness.buildJob = result;
+            renderPublishReadiness();
+            if (result.status === 'complete') return result;
+            if (result.status === 'failed' || result.ok === false) {
+                throw new Error(result.error || 'Preview build failed.');
+            }
+        }
+    }
+
+    async function buildLivePreview() {
+        if (state.editorDirty) {
+            setReadinessItem('currentMapSaved', 'warn', 'Save current map changes before building preview.');
+            setExportStatus('Save current map changes before building live preview.', true);
+            return;
+        }
+        try {
+            setExportStatus('Building live preview...');
+            setReadinessItem('pagesBundle', 'pending', 'Building dist/...');
+            if (dom.buildLivePreviewButton) dom.buildLivePreviewButton.disabled = true;
+            const initialJob = await saveEditorDocument('/api/editor/build-preview', {});
+            state.publishReadiness.buildJob = {
+                status: initialJob.status || 'running',
+                step: initialJob.step || 'Queued',
+                steps: initialJob.steps || [],
+                recentOutput: []
+            };
+            renderPublishReadiness();
+            const statusUrl = initialJob.statusUrl || `/api/editor/build-preview-status?id=${encodeURIComponent(initialJob.jobId || '')}`;
+            const result = await waitForPreviewBuild(statusUrl);
+            state.publishReadiness.previewUrl = result.previewUrl || '/preview/';
+            setReadinessItem('atlasRegenerated', 'pass', 'Regenerated for preview.');
+            setReadinessItem('dataValidation', 'pass', 'Validation passed for preview.');
+            applyServerReadiness(result.readiness);
+            setExportStatus(`Built live preview at ${state.publishReadiness.previewUrl}`);
+        } catch (error) {
+            console.error(error);
+            setReadinessItem('pagesBundle', 'fail', error.message || 'Preview build failed.');
+            setExportStatus(error.message || 'Could not build live preview.', true);
+        } finally {
+            refreshBuildPreviewButtonState();
         }
     }
 
@@ -1580,6 +1947,8 @@
         setSelectionStatus(`Editing "${state.currentMap.name || state.currentMap.id}".`);
         renderMapLayers(true);
         setExportStatus('');
+        state.editorDirty = false;
+        setReadinessItem('currentMapSaved', 'pass', 'No unsaved editor changes.');
 
         dom.appShell.setAttribute('data-mode', 'edit');
         queueMapViewportReset();
@@ -1623,6 +1992,7 @@
             if (!state.currentMap) return;
             try {
                 updateTreeAfterSettingsChange();
+                markCurrentMapDirty('Map metadata changed.');
             } catch (error) {
                 console.error(error);
                 setSelectionStatus(error.message || 'Could not apply map settings.');
@@ -1646,6 +2016,7 @@
                 const newIndex = sections.length - 1;
                 const headingInput = dom.featureForm.querySelector(`[data-detail-section-row="${newIndex}"] [data-detail-section-field="heading"]`);
                 if (headingInput) headingInput.focus();
+                markCurrentMapDirty('Detail section changed.');
                 setSelectionStatus('Added detail section.');
             } else if (button.dataset.action === 'remove-detail-section') {
                 event.preventDefault();
@@ -1654,6 +2025,7 @@
                 if (!Number.isInteger(index) || index < 0 || index >= sections.length) return;
                 sections.splice(index, 1);
                 renderFeatureInspector();
+                markCurrentMapDirty('Detail section changed.');
                 setSelectionStatus('Removed detail section.');
             }
         });
@@ -1723,12 +2095,16 @@
         if (dom.saveAtlasStructureButton) {
             dom.saveAtlasStructureButton.addEventListener('click', saveAtlasStructure);
         }
+        if (dom.buildLivePreviewButton) {
+            dom.buildLivePreviewButton.addEventListener('click', buildLivePreview);
+        }
         dom.exportCurrentMapButton.addEventListener('click', exportCurrentMapJson);
         dom.exportAtlasStructureButton.addEventListener('click', exportAtlasStructure);
     }
 
     async function detectLocalSaveApi() {
         setLocalSaveAvailability(false);
+        setReadinessItem('saveServer', 'pending', 'Checking local editor server.');
         try {
             const response = await fetch('/api/editor/status', { cache: 'no-store' });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -1737,9 +2113,12 @@
                 throw new Error('Save API is not enabled.');
             }
             setLocalSaveAvailability(true);
+            setReadinessItem('saveServer', 'pass', 'Connected.');
+            applyServerReadiness(payload.readiness);
             setExportStatus('Direct saves enabled.');
         } catch (error) {
             setLocalSaveAvailability(false);
+            setReadinessItem('saveServer', 'fail', 'Run npm run editor.');
         }
     }
 
@@ -1747,6 +2126,7 @@
         try {
             initializeMap();
             registerEventListeners();
+            renderPublishReadiness();
             detectLocalSaveApi();
 
             const atlas = await fetchJsonAsset('maps/atlas-index.json');

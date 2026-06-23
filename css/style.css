@@ -2813,7 +2813,7 @@ body:not(.embedded-view) .leaflet-control-minimap .leaflet-control-minimap-toggl
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- Modal Content Styles (Adapted from about.html) --- */
+/* --- Modal Content Styles --- */
 .guide-grid {
     display: grid;
     grid-template-columns: 1fr;

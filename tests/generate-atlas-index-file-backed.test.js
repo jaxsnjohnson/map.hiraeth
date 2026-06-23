@@ -97,6 +97,7 @@ fs.writeFileSync(path.join(mapsDir, 'unreferenced-map.json'), `${JSON.stringify(
 
 const result = generateAtlasIndex({ repoRoot: tmpRoot });
 const atlas = result.atlasIndex;
+const atlasIndexPath = path.join(mapsDir, 'atlas-index.json');
 
 const folder = atlas.tree.find((item) => item.id === 'folder-root');
 assert.ok(folder);
@@ -134,5 +135,17 @@ assert.equal(filePoi.properties, undefined);
 
 const ignored = atlas.searchIndex.find((entry) => entry.mapId === 'unreferenced-map');
 assert.equal(ignored, undefined);
+
+const stableAtlas = {
+    ...JSON.parse(fs.readFileSync(atlasIndexPath, 'utf8')),
+    generatedAt: 'stable-test-generated-at'
+};
+fs.writeFileSync(atlasIndexPath, `${JSON.stringify(stableAtlas, null, 2)}\n`);
+generateAtlasIndex({ repoRoot: tmpRoot });
+assert.equal(
+    fs.readFileSync(atlasIndexPath, 'utf8'),
+    `${JSON.stringify(stableAtlas, null, 2)}\n`,
+    'unchanged atlas content should not create generatedAt-only churn'
+);
 
 console.log('generate_atlas_index file-backed fixture checks passed');

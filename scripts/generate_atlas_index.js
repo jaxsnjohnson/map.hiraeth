@@ -159,6 +159,42 @@ function readJsonFile(fullPath) {
     return JSON.parse(fs.readFileSync(fullPath, 'utf8'));
 }
 
+function readJsonFileIfExists(fullPath) {
+    if (!fs.existsSync(fullPath)) return null;
+    try {
+        return readJsonFile(fullPath);
+    } catch (error) {
+        return null;
+    }
+}
+
+function getAtlasComparablePayload(atlasIndex) {
+    if (!atlasIndex || typeof atlasIndex !== 'object' || Array.isArray(atlasIndex)) {
+        return null;
+    }
+    return {
+        tree: atlasIndex.tree,
+        searchIndex: atlasIndex.searchIndex
+    };
+}
+
+function stringifyJson(value) {
+    return `${JSON.stringify(value, null, 2)}\n`;
+}
+
+function getGeneratedAtForNextAtlas(atlasIndexPath, nextComparablePayload) {
+    const previousAtlas = readJsonFileIfExists(atlasIndexPath);
+    const previousComparablePayload = getAtlasComparablePayload(previousAtlas);
+    if (
+        previousAtlas &&
+        previousAtlas.generatedAt &&
+        JSON.stringify(previousComparablePayload) === JSON.stringify(nextComparablePayload)
+    ) {
+        return previousAtlas.generatedAt;
+    }
+    return new Date().toISOString();
+}
+
 function addSearchEntry(context, entry) {
     const key = `${entry.kind}:${entry.mapId}:${entry.routeId || ''}:${entry.itemId || entry.name}`;
     if (context.seenSearchKeys.has(key)) return;
@@ -449,13 +485,22 @@ function generateAtlasIndex(options = {}) {
         throw new Error('maps/maps.json must contain manifest entries.');
     }
     const atlasTree = rawIndex.map((item) => toManifestItem(context, item, { kind: 'inline' }));
-    const atlasIndex = {
-        generatedAt: new Date().toISOString(),
+    const comparablePayload = {
         tree: atlasTree,
         searchIndex: context.searchEntries
     };
+    const atlasIndex = {
+        generatedAt: getGeneratedAtForNextAtlas(context.atlasIndexPath, comparablePayload),
+        ...comparablePayload
+    };
 
-    fs.writeFileSync(context.atlasIndexPath, `${JSON.stringify(atlasIndex, null, 2)}\n`);
+    const nextAtlasContent = stringifyJson(atlasIndex);
+    const previousAtlasContent = fs.existsSync(context.atlasIndexPath)
+        ? fs.readFileSync(context.atlasIndexPath, 'utf8')
+        : '';
+    if (nextAtlasContent !== previousAtlasContent) {
+        fs.writeFileSync(context.atlasIndexPath, nextAtlasContent);
+    }
     return {
         atlasIndex,
         atlasIndexPath: context.atlasIndexPath,

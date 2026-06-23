@@ -3,11 +3,51 @@
 const fs = require('node:fs');
 const http = require('node:http');
 const path = require('node:path');
-const { spawnSync } = require('node:child_process');
+const { spawn, spawnSync } = require('node:child_process');
+const {
+    runtimeAssetFiles,
+    runtimeDirectories,
+    runtimeFiles
+} = require('./build_pages.js');
 
 const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = 8010;
 const MAX_BODY_BYTES = 25 * 1024 * 1024;
+
+const LIVE_PAGES_SOURCE_FILES = new Set([
+    ...runtimeFiles,
+    ...runtimeAssetFiles
+]);
+
+const LIVE_PAGES_SOURCE_PREFIXES = [
+    ...runtimeDirectories.map((directoryPath) => `${directoryPath}/`),
+    'maps/'
+];
+
+const EDITOR_ONLY_SOURCE_FILES = new Set([
+    'map-editor.html',
+    'css/map-editor.css',
+    'js/map-editor.js',
+    'js/editor-shared.js',
+    'js/libs/text-toolbar.js'
+]);
+
+const CHANGED_FILE_GROUPS = [
+    'Map data',
+    'Pages bundle',
+    'Editor-only',
+    'CI/scripts',
+    'Unrelated'
+];
+
+const PREVIEW_BUILD_STEPS = [
+    { label: 'Generate atlas index', script: 'scripts/generate_atlas_index.js' },
+    { label: 'Validate map data', script: 'scripts/validate_map_data.js' },
+    { label: 'Build Pages bundle', script: 'scripts/build_pages.js' }
+];
+
+const previewBuildJobs = new Map();
+let previewBuildJobCounter = 0;
 
 const MIME_TYPES = {
     '.css': 'text/css; charset=utf-8',
@@ -207,6 +247,214 @@ function listFilesRecursive(directoryPath) {
     });
 }
 
+function countFilesRecursive(directoryPath) {
+    return listFilesRecursive(directoryPath).length;
+}
+
+function getGitChangedFiles(repoRoot) {
+    const result = spawnSync('git', ['status', '--short', '--untracked-files=normal'], {
+        cwd: repoRoot,
+        encoding: 'utf8',
+        stdio: 'pipe'
+    });
+    if (result.error || result.status !== 0) {
+        return {
+            ok: false,
+            files: [],
+            error: result.error ? result.error.message : String(result.stderr || '').trim()
+        };
+    }
+    return {
+        ok: true,
+        files: String(result.stdout || '').split('\n').map((line) => line.trimEnd()).filter(Boolean),
+        error: ''
+    };
+}
+
+function parseGitStatusLine(line) {
+    const raw = String(line || '').trimEnd();
+    const status = raw.slice(0, 2).trim() || '??';
+    const pathPart = raw.slice(3).trim();
+    const pathParts = pathPart.split(' -> ');
+    const relativePath = pathParts[pathParts.length - 1] || pathPart;
+    return {
+        raw,
+        status,
+        path: relativePath,
+        previousPath: pathParts.length > 1 ? pathParts[0] : ''
+    };
+}
+
+function getPathFromGitStatusLine(line) {
+    return parseGitStatusLine(line).path;
+}
+
+function normalizeChangedPath(relativePath) {
+    return String(relativePath || '').trim().replace(/\\/g, '/');
+}
+
+function classifyChangedFilePath(relativePath) {
+    const normalized = normalizeChangedPath(relativePath);
+    if (!normalized) return 'Unrelated';
+    if (normalized === 'maps' || normalized.startsWith('maps/')) return 'Map data';
+    if (normalized === 'dist' || normalized.startsWith('dist/')) return 'Pages bundle';
+    if (EDITOR_ONLY_SOURCE_FILES.has(normalized) || /^tests\/(?:map-editor|updateTreeAfterSettingsChange)/.test(normalized)) {
+        return 'Editor-only';
+    }
+    if (
+        LIVE_PAGES_SOURCE_FILES.has(normalized) ||
+        LIVE_PAGES_SOURCE_PREFIXES.some((prefix) => normalized.startsWith(prefix))
+    ) {
+        return 'Pages bundle';
+    }
+    if (
+        normalized === 'package.json' ||
+        normalized === 'package-lock.json' ||
+        normalized.startsWith('.github/') ||
+        normalized.startsWith('scripts/') ||
+        normalized.startsWith('tests/')
+    ) {
+        return 'CI/scripts';
+    }
+    return 'Unrelated';
+}
+
+function getChangedFileGroups(statusLines) {
+    const groups = new Map(CHANGED_FILE_GROUPS.map((label) => [label, []]));
+    statusLines.map(parseGitStatusLine).forEach((entry) => {
+        const label = classifyChangedFilePath(entry.path);
+        groups.get(label).push(entry);
+    });
+    return CHANGED_FILE_GROUPS.map((label) => {
+        const files = groups.get(label);
+        return {
+            label,
+            count: files.length,
+            files
+        };
+    }).filter((group) => group.count > 0);
+}
+
+function isLivePagesSourcePath(relativePath) {
+    const normalized = normalizeChangedPath(relativePath);
+    if (!normalized || normalized.startsWith('dist/')) return false;
+    if (EDITOR_ONLY_SOURCE_FILES.has(normalized)) return false;
+    if (normalized === 'maps/maps.json') return true;
+    return LIVE_PAGES_SOURCE_FILES.has(normalized) ||
+        LIVE_PAGES_SOURCE_PREFIXES.some((prefix) => normalized.startsWith(prefix));
+}
+
+function filesMatch(leftPath, rightPath) {
+    if (!fs.existsSync(leftPath) || !fs.existsSync(rightPath)) return false;
+    const leftStat = fs.statSync(leftPath);
+    const rightStat = fs.statSync(rightPath);
+    if (!leftStat.isFile() || !rightStat.isFile()) return false;
+    if (leftStat.size !== rightStat.size) return false;
+    return fs.readFileSync(leftPath).equals(fs.readFileSync(rightPath));
+}
+
+function getDistComparisonTargetsForSource(relativePath) {
+    const normalized = normalizeChangedPath(relativePath);
+    if (!normalized || normalized.startsWith('dist/')) return [];
+    if (normalized === 'maps/maps.json') {
+        return [{
+            source: 'maps/atlas-index.json',
+            dist: 'maps/atlas-index.json',
+            reason: 'Atlas structure changed.'
+        }];
+    }
+    if (!isLivePagesSourcePath(normalized)) return [];
+    return [{
+        source: normalized,
+        dist: normalized,
+        reason: 'Live source changed.'
+    }];
+}
+
+function compareLiveSourcesToDist(repoRoot, changedPaths) {
+    const seen = new Set();
+    const mismatches = [];
+    changedPaths.forEach((relativePath) => {
+        getDistComparisonTargetsForSource(relativePath).forEach((target) => {
+            const key = `${target.source}=>${target.dist}`;
+            if (seen.has(key)) return;
+            seen.add(key);
+
+            const sourcePath = resolveRepoPath(repoRoot, target.source);
+            const distPath = resolveRepoPath(repoRoot, `dist/${target.dist}`);
+            const sourceExists = fs.existsSync(sourcePath);
+            const distExists = fs.existsSync(distPath);
+
+            if (!sourceExists && !distExists) return;
+            if (!sourceExists) {
+                mismatches.push({
+                    source: target.source,
+                    dist: target.dist,
+                    reason: `${target.reason} Source file is missing.`
+                });
+                return;
+            }
+            if (!distExists) {
+                mismatches.push({
+                    source: target.source,
+                    dist: target.dist,
+                    reason: `${target.reason} dist/${target.dist} is missing.`
+                });
+                return;
+            }
+            if (!filesMatch(sourcePath, distPath)) {
+                mismatches.push({
+                    source: target.source,
+                    dist: target.dist,
+                    reason: `${target.reason} dist/${target.dist} does not match.`
+                });
+            }
+        });
+    });
+
+    return {
+        checked: seen.size,
+        mismatches
+    };
+}
+
+function getPublishReadiness(repoRoot) {
+    const gitStatus = getGitChangedFiles(repoRoot);
+    const changedPaths = gitStatus.files.map(getPathFromGitStatusLine);
+    const distPath = resolveRepoPath(repoRoot, 'dist');
+    const distExists = fs.existsSync(distPath) && fs.statSync(distPath).isDirectory();
+    const distFileCount = distExists ? countFilesRecursive(distPath) : 0;
+    const pagesBundleDrift = compareLiveSourcesToDist(repoRoot, changedPaths);
+    const warnings = [];
+
+    if (!distExists || distFileCount === 0) {
+        warnings.push('dist/ has not been built.');
+    } else if (pagesBundleDrift.mismatches.length > 0) {
+        warnings.push(`dist/ does not match ${pagesBundleDrift.mismatches.length} changed live source file(s); build the Pages bundle before publishing.`);
+    }
+    if (!gitStatus.ok) {
+        warnings.push(`Could not read changed files: ${gitStatus.error || 'git status failed.'}`);
+    }
+
+    const pagesBundleStale = pagesBundleDrift.mismatches.length > 0;
+    const topStatus = !gitStatus.ok
+        ? 'Failed'
+        : (!distExists || distFileCount === 0 || pagesBundleStale ? 'Needs Build' : 'Ready');
+
+    return {
+        changedFiles: gitStatus.files,
+        changedFileGroups: getChangedFileGroups(gitStatus.files),
+        topStatus,
+        pagesBundle: {
+            built: distExists && distFileCount > 0,
+            fileCount: distFileCount,
+            stale: pagesBundleStale,
+            drift: pagesBundleDrift
+        },
+        warnings
+    };
+}
+
 function restoreSnapshots(snapshots) {
     snapshots.forEach((snapshot) => {
         if (snapshot.existed) {
@@ -244,6 +492,117 @@ function runNodeScript(repoRoot, relativeScriptPath) {
 function regenerateAndValidate(repoRoot) {
     runNodeScript(repoRoot, 'scripts/generate_atlas_index.js');
     runNodeScript(repoRoot, 'scripts/validate_map_data.js');
+}
+
+function buildLivePreview(repoRoot) {
+    const output = [
+        runNodeScript(repoRoot, 'scripts/generate_atlas_index.js'),
+        runNodeScript(repoRoot, 'scripts/validate_map_data.js'),
+        runNodeScript(repoRoot, 'scripts/build_pages.js')
+    ].filter(Boolean);
+    return output.join('\n');
+}
+
+function appendPreviewBuildOutput(job, chunk) {
+    const lines = String(chunk || '').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    lines.forEach((line) => {
+        job.output.push(line);
+        if (job.output.length > 200) job.output.shift();
+    });
+    job.recentOutput = job.output.slice(-8);
+}
+
+function runNodeScriptAsync(repoRoot, relativeScriptPath, onOutput) {
+    return new Promise((resolve, reject) => {
+        const child = spawn(process.execPath, [relativeScriptPath], {
+            cwd: repoRoot,
+            stdio: ['ignore', 'pipe', 'pipe']
+        });
+        let output = '';
+
+        const collectOutput = (chunk) => {
+            const text = String(chunk || '');
+            output += text;
+            if (onOutput) onOutput(text);
+        };
+
+        child.stdout.on('data', collectOutput);
+        child.stderr.on('data', collectOutput);
+        child.on('error', reject);
+        child.on('close', (status) => {
+            if (status === 0) {
+                resolve(output.trim());
+                return;
+            }
+            reject(new Error(`${relativeScriptPath} failed${output.trim() ? `:\n${output.trim()}` : '.'}`));
+        });
+    });
+}
+
+function serializePreviewBuildJob(job) {
+    return {
+        id: job.id,
+        ok: job.status !== 'failed',
+        status: job.status,
+        step: job.step,
+        steps: job.steps,
+        recentOutput: job.recentOutput,
+        error: job.error,
+        previewUrl: job.previewUrl,
+        readiness: job.readiness
+    };
+}
+
+async function runPreviewBuildJob(repoRoot, job) {
+    try {
+        for (let index = 0; index < PREVIEW_BUILD_STEPS.length; index += 1) {
+            const step = PREVIEW_BUILD_STEPS[index];
+            job.step = step.label;
+            job.steps[index].status = 'running';
+            appendPreviewBuildOutput(job, `${step.label}...`);
+            await runNodeScriptAsync(repoRoot, step.script, (chunk) => appendPreviewBuildOutput(job, chunk));
+            job.steps[index].status = 'pass';
+        }
+
+        job.status = 'complete';
+        job.step = 'Ready';
+        job.previewUrl = '/preview/';
+        job.readiness = getPublishReadiness(repoRoot);
+        appendPreviewBuildOutput(job, 'Live preview is ready.');
+    } catch (error) {
+        job.status = 'failed';
+        job.step = 'Failed';
+        job.error = error.message || 'Preview build failed.';
+        const activeStep = job.steps.find((step) => step.status === 'running');
+        if (activeStep) activeStep.status = 'fail';
+        appendPreviewBuildOutput(job, job.error);
+    }
+}
+
+function startPreviewBuildJob(repoRoot) {
+    const runningJob = Array.from(previewBuildJobs.values()).find((job) => {
+        return job.repoRoot === repoRoot && job.status === 'running';
+    });
+    if (runningJob) return runningJob;
+
+    const job = {
+        id: String(previewBuildJobCounter += 1),
+        repoRoot,
+        status: 'running',
+        step: 'Queued',
+        steps: PREVIEW_BUILD_STEPS.map((step) => ({
+            label: step.label,
+            status: 'pending'
+        })),
+        output: [],
+        recentOutput: [],
+        error: '',
+        previewUrl: '',
+        readiness: null
+    };
+    previewBuildJobs.set(job.id, job);
+    runPreviewBuildJob(repoRoot, job);
+    return job;
 }
 
 function writeWithValidation(repoRoot, writes) {
@@ -284,7 +643,8 @@ function saveMapDocument(repoRoot, payload) {
     return {
         ok: true,
         saved: target.relativePath,
-        atlas: 'maps/atlas-index.json'
+        atlas: 'maps/atlas-index.json',
+        readiness: getPublishReadiness(repoRoot)
     };
 }
 
@@ -306,7 +666,8 @@ function saveAtlasStructure(repoRoot, payload) {
     return {
         ok: true,
         saved: target.relativePath,
-        atlas: 'maps/atlas-index.json'
+        atlas: 'maps/atlas-index.json',
+        readiness: getPublishReadiness(repoRoot)
     };
 }
 
@@ -345,8 +706,49 @@ async function handleApiRequest(repoRoot, request, response, url) {
         sendJson(response, 200, {
             ok: true,
             saveEnabled: true,
-            message: 'Local map editor save server is running.'
+            message: 'Local map editor save server is running.',
+            readiness: getPublishReadiness(repoRoot)
         });
+        return true;
+    }
+
+    if (url.pathname === '/api/editor/readiness' && request.method === 'GET') {
+        sendJson(response, 200, {
+            ok: true,
+            readiness: getPublishReadiness(repoRoot)
+        });
+        return true;
+    }
+
+    if (url.pathname === '/api/editor/build-preview-status' && request.method === 'GET') {
+        const jobId = String(url.searchParams.get('id') || '').trim();
+        const job = previewBuildJobs.get(jobId);
+        if (!job) {
+            sendJson(response, 404, { ok: false, error: 'Preview build job was not found.' });
+            return true;
+        }
+        sendJson(response, 200, serializePreviewBuildJob(job));
+        return true;
+    }
+
+    if (url.pathname === '/api/editor/build-preview' && request.method === 'POST') {
+        if (!isAllowedEditorWriteRequest(request)) {
+            sendJson(response, 403, { ok: false, error: 'Preview builds must come from the local editor origin.' });
+            return true;
+        }
+        try {
+            const job = startPreviewBuildJob(repoRoot);
+            sendJson(response, 200, {
+                ok: true,
+                jobId: job.id,
+                status: job.status,
+                statusUrl: `/api/editor/build-preview-status?id=${encodeURIComponent(job.id)}`,
+                step: job.step,
+                steps: job.steps
+            });
+        } catch (error) {
+            sendJson(response, 500, { ok: false, error: error.message || 'Could not build live preview.' });
+        }
         return true;
     }
 
@@ -386,7 +788,15 @@ async function handleApiRequest(repoRoot, request, response, url) {
     return false;
 }
 
-function resolveStaticRequestPath(repoRoot, urlPathname) {
+function resolvePathUnderRoot(rootPath, relativePath) {
+    const fullPath = path.resolve(rootPath, relativePath);
+    if (!fullPath.startsWith(`${rootPath}${path.sep}`) && fullPath !== rootPath) {
+        throw new Error(`Path escapes static root: ${relativePath}`);
+    }
+    return fullPath;
+}
+
+function resolveStaticRequestPathFromRoot(rootPath, urlPathname) {
     let decodedPathname;
     try {
         decodedPathname = decodeURIComponent(urlPathname || '/');
@@ -402,12 +812,23 @@ function resolveStaticRequestPath(repoRoot, urlPathname) {
 
     const relativePath = path.normalize(`.${requestedPath}`);
     if (relativePath.startsWith('..')) return null;
-    const fullPath = resolveRepoPath(repoRoot, relativePath);
+    const fullPath = resolvePathUnderRoot(rootPath, relativePath);
     if (!fs.existsSync(fullPath)) return null;
     if (fs.statSync(fullPath).isDirectory()) {
-        return resolveRepoPath(repoRoot, path.join(relativePath, 'index.html'));
+        return resolvePathUnderRoot(rootPath, path.join(relativePath, 'index.html'));
     }
     return fullPath;
+}
+
+function resolveStaticRequestPath(repoRoot, urlPathname) {
+    return resolveStaticRequestPathFromRoot(repoRoot, urlPathname);
+}
+
+function resolvePreviewRequestPath(repoRoot, urlPathname) {
+    if (!urlPathname.startsWith('/preview/')) return null;
+    const distRoot = resolveRepoPath(repoRoot, 'dist');
+    const previewPathname = urlPathname.slice('/preview'.length) || '/';
+    return resolveStaticRequestPathFromRoot(distRoot, previewPathname);
 }
 
 function sendStaticFile(response, fullPath) {
@@ -429,6 +850,26 @@ function createEditorServer(options = {}) {
 
         if (request.method !== 'GET' && request.method !== 'HEAD') {
             sendJson(response, 405, { ok: false, error: 'Method not allowed.' });
+            return;
+        }
+
+        if (url.pathname === '/preview') {
+            response.writeHead(302, {
+                Location: '/preview/',
+                'Cache-Control': 'no-store'
+            });
+            response.end();
+            return;
+        }
+
+        const previewPath = resolvePreviewRequestPath(repoRoot, url.pathname);
+        if (previewPath && fs.existsSync(previewPath)) {
+            if (request.method === 'HEAD') {
+                response.writeHead(200, { 'Cache-Control': 'no-store' });
+                response.end();
+                return;
+            }
+            sendStaticFile(response, previewPath);
             return;
         }
 
@@ -477,9 +918,15 @@ module.exports = {
     DEFAULT_HOST,
     DEFAULT_PORT,
     assertLoopbackBindHost,
+    buildLivePreview,
+    classifyChangedFilePath,
+    compareLiveSourcesToDist,
     createEditorServer,
+    getChangedFileGroups,
+    getPublishReadiness,
     isAllowedEditorWriteRequest,
     isLoopbackHost,
+    resolvePreviewRequestPath,
     resolveMapTargetPath,
     saveAtlasStructure,
     saveMapDocument,

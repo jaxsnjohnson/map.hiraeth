@@ -719,15 +719,71 @@ for (const groupName in poiTypeGroups) {
 }
 
 const DEFAULT_POI_GROUP_ICON_CONFIG = {
-    "Settlements": "images/poi-icons/settlements.png",
-    "Structures": "images/poi-icons/structures.png",
-    "Natural Features": "images/poi-icons/natural-features.png",
-    "Other": "images/poi-icons/other.png",
-    "Unknown": "images/poi-icons/unknown.png"
+    "Settlements": "images/poi-icons/settlements.svg",
+    "Structures": "images/poi-icons/structures.svg",
+    "Natural Features": "images/poi-icons/natural-features.svg",
+    "Other": "images/poi-icons/other.svg",
+    "Unknown": "images/poi-icons/unknown.svg"
+};
+const DEFAULT_POI_TYPE_ICON_CONFIG = {
+    "Capital": "images/poi-icons/capital.svg",
+    "City": "images/poi-icons/city.svg",
+    "Town": "images/poi-icons/town.svg",
+    "Village": "images/poi-icons/village.svg",
+    "Hamlet": "images/poi-icons/hamlet.svg",
+    "Settlement": "images/poi-icons/settlement.svg",
+    "Castle": "images/poi-icons/castle.svg",
+    "Fortress": "images/poi-icons/fortress.svg",
+    "Fort": "images/poi-icons/fort.svg",
+    "Tower": "images/poi-icons/tower.svg",
+    "Ruin": "images/poi-icons/ruin.svg",
+    "Temple": "images/poi-icons/temple.svg",
+    "Shrine": "images/poi-icons/shrine.svg",
+    "Mine": "images/poi-icons/mine.svg",
+    "Lighthouse": "images/poi-icons/lighthouse.svg",
+    "Bridge": "images/poi-icons/bridge.svg",
+    "Gate": "images/poi-icons/gate.svg",
+    "Dungeon": "images/poi-icons/dungeon.svg",
+    "Lair": "images/poi-icons/lair.svg",
+    "Camp": "images/poi-icons/camp.svg",
+    "Asylum": "images/poi-icons/asylum.svg",
+    "Landmark": "images/poi-icons/landmark.svg",
+    "Building": "images/poi-icons/building.svg",
+    "Mountain": "images/poi-icons/mountain.svg",
+    "Peak": "images/poi-icons/peak.svg",
+    "Forest": "images/poi-icons/forest.svg",
+    "Wood": "images/poi-icons/wood.svg",
+    "River": "images/poi-icons/river.svg",
+    "Lake": "images/poi-icons/lake.svg",
+    "Cave": "images/poi-icons/cave.svg",
+    "Cavern": "images/poi-icons/cavern.svg",
+    "Coast": "images/poi-icons/coast.svg",
+    "Bay": "images/poi-icons/bay.svg",
+    "Cove": "images/poi-icons/cove.svg",
+    "Swamp": "images/poi-icons/swamp.svg",
+    "Marsh": "images/poi-icons/marsh.svg",
+    "Desert": "images/poi-icons/desert.svg",
+    "Natural Landmark": "images/poi-icons/natural-landmark.svg",
+    "Point of Interest": "images/poi-icons/point-of-interest.svg",
+    "Region": "images/poi-icons/region.svg",
+    "Portal": "images/poi-icons/portal.svg",
+    "Tavern": "images/poi-icons/tavern.svg",
+    "Dock & Trading": "images/poi-icons/dock-trading.svg",
+    "Market": "images/poi-icons/market-trade.svg",
+    "Trade": "images/poi-icons/market-trade.svg",
+    "Market & Trade": "images/poi-icons/market-trade.svg",
+    "Market / Trade": "images/poi-icons/market-trade.svg"
 };
 const poiGroupIconConfig = (typeof getConfigValue === 'function')
     ? getConfigValue('assets.poiIcons', DEFAULT_POI_GROUP_ICON_CONFIG)
     : DEFAULT_POI_GROUP_ICON_CONFIG;
+const poiTypeIconConfig = (typeof getConfigValue === 'function')
+    ? getConfigValue('assets.poiTypeIcons', DEFAULT_POI_TYPE_ICON_CONFIG)
+    : DEFAULT_POI_TYPE_ICON_CONFIG;
+const poiTypeIconKeyMap = {};
+Object.keys(poiTypeIconConfig || {}).forEach(type => {
+    poiTypeIconKeyMap[String(type || '').trim().toLowerCase()] = type;
+});
 
 const poiIconCache = new Map();
 
@@ -745,21 +801,29 @@ function getPoiGroup(type) {
     return group;
 }
 
-function getPoiIcon(groupName) {
+function getPoiTypeIconUrl(typeName) {
+    const normalizedType = String(typeName || '').trim().toLowerCase();
+    const configuredType = normalizedType ? poiTypeIconKeyMap[normalizedType] : '';
+    return configuredType ? poiTypeIconConfig[configuredType] : '';
+}
+
+function getPoiIcon(groupName, typeName = '') {
     const normalizedGroup = poiGroupIconConfig[groupName] ? groupName : 'Unknown';
-    if (poiIconCache.has(normalizedGroup)) {
-        return poiIconCache.get(normalizedGroup);
+    const iconUrl = getPoiTypeIconUrl(typeName) || poiGroupIconConfig[normalizedGroup] || poiGroupIconConfig.Unknown;
+    const cacheKey = iconUrl || normalizedGroup;
+    if (poiIconCache.has(cacheKey)) {
+        return poiIconCache.get(cacheKey);
     }
 
     const icon = L.icon({
-        iconUrl: poiGroupIconConfig[normalizedGroup],
+        iconUrl,
         iconSize: [36, 48],
         iconAnchor: [18, 47],
         popupAnchor: [0, -40],
         className: 'poi-custom-icon'
     });
 
-    poiIconCache.set(normalizedGroup, icon);
+    poiIconCache.set(cacheKey, icon);
     return icon;
 }
 // --- END: POI Type Grouping Configuration ---
@@ -5549,7 +5613,7 @@ function populatePOIsOnMap(selectedMap) {
                 if (point.coords[0] >= 0 && point.coords[0] <= mapHeight && point.coords[1] >= 0 && point.coords[1] <= mapWidth) {
                     const markerLabel = getPoiMarkerAccessibleName(point);
                     const marker = L.marker(point.coords, {
-                        icon: getPoiIcon(getPoiGroup(point.type)),
+                        icon: getPoiIcon(getPoiGroup(point.type), point.type),
                         title: markerLabel,
                         alt: markerLabel
                     });

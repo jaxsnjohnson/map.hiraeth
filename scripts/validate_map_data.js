@@ -347,6 +347,9 @@ function validateSiteConfig() {
     Object.entries(assetConfig.poiIcons || {}).forEach(([group, iconPath]) => {
         assertExistingRelativeFile(iconPath, `site.config.json.assets.poiIcons.${group}`);
     });
+    Object.entries(assetConfig.poiTypeIcons || {}).forEach(([type, iconPath]) => {
+        assertExistingRelativeFile(iconPath, `site.config.json.assets.poiTypeIcons.${type}`);
+    });
     Object.entries(assetConfig.audio || {}).forEach(([mode, audioPath]) => {
         assertExistingRelativeFile(audioPath, `site.config.json.assets.audio.${mode}`);
     });

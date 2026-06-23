@@ -47,7 +47,6 @@ You need a modern web browser and a local web server to run this project. Due to
 ```
 .
 ├── index.html          # Main map viewer application
-├── about.html          # About page providing context
 ├── maps/
 │   ├── maps.json       # Flat authoring manifest for map order and hierarchy
 │   ├── atlas-index.json# Generated runtime atlas/search index

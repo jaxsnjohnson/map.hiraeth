@@ -43,6 +43,7 @@ global.debounce = (fn) => fn;
 global.updateSelectedFeatureFromForm = () => {};
 global.saveCurrentMapJson = () => {};
 global.saveAtlasStructure = () => {};
+global.buildLivePreview = () => {};
 global.exportCurrentMapJson = () => {};
 global.exportAtlasStructure = () => {};
 global.finishDraftGeometry = () => {};
@@ -50,6 +51,7 @@ global.clearDrawMode = () => {};
 global.beginDrawMode = () => {};
 global.deleteSelectedFeature = () => {};
 global.queueMapViewportReset = () => {};
+global.markCurrentMapDirty = () => {};
 
 // Proxy dom to automatically return a mocked element with addEventListener
 global.dom = new Proxy({}, {
