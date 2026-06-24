@@ -6212,7 +6212,7 @@ function createFolderMainAction(folderName, isLoadable, isComingSoon) {
     return mainAction;
 }
 
-function attachFolderEventListeners(item, folderName, isLoadable, isComingSoon, header, toggleBtn, mainAction, toggleFolderOpen) {
+function attachFolderEventListeners({ item, folderName, isLoadable, isComingSoon, header, toggleBtn, mainAction, toggleFolderOpen }) {
     toggleBtn.addEventListener('click', toggleFolderOpen);
     toggleBtn.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -6292,7 +6292,7 @@ function createSidebarFolderItem(item) {
         syncFolderExpandedAria(listItem);
     };
 
-    attachFolderEventListeners(item, folderName, isLoadable, isComingSoon, header, toggleBtn, mainAction, toggleFolderOpen);
+    attachFolderEventListeners({ item, folderName, isLoadable, isComingSoon, header, toggleBtn, mainAction, toggleFolderOpen });
 
     syncFolderExpandedAria(listItem);
 
