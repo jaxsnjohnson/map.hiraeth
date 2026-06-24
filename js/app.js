@@ -4775,6 +4775,7 @@ function populatePOIFilters(pointsOfInterest) {
 }
 
 const filterGroupsCache = new WeakMap();
+const regionGroupNestedCheckboxes = new WeakMap();
 
 function getOrGenerateRegionFilterGroups(regions, selectedMap) {
     // Check if explicit filter groups exist, otherwise auto-generate from data
@@ -4823,6 +4824,38 @@ function getOrGenerateRegionFilterGroups(regions, selectedMap) {
     return regionFilterGroups;
 }
 
+function getRegionGroupNestedCheckboxes(groupCheckbox) {
+    const nestedCheckboxes = regionGroupNestedCheckboxes.get(groupCheckbox);
+    if (nestedCheckboxes) {
+        return nestedCheckboxes;
+    }
+
+    if (!groupCheckbox || typeof groupCheckbox.closest !== 'function') {
+        return [];
+    }
+
+    const groupContainer = groupCheckbox.closest('.filter-group');
+    if (!groupContainer) {
+        return [];
+    }
+
+    const fallbackCheckboxes = Array.from(groupContainer.querySelectorAll('.region-type-filter'));
+    regionGroupNestedCheckboxes.set(groupCheckbox, fallbackCheckboxes);
+    return fallbackCheckboxes;
+}
+
+function setRegionGroupChildCheckboxes(groupCheckbox, checked) {
+    const groupName = groupCheckbox.value;
+    const nestedCheckboxes = getRegionGroupNestedCheckboxes(groupCheckbox);
+
+    for (let i = 0; i < nestedCheckboxes.length; i++) {
+        const checkbox = nestedCheckboxes[i];
+        if (checkbox.dataset.group === groupName) {
+            checkbox.checked = checked;
+        }
+    }
+}
+
 function createRegionFilterGroupDOM(groupName, values) {
     const groupContainer = document.createElement('div');
     groupContainer.className = 'filter-group closed'; // Start as closed
@@ -4857,6 +4890,7 @@ function createRegionFilterGroupDOM(groupName, values) {
 
     const nestedList = document.createElement('div');
     nestedList.className = 'nested-filter-list';
+    const nestedCheckboxes = [];
 
     values.forEach(value => {
         const filterId = `filter-region-value-${value.replace(/\s+/g, '-')}`;
@@ -4869,6 +4903,7 @@ function createRegionFilterGroupDOM(groupName, values) {
         checkbox.checked = true;
         checkbox.className = 'region-type-filter';
         checkbox.dataset.group = groupName;
+        nestedCheckboxes.push(checkbox);
         const label = document.createElement('label');
         label.htmlFor = filterId;
         label.textContent = value;
@@ -4877,6 +4912,7 @@ function createRegionFilterGroupDOM(groupName, values) {
         nestedList.appendChild(div);
     });
     groupContainer.appendChild(nestedList);
+    regionGroupNestedCheckboxes.set(groupCheckbox, nestedCheckboxes);
 
     return groupContainer;
 }
@@ -7267,25 +7303,7 @@ poiFilterContainer.addEventListener('change', (e) => {
 
     // Handle parent group checkbox for regions
     if (target.classList.contains('region-group-filter')) {
-        const isChecked = target.checked;
-        const groupName = target.value;
-
-        // Optimize querying DOM elements since they are created once per group
-        // within populateRegionFilters and not modified dynamically later.
-        // We use a query on target.closest to only find the inputs under that particular group
-        const groupContainer = target.closest('.filter-group');
-        if (groupContainer && !groupContainer._cachedNestedCheckboxes) {
-            // cache onto the groupContainer which is less likely to leak than modifying input properties
-            groupContainer._cachedNestedCheckboxes = groupContainer.querySelectorAll('.region-type-filter');
-        }
-
-        const nestedCheckboxes = groupContainer ? groupContainer._cachedNestedCheckboxes : [];
-        for (let i = 0; i < nestedCheckboxes.length; i++) {
-            const checkbox = nestedCheckboxes[i];
-            if (checkbox.dataset.group === groupName) {
-                checkbox.checked = isChecked;
-            }
-        }
+        setRegionGroupChildCheckboxes(target, target.checked);
     }
 
     // Handle master "Show All / Hide All" checkbox
