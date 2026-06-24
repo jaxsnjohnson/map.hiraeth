@@ -812,38 +812,78 @@ function updateMapUnderlayColor(mapEntry = null) {
 }
 
 // --- Visibility helpers for GM/Public split ---
+// ⚡ Bolt: Replaced chained .map().filter() and array spreads with single for-loops
+// to prevent redundant intermediate array allocations and improve performance on large maps.
 function getVisiblePoints(mapObj) {
     const points = Array.isArray(mapObj.pointsOfInterest) ? mapObj.pointsOfInterest :
         (Array.isArray(mapObj.points) ? mapObj.points : []);
-    return points.filter(visibilityAllowed);
+    const result = [];
+    for (let i = 0; i < points.length; i++) {
+        if (visibilityAllowed(points[i])) result.push(points[i]);
+    }
+    return result;
 }
 
 function getVisibleRegions(mapObj) {
     const regions = Array.isArray(mapObj.regions) ? mapObj.regions : [];
-    return regions.filter(visibilityAllowed);
+    const result = [];
+    for (let i = 0; i < regions.length; i++) {
+        if (visibilityAllowed(regions[i])) result.push(regions[i]);
+    }
+    return result;
 }
 
 function getVisibleLines(mapObj) {
     const roads = Array.isArray(mapObj.roads) ? mapObj.roads : [];
     const linesList = Array.isArray(mapObj.lines) ? mapObj.lines : [];
-    const lines = [...roads, ...linesList];
-    return lines.filter(visibilityAllowed);
+    const result = [];
+    for (let i = 0; i < roads.length; i++) {
+        if (visibilityAllowed(roads[i])) result.push(roads[i]);
+    }
+    for (let i = 0; i < linesList.length; i++) {
+        if (visibilityAllowed(linesList[i])) result.push(linesList[i]);
+    }
+    return result;
 }
 
 function getVisibleRoutes(mapObj) {
     const routes = Array.isArray(mapObj.routes) ? mapObj.routes : [];
-    return routes.map(route => {
-        const steps = (Array.isArray(route.steps) ? route.steps : []).filter(visibilityAllowed);
-        return { ...route, steps };
-    }).filter(r => r.steps && r.steps.length > 0 && visibilityAllowed(r));
+    const result = [];
+    for (let i = 0; i < routes.length; i++) {
+        const route = routes[i];
+        if (!visibilityAllowed(route)) continue;
+
+        const steps = Array.isArray(route.steps) ? route.steps : [];
+        const validSteps = [];
+        for (let j = 0; j < steps.length; j++) {
+            if (visibilityAllowed(steps[j])) validSteps.push(steps[j]);
+        }
+
+        if (validSteps.length > 0) {
+            result.push({ ...route, steps: validSteps });
+        }
+    }
+    return result;
 }
 
 function getVisibleEncounterTables(mapObj) {
     const tables = Array.isArray(mapObj.encounterTables) ? mapObj.encounterTables : [];
-    return tables.map(table => {
-        const entries = (Array.isArray(table.entries) ? table.entries : []).filter(visibilityAllowed);
-        return { ...table, entries };
-    }).filter(t => t.entries && t.entries.length > 0 && visibilityAllowed(t));
+    const result = [];
+    for (let i = 0; i < tables.length; i++) {
+        const table = tables[i];
+        if (!visibilityAllowed(table)) continue;
+
+        const entries = Array.isArray(table.entries) ? table.entries : [];
+        const validEntries = [];
+        for (let j = 0; j < entries.length; j++) {
+            if (visibilityAllowed(entries[j])) validEntries.push(entries[j]);
+        }
+
+        if (validEntries.length > 0) {
+            result.push({ ...table, entries: validEntries });
+        }
+    }
+    return result;
 }
 
 // --- DOM Elements ---
