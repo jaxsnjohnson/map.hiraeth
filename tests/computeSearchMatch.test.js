@@ -29,6 +29,8 @@ function extractFunctionSource(name) {
 
 const snippets = [
     extractFunctionSource('normalizeSearchValue'),
+    extractFunctionSource('getSecondarySearchMatchCache'),
+    extractFunctionSource('rememberSecondarySearchMatch'),
     extractFunctionSource('getFuzzyMatchScore'),
     extractFunctionSource('checkPrimarySearchMatch'),
     extractFunctionSource('checkSecondarySearchMatch'),
@@ -57,6 +59,7 @@ assert.equal(computeSearchMatch('zzz', 'Icebeach', '').matched, false);
 
 const precomputedPrimary = normalizeSearchValue('Icebeach');
 const precomputedSecondary = normalizeSearchValue('A cold harbor city');
+const precomputedSearchContext = {};
 
 assert.deepEqual(
     computePrecomputedSearchMatch('ice', precomputedPrimary, precomputedSecondary),
@@ -69,6 +72,16 @@ assert.deepEqual(
 assert.deepEqual(
     computePrecomputedSearchMatch('zzz', precomputedPrimary, precomputedSecondary),
     computeSearchMatch('zzz', 'Icebeach', 'A cold harbor city')
+);
+assert.deepEqual(
+    computePrecomputedSearchMatch('cdh', precomputedPrimary, precomputedSecondary, precomputedSearchContext),
+    computeSearchMatch('cdh', 'Icebeach', 'A cold harbor city')
+);
+assert.equal(precomputedSearchContext._secondarySearchMatchText, precomputedSecondary);
+assert.ok(precomputedSearchContext._secondarySearchMatchCache);
+assert.equal(
+    precomputedSearchContext._secondarySearchMatchCache.get('cdh').score,
+    computeSearchMatch('cdh', 'Icebeach', 'A cold harbor city').score
 );
 
 console.log('computeSearchMatch regression checks passed');

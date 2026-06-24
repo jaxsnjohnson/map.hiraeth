@@ -3161,6 +3161,24 @@ function normalizeSearchValue(value) {
     return String(value || '').trim().toLowerCase();
 }
 
+function getSecondarySearchMatchCache(searchContext, normalizedText) {
+    if (!searchContext || !normalizedText) return null;
+    if (searchContext._secondarySearchMatchText !== normalizedText) {
+        searchContext._secondarySearchMatchText = normalizedText;
+        searchContext._secondarySearchMatchCache = new Map();
+    }
+    return searchContext._secondarySearchMatchCache;
+}
+
+function rememberSecondarySearchMatch(searchCache, term, match) {
+    if (!searchCache) return;
+    if (searchCache.size >= 32) {
+        const oldestKey = searchCache.keys().next().value;
+        searchCache.delete(oldestKey);
+    }
+    searchCache.set(term, match);
+}
+
 function getFuzzyMatchScore(term, target) {
     if (!term || !target) return -1;
     let searchIndex = 0;
@@ -3199,14 +3217,28 @@ function checkPrimarySearchMatch(term, normalizedPrimary) {
     return null;
 }
 
-function checkSecondarySearchMatch(term, normalizedSecondary) {
-    if (normalizedSecondary.includes(term)) {
-        return { matched: true, score: 180, matchedByContent: true };
+function checkSecondarySearchMatch(term, normalizedSecondary, searchContext = null) {
+    const searchCache = getSecondarySearchMatchCache(searchContext, normalizedSecondary);
+    if (searchCache && searchCache.has(term)) {
+        return searchCache.get(term);
     }
+
+    if (!term) {
+        const emptyTermMatch = { matched: true, score: 180, matchedByContent: true };
+        rememberSecondarySearchMatch(searchCache, term, emptyTermMatch);
+        return emptyTermMatch;
+    }
+
     const fuzzySecondaryScore = getFuzzyMatchScore(term, normalizedSecondary);
     if (fuzzySecondaryScore >= 0) {
-        return { matched: true, score: Math.max(80, fuzzySecondaryScore - 40), matchedByContent: true };
+        const secondaryMatch = fuzzySecondaryScore === 160 || normalizedSecondary.includes(term)
+            ? { matched: true, score: 180, matchedByContent: true }
+            : { matched: true, score: Math.max(80, fuzzySecondaryScore - 40), matchedByContent: true };
+        rememberSecondarySearchMatch(searchCache, term, secondaryMatch);
+        return secondaryMatch;
     }
+
+    rememberSecondarySearchMatch(searchCache, term, null);
     return null;
 }
 
@@ -4141,14 +4173,14 @@ function sortSearchResults(results) {
         .slice(0, 40);
 }
 
-function computePrecomputedSearchMatch(term, normalizedPrimary, normalizedSecondary) {
+function computePrecomputedSearchMatch(term, normalizedPrimary, normalizedSecondary, secondarySearchContext = null) {
     if (!term || !normalizedPrimary) return { matched: false, score: -1, matchedByContent: false };
 
     const primaryMatch = checkPrimarySearchMatch(term, normalizedPrimary);
     if (primaryMatch) return primaryMatch;
 
     if (normalizedSecondary) {
-        const secondaryMatch = checkSecondarySearchMatch(term, normalizedSecondary);
+        const secondaryMatch = checkSecondarySearchMatch(term, normalizedSecondary, secondarySearchContext);
         if (secondaryMatch) return secondaryMatch;
     }
 
@@ -4184,7 +4216,12 @@ function searchMapMarkers(searchTerm, results, allPoiGroupsChecked, activeSpecif
                 searchContext.normalizedPrimary = normalizeSearchValue(poi.name);
                 searchContext.normalizedSecondary = normalizeSearchValue(getFeatureSearchDetailText(poi));
             }
-            match = computePrecomputedSearchMatch(searchTerm, searchContext.normalizedPrimary, searchContext.normalizedSecondary);
+            match = computePrecomputedSearchMatch(
+                searchTerm,
+                searchContext.normalizedPrimary,
+                searchContext.normalizedSecondary,
+                searchContext
+            );
         }
         const isSearchMatch = !hasSearchTerm || match.matched;
 
@@ -4348,7 +4385,8 @@ function searchAtlasIndex(searchTerm, results) {
             const match = computePrecomputedSearchMatch(
                 searchTerm,
                 entry._normalizedName ?? normalizeSearchValue(entry.name),
-                entry._normalizedSearchContent ?? normalizeSearchValue(`${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''} ${entry.searchText || ''}`)
+                entry._normalizedSearchContent ?? normalizeSearchValue(`${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''} ${entry.searchText || ''}`),
+                entry
             );
 
             if (!match.matched) continue;
