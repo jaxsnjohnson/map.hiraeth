@@ -4827,57 +4827,40 @@ function createRegionFilterGroupDOM(groupName, values) {
     const groupContainer = document.createElement('div');
     groupContainer.className = 'filter-group closed'; // Start as closed
 
-    const groupHeader = document.createElement('div');
-    groupHeader.className = 'filter-group-header';
-    groupHeader.setAttribute('role', 'button');
-    groupHeader.setAttribute('tabindex', '0');
-    groupHeader.setAttribute('aria-expanded', 'false');
-    groupHeader.innerHTML = `
-        <span class="filter-chevron-icon" aria-hidden="true">
-            <i class="ui-icon" data-lucide="chevron-right"></i>
-        </span>
-    `;
+    const safeGroupName = escapeHtml(groupName);
+    const escapedGroupNameForAttribute = escapeForSingleQuotedAttribute(groupName);
+    const groupFilterId = escapeForSingleQuotedAttribute(`filter-region-group-${groupName.replace(/\s+/g, '-')}`);
 
-    const groupDiv = document.createElement('div');
-    groupDiv.className = 'filter-item';
-    const groupFilterId = `filter-region-group-${groupName.replace(/\s+/g, '-')}`;
-    const groupCheckbox = document.createElement('input');
-    groupCheckbox.type = 'checkbox';
-    groupCheckbox.id = groupFilterId;
-    groupCheckbox.value = groupName;
-    groupCheckbox.checked = true;
-    groupCheckbox.className = 'region-group-filter';
-    const groupLabel = document.createElement('label');
-    groupLabel.htmlFor = groupFilterId;
-    groupLabel.textContent = groupName;
-    groupDiv.appendChild(groupCheckbox);
-    groupDiv.appendChild(groupLabel);
-    groupHeader.appendChild(groupDiv);
-    groupContainer.appendChild(groupHeader);
+    const htmlParts = [
+        '<div class="filter-group-header" role="button" tabindex="0" aria-expanded="false">',
+            '<span class="filter-chevron-icon" aria-hidden="true">',
+                '<i class="ui-icon" data-lucide="chevron-right"></i>',
+            '</span>',
+            '<div class="filter-item">',
+                '<input type="checkbox" id=\'', groupFilterId, '\' value=\'', escapedGroupNameForAttribute, '\' checked class="region-group-filter">',
+                '<label for=\'', groupFilterId, '\'>', safeGroupName, '</label>',
+            '</div>',
+        '</div>',
+        '<div class="nested-filter-list">'
+    ];
 
-    const nestedList = document.createElement('div');
-    nestedList.className = 'nested-filter-list';
+    for (let i = 0; i < values.length; i++) {
+        const value = values[i];
+        const safeValue = escapeHtml(value);
+        const filterId = escapeForSingleQuotedAttribute(`filter-region-value-${value.replace(/\s+/g, '-')}`);
+        const escapedValueForAttribute = escapeForSingleQuotedAttribute(value);
 
-    values.forEach(value => {
-        const filterId = `filter-region-value-${value.replace(/\s+/g, '-')}`;
-        const div = document.createElement('div');
-        div.className = 'filter-item';
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = filterId;
-        checkbox.value = value;
-        checkbox.checked = true;
-        checkbox.className = 'region-type-filter';
-        checkbox.dataset.group = groupName;
-        const label = document.createElement('label');
-        label.htmlFor = filterId;
-        label.textContent = value;
-        div.appendChild(checkbox);
-        div.appendChild(label);
-        nestedList.appendChild(div);
-    });
-    groupContainer.appendChild(nestedList);
+        htmlParts.push(
+            '<div class="filter-item">',
+                '<input type="checkbox" id=\'', filterId, '\' value=\'', escapedValueForAttribute, '\' checked class="region-type-filter" data-group=\'', escapedGroupNameForAttribute, '\'>',
+                '<label for=\'', filterId, '\'>', safeValue, '</label>',
+            '</div>'
+        );
+    }
 
+    htmlParts.push('</div>');
+
+    groupContainer.innerHTML = htmlParts.join('');
     return groupContainer;
 }
 
