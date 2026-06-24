@@ -25,30 +25,29 @@ function extractFunctionSource(name) {
 }
 
 const snippets = [
-    extractFunctionSource('getFuzzyMatchScore'),
-    extractFunctionSource('checkPrimarySearchMatch')
+    extractFunctionSource('getFuzzyMatchScore')
 ].join('\n');
 
 // eslint-disable-next-line no-eval
 eval(snippets);
 
-function legacyCheckPrimarySearchMatch(term, normalizedPrimary) {
-    if (normalizedPrimary === term) {
-        return { matched: true, score: 520, matchedByContent: false };
-    }
-    if (normalizedPrimary.startsWith(term)) {
-        return { matched: true, score: 430, matchedByContent: false };
-    }
-    const primaryIndex = normalizedPrimary.indexOf(term);
-    if (primaryIndex >= 0) {
-        return { matched: true, score: 320 - Math.min(primaryIndex, 120), matchedByContent: false };
+function legacyGetFuzzyMatchScore(term, target) {
+    if (!term || !target) return -1;
+    let searchIndex = 0;
+    let lastMatchIndex = -1;
+    let spreadPenalty = 0;
+
+    for (const char of term) {
+        const foundIndex = target.indexOf(char, searchIndex);
+        if (foundIndex === -1) return -1;
+        if (lastMatchIndex >= 0) {
+            spreadPenalty += Math.max(0, foundIndex - lastMatchIndex - 1);
+        }
+        lastMatchIndex = foundIndex;
+        searchIndex = foundIndex + 1;
     }
 
-    const fuzzyScore = getFuzzyMatchScore(term, normalizedPrimary);
-    if (fuzzyScore >= 0) {
-        return { matched: true, score: fuzzyScore, matchedByContent: false };
-    }
-    return null;
+    return Math.max(40, 160 - spreadPenalty);
 }
 
 function buildCorpus() {
@@ -65,20 +64,19 @@ function buildCorpus() {
             corpus.push([term, `unrelated waypoint ${i}`]);
         }
     }
+    corpus.push(['😀a', '😀a']);
+    corpus.push(['a😀', 'a😀']);
+    corpus.push(['😀b', `😀${'x'.repeat(40)}b`]);
     return corpus;
 }
 
-function runBenchmark(label, matcher, corpus, iterations) {
+function runBenchmark(label, scorer, corpus, iterations) {
     const start = performance.now();
     let checksum = 0;
 
     for (let iteration = 0; iteration < iterations; iteration += 1) {
-        for (const [term, normalizedPrimary] of corpus) {
-            const match = matcher(term, normalizedPrimary);
-            if (match) {
-                checksum += match.score;
-                if (match.matchedByContent) checksum += 1;
-            }
+        for (const [term, target] of corpus) {
+            checksum += scorer(term, target);
         }
     }
 
@@ -105,18 +103,18 @@ const currentDurations = [];
 let legacyChecksum = 0;
 let currentChecksum = 0;
 
-runBenchmark('warmup legacy', legacyCheckPrimarySearchMatch, corpus, 5);
-runBenchmark('warmup current', checkPrimarySearchMatch, corpus, 5);
+runBenchmark('warmup legacy', legacyGetFuzzyMatchScore, corpus, 5);
+runBenchmark('warmup current', getFuzzyMatchScore, corpus, 5);
 
 for (let round = 0; round < rounds; round += 1) {
     const first = round % 2 === 0
         ? [
-            ['legacy', legacyCheckPrimarySearchMatch],
-            ['current', checkPrimarySearchMatch]
+            ['legacy', legacyGetFuzzyMatchScore],
+            ['current', getFuzzyMatchScore]
         ]
         : [
-            ['current', checkPrimarySearchMatch],
-            ['legacy', legacyCheckPrimarySearchMatch]
+            ['current', getFuzzyMatchScore],
+            ['legacy', legacyGetFuzzyMatchScore]
         ];
 
     for (const [label, matcher] of first) {
@@ -143,7 +141,7 @@ const percent = legacyMedian === 0 ? 0 : (delta / legacyMedian) * 100;
 console.log(`Corpus entries: ${corpus.length}`);
 console.log(`Iterations per round: ${iterations}`);
 console.log(`Rounds: ${rounds}`);
-console.log(`Legacy median: ${legacyMedian.toFixed(2)} ms`);
-console.log(`Current median: ${currentMedian.toFixed(2)} ms`);
+console.log(`Legacy fuzzy median: ${legacyMedian.toFixed(2)} ms`);
+console.log(`Current fuzzy median: ${currentMedian.toFixed(2)} ms`);
 console.log(`Delta: ${delta.toFixed(2)} ms (${percent.toFixed(2)}%)`);
 console.log(`Checksum: ${currentChecksum}`);

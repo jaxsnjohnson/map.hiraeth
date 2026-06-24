@@ -3165,17 +3165,29 @@ function getFuzzyMatchScore(term, target) {
     let lastMatchIndex = -1;
     let spreadPenalty = 0;
 
-    for (const char of term) {
+    for (let termIndex = 0; termIndex < term.length;) {
+        const firstCodeUnit = term.charCodeAt(termIndex);
+        let char = term[termIndex];
+        termIndex += 1;
+
+        if (firstCodeUnit >= 0xd800 && firstCodeUnit <= 0xdbff && termIndex < term.length) {
+            const secondCodeUnit = term.charCodeAt(termIndex);
+            if (secondCodeUnit >= 0xdc00 && secondCodeUnit <= 0xdfff) {
+                char += term[termIndex];
+                termIndex += 1;
+            }
+        }
+
         const foundIndex = target.indexOf(char, searchIndex);
         if (foundIndex === -1) return -1;
-        if (lastMatchIndex >= 0) {
-            spreadPenalty += Math.max(0, foundIndex - lastMatchIndex - 1);
+        if (lastMatchIndex >= 0 && spreadPenalty < 120) {
+            spreadPenalty += foundIndex - lastMatchIndex - 1;
         }
         lastMatchIndex = foundIndex;
         searchIndex = foundIndex + 1;
     }
 
-    return Math.max(40, 160 - spreadPenalty);
+    return spreadPenalty >= 120 ? 40 : 160 - spreadPenalty;
 }
 
 function checkPrimarySearchMatch(term, normalizedPrimary) {
