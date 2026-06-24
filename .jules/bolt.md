@@ -143,3 +143,7 @@
 ## 2024-02-14 - Optimize modal querySelectorAll on keydown
 **Learning:** querySelectorAll can be expensive when called inside high-frequency event listeners like keydown.
 **Action:** When focusable content in a container is static while the container is open, cache the result of querySelectorAll lazily on the first execution to eliminate query overhead on subsequent keystrokes.
+
+## 2024-05-24 - Cache repeated static DOM queries
+**Learning:** Using `querySelectorAll` repeatedly on static DOM structures is an O(N) operation that impacts performance, especially in sync functions like `syncSidebarTabButtons` that are called frequently.
+**Action:** Cache the resulting NodeList in a top-level module variable to achieve O(1) retrieval after the first query.
