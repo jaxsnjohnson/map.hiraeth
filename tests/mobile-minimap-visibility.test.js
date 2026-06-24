@@ -93,6 +93,36 @@ global.miniMapControlMapId = null;
 // eslint-disable-next-line no-eval
 eval(snippets);
 
+assert.doesNotThrow(() => removeMiniMapControl(), 'missing minimap control should be a safe no-op');
+assert.equal(global.miniMapControl, null);
+assert.equal(global.miniMapControlMode, null);
+assert.equal(global.miniMapControlMapId, null);
+
+let directRemoveCalls = 0;
+const directMiniMapControl = {
+    removed: false,
+    remove() {
+        directRemoveCalls += 1;
+        this.removed = true;
+    }
+};
+
+global.miniMapControl = directMiniMapControl;
+global.miniMapControlMode = 'desktop';
+global.miniMapControlMapId = 'default';
+
+removeMiniMapControl();
+
+assert.equal(directRemoveCalls, 1, 'active minimap control should be removed once');
+assert.equal(directMiniMapControl.removed, true, 'active minimap control remove hook should run');
+assert.equal(global.miniMapControl, null, 'minimap control reference should be cleared');
+assert.equal(global.miniMapControlMode, null, 'minimap layout mode should be cleared');
+assert.equal(global.miniMapControlMapId, null, 'minimap map id should be cleared');
+
+removeMiniMapControl();
+
+assert.equal(directRemoveCalls, 1, 'cleanup should be idempotent after the control is removed');
+
 assert.equal(getMiniMapImageUrl({ imageUrl: 'maps/default.webp' }), 'maps/default.mini.webp');
 assert.equal(getMiniMapImageUrl({ imageUrl: 'maps/Old-Lin Map.jpeg' }), 'maps/Old-Lin Map.mini.webp');
 assert.equal(getMiniMapImageUrl({ imageUrl: 'maps/default.webp?asset=1#view' }), 'maps/default.mini.webp?asset=1#view');
