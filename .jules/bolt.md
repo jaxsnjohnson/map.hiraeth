@@ -136,7 +136,10 @@
 ## 2024-05-15 - Array Chaining Optimization
 **Learning:** Replaced chained array methods (`.map().filter()`) and array spreading (`[...roads, ...linesList]`) with single `for` loops in visibility extraction functions (`getVisiblePoints`, `getVisibleRegions`, `getVisibleLines`, `getVisibleRoutes`, `getVisibleEncounterTables`) to eliminate redundant intermediate array allocations. Microbenchmarking on table loops resulted in an improvement from ~441ms to ~88ms.
 **Action:** Always prefer single `for` loops over chained array methods for hot paths where performance is a concern.
-
 ## 2024-05-24 - Optimize Single Active Element Toggling
 **Learning:** Using `querySelectorAll` to find a single element that just had a class added to it is an O(N) operation over the container.
 **Action:** Cache a direct reference to the active element. When the active element changes, use the cached reference to remove the class (O(1)), instead of searching the DOM tree.
+
+## 2024-02-14 - Optimize modal querySelectorAll on keydown
+**Learning:** querySelectorAll can be expensive when called inside high-frequency event listeners like keydown.
+**Action:** When focusable content in a container is static while the container is open, cache the result of querySelectorAll lazily on the first execution to eliminate query overhead on subsequent keystrokes.
