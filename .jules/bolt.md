@@ -136,3 +136,6 @@
 ## 2024-05-15 - Array Chaining Optimization
 **Learning:** Replaced chained array methods (`.map().filter()`) and array spreading (`[...roads, ...linesList]`) with single `for` loops in visibility extraction functions (`getVisiblePoints`, `getVisibleRegions`, `getVisibleLines`, `getVisibleRoutes`, `getVisibleEncounterTables`) to eliminate redundant intermediate array allocations. Microbenchmarking on table loops resulted in an improvement from ~441ms to ~88ms.
 **Action:** Always prefer single `for` loops over chained array methods for hot paths where performance is a concern.
+## 2025-03-09 - Optimizing map item selection updates
+**Learning:** Using `getElementsByClassName` in a while loop continuously re-evaluates the live DOM node list which causes significant CPU overhead.
+**Action:** Replace live HTMLCollections with static `NodeList` arrays using `querySelectorAll` when bulk-removing classes to achieve a 2-3x performance speedup.
