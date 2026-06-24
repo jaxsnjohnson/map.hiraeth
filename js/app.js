@@ -1891,45 +1891,74 @@ function getSidebarFeatureProperties(feature) {
 
 function getFeatureDetailSections(feature) {
     const sections = Array.isArray(feature?.detailSections) ? feature.detailSections : [];
-    return sections
-        .map((section) => {
-            if (!section || typeof section !== 'object' || Array.isArray(section)) return null;
-            const heading = getSidebarPlainText(section.heading);
-            const body = getSidebarPlainText(section.body);
-            if (!heading && !body) return null;
-            return { heading, body };
-        })
-        .filter(Boolean);
+    const result = [];
+    for (let i = 0; i < sections.length; i++) {
+        const section = sections[i];
+        if (!section || typeof section !== 'object' || Array.isArray(section)) continue;
+        const heading = getSidebarPlainText(section.heading);
+        const body = getSidebarPlainText(section.body);
+        if (heading || body) {
+            result.push({ heading, body });
+        }
+    }
+    return result;
 }
 
 function getFeatureTags(feature) {
     if (!Array.isArray(feature?.tags)) return [];
     const seen = new Set();
-    return feature.tags
-        .map((tag) => getSidebarPlainText(tag))
-        .filter((tag) => {
-            const key = tag.toLowerCase();
-            if (!tag || seen.has(key)) return false;
+    const result = [];
+    const tags = feature.tags;
+    for (let i = 0; i < tags.length; i++) {
+        const tag = getSidebarPlainText(tags[i]);
+        if (!tag) continue;
+        const key = tag.toLowerCase();
+        if (!seen.has(key)) {
             seen.add(key);
-            return true;
-        });
+            result.push(tag);
+        }
+    }
+    return result;
 }
 
 function getFeatureSearchDetailText(feature) {
-    const detailSectionText = getFeatureDetailSections(feature)
-        .map((section) => `${section.heading} ${section.body}`)
-        .join(' ');
-    const tagText = getFeatureTags(feature).join(' ');
-    const propertyText = getFeaturePrimitiveProperties(feature)
-        .map(([key, value]) => `${key} ${String(value)}`)
-        .join(' ');
-    return [
-        feature?.summary || '',
-        feature?.description || '',
-        detailSectionText,
-        tagText,
-        propertyText
-    ].join(' ');
+    // ⚡ Bolt: Eliminate multiple intermediate arrays, object allocations, and redundant string creations
+    // by streaming all valid textual data directly into a single array before joining.
+    const parts = [];
+
+    if (feature?.summary) parts.push(String(feature.summary));
+    if (feature?.description) parts.push(String(feature.description));
+
+    const sections = Array.isArray(feature?.detailSections) ? feature.detailSections : [];
+    for (let i = 0; i < sections.length; i++) {
+        const section = sections[i];
+        if (!section || typeof section !== 'object' || Array.isArray(section)) continue;
+        const heading = getSidebarPlainText(section.heading);
+        const body = getSidebarPlainText(section.body);
+        if (heading) parts.push(heading);
+        if (body) parts.push(body);
+    }
+
+    if (Array.isArray(feature?.tags)) {
+        const tags = feature.tags;
+        const seen = new Set();
+        for (let i = 0; i < tags.length; i++) {
+            const tag = getSidebarPlainText(tags[i]);
+            if (!tag) continue;
+            const key = tag.toLowerCase();
+            if (!seen.has(key)) {
+                seen.add(key);
+                parts.push(tag);
+            }
+        }
+    }
+
+    const props = getFeaturePrimitiveProperties(feature);
+    for (let i = 0; i < props.length; i++) {
+        parts.push(`${props[i][0]} ${String(props[i][1])}`);
+    }
+
+    return parts.join(' ');
 }
 
 function buildSidebarFeatureDetailModel(feature, type) {
