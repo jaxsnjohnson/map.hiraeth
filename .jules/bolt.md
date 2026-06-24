@@ -136,3 +136,6 @@
 ## 2024-05-15 - Array Chaining Optimization
 **Learning:** Replaced chained array methods (`.map().filter()`) and array spreading (`[...roads, ...linesList]`) with single `for` loops in visibility extraction functions (`getVisiblePoints`, `getVisibleRegions`, `getVisibleLines`, `getVisibleRoutes`, `getVisibleEncounterTables`) to eliminate redundant intermediate array allocations. Microbenchmarking on table loops resulted in an improvement from ~441ms to ~88ms.
 **Action:** Always prefer single `for` loops over chained array methods for hot paths where performance is a concern.
+## 2024-05-24 - Live HTMLCollection Layout Thrashing via getElementsByClassName
+**Learning:** Calling `getElementsByClassName` inside a hot loop or frequently called function forces the browser to traverse the DOM tree dynamically. If the DOM was just mutated (e.g., classes were changed immediately prior), accessing the live collection may force internal layout and style re-calculations that are exceptionally slow.
+**Action:** When iterating over a set of elements whose active states update frequently, cache a static NodeList using `querySelectorAll` instead of `getElementsByClassName` if you don't actually need a live updating list.

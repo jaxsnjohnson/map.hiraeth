@@ -3938,7 +3938,7 @@ function setActiveSearchResult(index) {
     }
 
     if (index >= 0) {
-        const items = searchResultsContainer.getElementsByClassName('search-result-item');
+        const items = searchResultsContainer.querySelectorAll('.search-result-item');
         const newActive = items[index];
         if (newActive) {
             newActive.classList.add('active');
