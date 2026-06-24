@@ -12,6 +12,7 @@ const sandbox = {
     navigator: { userAgent: '' },
     fetch: () => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }),
     window: {
+        SharedUtils: { debounce: (fn) => fn, withAssetVersion: (url) => url, fetchJsonAsset: () => Promise.resolve({}) },
         addEventListener: () => {},
         matchMedia: () => ({ matches: false, addEventListener: () => {} }),
         location: { search: '', pathname: '', hash: '' },

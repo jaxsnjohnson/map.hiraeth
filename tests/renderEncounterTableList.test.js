@@ -71,6 +71,7 @@ const sandbox = {
         }
     },
     window: {
+        SharedUtils: { debounce: (fn) => fn, withAssetVersion: (url) => url, fetchJsonAsset: () => Promise.resolve({}) },
         addEventListener: () => {},
         matchMedia: () => ({ matches: false, addEventListener: () => {} }),
         location: { search: '', hash: '' },

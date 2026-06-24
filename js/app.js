@@ -1,6 +1,6 @@
 // --- Global Variables ---
 const APP_CONFIG = typeof window !== 'undefined' && window.AppConfig ? window.AppConfig : null;
-const { withAssetVersion, fetchJsonAsset } = typeof window !== 'undefined' && window.SharedUtils ? window.SharedUtils : {};
+const { debounce, withAssetVersion, fetchJsonAsset } = typeof window !== 'undefined' && window.SharedUtils ? window.SharedUtils : {};
 const getConfigValue = (path, fallbackValue) => APP_CONFIG ? APP_CONFIG.get(path, fallbackValue) : fallbackValue;
 const getFeatureFlag = (name, fallbackValue = true) => getConfigValue(`features.${name}`, fallbackValue) !== false;
 const getPerformanceNumber = (name, fallbackValue) => {
@@ -1053,14 +1053,7 @@ let selectedSidebarFeatureType = '';
 
 
 // --- Helper Functions ---
-function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-        const context = this;
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(context, args), wait);
-    };
-}
+
 
 function escapeRegExp(value) {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

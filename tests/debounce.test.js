@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
-const appSource = fs.readFileSync('js/app.js', 'utf8');
+const appSource = fs.readFileSync('js/shared-utils.js', 'utf8');
 
 function extractFunctionSource(name) {
     const start = appSource.indexOf(`function ${name}(`);
