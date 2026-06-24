@@ -147,3 +147,7 @@
 ## 2024-05-24 - Cache repeated static DOM queries
 **Learning:** Using `querySelectorAll` repeatedly on static DOM structures is an O(N) operation that impacts performance, especially in sync functions like `syncSidebarTabButtons` that are called frequently.
 **Action:** Cache the resulting NodeList in a top-level module variable to achieve O(1) retrieval after the first query.
+
+## 2024-05-24 - Live HTMLCollection Layout Thrashing via getElementsByClassName
+**Learning:** Calling `getElementsByClassName` inside a hot loop or frequently called function forces the browser to traverse the DOM tree dynamically. If the DOM was just mutated (e.g., classes were changed immediately prior), accessing the live collection may force internal layout and style re-calculations that are exceptionally slow.
+**Action:** When iterating over a set of elements whose active states update frequently, cache a static NodeList using `querySelectorAll` instead of `getElementsByClassName` if you don't actually need a live updating list.
