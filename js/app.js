@@ -7672,9 +7672,14 @@ function setupKeyboardAndModalLogic() {
 
     // Trap focus inside modal
     if (aboutModal) {
+        let cachedFocusableContent = null;
         aboutModal.addEventListener('keydown', function(e) {
             if (e.key === 'Tab') {
-                const focusableContent = aboutModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                if (!cachedFocusableContent) {
+                    cachedFocusableContent = aboutModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                }
+                const focusableContent = cachedFocusableContent;
+                if (!focusableContent || focusableContent.length === 0) return;
                 const first = focusableContent[0];
                 const last = focusableContent[focusableContent.length - 1];
 
