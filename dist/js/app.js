@@ -4429,6 +4429,19 @@ function updateRouteUrl(routeId, stepId) {
     history.replaceState(history.state, '', url.toString());
 }
 
+function handleRouteMapStepNavigation(route, step) {
+    const targetMapId = step.targetId;
+    if (!targetMapId || targetMapId === currentlyLoadedMapId) return;
+
+    const targetMap = findMapRecursive(mapData, targetMapId);
+    if (!isRenderableMapEntry(targetMap)) {
+        trackAnalytics('route_step_map_unavailable', { routeId: route.id, targetMapId });
+        return;
+    }
+
+    navigateToMap(targetMapId, { preResolvedMap: targetMap, preserveSearch: true });
+}
+
 function focusRouteStep(route, step) {
     if (!route || !step) return;
     renderRouteSteps(step.id);
@@ -4460,14 +4473,7 @@ function focusRouteStep(route, step) {
             break;
         }
         case 'map': {
-            if (step.targetId && step.targetId !== currentlyLoadedMapId) {
-                const targetMap = findMapRecursive(mapData, step.targetId);
-                if (isRenderableMapEntry(targetMap)) {
-                    navigateToMap(step.targetId, { preResolvedMap: targetMap, preserveSearch: true });
-                } else {
-                    trackAnalytics('route_step_map_unavailable', { routeId: route.id, targetMapId: step.targetId });
-                }
-            }
+            handleRouteMapStepNavigation(route, step);
             break;
         }
         default:
