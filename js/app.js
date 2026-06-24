@@ -2153,8 +2153,13 @@ function setSidebarTab(tab) {
     syncSidebarPanels();
 }
 
+let cachedSidebarTabButtons = null;
 function getSidebarTabButtons() {
-    return sidebarTabs ? Array.from(sidebarTabs.querySelectorAll('[data-sidebar-tab]')) : [];
+    if (!sidebarTabs) return [];
+    if (!cachedSidebarTabButtons) {
+        cachedSidebarTabButtons = Array.from(sidebarTabs.querySelectorAll('[data-sidebar-tab]'));
+    }
+    return cachedSidebarTabButtons;
 }
 
 function syncSidebarTabButtons() {
