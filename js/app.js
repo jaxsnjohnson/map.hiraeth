@@ -3113,11 +3113,11 @@ function checkPrimarySearchMatch(term, normalizedPrimary) {
     if (normalizedPrimary === term) {
         return { matched: true, score: 520, matchedByContent: false };
     }
-    if (normalizedPrimary.startsWith(term)) {
+    const primaryIndex = normalizedPrimary.indexOf(term);
+    if (primaryIndex === 0) {
         return { matched: true, score: 430, matchedByContent: false };
     }
-    const primaryIndex = normalizedPrimary.indexOf(term);
-    if (primaryIndex >= 0) {
+    if (primaryIndex > 0) {
         return { matched: true, score: 320 - Math.min(primaryIndex, 120), matchedByContent: false };
     }
 
