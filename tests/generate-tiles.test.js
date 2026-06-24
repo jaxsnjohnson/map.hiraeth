@@ -1,6 +1,15 @@
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 
-const { computeTileLevelPlan, normalizeTileSource, resolveImageMagickBinary } = require('../scripts/generate_tiles.js');
+const {
+    buildTileMagickArgs,
+    collectTileJobs,
+    computeTileLevelPlan,
+    normalizeTileSource,
+    resolveImageMagickBinary
+} = require('../scripts/generate_tiles.js');
 
 const tileSource = normalizeTileSource({
     type: 'xyz',
@@ -82,5 +91,71 @@ assert.throws(
     }),
     /Could not find an ImageMagick command/
 );
+
+{
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'map-hiraeth-tile-args-'));
+    const levelTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'map-hiraeth-tile-output-'));
+    try {
+        const sourceImagePath = path.join(root, 'maps', '-quality.webp');
+        const args = buildTileMagickArgs(
+            {
+                mapId: 'dash_source',
+                sourceImagePath,
+                tileSource: {
+                    tileSize: 256,
+                    quality: 82
+                }
+            },
+            {
+                z: 3,
+                scaledWidth: 512,
+                scaledHeight: 512,
+                extentWidth: 512,
+                extentHeight: 512
+            },
+            levelTmpDir,
+            { repoRoot: root }
+        );
+
+        assert.equal(args[0], '--');
+        assert.equal(args[1], `webp:${sourceImagePath}`);
+        assert.equal(args.at(-1), `webp:${path.join(levelTmpDir, 'tile-%06d.webp')}`);
+    } finally {
+        fs.rmSync(root, { recursive: true, force: true });
+        fs.rmSync(levelTmpDir, { recursive: true, force: true });
+    }
+}
+
+{
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'map-hiraeth-unsafe-image-'));
+    try {
+        fs.mkdirSync(path.join(root, 'maps'), { recursive: true });
+        fs.writeFileSync(path.join(root, 'maps', 'atlas-index.json'), `${JSON.stringify({
+            tree: [
+                {
+                    id: 'unsafe_map',
+                    name: 'Unsafe Map',
+                    width: 100,
+                    height: 100,
+                    imageUrl: '@secrets.webp',
+                    tileSource: {
+                        type: 'xyz',
+                        urlTemplate: 'tile/unsafe_map/{z}/{x}/{y}.webp',
+                        tileSize: 256,
+                        minZoom: 0,
+                        maxZoom: 0
+                    }
+                }
+            ]
+        })}\n`);
+
+        assert.throws(
+            () => collectTileJobs(root),
+            /Refusing unsafe ImageMagick source path/
+        );
+    } finally {
+        fs.rmSync(root, { recursive: true, force: true });
+    }
+}
 
 console.log('generate_tiles helper checks passed');

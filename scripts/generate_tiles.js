@@ -8,6 +8,13 @@ const { spawnSync } = require('node:child_process');
 const repoRoot = path.resolve(__dirname, '..');
 const defaultTileSize = 256;
 const defaultQuality = 82;
+const imageMagickCodersByExtension = new Map([
+    ['.gif', 'gif'],
+    ['.jpeg', 'jpeg'],
+    ['.jpg', 'jpeg'],
+    ['.png', 'png'],
+    ['.webp', 'webp']
+]);
 
 function isObject(value) {
     return Boolean(value && typeof value === 'object' && !Array.isArray(value));
@@ -95,8 +102,24 @@ function computeTileLevelPlan(mapDocument, tileSource = normalizeTileSource(mapD
     };
 }
 
-function resolveSafeRepoPath(root, relativePath) {
+function assertSafeImageMagickSourcePath(relativePath) {
+    if (/[\0\r\n]/.test(relativePath)) {
+        throw new Error(`Refusing unsafe ImageMagick source path: ${relativePath}`);
+    }
+    if (/^[A-Za-z][A-Za-z0-9+.-]*:/.test(relativePath) || relativePath.startsWith('@') || relativePath === '-') {
+        throw new Error(`Refusing unsafe ImageMagick source path: ${relativePath}`);
+    }
+    if (/[*?[\]{}]/.test(relativePath)) {
+        throw new Error(`Refusing unsafe ImageMagick source path: ${relativePath}`);
+    }
+    if (!imageMagickCodersByExtension.has(path.extname(relativePath).toLowerCase())) {
+        throw new Error(`Unsupported ImageMagick source image type: ${relativePath}`);
+    }
+}
+
+function resolveSafeRepoPath(root, relativePath, options = {}) {
     const normalized = String(relativePath || '').trim();
+    if (options.forImageMagick) assertSafeImageMagickSourcePath(normalized);
     const resolved = path.resolve(root, normalized);
     if (!resolved.startsWith(`${root}${path.sep}`) && resolved !== root) {
         throw new Error(`Refusing to resolve path outside repository: ${relativePath}`);
@@ -134,7 +157,7 @@ function collectTileJobs(root = repoRoot) {
         if (!plan || !plan.mapId || !plan.imageUrl || jobsById.has(plan.mapId)) return;
         jobsById.set(plan.mapId, {
             ...plan,
-            sourceImagePath: resolveSafeRepoPath(root, plan.imageUrl)
+            sourceImagePath: resolveSafeRepoPath(root, plan.imageUrl, { forImageMagick: true })
         });
     });
 
@@ -173,29 +196,64 @@ function runMagick(args, label, magickBinary) {
     }
 }
 
+function isPathInside(root, candidate) {
+    const resolvedRoot = path.resolve(root);
+    const resolvedCandidate = path.resolve(candidate);
+    return resolvedCandidate === resolvedRoot || resolvedCandidate.startsWith(`${resolvedRoot}${path.sep}`);
+}
+
+function formatMagickImagePath(filePath, label, allowedRoot) {
+    const rawPath = String(filePath || '');
+    const resolvedPath = path.resolve(rawPath);
+    if (!rawPath || !path.isAbsolute(rawPath) || rawPath !== resolvedPath) {
+        throw new Error(`${label}: expected a normalized absolute path.`);
+    }
+    if (/[\0\r\n]/.test(rawPath)) {
+        throw new Error(`${label}: unsafe ImageMagick path.`);
+    }
+    if (!isPathInside(allowedRoot, resolvedPath)) {
+        throw new Error(`${label}: refusing ImageMagick path outside allowed directory.`);
+    }
+
+    const coder = imageMagickCodersByExtension.get(path.extname(resolvedPath).toLowerCase());
+    if (!coder) {
+        throw new Error(`${label}: unsupported ImageMagick image type.`);
+    }
+    return `${coder}:${resolvedPath}`;
+}
+
+function buildTileMagickArgs(job, level, levelTmpDir, options = {}) {
+    const outputPattern = path.join(levelTmpDir, 'tile-%06d.webp');
+    return [
+        '--',
+        formatMagickImagePath(job.sourceImagePath, `${job.mapId} source image`, options.repoRoot || repoRoot),
+        '-auto-orient',
+        '-resize',
+        `${level.scaledWidth}x${level.scaledHeight}!`,
+        '-background',
+        'none',
+        '-gravity',
+        'NorthWest',
+        '-extent',
+        `${level.extentWidth}x${level.extentHeight}`,
+        '-crop',
+        `${job.tileSource.tileSize}x${job.tileSource.tileSize}`,
+        '+repage',
+        '-quality',
+        String(job.tileSource.quality),
+        formatMagickImagePath(outputPattern, `${job.mapId} z${level.z} output pattern`, levelTmpDir)
+    ];
+}
+
 function renderTileLevel(job, level, mapOutputDir, options) {
     const levelTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), `map-hiraeth-tiles-${job.mapId}-${level.z}-`));
-    const outputPattern = path.join(levelTmpDir, 'tile-%06d.webp');
 
     try {
-        runMagick([
-            job.sourceImagePath,
-            '-auto-orient',
-            '-resize',
-            `${level.scaledWidth}x${level.scaledHeight}!`,
-            '-background',
-            'none',
-            '-gravity',
-            'NorthWest',
-            '-extent',
-            `${level.extentWidth}x${level.extentHeight}`,
-            '-crop',
-            `${job.tileSource.tileSize}x${job.tileSource.tileSize}`,
-            '+repage',
-            '-quality',
-            String(job.tileSource.quality),
-            outputPattern
-        ], `${job.mapId} z${level.z}`, options.magickBinary);
+        runMagick(
+            buildTileMagickArgs(job, level, levelTmpDir, { repoRoot: options.repoRoot }),
+            `${job.mapId} z${level.z}`,
+            options.magickBinary
+        );
 
         let sequenceIndex = 0;
         for (let y = 0; y < level.rows; y += 1) {
@@ -250,7 +308,7 @@ function generateTiles(options = {}) {
         const mapOutputDir = resolveSafeOutputPath(outputDir, job.mapId);
         fs.rmSync(mapOutputDir, { recursive: true, force: true });
         fs.mkdirSync(mapOutputDir, { recursive: true });
-        job.levels.forEach((level) => renderTileLevel(job, level, mapOutputDir, { magickBinary }));
+        job.levels.forEach((level) => renderTileLevel(job, level, mapOutputDir, { magickBinary, repoRoot: root }));
         totalTiles += job.totalTiles;
         generatedMaps.push({
             id: job.mapId,
@@ -298,6 +356,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+    buildTileMagickArgs,
     collectTileJobs,
     computeTileLevelPlan,
     generateTiles,
