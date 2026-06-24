@@ -5,6 +5,7 @@
     "generate:tiles": "node scripts/generate_tiles.js",
     "validate:data": "node scripts/validate_map_data.js",
     "benchmark:search": "node scripts/benchmark_search_match.js",
+    "benchmark:secondary-search": "node scripts/benchmark_secondary_search.js",
     "test:unit": "node --test tests/*.test.js",
     "test:editor-local-access": "node tests/map-editor-local-access.test.js",
     "test:editor-server": "node tests/editor-server.test.js",
