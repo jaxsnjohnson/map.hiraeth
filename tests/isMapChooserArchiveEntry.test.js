@@ -32,6 +32,7 @@ const sandbox = {
         visualViewport: { addEventListener: () => {} },
         addEventListener: () => {},
         SharedUtils: {
+            debounce: (fn) => fn,
             withAssetVersion: (url) => url,
             fetchJsonAsset: () => Promise.resolve({ tree: [], searchIndex: [] })
         }
