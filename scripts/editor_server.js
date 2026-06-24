@@ -90,7 +90,7 @@ function isAllowedEditorWriteRequest(request) {
     const referer = String(request.headers.referer || '').trim();
     if (referer) return isSameLocalEditorOrigin(referer, request.headers.host);
 
-    return true;
+    return false;
 }
 
 function resolveRepoPath(repoRoot, relativePath) {
