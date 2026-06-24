@@ -27,6 +27,11 @@ const sandbox = {
             applyDocumentMetadata: () => {},
             applyThemeTokens: () => {},
             hydrateStaticDom: () => {}
+        },
+        SharedUtils: {
+            debounce: (fn) => fn,
+            withAssetVersion: (url) => url,
+            fetchJsonAsset: () => Promise.resolve({})
         }
     },
     L: {

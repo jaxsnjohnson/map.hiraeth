@@ -4,18 +4,23 @@ const fs = require('node:fs');
 const { JSDOM } = require('jsdom');
 
 const appSource = fs.readFileSync('js/app.js', 'utf8');
-const helperStart = appSource.indexOf('const regionGroupNestedCheckboxes = new WeakMap();');
-const helperEnd = appSource.indexOf('function populateRegionFilters', helperStart);
 
-if (helperStart === -1 || helperEnd === -1 || helperEnd <= helperStart) {
-    throw new Error('Could not locate region filter group helpers in js/app.js');
+function extractSource(startMarker, endMarker) {
+    const start = appSource.indexOf(startMarker);
+    const end = appSource.indexOf(endMarker, start);
+    if (start === -1 || end === -1 || end <= start) {
+        throw new Error(`Could not locate source from ${startMarker} to ${endMarker}`);
+    }
+    return appSource.slice(start, end);
 }
 
-const helperSource = appSource.slice(helperStart, helperEnd);
+const escapeHelperSource = extractSource('function escapeHtml(value) {', 'function sanitizeWikiLinkForHref(value) {');
+const regionFilterHelperSource = extractSource('const regionGroupNestedCheckboxes = new WeakMap();', 'function populateRegionFilters');
 const exported = {};
 
 // eslint-disable-next-line no-eval
-eval(`${helperSource}
+eval(`${escapeHelperSource}
+${regionFilterHelperSource}
 exported.createRegionFilterGroupDOM = createRegionFilterGroupDOM;
 exported.getRegionGroupNestedCheckboxes = getRegionGroupNestedCheckboxes;
 exported.setRegionGroupChildCheckboxes = setRegionGroupChildCheckboxes;`);
