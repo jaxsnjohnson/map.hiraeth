@@ -178,6 +178,24 @@ assert.equal(global.mobileSurfaceMode, null);
 assert.equal(global.mobileSearchLauncherBtn.focusCalled, 1);
 assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'true');
 
+const searchFocusCountAfterSheetClose = global.mobileSearchLauncherBtn.focusCalled;
+closeMobileSearchPanel({ restoreFocus: true });
+assert.equal(global.mobileSurfaceMode, null);
+assert.equal(global.mobileSearchLauncherBtn.focusCalled, searchFocusCountAfterSheetClose);
+
+openMobileSearchPanel({ focusSearch: false, triggerButton: global.mobileSearchLauncherBtn });
+assert.equal(global.mobileSurfaceMode, 'search');
+closeMobileSearchPanel();
+assert.equal(global.mobileSurfaceMode, null);
+assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'true');
+assert.equal(global.container.classes.has('mobile-search-card-open'), false);
+assert.equal(global.mobileSearchLauncherBtn.focusCalled, searchFocusCountAfterSheetClose);
+
+openMobileSearchPanel({ focusSearch: false, triggerButton: global.mobileSearchLauncherBtn });
+closeMobileSearchPanel({ restoreFocus: true });
+assert.equal(global.mobileSurfaceMode, null);
+assert.equal(global.mobileSearchLauncherBtn.focusCalled, searchFocusCountAfterSheetClose + 1);
+
 openMobileSheet({ mode: 'tools', triggerButton: global.mobileSearchLauncherBtn });
 assert.equal(global.mobileSurfaceMode, 'tools');
 assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'true');
