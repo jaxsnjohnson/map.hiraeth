@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-25T05:26:32.279Z",
+  "generatedAt": "2026-06-25T15:45:53.901Z",
   "entries": [
     {
       "timestamp": "2026-06-25T05:11:51.265Z",
@@ -1557,6 +1557,3614 @@
           "median": 145948,
           "min": 145948,
           "max": 145948
+        }
+      }
+    },
+    {
+      "timestamp": "2026-06-25T06:23:43.315Z",
+      "label": "fair-before-priority",
+      "url": "http://127.0.0.1:4177/#main_continent-s=o",
+      "map": "main_continent",
+      "viewport": "1280x720",
+      "runs": [
+        {
+          "run": 1,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368622122-0#main_continent-s=o",
+          "domContentLoadedMs": 102.40000000037253,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 158.19999999925494,
+          "firstVisualAssetEndMs": 61.29999999888241,
+          "firstMiniAssetEndMs": 61.29999999888241,
+          "firstTileAssetEndMs": 263.5,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 287.69999999925494,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 61.3,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 263.5,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 263.7,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 263.9,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 264,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 264.2,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 264.5,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 266.1,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 266.3,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 266.8,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 267.2,
+              "encodedBodySize": 2416
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 267.3,
+              "encodedBodySize": 4536
+            }
+          ]
+        },
+        {
+          "run": 2,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368622487-1#main_continent-s=o",
+          "domContentLoadedMs": 21.300000000745058,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 49.80000000074506,
+          "firstVisualAssetEndMs": 13.400000000372529,
+          "firstMiniAssetEndMs": 13.400000000372529,
+          "firstTileAssetEndMs": 127.5,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 144,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 13.4,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 127.5,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 127.7,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 127.9,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 128,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 128.3,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 129.2,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 129.4,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 129.6,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 130.1,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 130.8,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 131.5,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 3,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368622687-2#main_continent-s=o",
+          "domContentLoadedMs": 12.800000000745058,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 28.800000000745058,
+          "firstVisualAssetEndMs": 13.800000000745058,
+          "firstMiniAssetEndMs": 13.800000000745058,
+          "firstTileAssetEndMs": 130.5,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 150.09999999962747,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 13.8,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 130.5,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 130.8,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 131,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 131.4,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 131.6,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 131.9,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 132.1,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 132.8,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 133.1,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 133.6,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 133.9,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 4,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368622915-3#main_continent-s=o",
+          "domContentLoadedMs": 21.799999998882413,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 49.5,
+          "firstVisualAssetEndMs": 13.099999999627471,
+          "firstMiniAssetEndMs": 13.099999999627471,
+          "firstTileAssetEndMs": 124.69999999925494,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 140.59999999962747,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 13.1,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 124.7,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 125,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 125.4,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 125.7,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 125.8,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 126.4,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 126.7,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 126.7,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 127.6,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 128.2,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 128.3,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 5,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368623138-4#main_continent-s=o",
+          "domContentLoadedMs": 12.900000000372529,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 28.699999999254942,
+          "firstVisualAssetEndMs": 14.299999998882413,
+          "firstMiniAssetEndMs": 14.299999998882413,
+          "firstTileAssetEndMs": 122.79999999888241,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 135.19999999925494,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 14.3,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 122.8,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 124,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 124.1,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 124.3,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 124.4,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 124.4,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 124.6,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 125.8,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 126.1,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 126.3,
+              "encodedBodySize": 2416
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 126.5,
+              "encodedBodySize": 4536
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "domContentLoadedMs": {
+          "median": 21.3,
+          "min": 12.8,
+          "max": 102.4
+        },
+        "loadEventMs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "loadingHiddenMs": {
+          "median": 49.5,
+          "min": 28.7,
+          "max": 158.2
+        },
+        "firstVisualAssetEndMs": {
+          "median": 13.8,
+          "min": 13.1,
+          "max": 61.3
+        },
+        "firstMiniAssetEndMs": {
+          "median": 13.8,
+          "min": 13.1,
+          "max": 61.3
+        },
+        "firstTileAssetEndMs": {
+          "median": 127.5,
+          "min": 122.8,
+          "max": 263.5
+        },
+        "firstFullImageAssetEndMs": {
+          "median": null,
+          "min": null,
+          "max": null
+        },
+        "tileCompleteMs": {
+          "median": 144,
+          "min": 135.2,
+          "max": 287.7
+        },
+        "visualAssetBytes": {
+          "median": 115526,
+          "min": 115526,
+          "max": 115526
+        }
+      }
+    },
+    {
+      "timestamp": "2026-06-25T06:23:55.037Z",
+      "label": "southern-before-priority",
+      "url": "http://127.0.0.1:4177/#southern-thalassia-s=o",
+      "map": "southern-thalassia",
+      "viewport": "1280x720",
+      "runs": [
+        {
+          "run": 1,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368634090-0#southern-thalassia-s=o",
+          "domContentLoadedMs": 12.799999998882413,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 47.399999998509884,
+          "firstVisualAssetEndMs": 16.299999998882413,
+          "firstMiniAssetEndMs": 16.299999998882413,
+          "firstTileAssetEndMs": 113.29999999888241,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 131.2999999988824,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/southern-thalassia.mini.webp"
+          ],
+          "visualAssetBytes": 180240,
+          "visualResources": [
+            {
+              "path": "/maps/southern-thalassia.mini.webp",
+              "responseEnd": 16.3,
+              "encodedBodySize": 30196
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/1.webp",
+              "responseEnd": 113.3,
+              "encodedBodySize": 9458
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/2.webp",
+              "responseEnd": 113.9,
+              "encodedBodySize": 11756
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/1.webp",
+              "responseEnd": 114,
+              "encodedBodySize": 9144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/0.webp",
+              "responseEnd": 114.3,
+              "encodedBodySize": 12172
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/0.webp",
+              "responseEnd": 114.5,
+              "encodedBodySize": 12292
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/2.webp",
+              "responseEnd": 114.8,
+              "encodedBodySize": 12434
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/1.webp",
+              "responseEnd": 115.2,
+              "encodedBodySize": 11862
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/1.webp",
+              "responseEnd": 116.3,
+              "encodedBodySize": 12050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/2.webp",
+              "responseEnd": 116.8,
+              "encodedBodySize": 15050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/0.webp",
+              "responseEnd": 116.9,
+              "encodedBodySize": 15144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/0.webp",
+              "responseEnd": 117,
+              "encodedBodySize": 14410
+            }
+          ]
+        },
+        {
+          "run": 2,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368634297-1#southern-thalassia-s=o",
+          "domContentLoadedMs": 23.899999998509884,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 50.19999999925494,
+          "firstVisualAssetEndMs": 13.699999999254942,
+          "firstMiniAssetEndMs": 13.699999999254942,
+          "firstTileAssetEndMs": 119.29999999888241,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 139.2999999988824,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/southern-thalassia.mini.webp"
+          ],
+          "visualAssetBytes": 180240,
+          "visualResources": [
+            {
+              "path": "/maps/southern-thalassia.mini.webp",
+              "responseEnd": 13.7,
+              "encodedBodySize": 30196
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/0.webp",
+              "responseEnd": 119.3,
+              "encodedBodySize": 12292
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/1.webp",
+              "responseEnd": 119.5,
+              "encodedBodySize": 9144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/2.webp",
+              "responseEnd": 119.7,
+              "encodedBodySize": 12434
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/0.webp",
+              "responseEnd": 119.9,
+              "encodedBodySize": 12172
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/1.webp",
+              "responseEnd": 120.4,
+              "encodedBodySize": 9458
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/2.webp",
+              "responseEnd": 121.2,
+              "encodedBodySize": 11756
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/1.webp",
+              "responseEnd": 121.5,
+              "encodedBodySize": 11862
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/1.webp",
+              "responseEnd": 122.2,
+              "encodedBodySize": 12050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/2.webp",
+              "responseEnd": 123.1,
+              "encodedBodySize": 14272
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/0.webp",
+              "responseEnd": 123.5,
+              "encodedBodySize": 15144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/2.webp",
+              "responseEnd": 123.6,
+              "encodedBodySize": 15050
+            }
+          ]
+        },
+        {
+          "run": 3,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368634496-2#southern-thalassia-s=o",
+          "domContentLoadedMs": 11.799999998882413,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 27.199999999254942,
+          "firstVisualAssetEndMs": 12,
+          "firstMiniAssetEndMs": 12,
+          "firstTileAssetEndMs": 118.90000000037253,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 126.59999999962747,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/southern-thalassia.mini.webp"
+          ],
+          "visualAssetBytes": 180240,
+          "visualResources": [
+            {
+              "path": "/maps/southern-thalassia.mini.webp",
+              "responseEnd": 12,
+              "encodedBodySize": 30196
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/2.webp",
+              "responseEnd": 118.9,
+              "encodedBodySize": 12434
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/1.webp",
+              "responseEnd": 119,
+              "encodedBodySize": 9144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/1.webp",
+              "responseEnd": 119.2,
+              "encodedBodySize": 9458
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/2.webp",
+              "responseEnd": 119.5,
+              "encodedBodySize": 11756
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/0.webp",
+              "responseEnd": 119.7,
+              "encodedBodySize": 12292
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/0.webp",
+              "responseEnd": 120,
+              "encodedBodySize": 12172
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/1.webp",
+              "responseEnd": 120.8,
+              "encodedBodySize": 11862
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/1.webp",
+              "responseEnd": 121.8,
+              "encodedBodySize": 12050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/0.webp",
+              "responseEnd": 122.2,
+              "encodedBodySize": 15144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/2.webp",
+              "responseEnd": 122.3,
+              "encodedBodySize": 14272
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/2.webp",
+              "responseEnd": 122.3,
+              "encodedBodySize": 15050
+            }
+          ]
+        },
+        {
+          "run": 4,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368634684-3#southern-thalassia-s=o",
+          "domContentLoadedMs": 21.300000000745058,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 50.30000000074506,
+          "firstVisualAssetEndMs": 13.099999999627471,
+          "firstMiniAssetEndMs": 13.099999999627471,
+          "firstTileAssetEndMs": 116.69999999925494,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 128.40000000037253,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/southern-thalassia.mini.webp"
+          ],
+          "visualAssetBytes": 180240,
+          "visualResources": [
+            {
+              "path": "/maps/southern-thalassia.mini.webp",
+              "responseEnd": 13.1,
+              "encodedBodySize": 30196
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/1.webp",
+              "responseEnd": 116.7,
+              "encodedBodySize": 9458
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/2.webp",
+              "responseEnd": 117.6,
+              "encodedBodySize": 11756
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/1.webp",
+              "responseEnd": 117.8,
+              "encodedBodySize": 9144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/0.webp",
+              "responseEnd": 118.3,
+              "encodedBodySize": 12292
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/2.webp",
+              "responseEnd": 118.4,
+              "encodedBodySize": 12434
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/0.webp",
+              "responseEnd": 118.7,
+              "encodedBodySize": 12172
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/1.webp",
+              "responseEnd": 119.4,
+              "encodedBodySize": 12050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/1.webp",
+              "responseEnd": 119.6,
+              "encodedBodySize": 11862
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/2.webp",
+              "responseEnd": 119.8,
+              "encodedBodySize": 14272
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/0.webp",
+              "responseEnd": 120.5,
+              "encodedBodySize": 15144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/2.webp",
+              "responseEnd": 120.7,
+              "encodedBodySize": 15050
+            }
+          ]
+        },
+        {
+          "run": 5,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368634873-4#southern-thalassia-s=o",
+          "domContentLoadedMs": 21.200000001117587,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 48.40000000037253,
+          "firstVisualAssetEndMs": 13,
+          "firstMiniAssetEndMs": 13,
+          "firstTileAssetEndMs": 114.70000000111759,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 126,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/southern-thalassia.mini.webp"
+          ],
+          "visualAssetBytes": 180240,
+          "visualResources": [
+            {
+              "path": "/maps/southern-thalassia.mini.webp",
+              "responseEnd": 13,
+              "encodedBodySize": 30196
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/1.webp",
+              "responseEnd": 114.7,
+              "encodedBodySize": 9458
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/1.webp",
+              "responseEnd": 115.4,
+              "encodedBodySize": 9144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/2.webp",
+              "responseEnd": 115.5,
+              "encodedBodySize": 11756
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/0.webp",
+              "responseEnd": 115.5,
+              "encodedBodySize": 12292
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/0.webp",
+              "responseEnd": 115.9,
+              "encodedBodySize": 12172
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/2.webp",
+              "responseEnd": 116.1,
+              "encodedBodySize": 12434
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/1.webp",
+              "responseEnd": 116.8,
+              "encodedBodySize": 11862
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/1.webp",
+              "responseEnd": 117.8,
+              "encodedBodySize": 12050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/2.webp",
+              "responseEnd": 118.1,
+              "encodedBodySize": 14272
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/2.webp",
+              "responseEnd": 118.3,
+              "encodedBodySize": 15050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/0.webp",
+              "responseEnd": 118.7,
+              "encodedBodySize": 15144
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "domContentLoadedMs": {
+          "median": 21.2,
+          "min": 11.8,
+          "max": 23.9
+        },
+        "loadEventMs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "loadingHiddenMs": {
+          "median": 48.4,
+          "min": 27.2,
+          "max": 50.3
+        },
+        "firstVisualAssetEndMs": {
+          "median": 13.1,
+          "min": 12,
+          "max": 16.3
+        },
+        "firstMiniAssetEndMs": {
+          "median": 13.1,
+          "min": 12,
+          "max": 16.3
+        },
+        "firstTileAssetEndMs": {
+          "median": 116.7,
+          "min": 113.3,
+          "max": 119.3
+        },
+        "firstFullImageAssetEndMs": {
+          "median": null,
+          "min": null,
+          "max": null
+        },
+        "tileCompleteMs": {
+          "median": 128.4,
+          "min": 126,
+          "max": 139.3
+        },
+        "visualAssetBytes": {
+          "median": 180240,
+          "min": 180240,
+          "max": 180240
+        }
+      }
+    },
+    {
+      "timestamp": "2026-06-25T06:28:29.405Z",
+      "label": "fair-priority",
+      "url": "http://127.0.0.1:4177/#main_continent-s=o",
+      "map": "main_continent",
+      "viewport": "1280x720",
+      "runs": [
+        {
+          "run": 1,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368907734-0#main_continent-s=o",
+          "domContentLoadedMs": 42.40000000037253,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 69.30000000074506,
+          "firstVisualAssetEndMs": 31.700000001117587,
+          "firstMiniAssetEndMs": 31.700000001117587,
+          "firstTileAssetEndMs": 198,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 212.90000000037253,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 31.7,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 198,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 198.1,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 198.2,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 198.7,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 198.9,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 199.1,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 199.9,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 200.3,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 200.4,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 201.3,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 201.9,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 2,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368908009-1#main_continent-s=o",
+          "domContentLoadedMs": 21.09999999962747,
+          "loadEventMs": 189.40000000037253,
+          "loadingHiddenMs": 48.59999999962747,
+          "firstVisualAssetEndMs": 12.699999999254942,
+          "firstMiniAssetEndMs": 12.699999999254942,
+          "firstTileAssetEndMs": 117.5,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 136.09999999962747,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 12.7,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 117.5,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 117.8,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 118.2,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 118.6,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 118.8,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 119.3,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 120.2,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 120.5,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 120.7,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 121.4,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 121.6,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 3,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368908543-2#main_continent-s=o",
+          "domContentLoadedMs": 21,
+          "loadEventMs": 179.2999999988824,
+          "loadingHiddenMs": 48,
+          "firstVisualAssetEndMs": 12.5,
+          "firstMiniAssetEndMs": 12.5,
+          "firstTileAssetEndMs": 112.39999999850988,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 130.5,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 12.5,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 112.4,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 112.7,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 113.2,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 113.3,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 113.5,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 113.8,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 113.9,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 114.3,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 115,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 115.4,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/3/0.webp",
+              "responseEnd": 115.9,
+              "encodedBodySize": 9610
+            }
+          ]
+        },
+        {
+          "run": 4,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368909039-3#main_continent-s=o",
+          "domContentLoadedMs": 21.200000001117587,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 49.20000000111759,
+          "firstVisualAssetEndMs": 12.300000000745058,
+          "firstMiniAssetEndMs": 12.300000000745058,
+          "firstTileAssetEndMs": 121.10000000149012,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 135.60000000149012,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 12.3,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 121.1,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 121.6,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 121.9,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 122.1,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 122.4,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 123.6,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 124.1,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 124.7,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 124.8,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 125.2,
+              "encodedBodySize": 2416
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 126,
+              "encodedBodySize": 10298
+            }
+          ]
+        },
+        {
+          "run": 5,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368909237-4#main_continent-s=o",
+          "domContentLoadedMs": 21.800000000745058,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 49.30000000074506,
+          "firstVisualAssetEndMs": 14.5,
+          "firstMiniAssetEndMs": 14.5,
+          "firstTileAssetEndMs": 121,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 136,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 14.5,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 121,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 121.1,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 122.1,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 122.3,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 122.6,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 123.2,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 123.6,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 124.5,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 124.6,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 124.7,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 125.1,
+              "encodedBodySize": 2416
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "domContentLoadedMs": {
+          "median": 21.2,
+          "min": 21,
+          "max": 42.4
+        },
+        "loadEventMs": {
+          "median": 0,
+          "min": 0,
+          "max": 189.4
+        },
+        "loadingHiddenMs": {
+          "median": 49.2,
+          "min": 48,
+          "max": 69.3
+        },
+        "firstVisualAssetEndMs": {
+          "median": 12.7,
+          "min": 12.3,
+          "max": 31.7
+        },
+        "firstMiniAssetEndMs": {
+          "median": 12.7,
+          "min": 12.3,
+          "max": 31.7
+        },
+        "firstTileAssetEndMs": {
+          "median": 121,
+          "min": 112.4,
+          "max": 198
+        },
+        "firstFullImageAssetEndMs": {
+          "median": null,
+          "min": null,
+          "max": null
+        },
+        "tileCompleteMs": {
+          "median": 136,
+          "min": 130.5,
+          "max": 212.9
+        },
+        "visualAssetBytes": {
+          "median": 115526,
+          "min": 115526,
+          "max": 115526
+        }
+      }
+    },
+    {
+      "timestamp": "2026-06-25T06:28:40.779Z",
+      "label": "southern-priority",
+      "url": "http://127.0.0.1:4177/#southern-thalassia-s=o",
+      "map": "southern-thalassia",
+      "viewport": "1280x720",
+      "runs": [
+        {
+          "run": 1,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368919832-0#southern-thalassia-s=o",
+          "domContentLoadedMs": 13.900000000372529,
+          "loadEventMs": 136.5,
+          "loadingHiddenMs": 28.700000001117587,
+          "firstVisualAssetEndMs": 14.5,
+          "firstMiniAssetEndMs": 14.5,
+          "firstTileAssetEndMs": 118,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 130.2000000011176,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/southern-thalassia.mini.webp"
+          ],
+          "visualAssetBytes": 180240,
+          "visualResources": [
+            {
+              "path": "/maps/southern-thalassia.mini.webp",
+              "responseEnd": 14.5,
+              "encodedBodySize": 30196
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/1.webp",
+              "responseEnd": 118,
+              "encodedBodySize": 9458
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/2.webp",
+              "responseEnd": 118.4,
+              "encodedBodySize": 12434
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/0.webp",
+              "responseEnd": 118.4,
+              "encodedBodySize": 12172
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/2.webp",
+              "responseEnd": 118.7,
+              "encodedBodySize": 11756
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/1.webp",
+              "responseEnd": 118.7,
+              "encodedBodySize": 9144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/0.webp",
+              "responseEnd": 119.1,
+              "encodedBodySize": 12292
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/2.webp",
+              "responseEnd": 120.5,
+              "encodedBodySize": 14272
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/1.webp",
+              "responseEnd": 120.8,
+              "encodedBodySize": 11862
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/1.webp",
+              "responseEnd": 120.9,
+              "encodedBodySize": 12050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/2.webp",
+              "responseEnd": 122.4,
+              "encodedBodySize": 15050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/0.webp",
+              "responseEnd": 123.5,
+              "encodedBodySize": 15144
+            }
+          ]
+        },
+        {
+          "run": 2,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368920029-1#southern-thalassia-s=o",
+          "domContentLoadedMs": 21.200000001117587,
+          "loadEventMs": 136,
+          "loadingHiddenMs": 48.20000000111759,
+          "firstVisualAssetEndMs": 12.700000001117587,
+          "firstMiniAssetEndMs": 12.700000001117587,
+          "firstTileAssetEndMs": 119,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 130,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/southern-thalassia.mini.webp"
+          ],
+          "visualAssetBytes": 180240,
+          "visualResources": [
+            {
+              "path": "/maps/southern-thalassia.mini.webp",
+              "responseEnd": 12.7,
+              "encodedBodySize": 30196
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/1.webp",
+              "responseEnd": 119,
+              "encodedBodySize": 9458
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/2.webp",
+              "responseEnd": 119.3,
+              "encodedBodySize": 12434
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/0.webp",
+              "responseEnd": 119.3,
+              "encodedBodySize": 12172
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/2.webp",
+              "responseEnd": 120.3,
+              "encodedBodySize": 11756
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/1.webp",
+              "responseEnd": 120.6,
+              "encodedBodySize": 9144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/0.webp",
+              "responseEnd": 120.9,
+              "encodedBodySize": 12292
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/1.webp",
+              "responseEnd": 121.2,
+              "encodedBodySize": 11862
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/1.webp",
+              "responseEnd": 121.7,
+              "encodedBodySize": 12050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/2.webp",
+              "responseEnd": 121.8,
+              "encodedBodySize": 14272
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/2.webp",
+              "responseEnd": 122.7,
+              "encodedBodySize": 15050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/0.webp",
+              "responseEnd": 124,
+              "encodedBodySize": 14410
+            }
+          ]
+        },
+        {
+          "run": 3,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368920232-2#southern-thalassia-s=o",
+          "domContentLoadedMs": 12,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 27.699999999254942,
+          "firstVisualAssetEndMs": 13,
+          "firstMiniAssetEndMs": 13,
+          "firstTileAssetEndMs": 118.29999999888241,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 126.29999999888241,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/southern-thalassia.mini.webp"
+          ],
+          "visualAssetBytes": 180240,
+          "visualResources": [
+            {
+              "path": "/maps/southern-thalassia.mini.webp",
+              "responseEnd": 13,
+              "encodedBodySize": 30196
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/2.webp",
+              "responseEnd": 118.3,
+              "encodedBodySize": 11756
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/1.webp",
+              "responseEnd": 118.6,
+              "encodedBodySize": 9458
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/2.webp",
+              "responseEnd": 118.6,
+              "encodedBodySize": 12434
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/1.webp",
+              "responseEnd": 119.3,
+              "encodedBodySize": 9144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/0.webp",
+              "responseEnd": 119.3,
+              "encodedBodySize": 12292
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/0.webp",
+              "responseEnd": 120,
+              "encodedBodySize": 12172
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/1.webp",
+              "responseEnd": 120.4,
+              "encodedBodySize": 11862
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/1.webp",
+              "responseEnd": 120.5,
+              "encodedBodySize": 12050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/2.webp",
+              "responseEnd": 121.1,
+              "encodedBodySize": 15050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/2.webp",
+              "responseEnd": 121.6,
+              "encodedBodySize": 14272
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/0.webp",
+              "responseEnd": 121.9,
+              "encodedBodySize": 14410
+            }
+          ]
+        },
+        {
+          "run": 4,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368920422-3#southern-thalassia-s=o",
+          "domContentLoadedMs": 12.599999999627471,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 28.09999999962747,
+          "firstVisualAssetEndMs": 13.400000000372529,
+          "firstMiniAssetEndMs": 13.400000000372529,
+          "firstTileAssetEndMs": 120.19999999925494,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 131.40000000037253,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/southern-thalassia.mini.webp"
+          ],
+          "visualAssetBytes": 180240,
+          "visualResources": [
+            {
+              "path": "/maps/southern-thalassia.mini.webp",
+              "responseEnd": 13.4,
+              "encodedBodySize": 30196
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/2.webp",
+              "responseEnd": 120.2,
+              "encodedBodySize": 11756
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/1.webp",
+              "responseEnd": 120.5,
+              "encodedBodySize": 9458
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/0.webp",
+              "responseEnd": 120.8,
+              "encodedBodySize": 12292
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/1.webp",
+              "responseEnd": 121.3,
+              "encodedBodySize": 9144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/0.webp",
+              "responseEnd": 121.6,
+              "encodedBodySize": 12172
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/1.webp",
+              "responseEnd": 122,
+              "encodedBodySize": 12050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/2.webp",
+              "responseEnd": 122.3,
+              "encodedBodySize": 12434
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/1.webp",
+              "responseEnd": 122.4,
+              "encodedBodySize": 11862
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/2.webp",
+              "responseEnd": 122.9,
+              "encodedBodySize": 14272
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/2.webp",
+              "responseEnd": 123.7,
+              "encodedBodySize": 15050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/0.webp",
+              "responseEnd": 124.4,
+              "encodedBodySize": 15144
+            }
+          ]
+        },
+        {
+          "run": 5,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782368920612-4#southern-thalassia-s=o",
+          "domContentLoadedMs": 21.199999999254942,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 48.5,
+          "firstVisualAssetEndMs": 12.599999999627471,
+          "firstMiniAssetEndMs": 12.599999999627471,
+          "firstTileAssetEndMs": 118.40000000037253,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 132.59999999962747,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/southern-thalassia.mini.webp"
+          ],
+          "visualAssetBytes": 180240,
+          "visualResources": [
+            {
+              "path": "/maps/southern-thalassia.mini.webp",
+              "responseEnd": 12.6,
+              "encodedBodySize": 30196
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/1.webp",
+              "responseEnd": 118.4,
+              "encodedBodySize": 9458
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/1.webp",
+              "responseEnd": 118.5,
+              "encodedBodySize": 9144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/2.webp",
+              "responseEnd": 119.3,
+              "encodedBodySize": 11756
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/0.webp",
+              "responseEnd": 119.8,
+              "encodedBodySize": 12172
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/0.webp",
+              "responseEnd": 120.7,
+              "encodedBodySize": 12292
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/1.webp",
+              "responseEnd": 120.8,
+              "encodedBodySize": 11862
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/2.webp",
+              "responseEnd": 121,
+              "encodedBodySize": 12434
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/2.webp",
+              "responseEnd": 121,
+              "encodedBodySize": 14272
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/1.webp",
+              "responseEnd": 121.3,
+              "encodedBodySize": 12050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/2.webp",
+              "responseEnd": 121.4,
+              "encodedBodySize": 15050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/0.webp",
+              "responseEnd": 123.2,
+              "encodedBodySize": 15144
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "domContentLoadedMs": {
+          "median": 13.9,
+          "min": 12,
+          "max": 21.2
+        },
+        "loadEventMs": {
+          "median": 0,
+          "min": 0,
+          "max": 136.5
+        },
+        "loadingHiddenMs": {
+          "median": 28.7,
+          "min": 27.7,
+          "max": 48.5
+        },
+        "firstVisualAssetEndMs": {
+          "median": 13,
+          "min": 12.6,
+          "max": 14.5
+        },
+        "firstMiniAssetEndMs": {
+          "median": 13,
+          "min": 12.6,
+          "max": 14.5
+        },
+        "firstTileAssetEndMs": {
+          "median": 118.4,
+          "min": 118,
+          "max": 120.2
+        },
+        "firstFullImageAssetEndMs": {
+          "median": null,
+          "min": null,
+          "max": null
+        },
+        "tileCompleteMs": {
+          "median": 130.2,
+          "min": 126.3,
+          "max": 132.6
+        },
+        "visualAssetBytes": {
+          "median": 180240,
+          "min": 180240,
+          "max": 180240
+        }
+      }
+    },
+    {
+      "timestamp": "2026-06-25T15:38:57.471Z",
+      "label": "fair-priority-guard",
+      "url": "http://127.0.0.1:4177/#main_continent-s=o",
+      "map": "main_continent",
+      "viewport": "1280x720",
+      "runs": [
+        {
+          "run": 1,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782401936154-0#main_continent-s=o",
+          "domContentLoadedMs": 107.80000000074506,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 166.39999999850988,
+          "firstVisualAssetEndMs": 66.10000000149012,
+          "firstMiniAssetEndMs": 66.10000000149012,
+          "firstTileAssetEndMs": 289.1000000014901,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 312.6000000014901,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 66.1,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 289.1,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 289.4,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 289.8,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 290.4,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 290.8,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 291.2,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 291.6,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 292.5,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 293.5,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 293.9,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 294.1,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 2,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782401936573-1#main_continent-s=o",
+          "domContentLoadedMs": 24.100000001490116,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 53.80000000074506,
+          "firstVisualAssetEndMs": 15.100000001490116,
+          "firstMiniAssetEndMs": 15.100000001490116,
+          "firstTileAssetEndMs": 136.40000000223517,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 150.69999999925494,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 15.1,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 136.4,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 137.6,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 139.2,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 139.7,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 140,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 140.7,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 140.8,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 141.3,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 142.1,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 143.1,
+              "encodedBodySize": 2416
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 143.5,
+              "encodedBodySize": 2218
+            }
+          ]
+        },
+        {
+          "run": 3,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782401936845-2#main_continent-s=o",
+          "domContentLoadedMs": 22.899999998509884,
+          "loadEventMs": 147,
+          "loadingHiddenMs": 54.19999999925494,
+          "firstVisualAssetEndMs": 12.800000000745058,
+          "firstMiniAssetEndMs": 12.800000000745058,
+          "firstTileAssetEndMs": 136.39999999850988,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 144.80000000074506,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 12.8,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 136.4,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 136.4,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 136.7,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 136.8,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 137.2,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 137.7,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 138.3,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 138.8,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 139.3,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 139.9,
+              "encodedBodySize": 2416
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 141,
+              "encodedBodySize": 2218
+            }
+          ]
+        },
+        {
+          "run": 4,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782401937061-3#main_continent-s=o",
+          "domContentLoadedMs": 22,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 50.80000000074506,
+          "firstVisualAssetEndMs": 12.899999998509884,
+          "firstMiniAssetEndMs": 12.899999998509884,
+          "firstTileAssetEndMs": 130.5,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 144.80000000074506,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 12.9,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 130.5,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 131.1,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 131.4,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 131.6,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 132.4,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 132.9,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 133.2,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 135.5,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 137.4,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 138.2,
+              "encodedBodySize": 2416
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 138.6,
+              "encodedBodySize": 10298
+            }
+          ]
+        },
+        {
+          "run": 5,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782401937281-4#main_continent-s=o",
+          "domContentLoadedMs": 21.700000002980232,
+          "loadEventMs": 154.90000000223517,
+          "loadingHiddenMs": 50.80000000074506,
+          "firstVisualAssetEndMs": 13.300000000745058,
+          "firstMiniAssetEndMs": 13.300000000745058,
+          "firstTileAssetEndMs": 131.20000000298023,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 147.60000000149012,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 13.3,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 131.2,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 131.5,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 132.3,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 132.5,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 132.9,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 133,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 136.1,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 136.2,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 137.8,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 138.2,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 138.6,
+              "encodedBodySize": 2416
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "domContentLoadedMs": {
+          "median": 22.9,
+          "min": 21.7,
+          "max": 107.8
+        },
+        "loadEventMs": {
+          "median": 0,
+          "min": 0,
+          "max": 154.9
+        },
+        "loadingHiddenMs": {
+          "median": 53.8,
+          "min": 50.8,
+          "max": 166.4
+        },
+        "firstVisualAssetEndMs": {
+          "median": 13.3,
+          "min": 12.8,
+          "max": 66.1
+        },
+        "firstMiniAssetEndMs": {
+          "median": 13.3,
+          "min": 12.8,
+          "max": 66.1
+        },
+        "firstTileAssetEndMs": {
+          "median": 136.4,
+          "min": 130.5,
+          "max": 289.1
+        },
+        "firstFullImageAssetEndMs": {
+          "median": null,
+          "min": null,
+          "max": null
+        },
+        "tileCompleteMs": {
+          "median": 147.6,
+          "min": 144.8,
+          "max": 312.6
+        },
+        "visualAssetBytes": {
+          "median": 115526,
+          "min": 115526,
+          "max": 115526
+        }
+      }
+    },
+    {
+      "timestamp": "2026-06-25T15:45:07.083Z",
+      "label": "fair-preview-mounted",
+      "url": "http://127.0.0.1:4177/#main_continent-s=o",
+      "map": "main_continent",
+      "viewport": "1280x720",
+      "runs": [
+        {
+          "run": 1,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782402306012-0#main_continent-s=o",
+          "domContentLoadedMs": 41.19999999925494,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 73.30000000074506,
+          "firstVisualAssetEndMs": 31.600000001490116,
+          "firstMiniAssetEndMs": 31.600000001490116,
+          "firstTileAssetEndMs": 210.80000000074506,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 226.80000000074506,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 31.6,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 210.8,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 211,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 211.3,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 211.4,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 211.5,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 211.9,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 213,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 213.6,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 213.9,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 214.3,
+              "encodedBodySize": 2416
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 214.4,
+              "encodedBodySize": 2218
+            }
+          ]
+        },
+        {
+          "run": 2,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782402306306-1#main_continent-s=o",
+          "domContentLoadedMs": 22,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 51.69999999925494,
+          "firstVisualAssetEndMs": 12.5,
+          "firstMiniAssetEndMs": 12.5,
+          "firstTileAssetEndMs": 125.09999999776483,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 139.5,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 12.5,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 125.1,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 125.5,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 126,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 126.1,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 126.2,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 127.1,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 127.4,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 128.3,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 128.5,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 128.8,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 129.3,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 3,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782402306513-2#main_continent-s=o",
+          "domContentLoadedMs": 22.699999999254942,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 50.69999999925494,
+          "firstVisualAssetEndMs": 12.800000000745058,
+          "firstMiniAssetEndMs": 12.800000000745058,
+          "firstTileAssetEndMs": 123.89999999850988,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 139,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 12.8,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 123.9,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 124.1,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 124.4,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 125.5,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 126.1,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 126.9,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 127.2,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 127.4,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 128.1,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 128.9,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 130.2,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 4,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782402306715-3#main_continent-s=o",
+          "domContentLoadedMs": 22.199999999254942,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 51.400000002235174,
+          "firstVisualAssetEndMs": 13,
+          "firstMiniAssetEndMs": 13,
+          "firstTileAssetEndMs": 123.90000000223517,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 138,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 13,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 123.9,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 124.1,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 124.6,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 125.1,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 125.5,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 126.2,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 126.5,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 126.9,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 127.2,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 127.8,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 127.9,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 5,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782402306916-4#main_continent-s=o",
+          "domContentLoadedMs": 22.099999997764826,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 50.899999998509884,
+          "firstVisualAssetEndMs": 14,
+          "firstMiniAssetEndMs": 14,
+          "firstTileAssetEndMs": 124.30000000074506,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 138.19999999925494,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 14,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 124.3,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 124.5,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 124.9,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 125.3,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 125.9,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 127,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 127.1,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 127.2,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 127.6,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 127.8,
+              "encodedBodySize": 2416
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 128.1,
+              "encodedBodySize": 2218
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "domContentLoadedMs": {
+          "median": 22.2,
+          "min": 22,
+          "max": 41.2
+        },
+        "loadEventMs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "loadingHiddenMs": {
+          "median": 51.4,
+          "min": 50.7,
+          "max": 73.3
+        },
+        "firstVisualAssetEndMs": {
+          "median": 13,
+          "min": 12.5,
+          "max": 31.6
+        },
+        "firstMiniAssetEndMs": {
+          "median": 13,
+          "min": 12.5,
+          "max": 31.6
+        },
+        "firstTileAssetEndMs": {
+          "median": 124.3,
+          "min": 123.9,
+          "max": 210.8
+        },
+        "firstFullImageAssetEndMs": {
+          "median": null,
+          "min": null,
+          "max": null
+        },
+        "tileCompleteMs": {
+          "median": 139,
+          "min": 138,
+          "max": 226.8
+        },
+        "visualAssetBytes": {
+          "median": 115526,
+          "min": 115526,
+          "max": 115526
+        }
+      }
+    },
+    {
+      "timestamp": "2026-06-25T15:45:48.625Z",
+      "label": "fair-preview-mounted-immediate-check",
+      "url": "http://127.0.0.1:4177/#main_continent-s=o",
+      "map": "main_continent",
+      "viewport": "1280x720",
+      "runs": [
+        {
+          "run": 1,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782402347642-0#main_continent-s=o",
+          "domContentLoadedMs": 19.600000001490116,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 19.300000000745058,
+          "firstVisualAssetEndMs": 20.200000002980232,
+          "firstMiniAssetEndMs": 20.200000002980232,
+          "firstTileAssetEndMs": 118.80000000074506,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 139.20000000298023,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 20.2,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 118.8,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 119.4,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 119.5,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 119.9,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 120,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 120.6,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 121.3,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 121.4,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 122,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 122.3,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 123,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 2,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782402347848-1#main_continent-s=o",
+          "domContentLoadedMs": 23.699999999254942,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 23.599999997764826,
+          "firstVisualAssetEndMs": 14.599999997764826,
+          "firstMiniAssetEndMs": 14.599999997764826,
+          "firstTileAssetEndMs": 134.79999999701977,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 149.79999999701977,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 14.6,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 134.8,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 135,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 135.3,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 135.8,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 136.1,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 136.2,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 137.5,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 137.9,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 138.1,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 138.7,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 140.1,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 3,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782402348061-2#main_continent-s=o",
+          "domContentLoadedMs": 18.699999999254942,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 18.5,
+          "firstVisualAssetEndMs": 14.199999999254942,
+          "firstMiniAssetEndMs": 14.199999999254942,
+          "firstTileAssetEndMs": 125.89999999850988,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 140.39999999850988,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 14.2,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 125.9,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 126.7,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 127.1,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 127.8,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 128.4,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 128.5,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 128.7,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 129.3,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 129.5,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 130.1,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 131,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 4,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782402348259-3#main_continent-s=o",
+          "domContentLoadedMs": 22.800000000745058,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 22.700000002980232,
+          "firstVisualAssetEndMs": 13,
+          "firstMiniAssetEndMs": 13,
+          "firstTileAssetEndMs": 130.70000000298023,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 136.80000000074506,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 13,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 130.7,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 130.8,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 131,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 131.6,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 132,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 132.5,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 132.6,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 133.3,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 133.8,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 133.9,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/3/0.webp",
+              "responseEnd": 134.6,
+              "encodedBodySize": 9610
+            }
+          ]
+        },
+        {
+          "run": 5,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782402348460-4#main_continent-s=o",
+          "domContentLoadedMs": 19.699999999254942,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 19.5,
+          "firstVisualAssetEndMs": 13.899999998509884,
+          "firstMiniAssetEndMs": 13.899999998509884,
+          "firstTileAssetEndMs": 130.09999999776483,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 142.69999999925494,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 13.9,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 130.1,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 130.4,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 130.7,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 130.8,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 131.1,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 131.2,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 133.1,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 133.1,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 134.2,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 134.5,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 135.7,
+              "encodedBodySize": 2416
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "domContentLoadedMs": {
+          "median": 19.7,
+          "min": 18.7,
+          "max": 23.7
+        },
+        "loadEventMs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "loadingHiddenMs": {
+          "median": 19.5,
+          "min": 18.5,
+          "max": 23.6
+        },
+        "firstVisualAssetEndMs": {
+          "median": 14.2,
+          "min": 13,
+          "max": 20.2
+        },
+        "firstMiniAssetEndMs": {
+          "median": 14.2,
+          "min": 13,
+          "max": 20.2
+        },
+        "firstTileAssetEndMs": {
+          "median": 130.1,
+          "min": 118.8,
+          "max": 134.8
+        },
+        "firstFullImageAssetEndMs": {
+          "median": null,
+          "min": null,
+          "max": null
+        },
+        "tileCompleteMs": {
+          "median": 140.4,
+          "min": 136.8,
+          "max": 149.8
+        },
+        "visualAssetBytes": {
+          "median": 115526,
+          "min": 115526,
+          "max": 115526
+        }
+      }
+    },
+    {
+      "timestamp": "2026-06-25T15:45:53.900Z",
+      "label": "southern-preview-mounted-immediate-check",
+      "url": "http://127.0.0.1:4177/#southern-thalassia-s=o",
+      "map": "southern-thalassia",
+      "viewport": "1280x720",
+      "runs": [
+        {
+          "run": 1,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782402352929-0#southern-thalassia-s=o",
+          "domContentLoadedMs": 19.5,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 19.199999999254942,
+          "firstVisualAssetEndMs": 17.5,
+          "firstMiniAssetEndMs": 17.5,
+          "firstTileAssetEndMs": 115.39999999850988,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 128.89999999850988,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/southern-thalassia.mini.webp"
+          ],
+          "visualAssetBytes": 180240,
+          "visualResources": [
+            {
+              "path": "/maps/southern-thalassia.mini.webp",
+              "responseEnd": 17.5,
+              "encodedBodySize": 30196
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/1.webp",
+              "responseEnd": 115.4,
+              "encodedBodySize": 9458
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/0.webp",
+              "responseEnd": 116.5,
+              "encodedBodySize": 12292
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/2.webp",
+              "responseEnd": 116.7,
+              "encodedBodySize": 12434
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/2.webp",
+              "responseEnd": 117.8,
+              "encodedBodySize": 11756
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/1.webp",
+              "responseEnd": 118.4,
+              "encodedBodySize": 9144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/0.webp",
+              "responseEnd": 118.7,
+              "encodedBodySize": 12172
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/1.webp",
+              "responseEnd": 119.3,
+              "encodedBodySize": 11862
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/2.webp",
+              "responseEnd": 120.6,
+              "encodedBodySize": 14272
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/1.webp",
+              "responseEnd": 121.2,
+              "encodedBodySize": 12050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/2.webp",
+              "responseEnd": 121.4,
+              "encodedBodySize": 15050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/0.webp",
+              "responseEnd": 121.7,
+              "encodedBodySize": 15144
+            }
+          ]
+        },
+        {
+          "run": 2,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782402353128-1#southern-thalassia-s=o",
+          "domContentLoadedMs": 18.800000000745058,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 18.600000001490116,
+          "firstVisualAssetEndMs": 14.600000001490116,
+          "firstMiniAssetEndMs": 14.600000001490116,
+          "firstTileAssetEndMs": 129.30000000074506,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 140.80000000074506,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/southern-thalassia.mini.webp"
+          ],
+          "visualAssetBytes": 180240,
+          "visualResources": [
+            {
+              "path": "/maps/southern-thalassia.mini.webp",
+              "responseEnd": 14.6,
+              "encodedBodySize": 30196
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/0.webp",
+              "responseEnd": 129.3,
+              "encodedBodySize": 12172
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/1.webp",
+              "responseEnd": 129.8,
+              "encodedBodySize": 9144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/1.webp",
+              "responseEnd": 130.3,
+              "encodedBodySize": 9458
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/2.webp",
+              "responseEnd": 130.6,
+              "encodedBodySize": 11756
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/0.webp",
+              "responseEnd": 130.7,
+              "encodedBodySize": 12292
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/2.webp",
+              "responseEnd": 130.8,
+              "encodedBodySize": 12434
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/1.webp",
+              "responseEnd": 131.2,
+              "encodedBodySize": 11862
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/1.webp",
+              "responseEnd": 131.6,
+              "encodedBodySize": 12050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/2.webp",
+              "responseEnd": 132.8,
+              "encodedBodySize": 14272
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/2.webp",
+              "responseEnd": 133.6,
+              "encodedBodySize": 15050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/0.webp",
+              "responseEnd": 133.9,
+              "encodedBodySize": 14410
+            }
+          ]
+        },
+        {
+          "run": 3,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782402353332-2#southern-thalassia-s=o",
+          "domContentLoadedMs": 22.399999998509884,
+          "loadEventMs": 143.89999999850988,
+          "loadingHiddenMs": 22.199999999254942,
+          "firstVisualAssetEndMs": 13.600000001490116,
+          "firstMiniAssetEndMs": 13.600000001490116,
+          "firstTileAssetEndMs": 128.30000000074506,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 141.60000000149012,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/southern-thalassia.mini.webp"
+          ],
+          "visualAssetBytes": 180240,
+          "visualResources": [
+            {
+              "path": "/maps/southern-thalassia.mini.webp",
+              "responseEnd": 13.6,
+              "encodedBodySize": 30196
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/1.webp",
+              "responseEnd": 128.3,
+              "encodedBodySize": 9458
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/2.webp",
+              "responseEnd": 128.4,
+              "encodedBodySize": 11756
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/1.webp",
+              "responseEnd": 128.5,
+              "encodedBodySize": 9144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/0.webp",
+              "responseEnd": 129.4,
+              "encodedBodySize": 12292
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/2.webp",
+              "responseEnd": 129.6,
+              "encodedBodySize": 12434
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/1.webp",
+              "responseEnd": 131.4,
+              "encodedBodySize": 11862
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/1.webp",
+              "responseEnd": 131.6,
+              "encodedBodySize": 12050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/0.webp",
+              "responseEnd": 132.7,
+              "encodedBodySize": 12172
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/2.webp",
+              "responseEnd": 133.3,
+              "encodedBodySize": 15050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/0.webp",
+              "responseEnd": 133.3,
+              "encodedBodySize": 15144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/2.webp",
+              "responseEnd": 133.7,
+              "encodedBodySize": 14272
+            }
+          ]
+        },
+        {
+          "run": 4,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782402353537-3#southern-thalassia-s=o",
+          "domContentLoadedMs": 22.800000000745058,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 22.600000001490116,
+          "firstVisualAssetEndMs": 13.699999999254942,
+          "firstMiniAssetEndMs": 13.699999999254942,
+          "firstTileAssetEndMs": 121.69999999925494,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 134.5,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/southern-thalassia.mini.webp"
+          ],
+          "visualAssetBytes": 180240,
+          "visualResources": [
+            {
+              "path": "/maps/southern-thalassia.mini.webp",
+              "responseEnd": 13.7,
+              "encodedBodySize": 30196
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/1.webp",
+              "responseEnd": 121.7,
+              "encodedBodySize": 9458
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/0.webp",
+              "responseEnd": 121.7,
+              "encodedBodySize": 12292
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/0.webp",
+              "responseEnd": 121.8,
+              "encodedBodySize": 12172
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/2.webp",
+              "responseEnd": 122.2,
+              "encodedBodySize": 11756
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/1.webp",
+              "responseEnd": 122.3,
+              "encodedBodySize": 9144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/2.webp",
+              "responseEnd": 122.6,
+              "encodedBodySize": 12434
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/1.webp",
+              "responseEnd": 123.8,
+              "encodedBodySize": 12050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/1.webp",
+              "responseEnd": 123.9,
+              "encodedBodySize": 11862
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/2.webp",
+              "responseEnd": 124.5,
+              "encodedBodySize": 14272
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/0.webp",
+              "responseEnd": 125,
+              "encodedBodySize": 15144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/2.webp",
+              "responseEnd": 125.2,
+              "encodedBodySize": 15050
+            }
+          ]
+        },
+        {
+          "run": 5,
+          "requestedUrl": "http://127.0.0.1:4177/?perfRun=1782402353735-4#southern-thalassia-s=o",
+          "domContentLoadedMs": 22.600000001490116,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 22.400000002235174,
+          "firstVisualAssetEndMs": 13.400000002235174,
+          "firstMiniAssetEndMs": 13.400000002235174,
+          "firstTileAssetEndMs": 124.90000000223517,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 137.5,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4177/maps/southern-thalassia.mini.webp"
+          ],
+          "visualAssetBytes": 180240,
+          "visualResources": [
+            {
+              "path": "/maps/southern-thalassia.mini.webp",
+              "responseEnd": 13.4,
+              "encodedBodySize": 30196
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/1.webp",
+              "responseEnd": 124.9,
+              "encodedBodySize": 9458
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/1.webp",
+              "responseEnd": 125.2,
+              "encodedBodySize": 9144
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/2.webp",
+              "responseEnd": 125.7,
+              "encodedBodySize": 11756
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/2.webp",
+              "responseEnd": 125.9,
+              "encodedBodySize": 12434
+            },
+            {
+              "path": "/tile/southern-thalassia/2/1/0.webp",
+              "responseEnd": 126.4,
+              "encodedBodySize": 12292
+            },
+            {
+              "path": "/tile/southern-thalassia/2/2/0.webp",
+              "responseEnd": 126.6,
+              "encodedBodySize": 12172
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/1.webp",
+              "responseEnd": 127.4,
+              "encodedBodySize": 11862
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/1.webp",
+              "responseEnd": 128,
+              "encodedBodySize": 12050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/3/2.webp",
+              "responseEnd": 129,
+              "encodedBodySize": 15050
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/2.webp",
+              "responseEnd": 129.1,
+              "encodedBodySize": 14272
+            },
+            {
+              "path": "/tile/southern-thalassia/2/0/0.webp",
+              "responseEnd": 129.4,
+              "encodedBodySize": 15144
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "domContentLoadedMs": {
+          "median": 22.4,
+          "min": 18.8,
+          "max": 22.8
+        },
+        "loadEventMs": {
+          "median": 0,
+          "min": 0,
+          "max": 143.9
+        },
+        "loadingHiddenMs": {
+          "median": 22.2,
+          "min": 18.6,
+          "max": 22.6
+        },
+        "firstVisualAssetEndMs": {
+          "median": 13.7,
+          "min": 13.4,
+          "max": 17.5
+        },
+        "firstMiniAssetEndMs": {
+          "median": 13.7,
+          "min": 13.4,
+          "max": 17.5
+        },
+        "firstTileAssetEndMs": {
+          "median": 124.9,
+          "min": 115.4,
+          "max": 129.3
+        },
+        "firstFullImageAssetEndMs": {
+          "median": null,
+          "min": null,
+          "max": null
+        },
+        "tileCompleteMs": {
+          "median": 137.5,
+          "min": 128.9,
+          "max": 141.6
+        },
+        "visualAssetBytes": {
+          "median": 180240,
+          "min": 180240,
+          "max": 180240
         }
       }
     }

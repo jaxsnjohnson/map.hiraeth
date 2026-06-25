@@ -239,6 +239,7 @@ async function measureRun(browser, args, runIndex) {
         };
         document.addEventListener('DOMContentLoaded', () => {
             record('domContentLoaded');
+            check();
             const interval = setInterval(check, 10);
             window.setTimeout(() => clearInterval(interval), 15000);
         });

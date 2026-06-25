@@ -31,6 +31,7 @@
                 link.as = as;
                 if (options.type) link.type = options.type;
                 if (options.crossOrigin) link.crossOrigin = options.crossOrigin;
+                if (options.fetchPriority) link.fetchPriority = options.fetchPriority;
                 head.appendChild(link);
             };
 
@@ -54,7 +55,7 @@
                     main_continent: "maps/Fair-Content.mini.webp"
                 };
                 window.__HIRAETH_DIRECT_MAP_PREVIEW__ = previewOverrides[directMapId] || `maps/${directMapId}.mini.webp`;
-                appendPreload(window.__HIRAETH_DIRECT_MAP_PREVIEW__, "image");
+                appendPreload(window.__HIRAETH_DIRECT_MAP_PREVIEW__, "image", { fetchPriority: "high" });
             }
         })();
 
@@ -256,6 +257,7 @@
                     previewImage.id = "map-bootstrap-preview";
                     previewImage.alt = "";
                     previewImage.decoding = "async";
+                    previewImage.fetchPriority = "high";
                     previewImage.onload = () => {
                         document.documentElement.classList.add("bootstrap-map-preview-ready");
                         if (loadingElement && loadingElement.classList.contains("initial-loader")) {
@@ -264,9 +266,15 @@
                     };
                     previewImage.onerror = () => {
                         previewImage.remove();
+                        if (loadingElement && loadingElement.classList.contains("initial-loader")) {
+                            loadingElement.style.display = "";
+                        }
                     };
                     previewImage.src = previewUrl;
                     mapElement.appendChild(previewImage);
+                    if (loadingElement && loadingElement.classList.contains("initial-loader")) {
+                        loadingElement.style.display = "none";
+                    }
                 })();
             </script>
 

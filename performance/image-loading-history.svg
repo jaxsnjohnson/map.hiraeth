@@ -1,41 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="840" height="420" viewBox="0 0 840 420" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="2280" height="420" viewBox="0 0 2280 420" role="img" aria-labelledby="title desc">
   <title id="title">Map image loading timing history</title>
   <desc id="desc">Median timing metrics recorded by scripts/measure_image_loading.mjs.</desc>
   <rect width="100%" height="100%" fill="#fff" />
   <text x="72" y="24" font-size="18" font-family="system-ui, sans-serif" font-weight="700">Map Image Loading Timing History</text>
   <g font-family="system-ui, sans-serif" font-size="12" fill="#292524">
-    <line x1="72" y1="310" x2="804" y2="310" stroke="#d6d3d1" stroke-width="1" />
+    <line x1="72" y1="310" x2="2244" y2="310" stroke="#d6d3d1" stroke-width="1" />
 <text x="62" y="314" text-anchor="end">0 ms</text>
-<line x1="72" y1="240.5" x2="804" y2="240.5" stroke="#d6d3d1" stroke-width="1" />
+<line x1="72" y1="240.5" x2="2244" y2="240.5" stroke="#d6d3d1" stroke-width="1" />
 <text x="62" y="244.5" text-anchor="end">163 ms</text>
-<line x1="72" y1="171" x2="804" y2="171" stroke="#d6d3d1" stroke-width="1" />
+<line x1="72" y1="171" x2="2244" y2="171" stroke="#d6d3d1" stroke-width="1" />
 <text x="62" y="175" text-anchor="end">325 ms</text>
-<line x1="72" y1="101.5" x2="804" y2="101.5" stroke="#d6d3d1" stroke-width="1" />
+<line x1="72" y1="101.5" x2="2244" y2="101.5" stroke="#d6d3d1" stroke-width="1" />
 <text x="62" y="105.5" text-anchor="end">488 ms</text>
-<line x1="72" y1="32" x2="804" y2="32" stroke="#d6d3d1" stroke-width="1" />
+<line x1="72" y1="32" x2="2244" y2="32" stroke="#d6d3d1" stroke-width="1" />
 <text x="62" y="36" text-anchor="end">650 ms</text>
     <line x1="72" y1="32" x2="72" y2="310" stroke="#78716c" />
-    <line x1="72" y1="310" x2="804" y2="310" stroke="#78716c" />
+    <line x1="72" y1="310" x2="2244" y2="310" stroke="#78716c" />
     <text x="72" y="358" text-anchor="end" transform="rotate(-35 72 358)">baseline-head-icebeach</text>
-<text x="316" y="358" text-anchor="end" transform="rotate(-35 316 358)">optimized-progressive-tiles-icebeach</text>
-<text x="560" y="358" text-anchor="end" transform="rotate(-35 560 358)">optimized-preload-icebeach</text>
-<text x="804" y="358" text-anchor="end" transform="rotate(-35 804 358)">optimized-bootstrap-preview-icebeach</text>
-    <polyline points="72,252.26153846153846 316,253.9723076923077 560,304.1833846153846 804,304.39723076923076" fill="none" stroke="#0f766e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-<polyline points="72,36.06307692307695 316,243.4083076923077 560,249.18215384615385 804,288.8292307692308" fill="none" stroke="#b45309" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-<polyline points="316,251.23507692307692 560,251.4916923076923 804,249.69538461538463" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<text x="269.4545454545455" y="358" text-anchor="end" transform="rotate(-35 269.4545454545455 358)">optimized-progressive-tiles-icebeach</text>
+<text x="466.90909090909093" y="358" text-anchor="end" transform="rotate(-35 466.90909090909093 358)">optimized-preload-icebeach</text>
+<text x="664.3636363636364" y="358" text-anchor="end" transform="rotate(-35 664.3636363636364 358)">optimized-bootstrap-preview-icebeach</text>
+<text x="861.8181818181819" y="358" text-anchor="end" transform="rotate(-35 861.8181818181819 358)">fair-before-priority</text>
+<text x="1059.2727272727273" y="358" text-anchor="end" transform="rotate(-35 1059.2727272727273 358)">southern-before-priority</text>
+<text x="1256.7272727272727" y="358" text-anchor="end" transform="rotate(-35 1256.7272727272727 358)">fair-priority</text>
+<text x="1454.1818181818182" y="358" text-anchor="end" transform="rotate(-35 1454.1818181818182 358)">southern-priority</text>
+<text x="1651.6363636363637" y="358" text-anchor="end" transform="rotate(-35 1651.6363636363637 358)">fair-priority-guard</text>
+<text x="1849.090909090909" y="358" text-anchor="end" transform="rotate(-35 1849.090909090909 358)">fair-preview-mounted</text>
+<text x="2046.5454545454545" y="358" text-anchor="end" transform="rotate(-35 2046.5454545454545 358)">fair-preview-mounted-immediate-check</text>
+<text x="2244" y="358" text-anchor="end" transform="rotate(-35 2244 358)">southern-preview-mounted-immediate-check</text>
+    <polyline points="72,252.26153846153846 269.4545454545455,253.9723076923077 466.90909090909093,304.1833846153846 664.3636363636364,304.39723076923076 861.8181818181819,304.09784615384615 1059.2727272727273,304.39723076923076 1256.7272727272727,304.5683076923077 1454.1818181818182,304.44 1651.6363636363637,304.3116923076923 1849.090909090909,304.44 2046.5454545454545,303.92676923076925 2244,304.1406153846154" fill="none" stroke="#0f766e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<polyline points="72,36.06307692307695 269.4545454545455,243.4083076923077 466.90909090909093,249.18215384615385 664.3636363636364,288.8292307692308 861.8181818181819,288.8292307692308 1059.2727272727273,289.29969230769234 1256.7272727272727,288.95753846153843 1454.1818181818182,297.7252307692308 1651.6363636363637,286.9901538461538 1849.090909090909,288.01661538461536 2046.5454545454545,301.66 2244,300.50523076923076" fill="none" stroke="#b45309" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<polyline points="269.4545454545455,251.23507692307692 466.90909090909093,251.4916923076923 664.3636363636364,249.69538461538463 861.8181818181819,248.4123076923077 1059.2727272727273,255.08430769230768 1256.7272727272727,251.83384615384614 1454.1818181818182,254.31446153846156 1651.6363636363637,246.8726153846154 1849.090909090909,250.55076923076922 2046.5454545454545,249.952 2244,251.19230769230768" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
     <circle cx="72" cy="252.26153846153846" r="4" fill="#0f766e"><title>baseline-head-icebeach First visual asset: 135 ms</title></circle>
 <circle cx="72" cy="36.06307692307695" r="4" fill="#b45309"><title>baseline-head-icebeach Loader hidden: 640.5 ms</title></circle>
 
-<circle cx="316" cy="253.9723076923077" r="4" fill="#0f766e"><title>optimized-progressive-tiles-icebeach First visual asset: 131 ms</title></circle>
-<circle cx="316" cy="243.4083076923077" r="4" fill="#b45309"><title>optimized-progressive-tiles-icebeach Loader hidden: 155.7 ms</title></circle>
-<circle cx="316" cy="251.23507692307692" r="4" fill="#2563eb"><title>optimized-progressive-tiles-icebeach Visible tiles complete: 137.4 ms</title></circle>
-<circle cx="560" cy="304.1833846153846" r="4" fill="#0f766e"><title>optimized-preload-icebeach First visual asset: 13.6 ms</title></circle>
-<circle cx="560" cy="249.18215384615385" r="4" fill="#b45309"><title>optimized-preload-icebeach Loader hidden: 142.2 ms</title></circle>
-<circle cx="560" cy="251.4916923076923" r="4" fill="#2563eb"><title>optimized-preload-icebeach Visible tiles complete: 136.8 ms</title></circle>
-<circle cx="804" cy="304.39723076923076" r="4" fill="#0f766e"><title>optimized-bootstrap-preview-icebeach First visual asset: 13.1 ms</title></circle>
-<circle cx="804" cy="288.8292307692308" r="4" fill="#b45309"><title>optimized-bootstrap-preview-icebeach Loader hidden: 49.5 ms</title></circle>
-<circle cx="804" cy="249.69538461538463" r="4" fill="#2563eb"><title>optimized-bootstrap-preview-icebeach Visible tiles complete: 141 ms</title></circle>
+<circle cx="269.4545454545455" cy="253.9723076923077" r="4" fill="#0f766e"><title>optimized-progressive-tiles-icebeach First visual asset: 131 ms</title></circle>
+<circle cx="269.4545454545455" cy="243.4083076923077" r="4" fill="#b45309"><title>optimized-progressive-tiles-icebeach Loader hidden: 155.7 ms</title></circle>
+<circle cx="269.4545454545455" cy="251.23507692307692" r="4" fill="#2563eb"><title>optimized-progressive-tiles-icebeach Visible tiles complete: 137.4 ms</title></circle>
+<circle cx="466.90909090909093" cy="304.1833846153846" r="4" fill="#0f766e"><title>optimized-preload-icebeach First visual asset: 13.6 ms</title></circle>
+<circle cx="466.90909090909093" cy="249.18215384615385" r="4" fill="#b45309"><title>optimized-preload-icebeach Loader hidden: 142.2 ms</title></circle>
+<circle cx="466.90909090909093" cy="251.4916923076923" r="4" fill="#2563eb"><title>optimized-preload-icebeach Visible tiles complete: 136.8 ms</title></circle>
+<circle cx="664.3636363636364" cy="304.39723076923076" r="4" fill="#0f766e"><title>optimized-bootstrap-preview-icebeach First visual asset: 13.1 ms</title></circle>
+<circle cx="664.3636363636364" cy="288.8292307692308" r="4" fill="#b45309"><title>optimized-bootstrap-preview-icebeach Loader hidden: 49.5 ms</title></circle>
+<circle cx="664.3636363636364" cy="249.69538461538463" r="4" fill="#2563eb"><title>optimized-bootstrap-preview-icebeach Visible tiles complete: 141 ms</title></circle>
+<circle cx="861.8181818181819" cy="304.09784615384615" r="4" fill="#0f766e"><title>fair-before-priority First visual asset: 13.8 ms</title></circle>
+<circle cx="861.8181818181819" cy="288.8292307692308" r="4" fill="#b45309"><title>fair-before-priority Loader hidden: 49.5 ms</title></circle>
+<circle cx="861.8181818181819" cy="248.4123076923077" r="4" fill="#2563eb"><title>fair-before-priority Visible tiles complete: 144 ms</title></circle>
+<circle cx="1059.2727272727273" cy="304.39723076923076" r="4" fill="#0f766e"><title>southern-before-priority First visual asset: 13.1 ms</title></circle>
+<circle cx="1059.2727272727273" cy="289.29969230769234" r="4" fill="#b45309"><title>southern-before-priority Loader hidden: 48.4 ms</title></circle>
+<circle cx="1059.2727272727273" cy="255.08430769230768" r="4" fill="#2563eb"><title>southern-before-priority Visible tiles complete: 128.4 ms</title></circle>
+<circle cx="1256.7272727272727" cy="304.5683076923077" r="4" fill="#0f766e"><title>fair-priority First visual asset: 12.7 ms</title></circle>
+<circle cx="1256.7272727272727" cy="288.95753846153843" r="4" fill="#b45309"><title>fair-priority Loader hidden: 49.2 ms</title></circle>
+<circle cx="1256.7272727272727" cy="251.83384615384614" r="4" fill="#2563eb"><title>fair-priority Visible tiles complete: 136 ms</title></circle>
+<circle cx="1454.1818181818182" cy="304.44" r="4" fill="#0f766e"><title>southern-priority First visual asset: 13 ms</title></circle>
+<circle cx="1454.1818181818182" cy="297.7252307692308" r="4" fill="#b45309"><title>southern-priority Loader hidden: 28.7 ms</title></circle>
+<circle cx="1454.1818181818182" cy="254.31446153846156" r="4" fill="#2563eb"><title>southern-priority Visible tiles complete: 130.2 ms</title></circle>
+<circle cx="1651.6363636363637" cy="304.3116923076923" r="4" fill="#0f766e"><title>fair-priority-guard First visual asset: 13.3 ms</title></circle>
+<circle cx="1651.6363636363637" cy="286.9901538461538" r="4" fill="#b45309"><title>fair-priority-guard Loader hidden: 53.8 ms</title></circle>
+<circle cx="1651.6363636363637" cy="246.8726153846154" r="4" fill="#2563eb"><title>fair-priority-guard Visible tiles complete: 147.6 ms</title></circle>
+<circle cx="1849.090909090909" cy="304.44" r="4" fill="#0f766e"><title>fair-preview-mounted First visual asset: 13 ms</title></circle>
+<circle cx="1849.090909090909" cy="288.01661538461536" r="4" fill="#b45309"><title>fair-preview-mounted Loader hidden: 51.4 ms</title></circle>
+<circle cx="1849.090909090909" cy="250.55076923076922" r="4" fill="#2563eb"><title>fair-preview-mounted Visible tiles complete: 139 ms</title></circle>
+<circle cx="2046.5454545454545" cy="303.92676923076925" r="4" fill="#0f766e"><title>fair-preview-mounted-immediate-check First visual asset: 14.2 ms</title></circle>
+<circle cx="2046.5454545454545" cy="301.66" r="4" fill="#b45309"><title>fair-preview-mounted-immediate-check Loader hidden: 19.5 ms</title></circle>
+<circle cx="2046.5454545454545" cy="249.952" r="4" fill="#2563eb"><title>fair-preview-mounted-immediate-check Visible tiles complete: 140.4 ms</title></circle>
+<circle cx="2244" cy="304.1406153846154" r="4" fill="#0f766e"><title>southern-preview-mounted-immediate-check First visual asset: 13.7 ms</title></circle>
+<circle cx="2244" cy="300.50523076923076" r="4" fill="#b45309"><title>southern-preview-mounted-immediate-check Loader hidden: 22.2 ms</title></circle>
+<circle cx="2244" cy="251.19230769230768" r="4" fill="#2563eb"><title>southern-preview-mounted-immediate-check Visible tiles complete: 137.5 ms</title></circle>
     <g transform="translate(72, 388)"><line x1="0" y1="0" x2="24" y2="0" stroke="#0f766e" stroke-width="3" /><text x="32" y="5">First visual asset</text></g>
 <g transform="translate(257, 388)"><line x1="0" y1="0" x2="24" y2="0" stroke="#b45309" stroke-width="3" /><text x="32" y="5">Loader hidden</text></g>
 <g transform="translate(442, 388)"><line x1="0" y1="0" x2="24" y2="0" stroke="#2563eb" stroke-width="3" /><text x="32" y="5">Visible tiles complete</text></g>

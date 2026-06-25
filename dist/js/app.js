@@ -2425,6 +2425,14 @@ function removeBootstrapMapPreview() {
     }
 }
 
+function hasBootstrapMapPreview() {
+    if (typeof document === 'undefined') return false;
+    if (document.documentElement && document.documentElement.classList.contains('bootstrap-map-preview-ready')) {
+        return true;
+    }
+    return !!document.getElementById('map-bootstrap-preview');
+}
+
 function markMapPreviewLayerElement() {
     const previewElement = currentMapPreviewLayer && typeof currentMapPreviewLayer.getElement === 'function'
         ? currentMapPreviewLayer.getElement()
@@ -5988,6 +5996,7 @@ function renderMapFeatures(selectedMap, requestedMapId) {
 
 function startMapLoadingProgress(manifestEntry) {
     if (!loadingIndicator) return;
+    if (hasBootstrapMapPreview()) return;
     loadingIndicator.style.display = 'flex';
     const progressBar = loadingIndicator.querySelector('.progress-bar');
     loadingProgress = 0;
@@ -8124,7 +8133,7 @@ function setupKeyboardAndModalLogic() {
 async function loadMapData() {
     try {
         // Show loading indicator for data fetch
-        if (loadingIndicator) {
+        if (loadingIndicator && !hasBootstrapMapPreview()) {
             loadingIndicator.style.display = 'flex';
             loadingIndicator.classList.add('initial-loader');
             const progressBar = loadingIndicator.querySelector('.progress-bar');
