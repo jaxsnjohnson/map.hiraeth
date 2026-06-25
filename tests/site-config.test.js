@@ -15,6 +15,41 @@ function assertLocalFileExists(filePath, label) {
     assert.ok(fs.existsSync(filePath), `${label} should exist: ${filePath}`);
 }
 
+function readPngDimensions(filePath) {
+    const buffer = fs.readFileSync(filePath);
+    assert.equal(buffer.toString('hex', 0, 8), '89504e470d0a1a0a', `${filePath} should be a PNG file`);
+    assert.equal(buffer.toString('ascii', 12, 16), 'IHDR', `${filePath} should include a PNG IHDR chunk`);
+    return {
+        width: buffer.readUInt32BE(16),
+        height: buffer.readUInt32BE(20)
+    };
+}
+
+function assertSvgIcon(filePath, label) {
+    const source = fs.readFileSync(filePath, 'utf8');
+    assert.match(source, /<svg\b/, `${label} should be an SVG icon: ${filePath}`);
+    assert.match(source, /width="18"/, `${label} should use the shared 3:4 marker width: ${filePath}`);
+    assert.match(source, /height="24"/, `${label} should use the shared 3:4 marker height: ${filePath}`);
+    assert.match(source, /viewBox="3 0 18 24"/, `${label} should use the shared marker viewBox: ${filePath}`);
+}
+
+function assertPoiIconAssetQuality(iconPath, label) {
+    if (!iconPath || isRemoteUrl(iconPath) || iconPath === '#' || !iconPath.startsWith('images/poi-icons/')) return;
+    const extension = path.extname(iconPath);
+    if (extension === '.svg') {
+        assertSvgIcon(iconPath, label);
+        return;
+    }
+    assert.equal(extension, '.png', `${label} should be an SVG or PNG POI icon: ${iconPath}`);
+    const dimensions = readPngDimensions(iconPath);
+    assert.ok(dimensions.height >= 512, `${label} should be exported at high resolution: ${iconPath} is ${dimensions.width}x${dimensions.height}`);
+}
+
+function assertConfiguredPoiIconUsesVector(iconPath, label) {
+    if (!iconPath || isRemoteUrl(iconPath) || iconPath === '#' || !iconPath.startsWith('images/poi-icons/')) return;
+    assert.equal(path.extname(iconPath), '.svg', `${label} should use SVG for crisp map markers: ${iconPath}`);
+}
+
 assert.deepEqual(AppConfig.validateConfig(siteConfig), []);
 
 const resolved = AppConfig.normalizeConfig(siteConfig);
@@ -57,6 +92,13 @@ assertLocalFileExists(resolved.assets.cloudTexture, 'assets.cloudTexture');
 assertLocalFileExists(resolved.assets.previewImage, 'assets.previewImage');
 Object.entries(resolved.assets.poiIcons).forEach(([group, iconPath]) => {
     assertLocalFileExists(iconPath, `assets.poiIcons.${group}`);
+    assertPoiIconAssetQuality(iconPath, `assets.poiIcons.${group}`);
+    assertConfiguredPoiIconUsesVector(iconPath, `assets.poiIcons.${group}`);
+});
+Object.entries(resolved.assets.poiTypeIcons).forEach(([type, iconPath]) => {
+    assertLocalFileExists(iconPath, `assets.poiTypeIcons.${type}`);
+    assertPoiIconAssetQuality(iconPath, `assets.poiTypeIcons.${type}`);
+    assertConfiguredPoiIconUsesVector(iconPath, `assets.poiTypeIcons.${type}`);
 });
 Object.entries(resolved.assets.audio).forEach(([mode, audioPath]) => {
     assertLocalFileExists(audioPath, `assets.audio.${mode}`);

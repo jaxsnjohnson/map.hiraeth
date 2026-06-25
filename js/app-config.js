@@ -19,7 +19,7 @@
 
     function getDefaultAssetsConfig() {
         return {
-                version: '0.1.21',
+                version: '0.1.26',
                 stylesheets: [
                     'css/leaflet.css',
                     'css/style.css',
@@ -46,11 +46,60 @@
                 cloudTexture: 'images/clouds.webp',
                 previewImage: 'images/hiraeth-maps-preview.png',
                 poiIcons: {
-                    Settlements: 'images/poi-icons/settlements.png',
-                    Structures: 'images/poi-icons/structures.png',
-                    'Natural Features': 'images/poi-icons/natural-features.png',
-                    Other: 'images/poi-icons/other.png',
-                    Unknown: 'images/poi-icons/unknown.png'
+                    Settlements: 'images/poi-icons/settlements.svg',
+                    Structures: 'images/poi-icons/structures.svg',
+                    'Natural Features': 'images/poi-icons/natural-features.svg',
+                    Other: 'images/poi-icons/other.svg',
+                    Unknown: 'images/poi-icons/unknown.svg'
+                },
+                poiTypeIcons: {
+                    Capital: 'images/poi-icons/capital.svg',
+                    City: 'images/poi-icons/city.svg',
+                    Town: 'images/poi-icons/town.svg',
+                    Village: 'images/poi-icons/village.svg',
+                    Hamlet: 'images/poi-icons/hamlet.svg',
+                    Settlement: 'images/poi-icons/settlement.svg',
+                    Castle: 'images/poi-icons/castle.svg',
+                    Fortress: 'images/poi-icons/fortress.svg',
+                    Fort: 'images/poi-icons/fort.svg',
+                    Tower: 'images/poi-icons/tower.svg',
+                    Ruin: 'images/poi-icons/ruin.svg',
+                    Temple: 'images/poi-icons/temple.svg',
+                    Shrine: 'images/poi-icons/shrine.svg',
+                    Mine: 'images/poi-icons/mine.svg',
+                    Lighthouse: 'images/poi-icons/lighthouse.svg',
+                    Bridge: 'images/poi-icons/bridge.svg',
+                    Gate: 'images/poi-icons/gate.svg',
+                    Dungeon: 'images/poi-icons/dungeon.svg',
+                    Lair: 'images/poi-icons/lair.svg',
+                    Camp: 'images/poi-icons/camp.svg',
+                    Asylum: 'images/poi-icons/asylum.svg',
+                    Landmark: 'images/poi-icons/landmark.svg',
+                    Building: 'images/poi-icons/building.svg',
+                    Mountain: 'images/poi-icons/mountain.svg',
+                    Peak: 'images/poi-icons/peak.svg',
+                    Forest: 'images/poi-icons/forest.svg',
+                    Wood: 'images/poi-icons/wood.svg',
+                    River: 'images/poi-icons/river.svg',
+                    Lake: 'images/poi-icons/lake.svg',
+                    Cave: 'images/poi-icons/cave.svg',
+                    Cavern: 'images/poi-icons/cavern.svg',
+                    Coast: 'images/poi-icons/coast.svg',
+                    Bay: 'images/poi-icons/bay.svg',
+                    Cove: 'images/poi-icons/cove.svg',
+                    Swamp: 'images/poi-icons/swamp.svg',
+                    Marsh: 'images/poi-icons/marsh.svg',
+                    Desert: 'images/poi-icons/desert.svg',
+                    'Natural Landmark': 'images/poi-icons/natural-landmark.svg',
+                    'Point of Interest': 'images/poi-icons/point-of-interest.svg',
+                    Region: 'images/poi-icons/region.svg',
+                    Portal: 'images/poi-icons/portal.svg',
+                    Tavern: 'images/poi-icons/tavern.svg',
+                    'Dock & Trading': 'images/poi-icons/dock-trading.svg',
+                    Market: 'images/poi-icons/market-trade.svg',
+                    Trade: 'images/poi-icons/market-trade.svg',
+                    'Market & Trade': 'images/poi-icons/market-trade.svg',
+                    'Market / Trade': 'images/poi-icons/market-trade.svg'
                 },
                 audio: {
                     light: 'sounds/gentle-winds.mp3',
@@ -87,11 +136,11 @@
                         'css/images/marker-icon-2x.png',
                         'css/images/marker-shadow.png',
                         'images/hiraeth-maps-preview.png',
-                        'images/poi-icons/settlements.png',
-                        'images/poi-icons/structures.png',
-                        'images/poi-icons/natural-features.png',
-                        'images/poi-icons/other.png',
-                        'images/poi-icons/unknown.png'
+                        'images/poi-icons/settlements.svg',
+                        'images/poi-icons/structures.svg',
+                        'images/poi-icons/natural-features.svg',
+                        'images/poi-icons/other.svg',
+                        'images/poi-icons/unknown.svg'
                     ]
                 }
             };
@@ -194,9 +243,9 @@
         return {
                 poiTypeGroups: {
                     Settlements: ['City', 'Town', 'Village', 'Hamlet', 'Settlement', 'Capital'],
-                    Structures: ['Castle', 'Fortress', 'Fort', 'Tower', 'Ruin', 'Temple', 'Shrine', 'Mine', 'Lighthouse', 'Bridge', 'Dungeon', 'Lair', 'Camp', 'Asylum', 'Landmark'],
+                    Structures: ['Castle', 'Fortress', 'Fort', 'Tower', 'Ruin', 'Temple', 'Shrine', 'Mine', 'Lighthouse', 'Bridge', 'Gate', 'Dungeon', 'Lair', 'Camp', 'Asylum', 'Landmark', 'Building'],
                     'Natural Features': ['Mountain', 'Peak', 'Forest', 'Wood', 'River', 'Lake', 'Cave', 'Cavern', 'Coast', 'Bay', 'Cove', 'Swamp', 'Marsh', 'Desert', 'Natural Landmark'],
-                    Other: ['Point of Interest', 'Region', 'Portal'],
+                    Other: ['Point of Interest', 'Region', 'Portal', 'Tavern', 'Dock & Trading', 'Market', 'Trade', 'Market & Trade', 'Market / Trade'],
                     Unknown: ['Unknown']
                 },
                 labels: {
@@ -266,7 +315,7 @@
                         {
                             id: 'changelog',
                             label: 'Changelog',
-                            html: '<div class="changelog-entry"><div class="changelog-header"><h3>Rich Atlas UX and Fast Map Loading</h3><span class="version-pill" title="Current release">v0.1.21</span></div><ul class="changelog-list"><li>Reworked the sidebar around Maps and POI Detail tabs with richer structured detail in the drawer.</li><li>Kept map popups compact while adding searchable POI facts, tags, and detail sections for atlas discovery.</li><li>Added deploy-time tiled map loading for large maps with full-image fallback and refreshed minimap switching.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Current Atlas Stabilization</h3><span class="version-pill" title="June 2026">v0.1.7</span></div><ul class="changelog-list"><li>Fixed map-view share URL handling and expanded regression coverage around shared map views.</li><li>Added Astrousia archive maps, IceBeach lore summaries, and updated atlas accessibility notes.</li><li>Hardened GitHub Pages validation, local-only editor access, atlas generation, and map-editor save flows.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Security, Tests, and Performance Sweep</h3><span class="version-pill" title="May 2026 to June 2026">v0.1.6</span></div><ul class="changelog-list"><li>Closed multiple DOM XSS risks in popups, map editor controls, app config rendering, help modals, search highlights, and encounter tables.</li><li>Added broad unit coverage for search, filters, storage helpers, popup builders, mobile layout, map loading, and share-link behavior.</li><li>Improved atlas search, filter loops, hydration, DOM traversal, and Leaflet line lookups for smoother large-map browsing.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Mobile Atlas and Editor Rebuild</h3><span class="version-pill" title="April 2026">v0.1.5</span></div><ul class="changelog-list"><li>Reworked mobile map navigation into focused search, maps, drawer, and bottom-sheet surfaces.</li><li>Migrated the atlas to file-backed map JSON manifests with generated runtime indexes and preserved metadata.</li><li>Added the map editor, map chooser UI, responsive minimap thumbnails, preset grouping, runtime guards, and configurable site bootstrap.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Smart Sharing and Atlas Polish</h3><span class="version-pill" title="March 2026">v0.1.4</span></div><ul class="changelog-list"><li>Introduced Smart Share Links, shared-view coachmarks, popup opacity tuning, and mobile layout refinements.</li><li>Added POI hover tooltips, reset-view improvements, compact search controls, and search highlight fixes.</li><li>Started the atlas manifest performance pass and refreshed Fair map artwork, boundaries, and Apsley content.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Deep Links, Embeds, and Safe Popups</h3><span class="version-pill" title="February 2026">v0.1.3</span></div><ul class="changelog-list"><li>Added custom icons, local-only GM/editor gating, UI refinements, and background polish.</li><li>Fixed URL history, hash generation, invalid-map startup fallback, coordinate labels, and sidebar state restoration.</li><li>Sanitized popup content, popup headers, custom properties, and wiki links while improving embed-first loading.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Sharing, Minimap, and Site Shell</h3><span class="version-pill" title="December 2025 to January 2026">v0.1.2</span></div><ul class="changelog-list"><li>Added feature sharing, map-view deep links, MiniMap support, and refined viewport indicator behavior.</li><li>Redesigned the about page, embed link generator, loading state, starfield, and point-finder map selection.</li><li>Added Stomion updates, dynamic controls, accessibility improvements, search bar fixes, and map-content polish.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>World Expansion and Richer Map Tools</h3><span class="version-pill" title="May 2025 to October 2025">v0.1.1</span></div><ul class="changelog-list"><li>Expanded Hiraeth with Old-Lin, Southern Thalassia, Gelwood, Arfordir, Castgate, Albynor, Krasnogory Krai, Zafra, Pyralis, and many Fair map revisions.</li><li>Added routes and lines, hierarchical filters, map-specific filter groups, custom feature properties, collapsible popups, pronunciation guides, and summaries.</li><li>Improved point-finder workflows, scale export, recursive map listings, region visibility tools, mobile controls, and README documentation.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Origin Launch</h3><span class="version-pill" title="April 2025">v0.1.0</span></div><ul class="changelog-list"><li>Created the first Leaflet-based Hiraeth map viewer with Icebeach and Fair maps.</li><li>Added the sidebar, dark and light themes, EB Garamond styling, glassy UI, bottom links, about page, favicons, and wiki/blog/source links.</li><li>Introduced POI imports, marker types, region overlays, the measurement tool, ambient audio, embed mode, and early map data structure.</li></ul></div>'
+                            html: '<div class="changelog-entry"><div class="changelog-header"><h3>Maintainer Publish Pipeline</h3><span class="version-pill" title="Current release">v0.1.26</span></div><ul class="changelog-list"><li>Moved publish readiness into a repo-level editor panel with clear Ready, Needs Save, Needs Build, and Failed states.</li><li>Grouped changed files by maintainer concern and added source-to-dist drift checks before publishing.</li><li>Added live preview build progress so maintainers can see atlas generation, validation, and Pages bundling steps.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Current Atlas Stabilization</h3><span class="version-pill" title="June 2026">v0.1.7</span></div><ul class="changelog-list"><li>Fixed map-view share URL handling and expanded regression coverage around shared map views.</li><li>Added Astrousia archive maps, IceBeach lore summaries, and updated atlas accessibility notes.</li><li>Hardened GitHub Pages validation, local-only editor access, atlas generation, and map-editor save flows.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Security, Tests, and Performance Sweep</h3><span class="version-pill" title="May 2026 to June 2026">v0.1.6</span></div><ul class="changelog-list"><li>Closed multiple DOM XSS risks in popups, map editor controls, app config rendering, help modals, search highlights, and encounter tables.</li><li>Added broad unit coverage for search, filters, storage helpers, popup builders, mobile layout, map loading, and share-link behavior.</li><li>Improved atlas search, filter loops, hydration, DOM traversal, and Leaflet line lookups for smoother large-map browsing.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Mobile Atlas and Editor Rebuild</h3><span class="version-pill" title="April 2026">v0.1.5</span></div><ul class="changelog-list"><li>Reworked mobile map navigation into focused search, maps, drawer, and bottom-sheet surfaces.</li><li>Migrated the atlas to file-backed map JSON manifests with generated runtime indexes and preserved metadata.</li><li>Added the map editor, map chooser UI, responsive minimap thumbnails, preset grouping, runtime guards, and configurable site bootstrap.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Smart Sharing and Atlas Polish</h3><span class="version-pill" title="March 2026">v0.1.4</span></div><ul class="changelog-list"><li>Introduced Smart Share Links, shared-view coachmarks, popup opacity tuning, and mobile layout refinements.</li><li>Added POI hover tooltips, reset-view improvements, compact search controls, and search highlight fixes.</li><li>Started the atlas manifest performance pass and refreshed Fair map artwork, boundaries, and Apsley content.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Deep Links, Embeds, and Safe Popups</h3><span class="version-pill" title="February 2026">v0.1.3</span></div><ul class="changelog-list"><li>Added custom icons, local-only GM/editor gating, UI refinements, and background polish.</li><li>Fixed URL history, hash generation, invalid-map startup fallback, coordinate labels, and sidebar state restoration.</li><li>Sanitized popup content, popup headers, custom properties, and wiki links while improving embed-first loading.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Sharing, Minimap, and Site Shell</h3><span class="version-pill" title="December 2025 to January 2026">v0.1.2</span></div><ul class="changelog-list"><li>Added feature sharing, map-view deep links, MiniMap support, and refined viewport indicator behavior.</li><li>Redesigned the about page, embed link generator, loading state, starfield, and point-finder map selection.</li><li>Added Stomion updates, dynamic controls, accessibility improvements, search bar fixes, and map-content polish.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>World Expansion and Richer Map Tools</h3><span class="version-pill" title="May 2025 to October 2025">v0.1.1</span></div><ul class="changelog-list"><li>Expanded Hiraeth with Old-Lin, Southern Thalassia, Gelwood, Arfordir, Castgate, Albynor, Krasnogory Krai, Zafra, Pyralis, and many Fair map revisions.</li><li>Added routes and lines, hierarchical filters, map-specific filter groups, custom feature properties, collapsible popups, pronunciation guides, and summaries.</li><li>Improved point-finder workflows, scale export, recursive map listings, region visibility tools, mobile controls, and README documentation.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Origin Launch</h3><span class="version-pill" title="April 2025">v0.1.0</span></div><ul class="changelog-list"><li>Created the first Leaflet-based Hiraeth map viewer with Icebeach and Fair maps.</li><li>Added the sidebar, dark and light themes, EB Garamond styling, glassy UI, bottom links, about page, favicons, and wiki/blog/source links.</li><li>Introduced POI imports, marker types, region overlays, the measurement tool, ambient audio, embed mode, and early map data structure.</li></ul></div>'
                         }
                     ]
                 },

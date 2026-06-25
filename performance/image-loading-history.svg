@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="420" viewBox="0 0 840 420" role="img" aria-labelledby="title desc">
+  <title id="title">Map image loading timing history</title>
+  <desc id="desc">Median timing metrics recorded by scripts/measure_image_loading.mjs.</desc>
+  <rect width="100%" height="100%" fill="#fff" />
+  <text x="72" y="24" font-size="18" font-family="system-ui, sans-serif" font-weight="700">Map Image Loading Timing History</text>
+  <g font-family="system-ui, sans-serif" font-size="12" fill="#292524">
+    <line x1="72" y1="310" x2="804" y2="310" stroke="#d6d3d1" stroke-width="1" />
+<text x="62" y="314" text-anchor="end">0 ms</text>
+<line x1="72" y1="240.5" x2="804" y2="240.5" stroke="#d6d3d1" stroke-width="1" />
+<text x="62" y="244.5" text-anchor="end">163 ms</text>
+<line x1="72" y1="171" x2="804" y2="171" stroke="#d6d3d1" stroke-width="1" />
+<text x="62" y="175" text-anchor="end">325 ms</text>
+<line x1="72" y1="101.5" x2="804" y2="101.5" stroke="#d6d3d1" stroke-width="1" />
+<text x="62" y="105.5" text-anchor="end">488 ms</text>
+<line x1="72" y1="32" x2="804" y2="32" stroke="#d6d3d1" stroke-width="1" />
+<text x="62" y="36" text-anchor="end">650 ms</text>
+    <line x1="72" y1="32" x2="72" y2="310" stroke="#78716c" />
+    <line x1="72" y1="310" x2="804" y2="310" stroke="#78716c" />
+    <text x="72" y="358" text-anchor="end" transform="rotate(-35 72 358)">baseline-head-icebeach</text>
+<text x="316" y="358" text-anchor="end" transform="rotate(-35 316 358)">optimized-progressive-tiles-icebeach</text>
+<text x="560" y="358" text-anchor="end" transform="rotate(-35 560 358)">optimized-preload-icebeach</text>
+<text x="804" y="358" text-anchor="end" transform="rotate(-35 804 358)">optimized-bootstrap-preview-icebeach</text>
+    <polyline points="72,252.26153846153846 316,253.9723076923077 560,304.1833846153846 804,304.39723076923076" fill="none" stroke="#0f766e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<polyline points="72,36.06307692307695 316,243.4083076923077 560,249.18215384615385 804,288.8292307692308" fill="none" stroke="#b45309" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<polyline points="316,251.23507692307692 560,251.4916923076923 804,249.69538461538463" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="72" cy="252.26153846153846" r="4" fill="#0f766e"><title>baseline-head-icebeach First visual asset: 135 ms</title></circle>
+<circle cx="72" cy="36.06307692307695" r="4" fill="#b45309"><title>baseline-head-icebeach Loader hidden: 640.5 ms</title></circle>
+
+<circle cx="316" cy="253.9723076923077" r="4" fill="#0f766e"><title>optimized-progressive-tiles-icebeach First visual asset: 131 ms</title></circle>
+<circle cx="316" cy="243.4083076923077" r="4" fill="#b45309"><title>optimized-progressive-tiles-icebeach Loader hidden: 155.7 ms</title></circle>
+<circle cx="316" cy="251.23507692307692" r="4" fill="#2563eb"><title>optimized-progressive-tiles-icebeach Visible tiles complete: 137.4 ms</title></circle>
+<circle cx="560" cy="304.1833846153846" r="4" fill="#0f766e"><title>optimized-preload-icebeach First visual asset: 13.6 ms</title></circle>
+<circle cx="560" cy="249.18215384615385" r="4" fill="#b45309"><title>optimized-preload-icebeach Loader hidden: 142.2 ms</title></circle>
+<circle cx="560" cy="251.4916923076923" r="4" fill="#2563eb"><title>optimized-preload-icebeach Visible tiles complete: 136.8 ms</title></circle>
+<circle cx="804" cy="304.39723076923076" r="4" fill="#0f766e"><title>optimized-bootstrap-preview-icebeach First visual asset: 13.1 ms</title></circle>
+<circle cx="804" cy="288.8292307692308" r="4" fill="#b45309"><title>optimized-bootstrap-preview-icebeach Loader hidden: 49.5 ms</title></circle>
+<circle cx="804" cy="249.69538461538463" r="4" fill="#2563eb"><title>optimized-bootstrap-preview-icebeach Visible tiles complete: 141 ms</title></circle>
+    <g transform="translate(72, 388)"><line x1="0" y1="0" x2="24" y2="0" stroke="#0f766e" stroke-width="3" /><text x="32" y="5">First visual asset</text></g>
+<g transform="translate(257, 388)"><line x1="0" y1="0" x2="24" y2="0" stroke="#b45309" stroke-width="3" /><text x="32" y="5">Loader hidden</text></g>
+<g transform="translate(442, 388)"><line x1="0" y1="0" x2="24" y2="0" stroke="#2563eb" stroke-width="3" /><text x="32" y="5">Visible tiles complete</text></g>
+  </g>
+</svg>

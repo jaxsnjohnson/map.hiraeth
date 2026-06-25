@@ -12,6 +12,7 @@
     "test:editor-server": "node tests/editor-server.test.js",
     "test:editor-shell": "node tests/map-editor-shell.test.js",
     "build:pages": "node scripts/build_pages.js",
+    "publish:check": "node scripts/publish_check.js",
     "validate:pages": "npm run generate:atlas && npm run validate:data && npm run test:unit && npm run build:pages",
     "test": "npm run validate:pages"
   },

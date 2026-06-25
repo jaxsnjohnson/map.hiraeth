@@ -3,6 +3,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+const defaultTileSize = 256;
+const generatedTileMinImageSize = 2048;
+const generatedTileMaxLevelSpan = 4;
+
 function cloneJson(value) {
     return JSON.parse(JSON.stringify(value));
 }
@@ -157,6 +161,94 @@ function buildGeneratorContext(repoRoot) {
 
 function readJsonFile(fullPath) {
     return JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+}
+
+function readJsonFileIfExists(fullPath) {
+    if (!fs.existsSync(fullPath)) return null;
+    try {
+        return readJsonFile(fullPath);
+    } catch (error) {
+        return null;
+    }
+}
+
+function getAtlasComparablePayload(atlasIndex) {
+    if (!atlasIndex || typeof atlasIndex !== 'object' || Array.isArray(atlasIndex)) {
+        return null;
+    }
+    return {
+        tree: atlasIndex.tree,
+        searchIndex: atlasIndex.searchIndex
+    };
+}
+
+function stringifyJson(value) {
+    return `${JSON.stringify(value, null, 2)}\n`;
+}
+
+function isExternalUrl(value) {
+    return /^https?:\/\//i.test(String(value || ''));
+}
+
+function normalizePublicAssetPath(assetPath) {
+    const rawPath = String(assetPath || '').trim();
+    if (!rawPath || isExternalUrl(rawPath) || rawPath.startsWith('#') || rawPath.startsWith('mailto:')) {
+        return '';
+    }
+
+    const withoutHash = rawPath.split('#')[0];
+    const withoutQuery = withoutHash.split('?')[0];
+    if (!withoutQuery || path.isAbsolute(withoutQuery)) return '';
+
+    const normalized = path.posix.normalize(withoutQuery);
+    if (!normalized || normalized.startsWith('../') || normalized === '..' || path.isAbsolute(normalized)) {
+        return '';
+    }
+    return normalized;
+}
+
+function canUseGeneratedTilePath(mapId) {
+    return /^[A-Za-z0-9._-]+$/.test(String(mapId || '').trim());
+}
+
+function buildGeneratedTileSource(context, mapItem) {
+    if (!mapItem || Object.prototype.hasOwnProperty.call(mapItem, 'tileSource')) return null;
+    const mapId = String(mapItem.id || '').trim();
+    if (!mapId || !canUseGeneratedTilePath(mapId)) return null;
+
+    const width = Number(mapItem.width);
+    const height = Number(mapItem.height);
+    if (!Number.isFinite(width) || width <= 0 || !Number.isFinite(height) || height <= 0) return null;
+    const maxDimension = Math.max(width, height);
+    if (maxDimension < generatedTileMinImageSize) return null;
+
+    const imagePath = normalizePublicAssetPath(mapItem.imageUrl);
+    if (!imagePath || !fs.existsSync(path.join(context.repoRoot, imagePath))) return null;
+
+    const maxZoom = Math.max(0, Math.ceil(Math.log2(maxDimension / defaultTileSize)));
+    const minZoom = Math.max(0, maxZoom - generatedTileMaxLevelSpan);
+    return {
+        type: 'xyz',
+        urlTemplate: `tile/${mapId}/{z}/{x}/{y}.webp`,
+        tileSize: defaultTileSize,
+        minZoom,
+        maxZoom,
+        leafletNativeZoom: 0,
+        zoomOffset: maxZoom
+    };
+}
+
+function getGeneratedAtForNextAtlas(atlasIndexPath, nextComparablePayload) {
+    const previousAtlas = readJsonFileIfExists(atlasIndexPath);
+    const previousComparablePayload = getAtlasComparablePayload(previousAtlas);
+    if (
+        previousAtlas &&
+        previousAtlas.generatedAt &&
+        JSON.stringify(previousComparablePayload) === JSON.stringify(nextComparablePayload)
+    ) {
+        return previousAtlas.generatedAt;
+    }
+    return new Date().toISOString();
 }
 
 function addSearchEntry(context, entry) {
@@ -421,6 +513,11 @@ function toManifestItem(context, item, origin) {
         }
     });
 
+    const generatedTileSource = buildGeneratedTileSource(context, sourceItem);
+    if (generatedTileSource) {
+        manifestItem.tileSource = generatedTileSource;
+    }
+
     if (dataUrl) {
         manifestItem.dataUrl = dataUrl;
     }
@@ -449,13 +546,22 @@ function generateAtlasIndex(options = {}) {
         throw new Error('maps/maps.json must contain manifest entries.');
     }
     const atlasTree = rawIndex.map((item) => toManifestItem(context, item, { kind: 'inline' }));
-    const atlasIndex = {
-        generatedAt: new Date().toISOString(),
+    const comparablePayload = {
         tree: atlasTree,
         searchIndex: context.searchEntries
     };
+    const atlasIndex = {
+        generatedAt: getGeneratedAtForNextAtlas(context.atlasIndexPath, comparablePayload),
+        ...comparablePayload
+    };
 
-    fs.writeFileSync(context.atlasIndexPath, `${JSON.stringify(atlasIndex, null, 2)}\n`);
+    const nextAtlasContent = stringifyJson(atlasIndex);
+    const previousAtlasContent = fs.existsSync(context.atlasIndexPath)
+        ? fs.readFileSync(context.atlasIndexPath, 'utf8')
+        : '';
+    if (nextAtlasContent !== previousAtlasContent) {
+        fs.writeFileSync(context.atlasIndexPath, nextAtlasContent);
+    }
     return {
         atlasIndex,
         atlasIndexPath: context.atlasIndexPath,

@@ -107,7 +107,7 @@
             color: #10131f;
         }
     </style>
-    <script src="js/app-config.js?v=0.1.21"></script>
+    <script src="js/app-config.js?v=0.1.26"></script>
     <script>
         window.APP_ASSET_VERSION = window.AppConfig ? window.AppConfig.get("assets.version", "0") : "0";
 
@@ -182,6 +182,42 @@
     </section>
 
     <div id="map-editor-app" class="map-editor-shell" data-mode="select">
+        <section class="map-editor-publish-panel" aria-labelledby="publish-readiness-title">
+            <div class="map-editor-publish-main">
+                <div>
+                    <p class="map-editor-publish-eyebrow">Publish Pipeline</p>
+                    <h2 id="publish-readiness-title">Checking</h2>
+                    <p id="publish-readiness-summary">Checking the editor save server and Pages bundle.</p>
+                </div>
+                <span id="publish-readiness-chip" class="map-editor-chip">Checking</span>
+            </div>
+
+            <div class="map-editor-readiness-actions">
+                <button id="build-live-preview-btn" type="button" disabled>Build Live Preview</button>
+                <a id="live-preview-link" href="/preview/" target="_blank" rel="noopener" hidden>Open Preview</a>
+            </div>
+
+            <ol id="publish-action-list" class="map-editor-action-list" aria-label="Next publish actions"></ol>
+            <div id="publish-build-progress" class="map-editor-build-progress" aria-live="polite" hidden></div>
+
+            <details class="map-editor-readiness-details">
+                <summary>Readiness details</summary>
+                <ul id="publish-readiness-list" class="map-editor-readiness-list" aria-label="Publish readiness checks"></ul>
+
+                <div class="map-editor-readiness-block">
+                    <h3>Changed Files</h3>
+                    <div id="publish-changed-file-groups" class="map-editor-file-groups"></div>
+                    <pre id="publish-changed-files">Checking...</pre>
+                </div>
+
+                <div class="map-editor-readiness-block">
+                    <h3>Warnings</h3>
+                    <ul id="publish-warning-list" class="map-editor-warning-list"></ul>
+                </div>
+            </details>
+        </section>
+
+        <div class="map-editor-workspace">
         <aside class="map-editor-sidebar">
             <div class="map-editor-panel-header">
                 <div>
@@ -309,6 +345,7 @@
                 <form id="editor-feature-form" class="map-editor-form" hidden></form>
             </details>
         </aside>
+        </div>
     </div>
 
     <script>

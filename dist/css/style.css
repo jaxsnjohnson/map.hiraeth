@@ -983,6 +983,17 @@ textarea:focus-visible,
     visibility: visible !important;
 }
 
+#map-bootstrap-preview {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    background: var(--bg-secondary);
+}
+
 #map .leaflet-map-pane,
 #map .leaflet-pane,
 #map .leaflet-image-layer,
@@ -2817,7 +2828,7 @@ body:not(.embedded-view) .leaflet-control-minimap .leaflet-control-minimap-toggl
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- Modal Content Styles (Adapted from about.html) --- */
+/* --- Modal Content Styles --- */
 .guide-grid {
     display: grid;
     grid-template-columns: 1fr;

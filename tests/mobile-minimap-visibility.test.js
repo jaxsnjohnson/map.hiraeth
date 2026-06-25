@@ -30,6 +30,7 @@ function extractFunctionSource(name) {
 const snippets = [
     extractFunctionSource('getPreferredMapImageUrl'),
     extractFunctionSource('getMiniMapImageUrl'),
+    extractFunctionSource('createMapPreviewLayer'),
     extractFunctionSource('shouldShowMiniMap'),
     extractFunctionSource('removeMiniMapControl'),
     extractFunctionSource('syncMiniMapControl')
@@ -51,7 +52,7 @@ global.L = {
         Simple: {}
     },
     imageOverlay(url, bounds) {
-        return { url, bounds };
+        return { url, bounds, options: arguments[2] || {} };
     },
     latLngBounds(bounds) {
         return {
@@ -127,6 +128,13 @@ assert.equal(getMiniMapImageUrl({ imageUrl: 'maps/default.webp' }), 'maps/defaul
 assert.equal(getMiniMapImageUrl({ imageUrl: 'maps/Old-Lin Map.jpeg' }), 'maps/Old-Lin Map.mini.webp');
 assert.equal(getMiniMapImageUrl({ imageUrl: 'maps/default.webp?asset=1#view' }), 'maps/default.mini.webp?asset=1#view');
 assert.equal(getMiniMapImageUrl({ imageUrl: '' }), '');
+
+const previewLayer = createMapPreviewLayer({ imageUrl: 'maps/default.webp' }, global.currentBounds);
+assert.equal(previewLayer.url, 'maps/default.mini.webp');
+assert.equal(previewLayer.options.pane, 'tilePane');
+assert.equal(previewLayer.options.interactive, false);
+assert.equal(previewLayer.options.className, 'map-preview-layer');
+assert.equal(createMapPreviewLayer({ imageUrl: '' }, global.currentBounds), null);
 
 assert.equal(shouldShowMiniMap(), true);
 syncMiniMapControl();

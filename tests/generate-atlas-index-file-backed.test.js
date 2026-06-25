@@ -42,6 +42,13 @@ fs.writeFileSync(path.join(mapsDir, 'maps.json'), `${JSON.stringify([
                 type: 'Point of Interest'
             }
         ]
+    },
+    {
+        id: 'large-file-backed-map',
+        parentId: 'folder-root',
+        order: 2,
+        dataUrl: 'maps/large-file-backed-map.json',
+        name: 'Large File Backed'
     }
 ], null, 2)}\n`);
 
@@ -95,8 +102,19 @@ fs.writeFileSync(path.join(mapsDir, 'unreferenced-map.json'), `${JSON.stringify(
     ]
 }, null, 2)}\n`);
 
+fs.writeFileSync(path.join(mapsDir, 'large-file-backed-map.webp'), '');
+fs.writeFileSync(path.join(mapsDir, 'large-file-backed-map.json'), `${JSON.stringify({
+    id: 'large-file-backed-map',
+    name: 'Large File Backed Source',
+    width: 4096,
+    height: 2048,
+    imageUrl: 'maps/large-file-backed-map.webp',
+    pointsOfInterest: []
+}, null, 2)}\n`);
+
 const result = generateAtlasIndex({ repoRoot: tmpRoot });
 const atlas = result.atlasIndex;
+const atlasIndexPath = path.join(mapsDir, 'atlas-index.json');
 
 const folder = atlas.tree.find((item) => item.id === 'folder-root');
 assert.ok(folder);
@@ -121,6 +139,19 @@ assert.equal(inlineMap.dataUrl, 'maps/generated/inline-map.json');
 assert.equal(inlineMap.category, 'Geographic Regions');
 assert.ok(fs.existsSync(path.join(mapsDir, 'generated', 'inline-map.json')));
 
+const largeFileBacked = folder.children.find((item) => item.id === 'large-file-backed-map');
+assert.ok(largeFileBacked);
+assert.equal(largeFileBacked.dataUrl, 'maps/large-file-backed-map.json');
+assert.deepEqual(largeFileBacked.tileSource, {
+    type: 'xyz',
+    urlTemplate: 'tile/large-file-backed-map/{z}/{x}/{y}.webp',
+    tileSize: 256,
+    minZoom: 0,
+    maxZoom: 4,
+    leafletNativeZoom: 0,
+    zoomOffset: 4
+});
+
 const filePoi = atlas.searchIndex.find((entry) => entry.kind === 'poi' && entry.mapId === 'file-backed-map');
 assert.ok(filePoi);
 assert.equal(filePoi.name, 'File POI');
@@ -134,5 +165,17 @@ assert.equal(filePoi.properties, undefined);
 
 const ignored = atlas.searchIndex.find((entry) => entry.mapId === 'unreferenced-map');
 assert.equal(ignored, undefined);
+
+const stableAtlas = {
+    ...JSON.parse(fs.readFileSync(atlasIndexPath, 'utf8')),
+    generatedAt: 'stable-test-generated-at'
+};
+fs.writeFileSync(atlasIndexPath, `${JSON.stringify(stableAtlas, null, 2)}\n`);
+generateAtlasIndex({ repoRoot: tmpRoot });
+assert.equal(
+    fs.readFileSync(atlasIndexPath, 'utf8'),
+    `${JSON.stringify(stableAtlas, null, 2)}\n`,
+    'unchanged atlas content should not create generatedAt-only churn'
+);
 
 console.log('generate_atlas_index file-backed fixture checks passed');

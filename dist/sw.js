@@ -35,11 +35,11 @@ const DEFAULT_STATIC_SHELL_ASSETS = [
     'css/images/marker-icon-2x.png',
     'css/images/marker-shadow.png',
     'images/hiraeth-maps-preview.png',
-    'images/poi-icons/settlements.png',
-    'images/poi-icons/structures.png',
-    'images/poi-icons/natural-features.png',
-    'images/poi-icons/other.png',
-    'images/poi-icons/unknown.png'
+    'images/poi-icons/settlements.svg',
+    'images/poi-icons/structures.svg',
+    'images/poi-icons/natural-features.svg',
+    'images/poi-icons/other.svg',
+    'images/poi-icons/unknown.svg'
 ];
 
 function versionAsset(asset) {
