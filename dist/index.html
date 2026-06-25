@@ -12,7 +12,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 
-    <script src="js/app-config.js?v=0.1.26"></script>
+    <script src="js/app-config.js?v=0.1.27"></script>
     <script>
         window.APP_ASSET_VERSION = window.AppConfig ? window.AppConfig.get("assets.version", "0") : "0";
         window.THEME_STORAGE_KEYS = {
@@ -252,6 +252,11 @@
                     const mapElement = document.getElementById("map");
                     const loadingElement = document.getElementById("loading-indicator");
                     if (!mapElement) return;
+                    if (loadingElement && loadingElement.classList.contains("initial-loader")) {
+                        document.documentElement.classList.add("bootstrap-map-preview-loading");
+                        const progressBar = loadingElement.querySelector(".progress-bar");
+                        if (progressBar) progressBar.style.width = "10%";
+                    }
 
                     const previewImage = new Image();
                     previewImage.id = "map-bootstrap-preview";
@@ -260,21 +265,16 @@
                     previewImage.fetchPriority = "high";
                     previewImage.onload = () => {
                         document.documentElement.classList.add("bootstrap-map-preview-ready");
-                        if (loadingElement && loadingElement.classList.contains("initial-loader")) {
-                            loadingElement.style.display = "none";
-                        }
                     };
                     previewImage.onerror = () => {
                         previewImage.remove();
                         if (loadingElement && loadingElement.classList.contains("initial-loader")) {
+                            document.documentElement.classList.remove("bootstrap-map-preview-loading");
                             loadingElement.style.display = "";
                         }
                     };
                     previewImage.src = previewUrl;
                     mapElement.appendChild(previewImage);
-                    if (loadingElement && loadingElement.classList.contains("initial-loader")) {
-                        loadingElement.style.display = "none";
-                    }
                 })();
             </script>
 

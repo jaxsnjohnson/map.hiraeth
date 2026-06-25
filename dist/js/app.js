@@ -5996,15 +5996,21 @@ function renderMapFeatures(selectedMap, requestedMapId) {
 
 function startMapLoadingProgress(manifestEntry) {
     if (!loadingIndicator) return;
-    if (hasBootstrapMapPreview()) return;
+    const isBootstrapPreviewLoading = hasBootstrapMapPreview();
     loadingIndicator.style.display = 'flex';
+    if (isBootstrapPreviewLoading) {
+        loadingIndicator.classList.add('initial-loader');
+        document.documentElement.classList.add('bootstrap-map-preview-loading');
+    }
     const progressBar = loadingIndicator.querySelector('.progress-bar');
-    loadingProgress = 0;
-    if (progressBar) progressBar.style.width = '0%';
-    setLoadingMessage(
-        manifestEntry ? `Loading "${manifestEntry.name}"...` : 'Loading map...',
-        { showSpinner: true, showProgress: true, showRetry: false }
-    );
+    loadingProgress = isBootstrapPreviewLoading ? Math.max(loadingProgress, 45) : 0;
+    if (progressBar) progressBar.style.width = `${loadingProgress}%`;
+    if (!isBootstrapPreviewLoading) {
+        setLoadingMessage(
+            manifestEntry ? `Loading "${manifestEntry.name}"...` : 'Loading map...',
+            { showSpinner: true, showProgress: true, showRetry: false }
+        );
+    }
 
     if (loadingProgressInterval) clearInterval(loadingProgressInterval);
     loadingProgressInterval = setInterval(() => {
@@ -6040,6 +6046,7 @@ function finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileI
             loadingProgressInterval = null;
             loadingIndicator.style.display = 'none';
             loadingIndicator.classList.remove('initial-loader');
+            document.documentElement.classList.remove('bootstrap-map-preview-loading');
         }, hideDelayMs);
     }
 

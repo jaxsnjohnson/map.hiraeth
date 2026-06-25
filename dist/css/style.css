@@ -2423,6 +2423,28 @@ html.embedded-view #loading-indicator.initial-loader {
     pointer-events: auto;
 }
 
+html.bootstrap-map-preview-loading #loading-indicator.initial-loader {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    min-width: 0;
+    padding: 0;
+    transform: none;
+    border-radius: 0;
+    background: transparent;
+    color: transparent;
+    justify-content: flex-start;
+    align-items: stretch;
+    pointer-events: none;
+}
+
+html.bootstrap-map-preview-loading #loading-indicator.initial-loader .spinner,
+html.bootstrap-map-preview-loading #loading-indicator.initial-loader .loading-text,
+html.bootstrap-map-preview-loading #loading-indicator.initial-loader #loading-retry-btn {
+    display: none;
+}
+
 .loading-text {
     margin: 10px 0;
 }
@@ -2441,6 +2463,14 @@ html.embedded-view #loading-indicator.initial-loader {
     width: 300px; /* Fixed width for initial loader */
 }
 
+html.bootstrap-map-preview-loading #loading-indicator.initial-loader .progress-container {
+    width: 100%;
+    height: 4px;
+    margin: 0;
+    border-radius: 0;
+    background-color: rgba(0, 0, 0, 0.12);
+}
+
 .progress-bar {
     height: 100%;
     width: 0%; /* Starts at 0% */
@@ -2451,6 +2481,10 @@ html.embedded-view #loading-indicator.initial-loader {
 
 #loading-indicator.initial-loader .progress-bar {
     background-color: var(--slider-bg); /* Use theme color */
+}
+
+html.bootstrap-map-preview-loading #loading-indicator.initial-loader .progress-bar {
+    border-radius: 0;
 }
 
 .spinner {

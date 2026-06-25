@@ -17,8 +17,14 @@ assert.match(
 
 assert.match(
     appSource,
-    /function startMapLoadingProgress\(manifestEntry\) \{[\s\S]*if \(hasBootstrapMapPreview\(\)\) return;[\s\S]*loadingIndicator\.style\.display = 'flex';/,
-    'map loading progress should not cover the mounted bootstrap map preview.'
+    /function finalizeMapLoadState\(requestedMapId, selectedMap, usingAlternateMobileImage, loadStartedAt, options = \{\}\) \{[\s\S]*loadingIndicator\.style\.display = 'none';[\s\S]*document\.documentElement\.classList\.remove\('bootstrap-map-preview-loading'\);/,
+    'startup should hide the bootstrap preview loading bar before clearing its slim-bar state.'
+);
+
+assert.match(
+    appSource,
+    /function startMapLoadingProgress\(manifestEntry\) \{[\s\S]*const isBootstrapPreviewLoading = hasBootstrapMapPreview\(\);[\s\S]*document\.documentElement\.classList\.add\('bootstrap-map-preview-loading'\);[\s\S]*loadingProgress = isBootstrapPreviewLoading \? Math\.max\(loadingProgress, 45\) : 0;/,
+    'map loading progress should keep a non-blocking loading bar visible over the mounted bootstrap map preview.'
 );
 
 assert.match(
