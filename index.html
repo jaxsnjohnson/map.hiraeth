@@ -109,6 +109,19 @@
             document.documentElement.classList.toggle("embedded-view", isEmbed);
         })();
 
+        (function applyInitialMapChooserMode() {
+            const rawMapId = String(window.location.hash || "").replace(/^#/, "").split("-s=")[0] || "";
+            let mapId = "";
+            try {
+                mapId = decodeURIComponent(rawMapId).trim();
+            } catch (error) {
+                mapId = rawMapId.trim();
+            }
+            const shouldOpenChooser = window.__INITIAL_EMBEDDED_VIEW__ !== true && !mapId;
+            window.__INITIAL_MAP_CHOOSER_OPEN__ = shouldOpenChooser;
+            document.documentElement.classList.toggle("map-chooser-first", shouldOpenChooser);
+        })();
+
         (function applyInitialMobileLayoutMode() {
             const params = new URLSearchParams(window.location.search || "");
             const modeFromUrl = String(params.get("mobileLayout") || "").trim().toLowerCase();
@@ -161,7 +174,7 @@
     </script>
 </head>
 <body>
-    <section id="map-chooser" class="map-chooser" aria-labelledby="map-chooser-title" aria-describedby="map-chooser-subtitle" hidden>
+    <section id="map-chooser" class="map-chooser" aria-labelledby="map-chooser-title" aria-describedby="map-chooser-subtitle" aria-hidden="true" hidden>
         <div class="map-chooser-frame" aria-hidden="true"></div>
         <div class="map-chooser-inner">
             <header class="map-chooser-header">
@@ -171,6 +184,17 @@
             <div id="map-chooser-grid" class="map-chooser-grid" aria-live="polite" aria-atomic="true"></div>
         </div>
     </section>
+    <script>
+        (function applyInitialMapChooserDomState() {
+            if (window.__INITIAL_MAP_CHOOSER_OPEN__ !== true) return;
+            const chooser = document.getElementById("map-chooser");
+            if (!chooser) return;
+            chooser.hidden = false;
+            chooser.setAttribute("aria-hidden", "false");
+            chooser.classList.add("visible");
+            document.body.classList.add("map-chooser-open");
+        })();
+    </script>
 
     <div class="container">
         <div id="sidebar">
