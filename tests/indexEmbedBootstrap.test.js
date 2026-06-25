@@ -24,6 +24,8 @@ assert.match(indexSource, /window\.__HIRAETH_DIRECT_MAP_PREVIEW__ = previewOverr
 assert.match(indexSource, /appendPreload\(window\.__HIRAETH_DIRECT_MAP_PREVIEW__, "image", \{ fetchPriority: "high" \}\)/);
 assert.match(indexSource, /main_continent: "maps\/Fair-Content\.mini\.webp"/);
 assert.match(indexSource, /document\.documentElement\.classList\.add\("bootstrap-map-preview-loading"\);[\s\S]*appendPreload\(window\.__HIRAETH_DIRECT_MAP_PREVIEW__, "image"/);
+assert.match(indexSource, /html\.bootstrap-map-preview-loading #loading-indicator\.initial-loader \{[\s\S]*height: 4px;[\s\S]*pointer-events: none;/);
+assert.match(indexSource, /html\.bootstrap-map-preview-loading #loading-indicator\.initial-loader \.progress-container \{[\s\S]*width: 100%;[\s\S]*height: 4px;/);
 assert.match(indexSource, /function mountBootstrapMapPreview\(\)/);
 assert.match(indexSource, /previewImage\.id = "map-bootstrap-preview"/);
 assert.match(indexSource, /previewImage\.fetchPriority = "high"/);

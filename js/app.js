@@ -3044,6 +3044,22 @@ function setLoadingMessage(message, options = {}) {
     if (loadingRetryBtn) loadingRetryBtn.style.display = showRetry ? 'inline-block' : 'none';
 }
 
+function setLoadingProgressValue(value) {
+    if (!loadingIndicator) return;
+    const numericValue = Number(value);
+    const clampedValue = Number.isFinite(numericValue)
+        ? Math.max(0, Math.min(100, numericValue))
+        : 0;
+    loadingProgress = clampedValue;
+    const progressBar = loadingIndicator.querySelector('.progress-bar');
+    if (progressBar) progressBar.style.width = `${loadingProgress}%`;
+}
+
+function clearLoadingProgressTimer() {
+    if (loadingProgressInterval) clearInterval(loadingProgressInterval);
+    loadingProgressInterval = null;
+}
+
 function positionFilterPanel() {
     if (!poiFilterContainer || !toggleFiltersBtn) return;
     if (isMobileLayoutActive) {
@@ -6002,9 +6018,7 @@ function startMapLoadingProgress(manifestEntry) {
         loadingIndicator.classList.add('initial-loader');
         document.documentElement.classList.add('bootstrap-map-preview-loading');
     }
-    const progressBar = loadingIndicator.querySelector('.progress-bar');
-    loadingProgress = isBootstrapPreviewLoading ? Math.max(loadingProgress, 45) : 0;
-    if (progressBar) progressBar.style.width = `${loadingProgress}%`;
+    setLoadingProgressValue(isBootstrapPreviewLoading ? Math.max(loadingProgress, 45) : 0);
     if (!isBootstrapPreviewLoading) {
         setLoadingMessage(
             manifestEntry ? `Loading "${manifestEntry.name}"...` : 'Loading map...',
@@ -6012,15 +6026,13 @@ function startMapLoadingProgress(manifestEntry) {
         );
     }
 
-    if (loadingProgressInterval) clearInterval(loadingProgressInterval);
+    clearLoadingProgressTimer();
     loadingProgressInterval = setInterval(() => {
         if (loadingProgress < 90) {
             loadingProgress += 2 + Math.random() * 3;
-            loadingProgress = Math.min(loadingProgress, 90);
-            if (progressBar) progressBar.style.width = `${loadingProgress}%`;
+            setLoadingProgressValue(Math.min(loadingProgress, 90));
         } else {
-            clearInterval(loadingProgressInterval);
-            loadingProgressInterval = null;
+            clearLoadingProgressTimer();
         }
     }, 150);
 }
@@ -6038,12 +6050,10 @@ function finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileI
     }
 
     if (loadingIndicator) {
-        const progressBarEl = loadingIndicator.querySelector('.progress-bar');
-        if (progressBarEl) progressBarEl.style.width = '100%';
+        setLoadingProgressValue(100);
         const hideDelayMs = parseNonNegativeInteger(options.hideDelayMs, 300);
         setTimeout(() => {
-            if (loadingProgressInterval) clearInterval(loadingProgressInterval);
-            loadingProgressInterval = null;
+            clearLoadingProgressTimer();
             loadingIndicator.style.display = 'none';
             loadingIndicator.classList.remove('initial-loader');
             document.documentElement.classList.remove('bootstrap-map-preview-loading');
@@ -6159,11 +6169,12 @@ function setupMapLayers(selectedMap, requestedMapId, mapImageUrl, updateHash) {
 }
 
 function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingAlternateMobileImage, loadStartedAt, updateHash }) {
-    let initialLoadingComplete = false;
+    let previewLoadingComplete = false;
     let detailLoadingComplete = false;
     let loadingTimeout = null;
     let previewReadyTimeout = null;
     let fallbackStarted = false;
+    let tileLoadFailures = 0;
 
     function clearLoadingTimers() {
         clearTimeout(loadingTimeout);
@@ -6172,32 +6183,42 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
         previewReadyTimeout = null;
     }
 
-    function finishInitialLoading() {
-        if (initialLoadingComplete) return;
-        initialLoadingComplete = true;
-        clearLoadingTimers();
+    function finishPreviewLoading() {
+        if (previewLoadingComplete) return;
+        previewLoadingComplete = true;
+        clearTimeout(previewReadyTimeout);
+        previewReadyTimeout = null;
         removeBootstrapMapPreview();
-        finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileImage, loadStartedAt, {
-            hideDelayMs: currentMapPreviewLayer ? 0 : 300
-        });
+        setLoadingProgressValue(Math.max(loadingProgress, 60));
     }
 
     function finishDetailLoading() {
         if (detailLoadingComplete) return;
         detailLoadingComplete = true;
         clearLoadingTimers();
-        removeMapPreviewLayer();
-        finishInitialLoading();
+        const hadPreviewLayer = !!currentMapPreviewLayer;
+        const keepPreviewLayer = currentMapBaseLayerMode === 'tile' && tileLoadFailures > 0 && !!currentMapPreviewLayer;
+        removeBootstrapMapPreview();
+        if (!keepPreviewLayer) {
+            removeMapPreviewLayer();
+        }
+        finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileImage, loadStartedAt, {
+            hideDelayMs: hadPreviewLayer ? 0 : 300
+        });
     }
 
-    function maybeFinishTileDetailLoading() {
-        if (detailLoadingComplete || currentMapBaseLayerMode !== 'tile' || !currentMapPreviewLayer) return;
+    function updateTileLoadingProgress() {
+        if (detailLoadingComplete || currentMapBaseLayerMode !== 'tile') return;
         const tileContainer = currentImageLayer && typeof currentImageLayer.getContainer === 'function'
             ? currentImageLayer.getContainer()
             : null;
         if (!tileContainer || typeof tileContainer.querySelectorAll !== 'function') return;
         const tiles = Array.from(tileContainer.querySelectorAll('img.leaflet-tile'));
-        if (tiles.length > 0 && tiles.every((tile) => tile.complete && tile.naturalWidth > 0)) {
+        if (tiles.length === 0) return;
+        const loadedTiles = tiles.filter((tile) => tile.complete && tile.naturalWidth > 0).length;
+        const tileProgress = 60 + (loadedTiles / tiles.length) * 35;
+        setLoadingProgressValue(Math.max(loadingProgress, tileProgress));
+        if (loadedTiles === tiles.length) {
             finishDetailLoading();
         }
     }
@@ -6208,12 +6229,15 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
         clearLoadingTimers();
         console.error('Image overlay failed to load:', mapImageUrl);
 
-        if (initialLoadingComplete && currentMapPreviewLayer) {
+        if (previewLoadingComplete && currentMapPreviewLayer) {
             if (currentImageLayer) map.removeLayer(currentImageLayer);
             currentImageLayer = currentMapPreviewLayer;
             currentMapPreviewLayer = null;
             currentMapBaseLayerMode = 'preview';
             console.warn('Detailed map image failed after preview load; keeping the low-resolution preview visible.');
+            finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileImage, loadStartedAt, {
+                hideDelayMs: 300
+            });
             return;
         }
 
@@ -6246,34 +6270,45 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
     }
 
     loadingTimeout = setTimeout(() => {
-        console.warn('Loading fallback timer triggered.');
-        finishInitialLoading();
+        if (detailLoadingComplete) return;
+        console.warn('Detailed map image is still loading; keeping the preview visible.');
+        setLoadingProgressValue(Math.max(loadingProgress, 92));
     }, 8000);
 
     currentMapUnderlay.addTo(map);
     if (currentMapPreviewLayer) {
-        currentMapPreviewLayer.on('load', finishInitialLoading);
+        currentMapPreviewLayer.on('load', finishPreviewLoading);
         currentMapPreviewLayer.on('error', () => {
             console.warn('Low-resolution map preview failed to load:', selectedMap.id || selectedMap.name);
         });
         currentMapPreviewLayer.addTo(map);
         markMapPreviewLayerElement();
-        previewReadyTimeout = setTimeout(finishInitialLoading, 550);
+        previewReadyTimeout = setTimeout(() => {
+            previewReadyTimeout = null;
+            setLoadingProgressValue(Math.max(loadingProgress, 55));
+        }, 550);
     }
 
     if (currentMapBaseLayerMode === 'tile') {
         currentImageLayer.on('load', finishDetailLoading);
-        currentImageLayer.on('tileload', maybeFinishTileDetailLoading);
+        currentImageLayer.on('tileload', updateTileLoadingProgress);
         currentImageLayer.on('tileerror', function (event) {
             if (detailLoadingComplete) return;
+            tileLoadFailures += 1;
             const failedTileUrl = event && event.tile ? event.tile.currentSrc || event.tile.src : '';
-            console.warn('Tile layer failed to load; falling back to full map image:', failedTileUrl || selectedMap.id || selectedMap.name);
+            if (currentMapPreviewLayer) {
+                console.warn('Tile layer failed to load; keeping the low-resolution preview behind tiles:', failedTileUrl || selectedMap.id || selectedMap.name);
+                setLoadingProgressValue(Math.max(loadingProgress, 90));
+                setTimeout(updateTileLoadingProgress, 0);
+                return;
+            }
+            console.warn('Tile layer failed to load without a preview; falling back to full map image:', failedTileUrl || selectedMap.id || selectedMap.name);
             attachImageFallback();
         });
         currentImageLayer.addTo(map);
-        setTimeout(maybeFinishTileDetailLoading, 0);
-        setTimeout(maybeFinishTileDetailLoading, 250);
-        setTimeout(maybeFinishTileDetailLoading, 1000);
+        setTimeout(updateTileLoadingProgress, 0);
+        setTimeout(updateTileLoadingProgress, 250);
+        setTimeout(updateTileLoadingProgress, 1000);
         map.fitBounds(currentBounds, { animate: false });
         return;
     }

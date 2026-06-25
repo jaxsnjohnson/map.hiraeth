@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-25T15:45:53.901Z",
+  "generatedAt": "2026-06-25T23:40:53.352Z",
   "entries": [
     {
       "timestamp": "2026-06-25T05:11:51.265Z",
@@ -5165,6 +5165,2207 @@
           "median": 180240,
           "min": 180240,
           "max": 180240
+        }
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:19:39.997Z",
+      "label": "current-loading-fix-main-continent",
+      "url": "http://127.0.0.1:4190/#main_continent",
+      "map": "main_continent",
+      "viewport": "1280x720",
+      "runs": [
+        {
+          "run": 1,
+          "requestedUrl": "http://127.0.0.1:4190/?perfRun=1782429576832-0#main_continent",
+          "domContentLoadedMs": 108.89999999850988,
+          "loadEventMs": 591.7999999970198,
+          "loadingHiddenMs": 640.3999999985099,
+          "firstVisualAssetEndMs": 51.899999998509884,
+          "firstMiniAssetEndMs": 51.899999998509884,
+          "firstTileAssetEndMs": 288.79999999701977,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 322.70000000298023,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4190/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 51.9,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 288.8,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 289.5,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 289.8,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 290.5,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 290.9,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 291.9,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 292.5,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 296.9,
+              "encodedBodySize": 2416
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 297.3,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 298.3,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 298.6,
+              "encodedBodySize": 4536
+            }
+          ]
+        },
+        {
+          "run": 2,
+          "requestedUrl": "http://127.0.0.1:4190/?perfRun=1782429577615-1#main_continent",
+          "domContentLoadedMs": 25.80000000447035,
+          "loadEventMs": 425.5,
+          "loadingHiddenMs": 467.90000000596046,
+          "firstVisualAssetEndMs": 16.600000001490116,
+          "firstMiniAssetEndMs": 16.600000001490116,
+          "firstTileAssetEndMs": 141.10000000149012,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 152.30000000447035,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4190/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 16.6,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 141.1,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 141.4,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 142.4,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 143,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 143.5,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 143.8,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 143.9,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 144.3,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 144.8,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/3/0.webp",
+              "responseEnd": 145.7,
+              "encodedBodySize": 9610
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 146,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 3,
+          "requestedUrl": "http://127.0.0.1:4190/?perfRun=1782429578329-2#main_continent",
+          "domContentLoadedMs": 23.899999998509884,
+          "loadEventMs": 279.3999999985099,
+          "loadingHiddenMs": 516.2000000029802,
+          "firstVisualAssetEndMs": 25.799999997019768,
+          "firstMiniAssetEndMs": 25.799999997019768,
+          "firstTileAssetEndMs": 150.5,
+          "firstFullImageAssetEndMs": 195,
+          "tileCompleteMs": null,
+          "tileCount": 0,
+          "imageLayerSources": [
+            "http://127.0.0.1:4190/maps/Fair-Content.mini.webp",
+            "http://127.0.0.1:4190/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 78846,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 25.8,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 150.5,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 154.4,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 155.7,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 162.4,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 171.4,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 190.6,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 191.5,
+              "encodedBodySize": 0
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 191.7,
+              "encodedBodySize": 0
+            },
+            {
+              "path": "/maps/Fair-Content.webp",
+              "responseEnd": 195,
+              "encodedBodySize": 0
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 200.9,
+              "encodedBodySize": 0
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 200.9,
+              "encodedBodySize": 0
+            }
+          ]
+        },
+        {
+          "run": 4,
+          "requestedUrl": "http://127.0.0.1:4190/?perfRun=1782429578936-3#main_continent",
+          "domContentLoadedMs": 24.100000001490116,
+          "loadEventMs": 166.60000000149012,
+          "loadingHiddenMs": 457.79999999701977,
+          "firstVisualAssetEndMs": 14.899999998509884,
+          "firstMiniAssetEndMs": 14.899999998509884,
+          "firstTileAssetEndMs": 130.10000000149012,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 143,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4190/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 14.9,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 130.1,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 130.2,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 130.3,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 130.6,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 130.7,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 131,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 131.9,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 132.1,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 133.2,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 133.9,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 135.3,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 5,
+          "requestedUrl": "http://127.0.0.1:4190/?perfRun=1782429579489-4#main_continent",
+          "domContentLoadedMs": 24.30000000447035,
+          "loadEventMs": 157.70000000298023,
+          "loadingHiddenMs": 466.30000000447035,
+          "firstVisualAssetEndMs": 14.899999998509884,
+          "firstMiniAssetEndMs": 14.899999998509884,
+          "firstTileAssetEndMs": 135.70000000298023,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 144.89999999850988,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4190/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 14.9,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 135.7,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 136.3,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 136.7,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 136.9,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 137.2,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 137.7,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 138.3,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 138.4,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 139.2,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 139.7,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/3/0.webp",
+              "responseEnd": 139.9,
+              "encodedBodySize": 9610
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "domContentLoadedMs": {
+          "median": 24.3,
+          "min": 23.9,
+          "max": 108.9
+        },
+        "loadEventMs": {
+          "median": 279.4,
+          "min": 157.7,
+          "max": 591.8
+        },
+        "loadingHiddenMs": {
+          "median": 467.9,
+          "min": 457.8,
+          "max": 640.4
+        },
+        "firstVisualAssetEndMs": {
+          "median": 16.6,
+          "min": 14.9,
+          "max": 51.9
+        },
+        "firstMiniAssetEndMs": {
+          "median": 16.6,
+          "min": 14.9,
+          "max": 51.9
+        },
+        "firstTileAssetEndMs": {
+          "median": 141.1,
+          "min": 130.1,
+          "max": 288.8
+        },
+        "firstFullImageAssetEndMs": {
+          "median": 195,
+          "min": 195,
+          "max": 195
+        },
+        "tileCompleteMs": {
+          "median": 148.6,
+          "min": 143,
+          "max": 322.7
+        },
+        "visualAssetBytes": {
+          "median": 115526,
+          "min": 78846,
+          "max": 115526
+        }
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:26:18.813Z",
+      "label": "current-loading-fix-main-continent-immediate-hide",
+      "url": "http://127.0.0.1:4190/#main_continent",
+      "map": "main_continent",
+      "viewport": "1280x720",
+      "runs": [
+        {
+          "run": 1,
+          "requestedUrl": "http://127.0.0.1:4190/?perfRun=1782429977586-0#main_continent",
+          "domContentLoadedMs": 73.39999999850988,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 272.3999999985099,
+          "firstVisualAssetEndMs": 50.100000001490116,
+          "firstMiniAssetEndMs": 50.100000001490116,
+          "firstTileAssetEndMs": 236.20000000298023,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 272.5,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4190/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 50.1,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 236.2,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 236.3,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 236.4,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 236.6,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 236.8,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 237.1,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 239.1,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 239.3,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 241,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 244.7,
+              "encodedBodySize": 2416
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 245.2,
+              "encodedBodySize": 10298
+            }
+          ]
+        },
+        {
+          "run": 2,
+          "requestedUrl": "http://127.0.0.1:4190/?perfRun=1782429977936-1#main_continent",
+          "domContentLoadedMs": 24.30000000447035,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 157.89999999850988,
+          "firstVisualAssetEndMs": 15.399999998509884,
+          "firstMiniAssetEndMs": 15.399999998509884,
+          "firstTileAssetEndMs": 134.10000000149012,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 144.89999999850988,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4190/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 15.4,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 134.1,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 135,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 135.3,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 135.7,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 136.2,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 137,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 137.3,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 137.6,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 137.7,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 138.2,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 138.9,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 3,
+          "requestedUrl": "http://127.0.0.1:4190/?perfRun=1782429978165-2#main_continent",
+          "domContentLoadedMs": 23.399999998509884,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 159,
+          "firstVisualAssetEndMs": 15.100000001490116,
+          "firstMiniAssetEndMs": 15.100000001490116,
+          "firstTileAssetEndMs": 136.29999999701977,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 159,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4190/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 15.1,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 136.3,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 137.5,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 137.6,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 137.9,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 138.3,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 138.4,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 138.6,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 139.6,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 140.4,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 140.5,
+              "encodedBodySize": 2416
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 140.6,
+              "encodedBodySize": 4536
+            }
+          ]
+        },
+        {
+          "run": 4,
+          "requestedUrl": "http://127.0.0.1:4190/?perfRun=1782429978383-3#main_continent",
+          "domContentLoadedMs": 19.100000001490116,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 162.29999999701977,
+          "firstVisualAssetEndMs": 15.399999998509884,
+          "firstMiniAssetEndMs": 15.399999998509884,
+          "firstTileAssetEndMs": 137.29999999701977,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 151.89999999850988,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4190/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 15.4,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 137.3,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 137.4,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 137.9,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 138.2,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 138.4,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 139,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 139.7,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 140.1,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 140.4,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 140.7,
+              "encodedBodySize": 2416
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 141.2,
+              "encodedBodySize": 2218
+            }
+          ]
+        },
+        {
+          "run": 5,
+          "requestedUrl": "http://127.0.0.1:4190/?perfRun=1782429978605-4#main_continent",
+          "domContentLoadedMs": 22.69999999552965,
+          "loadEventMs": 179.29999999701977,
+          "loadingHiddenMs": 151.19999999552965,
+          "firstVisualAssetEndMs": 13.799999997019768,
+          "firstMiniAssetEndMs": 13.799999997019768,
+          "firstTileAssetEndMs": 129.89999999850988,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 140,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4190/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 13.8,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 129.9,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 130.4,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 130.5,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 130.6,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 131.6,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 131.8,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 131.9,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 132.3,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 132.5,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 133.4,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 133.6,
+              "encodedBodySize": 2416
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "domContentLoadedMs": {
+          "median": 23.4,
+          "min": 19.1,
+          "max": 73.4
+        },
+        "loadEventMs": {
+          "median": 0,
+          "min": 0,
+          "max": 179.3
+        },
+        "loadingHiddenMs": {
+          "median": 159,
+          "min": 151.2,
+          "max": 272.4
+        },
+        "firstVisualAssetEndMs": {
+          "median": 15.4,
+          "min": 13.8,
+          "max": 50.1
+        },
+        "firstMiniAssetEndMs": {
+          "median": 15.4,
+          "min": 13.8,
+          "max": 50.1
+        },
+        "firstTileAssetEndMs": {
+          "median": 136.3,
+          "min": 129.9,
+          "max": 236.2
+        },
+        "firstFullImageAssetEndMs": {
+          "median": null,
+          "min": null,
+          "max": null
+        },
+        "tileCompleteMs": {
+          "median": 151.9,
+          "min": 140,
+          "max": 272.5
+        },
+        "visualAssetBytes": {
+          "median": 115526,
+          "min": 115526,
+          "max": 115526
+        }
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:34:00.122Z",
+      "label": "final-validated-dist-main-continent",
+      "url": "http://127.0.0.1:4191/#main_continent",
+      "map": "main_continent",
+      "viewport": "1280x720",
+      "runs": [
+        {
+          "run": 1,
+          "requestedUrl": "http://127.0.0.1:4191/?perfRun=1782430438606-0#main_continent",
+          "domContentLoadedMs": 78.29999999701977,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 283.6000000014901,
+          "firstVisualAssetEndMs": 46.20000000298023,
+          "firstMiniAssetEndMs": 46.20000000298023,
+          "firstTileAssetEndMs": 248.79999999701977,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 259.5,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4191/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 46.2,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 248.8,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 249,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 250.2,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 250.4,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 251.2,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 251.4,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 251.6,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 251.8,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 252.7,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 253.3,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 253.7,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 2,
+          "requestedUrl": "http://127.0.0.1:4191/?perfRun=1782430438959-1#main_continent",
+          "domContentLoadedMs": 24.799999997019768,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 177.79999999701977,
+          "firstVisualAssetEndMs": 15.799999997019768,
+          "firstMiniAssetEndMs": 15.799999997019768,
+          "firstTileAssetEndMs": 138.60000000149012,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 177.89999999850988,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4191/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 15.8,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 138.6,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 139.5,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 139.8,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 140.4,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 140.9,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 141.2,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 145.4,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 145.7,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 151.6,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 152.6,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 154.6,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 3,
+          "requestedUrl": "http://127.0.0.1:4191/?perfRun=1782430439210-2#main_continent",
+          "domContentLoadedMs": 25.30000000447035,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 165.70000000298023,
+          "firstVisualAssetEndMs": 16.30000000447035,
+          "firstMiniAssetEndMs": 16.30000000447035,
+          "firstTileAssetEndMs": 137.60000000149012,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 165.80000000447035,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4191/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 16.3,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 137.6,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 138.2,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 139.1,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 139.2,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 139.8,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 140.2,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 141.1,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 141.7,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 142.2,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 142.5,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 142.8,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 4,
+          "requestedUrl": "http://127.0.0.1:4191/?perfRun=1782430439450-3#main_continent",
+          "domContentLoadedMs": 22.599999994039536,
+          "loadEventMs": 396.3999999985099,
+          "loadingHiddenMs": 396.19999999552965,
+          "firstVisualAssetEndMs": 18.19999999552965,
+          "firstMiniAssetEndMs": 18.19999999552965,
+          "firstTileAssetEndMs": 147.09999999403954,
+          "firstFullImageAssetEndMs": 246.5,
+          "tileCompleteMs": null,
+          "tileCount": 0,
+          "imageLayerSources": [
+            "http://127.0.0.1:4191/maps/Fair-Content.webp",
+            "http://127.0.0.1:4191/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 30207640,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 18.2,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 147.1,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 148.4,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 150.2,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 150.8,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 151.7,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 152.3,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 152.8,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 161.7,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 162.9,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 163.5,
+              "encodedBodySize": 2416
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 164,
+              "encodedBodySize": 0
+            }
+          ]
+        },
+        {
+          "run": 5,
+          "requestedUrl": "http://127.0.0.1:4191/?perfRun=1782430439927-4#main_continent",
+          "domContentLoadedMs": 25.100000001490116,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 156.29999999701977,
+          "firstVisualAssetEndMs": 16.100000001490116,
+          "firstMiniAssetEndMs": 16.100000001490116,
+          "firstTileAssetEndMs": 139.79999999701977,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 150.60000000149012,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4191/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 16.1,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 139.8,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 140.1,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 140.2,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 140.5,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 140.6,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 141.3,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 142.5,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 143.4,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 144,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 144.5,
+              "encodedBodySize": 2416
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 145,
+              "encodedBodySize": 2218
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "domContentLoadedMs": {
+          "median": 25.1,
+          "min": 22.6,
+          "max": 78.3
+        },
+        "loadEventMs": {
+          "median": 0,
+          "min": 0,
+          "max": 396.4
+        },
+        "loadingHiddenMs": {
+          "median": 177.8,
+          "min": 156.3,
+          "max": 396.2
+        },
+        "firstVisualAssetEndMs": {
+          "median": 16.3,
+          "min": 15.8,
+          "max": 46.2
+        },
+        "firstMiniAssetEndMs": {
+          "median": 16.3,
+          "min": 15.8,
+          "max": 46.2
+        },
+        "firstTileAssetEndMs": {
+          "median": 139.8,
+          "min": 137.6,
+          "max": 248.8
+        },
+        "firstFullImageAssetEndMs": {
+          "median": 246.5,
+          "min": 246.5,
+          "max": 246.5
+        },
+        "tileCompleteMs": {
+          "median": 171.9,
+          "min": 150.6,
+          "max": 259.5
+        },
+        "visualAssetBytes": {
+          "median": 115526,
+          "min": 115526,
+          "max": 30207640
+        }
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:40:53.350Z",
+      "label": "final-tile-error-fix-main-continent",
+      "url": "http://127.0.0.1:4191/#main_continent",
+      "map": "main_continent",
+      "viewport": "1280x720",
+      "runs": [
+        {
+          "run": 1,
+          "requestedUrl": "http://127.0.0.1:4191/?perfRun=1782430851081-0#main_continent",
+          "domContentLoadedMs": 20.600000001490116,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 153.89999999850988,
+          "firstVisualAssetEndMs": 21.100000001490116,
+          "firstMiniAssetEndMs": 21.100000001490116,
+          "firstTileAssetEndMs": 127.39999999850988,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 141.29999999701977,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4191/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 21.1,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 127.4,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 127.5,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 127.8,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 128.1,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 128.6,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 129.1,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 130,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 131,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 131.4,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 132.3,
+              "encodedBodySize": 2416
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 132.4,
+              "encodedBodySize": 4536
+            }
+          ]
+        },
+        {
+          "run": 2,
+          "requestedUrl": "http://127.0.0.1:4191/?perfRun=1782430851299-1#main_continent",
+          "domContentLoadedMs": 23.600000001490116,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 163.89999999850988,
+          "firstVisualAssetEndMs": 13.699999995529652,
+          "firstMiniAssetEndMs": 13.699999995529652,
+          "firstTileAssetEndMs": 139.29999999701977,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 148.89999999850988,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4191/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 13.7,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 139.3,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 139.7,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 140.2,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 140.2,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 140.6,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 140.7,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 141.5,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 142.3,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 142.3,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 142.5,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 143.1,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 3,
+          "requestedUrl": "http://127.0.0.1:4191/?perfRun=1782430851525-2#main_continent",
+          "domContentLoadedMs": 19.299999997019768,
+          "loadEventMs": 154.19999999552965,
+          "loadingHiddenMs": 154.19999999552965,
+          "firstVisualAssetEndMs": 13.899999998509884,
+          "firstMiniAssetEndMs": 13.899999998509884,
+          "firstTileAssetEndMs": 132.89999999850988,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 153.29999999701977,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4191/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 13.9,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 132.9,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 133,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 133.3,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 133.4,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 133.6,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 134.3,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 134.6,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 134.9,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 135.6,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 136.4,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 136.9,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 4,
+          "requestedUrl": "http://127.0.0.1:4191/?perfRun=1782430851766-3#main_continent",
+          "domContentLoadedMs": 23.700000002980232,
+          "loadEventMs": 163.10000000149012,
+          "loadingHiddenMs": 162.80000000447035,
+          "firstVisualAssetEndMs": 15.5,
+          "firstMiniAssetEndMs": 15.5,
+          "firstTileAssetEndMs": 136.80000000447035,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 145.80000000447035,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4191/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 15.5,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 136.8,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 137.2,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 138,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 138.3,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 138.6,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 139,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 139.8,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 140,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 140.2,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 141.3,
+              "encodedBodySize": 2416
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 141.7,
+              "encodedBodySize": 2218
+            }
+          ]
+        },
+        {
+          "run": 5,
+          "requestedUrl": "http://127.0.0.1:4191/?perfRun=1782430852000-4#main_continent",
+          "domContentLoadedMs": 26.200000002980232,
+          "loadEventMs": 168.39999999850988,
+          "loadingHiddenMs": 157.70000000298023,
+          "firstVisualAssetEndMs": 15.899999998509884,
+          "firstMiniAssetEndMs": 15.899999998509884,
+          "firstTileAssetEndMs": 137,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 144.29999999701977,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4191/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 15.9,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 137,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 137.1,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 137.3,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 137.6,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 138.1,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 138.3,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 139.8,
+              "encodedBodySize": 2416
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 140,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 140.8,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 141.1,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/3/0.webp",
+              "responseEnd": 141.4,
+              "encodedBodySize": 9610
+            }
+          ]
+        },
+        {
+          "run": 6,
+          "requestedUrl": "http://127.0.0.1:4191/?perfRun=1782430852237-5#main_continent",
+          "domContentLoadedMs": 27,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 166.30000000447035,
+          "firstVisualAssetEndMs": 18.5,
+          "firstMiniAssetEndMs": 18.5,
+          "firstTileAssetEndMs": 146.30000000447035,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 155.30000000447035,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4191/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 18.5,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 146.3,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 146.6,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 147.1,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 147.1,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 147.4,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 147.5,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 148.6,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 148.6,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 150,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 150.3,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/0.webp",
+              "responseEnd": 150.9,
+              "encodedBodySize": 9610
+            }
+          ]
+        },
+        {
+          "run": 7,
+          "requestedUrl": "http://127.0.0.1:4191/?perfRun=1782430852473-6#main_continent",
+          "domContentLoadedMs": 22.80000000447035,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 153.10000000149012,
+          "firstVisualAssetEndMs": 13.899999998509884,
+          "firstMiniAssetEndMs": 13.899999998509884,
+          "firstTileAssetEndMs": 131.39999999850988,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 140.60000000149012,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4191/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 13.9,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 131.4,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 131.8,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 131.9,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 132.6,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 132.7,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 133.1,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 133.3,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 133.8,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 134.5,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 134.9,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 135.5,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 8,
+          "requestedUrl": "http://127.0.0.1:4191/?perfRun=1782430852710-7#main_continent",
+          "domContentLoadedMs": 23.5,
+          "loadEventMs": 160.39999999850988,
+          "loadingHiddenMs": 160,
+          "firstVisualAssetEndMs": 13.399999998509884,
+          "firstMiniAssetEndMs": 13.399999998509884,
+          "firstTileAssetEndMs": 138.09999999403954,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 146.69999999552965,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4191/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 13.4,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 138.1,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 138.3,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 139.5,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 139.7,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 139.8,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 139.9,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 140.3,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 140.7,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 142.2,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/3/0.webp",
+              "responseEnd": 142.3,
+              "encodedBodySize": 9610
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 142.4,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 9,
+          "requestedUrl": "http://127.0.0.1:4191/?perfRun=1782430852943-8#main_continent",
+          "domContentLoadedMs": 24.30000000447035,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 154.80000000447035,
+          "firstVisualAssetEndMs": 14.5,
+          "firstMiniAssetEndMs": 14.5,
+          "firstTileAssetEndMs": 137,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 145.30000000447035,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4191/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 14.5,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 137,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 137.3,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 137.4,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 137.8,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 138.2,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 138.3,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 138.9,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 139.6,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 140,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 140.1,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 140.5,
+              "encodedBodySize": 2416
+            }
+          ]
+        },
+        {
+          "run": 10,
+          "requestedUrl": "http://127.0.0.1:4191/?perfRun=1782430853166-9#main_continent",
+          "domContentLoadedMs": 23.700000002980232,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 147.5,
+          "firstVisualAssetEndMs": 15.200000002980232,
+          "firstMiniAssetEndMs": 15.200000002980232,
+          "firstTileAssetEndMs": 131.89999999850988,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 142.39999999850988,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4191/maps/Fair-Content.mini.webp"
+          ],
+          "visualAssetBytes": 115526,
+          "visualResources": [
+            {
+              "path": "/maps/Fair-Content.mini.webp",
+              "responseEnd": 15.2,
+              "encodedBodySize": 21238
+            },
+            {
+              "path": "/tile/main_continent/2/1/1.webp",
+              "responseEnd": 131.9,
+              "encodedBodySize": 13596
+            },
+            {
+              "path": "/tile/main_continent/2/2/1.webp",
+              "responseEnd": 132.1,
+              "encodedBodySize": 12970
+            },
+            {
+              "path": "/tile/main_continent/2/1/2.webp",
+              "responseEnd": 132.6,
+              "encodedBodySize": 5022
+            },
+            {
+              "path": "/tile/main_continent/2/2/2.webp",
+              "responseEnd": 132.8,
+              "encodedBodySize": 5532
+            },
+            {
+              "path": "/tile/main_continent/2/1/0.webp",
+              "responseEnd": 133.2,
+              "encodedBodySize": 11968
+            },
+            {
+              "path": "/tile/main_continent/2/2/0.webp",
+              "responseEnd": 133.5,
+              "encodedBodySize": 8520
+            },
+            {
+              "path": "/tile/main_continent/2/0/1.webp",
+              "responseEnd": 134,
+              "encodedBodySize": 7602
+            },
+            {
+              "path": "/tile/main_continent/2/3/1.webp",
+              "responseEnd": 134.4,
+              "encodedBodySize": 10298
+            },
+            {
+              "path": "/tile/main_continent/2/0/2.webp",
+              "responseEnd": 135.4,
+              "encodedBodySize": 4536
+            },
+            {
+              "path": "/tile/main_continent/2/3/2.webp",
+              "responseEnd": 135.6,
+              "encodedBodySize": 2218
+            },
+            {
+              "path": "/tile/main_continent/2/0/0.webp",
+              "responseEnd": 136,
+              "encodedBodySize": 2416
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "domContentLoadedMs": {
+          "median": 23.7,
+          "min": 19.3,
+          "max": 27
+        },
+        "loadEventMs": {
+          "median": 0,
+          "min": 0,
+          "max": 168.4
+        },
+        "loadingHiddenMs": {
+          "median": 156.3,
+          "min": 147.5,
+          "max": 166.3
+        },
+        "firstVisualAssetEndMs": {
+          "median": 14.9,
+          "min": 13.4,
+          "max": 21.1
+        },
+        "firstMiniAssetEndMs": {
+          "median": 14.9,
+          "min": 13.4,
+          "max": 21.1
+        },
+        "firstTileAssetEndMs": {
+          "median": 136.9,
+          "min": 127.4,
+          "max": 146.3
+        },
+        "firstFullImageAssetEndMs": {
+          "median": null,
+          "min": null,
+          "max": null
+        },
+        "tileCompleteMs": {
+          "median": 145.6,
+          "min": 140.6,
+          "max": 155.3
+        },
+        "visualAssetBytes": {
+          "median": 115526,
+          "min": 115526,
+          "max": 115526
         }
       }
     }

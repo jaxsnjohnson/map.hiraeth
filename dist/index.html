@@ -25,9 +25,50 @@
         html.bootstrap-map-preview-loading #toggle-sidebar-btn {
             visibility: hidden !important;
         }
+
+        html.bootstrap-map-preview-loading #loading-indicator.initial-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            min-width: 0;
+            padding: 0;
+            transform: none;
+            border-radius: 0;
+            background: transparent;
+            color: transparent;
+            justify-content: flex-start;
+            align-items: stretch;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        html.bootstrap-map-preview-loading #loading-indicator.initial-loader .spinner,
+        html.bootstrap-map-preview-loading #loading-indicator.initial-loader .loading-text,
+        html.bootstrap-map-preview-loading #loading-indicator.initial-loader #loading-retry-btn {
+            display: none;
+        }
+
+        html.bootstrap-map-preview-loading #loading-indicator.initial-loader .progress-container {
+            display: block;
+            width: 100%;
+            height: 4px;
+            margin: 0;
+            border-radius: 0;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.12);
+        }
+
+        html.bootstrap-map-preview-loading #loading-indicator.initial-loader .progress-bar {
+            height: 100%;
+            border-radius: 0;
+            background-color: var(--slider-bg, #2196F3);
+            transition: width 0.3s ease;
+        }
     </style>
 
-    <script src="js/app-config.js?v=0.1.28"></script>
+    <script src="js/app-config.js?v=0.1.29"></script>
     <script>
         window.APP_ASSET_VERSION = window.AppConfig ? window.AppConfig.get("assets.version", "0") : "0";
         window.THEME_STORAGE_KEYS = {
