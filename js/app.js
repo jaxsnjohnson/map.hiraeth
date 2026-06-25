@@ -6383,18 +6383,23 @@ function updateVisibleRegions() {
 
         // Apply visibility and interactivity based on *both* the overall toggle AND the type filter match
         if (regionsVisible && typeMatch) { // regionsVisible is synced with markersVisible
-            layer.setStyle({
-                stroke: true,
-                fill: true,
-                opacity: 1,
-                fillOpacity: region.fillOpacity || 0.2
-            });
+            const targetFillOpacity = region.fillOpacity || 0.2;
+            if (layer.options.stroke !== true || layer.options.fill !== true || layer.options.opacity !== 1 || layer.options.fillOpacity !== targetFillOpacity) {
+                layer.setStyle({
+                    stroke: true,
+                    fill: true,
+                    opacity: 1,
+                    fillOpacity: targetFillOpacity
+                });
+            }
             layer.bringToBack();
         } else {
-            layer.setStyle({
-                stroke: false,
-                fill: false
-            });
+            if (layer.options.stroke !== false || layer.options.fill !== false) {
+                layer.setStyle({
+                    stroke: false,
+                    fill: false
+                });
+            }
         }
     });
 }
@@ -7489,13 +7494,18 @@ function updateVisibleLines() {
         // Lines are always "visible" in terms of the master toggle (markersVisible)
         // Their appearance is solely based on type filters.
         if (typeMatch) {
-            layer.setStyle({
-                opacity: layer.originalOpacity === undefined ? 0.8 : layer.originalOpacity // Restore original or default
-            });
+            const targetOpacity = layer.originalOpacity === undefined ? 0.8 : layer.originalOpacity;
+            if (layer.options.opacity !== targetOpacity) {
+                layer.setStyle({
+                    opacity: targetOpacity // Restore original or default
+                });
+            }
         } else {
-            layer.setStyle({
-                opacity: 0 // Hide
-            });
+            if (layer.options.opacity !== 0) {
+                layer.setStyle({
+                    opacity: 0 // Hide
+                });
+            }
         }
     });
 }
