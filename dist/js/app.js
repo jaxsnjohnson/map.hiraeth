@@ -831,6 +831,7 @@ function getPoiIcon(groupName, typeName = '') {
 // --- More Global variables ---
 let currentImageLayer = null;
 let currentMapBaseLayerMode = 'image';
+let currentMapPreviewLayer = null;
 let currentMapUnderlay = null;
 let currentMarkerGroup = null; // Holds currently *visible* markers
 let allMapMarkers = []; // Holds *all* markers for the loaded map
@@ -2325,6 +2326,44 @@ function createSimpleCrsTileLayer(urlTemplate, options) {
         }
     });
     return new SimpleCrsTileLayer(urlTemplate, options);
+}
+
+function createMapPreviewLayer(mapInfo, bounds) {
+    const previewImageUrl = getMiniMapImageUrl(mapInfo);
+    const mapImageUrl = getPreferredMapImageUrl(mapInfo);
+    if (!previewImageUrl || previewImageUrl === mapImageUrl || !L.imageOverlay) return null;
+    return L.imageOverlay(previewImageUrl, bounds, {
+        pane: 'tilePane',
+        interactive: false,
+        opacity: 1,
+        className: 'map-preview-layer'
+    });
+}
+
+function removeMapPreviewLayer() {
+    if (!currentMapPreviewLayer) return;
+    if (map.hasLayer(currentMapPreviewLayer)) {
+        map.removeLayer(currentMapPreviewLayer);
+    }
+    currentMapPreviewLayer = null;
+}
+
+function removeBootstrapMapPreview() {
+    if (typeof document === 'undefined') return;
+    const bootstrapPreview = document.getElementById('map-bootstrap-preview');
+    if (bootstrapPreview) bootstrapPreview.remove();
+    if (document.documentElement) {
+        document.documentElement.classList.remove('bootstrap-map-preview-ready');
+    }
+}
+
+function markMapPreviewLayerElement() {
+    const previewElement = currentMapPreviewLayer && typeof currentMapPreviewLayer.getElement === 'function'
+        ? currentMapPreviewLayer.getElement()
+        : null;
+    if (previewElement && previewElement.classList) {
+        previewElement.classList.add('map-preview-layer');
+    }
 }
 
 function createMapBaseLayer(selectedMap, mapImageUrl, bounds) {
@@ -5578,6 +5617,7 @@ function resetMapState() {
     filterToggleAllCheckbox.indeterminate = false;
 
     if (currentImageLayer) map.removeLayer(currentImageLayer);
+    if (currentMapPreviewLayer) map.removeLayer(currentMapPreviewLayer);
     if (currentMapUnderlay) map.removeLayer(currentMapUnderlay);
     removeMiniMapControl();
     if (currentMarkerGroup) map.removeLayer(currentMarkerGroup);
@@ -5586,6 +5626,7 @@ function resetMapState() {
 
     currentImageLayer = null;
     currentMapBaseLayerMode = 'image';
+    currentMapPreviewLayer = null;
     currentMapUnderlay = null;
     currentMarkerGroup = null;
     currentRegionGroup = null;
@@ -5815,10 +5856,13 @@ function startMapLoadingProgress(manifestEntry) {
     }, 150);
 }
 
-function finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileImage, loadStartedAt) {
+function finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileImage, loadStartedAt, options = {}) {
     // Defensive: if layers got detached during async startup, attach them again.
     if (currentMapUnderlay && !map.hasLayer(currentMapUnderlay)) {
         currentMapUnderlay.addTo(map);
+    }
+    if (currentMapPreviewLayer && !map.hasLayer(currentMapPreviewLayer)) {
+        currentMapPreviewLayer.addTo(map);
     }
     if (currentImageLayer && !map.hasLayer(currentImageLayer)) {
         currentImageLayer.addTo(map);
@@ -5827,12 +5871,13 @@ function finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileI
     if (loadingIndicator) {
         const progressBarEl = loadingIndicator.querySelector('.progress-bar');
         if (progressBarEl) progressBarEl.style.width = '100%';
+        const hideDelayMs = parseNonNegativeInteger(options.hideDelayMs, 300);
         setTimeout(() => {
             if (loadingProgressInterval) clearInterval(loadingProgressInterval);
             loadingProgressInterval = null;
             loadingIndicator.style.display = 'none';
             loadingIndicator.classList.remove('initial-loader');
-        }, 300);
+        }, hideDelayMs);
     }
 
     applySearchParamsToCurrentMap(new URLSearchParams(window.location.search));
@@ -5934,6 +5979,7 @@ function setupMapLayers(selectedMap, requestedMapId, mapImageUrl, updateHash) {
         pane: 'tilePane'
     });
     const baseLayer = createMapBaseLayer(selectedMap, mapImageUrl, currentBounds);
+    currentMapPreviewLayer = createMapPreviewLayer(selectedMap, currentBounds);
     currentImageLayer = baseLayer.layer;
     currentMapBaseLayerMode = baseLayer.mode;
     if (currentMapBaseLayerMode === 'image') {
@@ -5943,31 +5989,75 @@ function setupMapLayers(selectedMap, requestedMapId, mapImageUrl, updateHash) {
 }
 
 function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingAlternateMobileImage, loadStartedAt, updateHash }) {
-    let loadingComplete = false;
+    let initialLoadingComplete = false;
+    let detailLoadingComplete = false;
     let loadingTimeout = null;
+    let previewReadyTimeout = null;
     let fallbackStarted = false;
 
-    function finishLoading() {
-        if (loadingComplete) return;
-        loadingComplete = true;
+    function clearLoadingTimers() {
         clearTimeout(loadingTimeout);
-        finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileImage, loadStartedAt);
+        clearTimeout(previewReadyTimeout);
+        loadingTimeout = null;
+        previewReadyTimeout = null;
+    }
+
+    function finishInitialLoading() {
+        if (initialLoadingComplete) return;
+        initialLoadingComplete = true;
+        clearLoadingTimers();
+        removeBootstrapMapPreview();
+        finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileImage, loadStartedAt, {
+            hideDelayMs: currentMapPreviewLayer ? 0 : 300
+        });
+    }
+
+    function finishDetailLoading() {
+        if (detailLoadingComplete) return;
+        detailLoadingComplete = true;
+        clearLoadingTimers();
+        removeMapPreviewLayer();
+        finishInitialLoading();
+    }
+
+    function maybeFinishTileDetailLoading() {
+        if (detailLoadingComplete || currentMapBaseLayerMode !== 'tile' || !currentMapPreviewLayer) return;
+        const tileContainer = currentImageLayer && typeof currentImageLayer.getContainer === 'function'
+            ? currentImageLayer.getContainer()
+            : null;
+        if (!tileContainer || typeof tileContainer.querySelectorAll !== 'function') return;
+        const tiles = Array.from(tileContainer.querySelectorAll('img.leaflet-tile'));
+        if (tiles.length > 0 && tiles.every((tile) => tile.complete && tile.naturalWidth > 0)) {
+            finishDetailLoading();
+        }
     }
 
     function abortImageLoad() {
-        if (loadingComplete) return;
-        loadingComplete = true;
-        clearTimeout(loadingTimeout);
+        if (detailLoadingComplete) return;
+        detailLoadingComplete = true;
+        clearLoadingTimers();
         console.error('Image overlay failed to load:', mapImageUrl);
+
+        if (initialLoadingComplete && currentMapPreviewLayer) {
+            if (currentImageLayer) map.removeLayer(currentImageLayer);
+            currentImageLayer = currentMapPreviewLayer;
+            currentMapPreviewLayer = null;
+            currentMapBaseLayerMode = 'preview';
+            console.warn('Detailed map image failed after preview load; keeping the low-resolution preview visible.');
+            return;
+        }
+
         if (currentImageLayer) map.removeLayer(currentImageLayer);
+        if (currentMapPreviewLayer) map.removeLayer(currentMapPreviewLayer);
         if (currentMapUnderlay) map.removeLayer(currentMapUnderlay);
         currentImageLayer = null;
+        currentMapPreviewLayer = null;
         currentMapUnderlay = null;
         abortMapLoad({ reason: 'image_error', requestedMapId, message: `Could not load "${selectedMap.name}" image. Check the image path and press Retry.`, updateHash, showRetry: true });
     }
 
     function attachImageFallback() {
-        if (loadingComplete || fallbackStarted) return;
+        if (detailLoadingComplete || fallbackStarted) return;
         fallbackStarted = true;
         const fallbackLayer = L.imageOverlay(mapImageUrl, currentBounds);
         const preloadImg = new Image();
@@ -5977,9 +6067,9 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
         currentImageLayer = fallbackLayer;
         currentMapBaseLayerMode = 'image';
         prefetchedImageUrls.add(withAssetVersion(mapImageUrl));
-        currentImageLayer.on('load', finishLoading);
+        currentImageLayer.on('load', finishDetailLoading);
         currentImageLayer.on('error', abortImageLoad);
-        preloadImg.onload = finishLoading;
+        preloadImg.onload = finishDetailLoading;
         preloadImg.onerror = abortImageLoad;
         preloadImg.src = mapImageUrl;
         currentImageLayer.addTo(map);
@@ -5987,20 +6077,33 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
 
     loadingTimeout = setTimeout(() => {
         console.warn('Loading fallback timer triggered.');
-        finishLoading();
+        finishInitialLoading();
     }, 8000);
 
     currentMapUnderlay.addTo(map);
+    if (currentMapPreviewLayer) {
+        currentMapPreviewLayer.on('load', finishInitialLoading);
+        currentMapPreviewLayer.on('error', () => {
+            console.warn('Low-resolution map preview failed to load:', selectedMap.id || selectedMap.name);
+        });
+        currentMapPreviewLayer.addTo(map);
+        markMapPreviewLayerElement();
+        previewReadyTimeout = setTimeout(finishInitialLoading, 550);
+    }
 
     if (currentMapBaseLayerMode === 'tile') {
-        currentImageLayer.on('load', finishLoading);
+        currentImageLayer.on('load', finishDetailLoading);
+        currentImageLayer.on('tileload', maybeFinishTileDetailLoading);
         currentImageLayer.on('tileerror', function (event) {
-            if (loadingComplete) return;
+            if (detailLoadingComplete) return;
             const failedTileUrl = event && event.tile ? event.tile.currentSrc || event.tile.src : '';
             console.warn('Tile layer failed to load; falling back to full map image:', failedTileUrl || selectedMap.id || selectedMap.name);
             attachImageFallback();
         });
         currentImageLayer.addTo(map);
+        setTimeout(maybeFinishTileDetailLoading, 0);
+        setTimeout(maybeFinishTileDetailLoading, 250);
+        setTimeout(maybeFinishTileDetailLoading, 1000);
         map.fitBounds(currentBounds, { animate: false });
         return;
     }

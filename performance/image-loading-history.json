@@ -1,0 +1,1564 @@
+{
+  "generatedAt": "2026-06-25T05:26:32.279Z",
+  "entries": [
+    {
+      "timestamp": "2026-06-25T05:11:51.265Z",
+      "label": "baseline-head-icebeach",
+      "url": "http://127.0.0.1:4174/#IceBeach",
+      "map": "IceBeach",
+      "viewport": "1280x720",
+      "runs": [
+        {
+          "run": 1,
+          "requestedUrl": "http://127.0.0.1:4174/?perfRun=1782364307670-0#IceBeach",
+          "domContentLoadedMs": 46.70000000111759,
+          "loadEventMs": 285.7000000011176,
+          "loadingHiddenMs": 747.7000000011176,
+          "firstVisualAssetEndMs": 230.59999999962747,
+          "firstMiniAssetEndMs": 248.30000000074506,
+          "firstTileAssetEndMs": null,
+          "firstFullImageAssetEndMs": 230.59999999962747,
+          "tileCompleteMs": null,
+          "tileCount": 0,
+          "imageLayerSources": [
+            "http://127.0.0.1:4174/maps/IceBeach.webp",
+            "http://127.0.0.1:4174/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 5917720,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.webp",
+              "responseEnd": 230.6,
+              "encodedBodySize": 5882074
+            },
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 248.3,
+              "encodedBodySize": 35646
+            }
+          ]
+        },
+        {
+          "run": 2,
+          "requestedUrl": "http://127.0.0.1:4174/?perfRun=1782364308492-1#IceBeach",
+          "domContentLoadedMs": 19.800000000745058,
+          "loadEventMs": 119.60000000149012,
+          "loadingHiddenMs": 630.4000000003725,
+          "firstVisualAssetEndMs": 135,
+          "firstMiniAssetEndMs": 152,
+          "firstTileAssetEndMs": null,
+          "firstFullImageAssetEndMs": 135,
+          "tileCompleteMs": null,
+          "tileCount": 0,
+          "imageLayerSources": [
+            "http://127.0.0.1:4174/maps/IceBeach.webp",
+            "http://127.0.0.1:4174/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 5917720,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.webp",
+              "responseEnd": 135,
+              "encodedBodySize": 5882074
+            },
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 152,
+              "encodedBodySize": 35646
+            }
+          ]
+        },
+        {
+          "run": 3,
+          "requestedUrl": "http://127.0.0.1:4174/?perfRun=1782364309197-2#IceBeach",
+          "domContentLoadedMs": 19.800000000745058,
+          "loadEventMs": 627.1999999992549,
+          "loadingHiddenMs": 630.8000000007451,
+          "firstVisualAssetEndMs": 133.90000000037253,
+          "firstMiniAssetEndMs": 150.69999999925494,
+          "firstTileAssetEndMs": null,
+          "firstFullImageAssetEndMs": 133.90000000037253,
+          "tileCompleteMs": null,
+          "tileCount": 0,
+          "imageLayerSources": [
+            "http://127.0.0.1:4174/maps/IceBeach.webp",
+            "http://127.0.0.1:4174/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 5917720,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.webp",
+              "responseEnd": 133.9,
+              "encodedBodySize": 5882074
+            },
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 150.7,
+              "encodedBodySize": 35646
+            }
+          ]
+        },
+        {
+          "run": 4,
+          "requestedUrl": "http://127.0.0.1:4174/?perfRun=1782364309903-3#IceBeach",
+          "domContentLoadedMs": 20.5,
+          "loadEventMs": 632.2999999988824,
+          "loadingHiddenMs": 640.5,
+          "firstVisualAssetEndMs": 133.5,
+          "firstMiniAssetEndMs": 153.89999999850988,
+          "firstTileAssetEndMs": null,
+          "firstFullImageAssetEndMs": 133.5,
+          "tileCompleteMs": null,
+          "tileCount": 0,
+          "imageLayerSources": [
+            "http://127.0.0.1:4174/maps/IceBeach.webp",
+            "http://127.0.0.1:4174/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 5917720,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.webp",
+              "responseEnd": 133.5,
+              "encodedBodySize": 5882074
+            },
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 153.9,
+              "encodedBodySize": 35646
+            }
+          ]
+        },
+        {
+          "run": 5,
+          "requestedUrl": "http://127.0.0.1:4174/?perfRun=1782364310600-4#IceBeach",
+          "domContentLoadedMs": 20.100000001490116,
+          "loadEventMs": 632.2000000011176,
+          "loadingHiddenMs": 642.2000000011176,
+          "firstVisualAssetEndMs": 137,
+          "firstMiniAssetEndMs": 153.40000000037253,
+          "firstTileAssetEndMs": null,
+          "firstFullImageAssetEndMs": 137,
+          "tileCompleteMs": null,
+          "tileCount": 0,
+          "imageLayerSources": [
+            "http://127.0.0.1:4174/maps/IceBeach.webp",
+            "http://127.0.0.1:4174/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 5917720,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.webp",
+              "responseEnd": 137,
+              "encodedBodySize": 5882074
+            },
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 153.4,
+              "encodedBodySize": 35646
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "domContentLoadedMs": {
+          "median": 20.1,
+          "min": 19.8,
+          "max": 46.7
+        },
+        "loadEventMs": {
+          "median": 627.2,
+          "min": 119.6,
+          "max": 632.3
+        },
+        "loadingHiddenMs": {
+          "median": 640.5,
+          "min": 630.4,
+          "max": 747.7
+        },
+        "firstVisualAssetEndMs": {
+          "median": 135,
+          "min": 133.5,
+          "max": 230.6
+        },
+        "firstMiniAssetEndMs": {
+          "median": 153.4,
+          "min": 150.7,
+          "max": 248.3
+        },
+        "firstTileAssetEndMs": {
+          "median": null,
+          "min": null,
+          "max": null
+        },
+        "firstFullImageAssetEndMs": {
+          "median": 135,
+          "min": 133.5,
+          "max": 230.6
+        },
+        "tileCompleteMs": {
+          "median": null,
+          "min": null,
+          "max": null
+        },
+        "visualAssetBytes": {
+          "median": 5917720,
+          "min": 5917720,
+          "max": 5917720
+        }
+      }
+    },
+    {
+      "timestamp": "2026-06-25T05:12:01.766Z",
+      "label": "optimized-progressive-tiles-icebeach",
+      "url": "http://127.0.0.1:4173/#IceBeach",
+      "map": "IceBeach",
+      "viewport": "1280x720",
+      "runs": [
+        {
+          "run": 1,
+          "requestedUrl": "http://127.0.0.1:4173/?perfRun=1782364320079-0#IceBeach",
+          "domContentLoadedMs": 13.599999999627471,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 149.19999999925494,
+          "firstVisualAssetEndMs": 129.30000000074506,
+          "firstMiniAssetEndMs": 129.30000000074506,
+          "firstTileAssetEndMs": 130.5,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 136,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4173/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 145948,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 129.3,
+              "encodedBodySize": 35646
+            },
+            {
+              "path": "/tile/IceBeach/2/0/0.webp",
+              "responseEnd": 130.5,
+              "encodedBodySize": 7336
+            },
+            {
+              "path": "/tile/IceBeach/2/1/0.webp",
+              "responseEnd": 130.6,
+              "encodedBodySize": 10916
+            },
+            {
+              "path": "/tile/IceBeach/2/0/1.webp",
+              "responseEnd": 130.7,
+              "encodedBodySize": 8098
+            },
+            {
+              "path": "/tile/IceBeach/2/1/1.webp",
+              "responseEnd": 130.8,
+              "encodedBodySize": 17024
+            },
+            {
+              "path": "/tile/IceBeach/2/2/1.webp",
+              "responseEnd": 131,
+              "encodedBodySize": 18826
+            },
+            {
+              "path": "/tile/IceBeach/2/2/0.webp",
+              "responseEnd": 131,
+              "encodedBodySize": 12310
+            },
+            {
+              "path": "/tile/IceBeach/2/3/0.webp",
+              "responseEnd": 133,
+              "encodedBodySize": 3408
+            },
+            {
+              "path": "/tile/IceBeach/2/0/2.webp",
+              "responseEnd": 133.1,
+              "encodedBodySize": 6784
+            },
+            {
+              "path": "/tile/IceBeach/2/2/2.webp",
+              "responseEnd": 133.3,
+              "encodedBodySize": 8996
+            },
+            {
+              "path": "/tile/IceBeach/2/1/2.webp",
+              "responseEnd": 133.4,
+              "encodedBodySize": 7402
+            },
+            {
+              "path": "/tile/IceBeach/2/3/1.webp",
+              "responseEnd": 133.6,
+              "encodedBodySize": 5420
+            }
+          ]
+        },
+        {
+          "run": 2,
+          "requestedUrl": "http://127.0.0.1:4173/?perfRun=1782364320287-1#IceBeach",
+          "domContentLoadedMs": 11,
+          "loadEventMs": 178.30000000074506,
+          "loadingHiddenMs": 452.2000000011176,
+          "firstVisualAssetEndMs": 129.80000000074506,
+          "firstMiniAssetEndMs": 129.80000000074506,
+          "firstTileAssetEndMs": 129.90000000037253,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 137.10000000149012,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4173/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 145948,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 129.8,
+              "encodedBodySize": 35646
+            },
+            {
+              "path": "/tile/IceBeach/2/1/1.webp",
+              "responseEnd": 129.9,
+              "encodedBodySize": 17024
+            },
+            {
+              "path": "/tile/IceBeach/2/0/1.webp",
+              "responseEnd": 130.3,
+              "encodedBodySize": 8098
+            },
+            {
+              "path": "/tile/IceBeach/2/1/0.webp",
+              "responseEnd": 130.5,
+              "encodedBodySize": 10916
+            },
+            {
+              "path": "/tile/IceBeach/2/2/1.webp",
+              "responseEnd": 130.9,
+              "encodedBodySize": 18826
+            },
+            {
+              "path": "/tile/IceBeach/2/0/0.webp",
+              "responseEnd": 131.9,
+              "encodedBodySize": 7336
+            },
+            {
+              "path": "/tile/IceBeach/2/1/2.webp",
+              "responseEnd": 132.1,
+              "encodedBodySize": 7402
+            },
+            {
+              "path": "/tile/IceBeach/2/0/2.webp",
+              "responseEnd": 132.8,
+              "encodedBodySize": 6784
+            },
+            {
+              "path": "/tile/IceBeach/2/2/2.webp",
+              "responseEnd": 132.9,
+              "encodedBodySize": 8996
+            },
+            {
+              "path": "/tile/IceBeach/2/2/0.webp",
+              "responseEnd": 133.1,
+              "encodedBodySize": 12310
+            },
+            {
+              "path": "/tile/IceBeach/2/3/1.webp",
+              "responseEnd": 133.7,
+              "encodedBodySize": 5420
+            },
+            {
+              "path": "/tile/IceBeach/2/3/0.webp",
+              "responseEnd": 133.9,
+              "encodedBodySize": 3408
+            }
+          ]
+        },
+        {
+          "run": 3,
+          "requestedUrl": "http://127.0.0.1:4173/?perfRun=1782364320820-2#IceBeach",
+          "domContentLoadedMs": 20.200000001117587,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 141.30000000074506,
+          "firstVisualAssetEndMs": 135.5,
+          "firstMiniAssetEndMs": 136,
+          "firstTileAssetEndMs": 135.5,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 141.40000000037253,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4173/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 145948,
+          "visualResources": [
+            {
+              "path": "/tile/IceBeach/2/1/1.webp",
+              "responseEnd": 135.5,
+              "encodedBodySize": 17024
+            },
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 136,
+              "encodedBodySize": 35646
+            },
+            {
+              "path": "/tile/IceBeach/2/0/1.webp",
+              "responseEnd": 136.5,
+              "encodedBodySize": 8098
+            },
+            {
+              "path": "/tile/IceBeach/2/1/0.webp",
+              "responseEnd": 136.7,
+              "encodedBodySize": 10916
+            },
+            {
+              "path": "/tile/IceBeach/2/0/0.webp",
+              "responseEnd": 137,
+              "encodedBodySize": 7336
+            },
+            {
+              "path": "/tile/IceBeach/2/2/1.webp",
+              "responseEnd": 137.4,
+              "encodedBodySize": 18826
+            },
+            {
+              "path": "/tile/IceBeach/2/2/0.webp",
+              "responseEnd": 137.7,
+              "encodedBodySize": 12310
+            },
+            {
+              "path": "/tile/IceBeach/2/0/2.webp",
+              "responseEnd": 138,
+              "encodedBodySize": 6784
+            },
+            {
+              "path": "/tile/IceBeach/2/2/2.webp",
+              "responseEnd": 139,
+              "encodedBodySize": 8996
+            },
+            {
+              "path": "/tile/IceBeach/2/1/2.webp",
+              "responseEnd": 139.1,
+              "encodedBodySize": 7402
+            },
+            {
+              "path": "/tile/IceBeach/2/3/0.webp",
+              "responseEnd": 139.2,
+              "encodedBodySize": 3408
+            },
+            {
+              "path": "/tile/IceBeach/2/3/1.webp",
+              "responseEnd": 140.1,
+              "encodedBodySize": 5420
+            }
+          ]
+        },
+        {
+          "run": 4,
+          "requestedUrl": "http://127.0.0.1:4173/?perfRun=1782364321030-3#IceBeach",
+          "domContentLoadedMs": 19.800000000745058,
+          "loadEventMs": 156.30000000074506,
+          "loadingHiddenMs": 155.7000000011176,
+          "firstVisualAssetEndMs": 134.60000000149012,
+          "firstMiniAssetEndMs": 134.60000000149012,
+          "firstTileAssetEndMs": 135.2000000011176,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 155.7000000011176,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4173/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 145948,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 134.6,
+              "encodedBodySize": 35646
+            },
+            {
+              "path": "/tile/IceBeach/2/0/1.webp",
+              "responseEnd": 135.2,
+              "encodedBodySize": 8098
+            },
+            {
+              "path": "/tile/IceBeach/2/1/1.webp",
+              "responseEnd": 135.3,
+              "encodedBodySize": 17024
+            },
+            {
+              "path": "/tile/IceBeach/2/2/1.webp",
+              "responseEnd": 135.3,
+              "encodedBodySize": 18826
+            },
+            {
+              "path": "/tile/IceBeach/2/1/0.webp",
+              "responseEnd": 135.7,
+              "encodedBodySize": 10916
+            },
+            {
+              "path": "/tile/IceBeach/2/0/0.webp",
+              "responseEnd": 136.3,
+              "encodedBodySize": 7336
+            },
+            {
+              "path": "/tile/IceBeach/2/1/2.webp",
+              "responseEnd": 136.7,
+              "encodedBodySize": 7402
+            },
+            {
+              "path": "/tile/IceBeach/2/2/0.webp",
+              "responseEnd": 137.1,
+              "encodedBodySize": 12310
+            },
+            {
+              "path": "/tile/IceBeach/2/0/2.webp",
+              "responseEnd": 137.6,
+              "encodedBodySize": 6784
+            },
+            {
+              "path": "/tile/IceBeach/2/3/1.webp",
+              "responseEnd": 138.6,
+              "encodedBodySize": 5420
+            },
+            {
+              "path": "/tile/IceBeach/2/2/2.webp",
+              "responseEnd": 139,
+              "encodedBodySize": 8996
+            },
+            {
+              "path": "/tile/IceBeach/2/3/2.webp",
+              "responseEnd": 140.4,
+              "encodedBodySize": 3782
+            }
+          ]
+        },
+        {
+          "run": 5,
+          "requestedUrl": "http://127.0.0.1:4173/?perfRun=1782364321243-4#IceBeach",
+          "domContentLoadedMs": 19.5,
+          "loadEventMs": 348,
+          "loadingHiddenMs": 450.59999999962747,
+          "firstVisualAssetEndMs": 131,
+          "firstMiniAssetEndMs": 131.7000000011176,
+          "firstTileAssetEndMs": 131,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 137.40000000037253,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4173/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 145948,
+          "visualResources": [
+            {
+              "path": "/tile/IceBeach/2/1/1.webp",
+              "responseEnd": 131,
+              "encodedBodySize": 17024
+            },
+            {
+              "path": "/tile/IceBeach/2/1/0.webp",
+              "responseEnd": 131,
+              "encodedBodySize": 10916
+            },
+            {
+              "path": "/tile/IceBeach/2/0/0.webp",
+              "responseEnd": 131.4,
+              "encodedBodySize": 7336
+            },
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 131.7,
+              "encodedBodySize": 35646
+            },
+            {
+              "path": "/tile/IceBeach/2/0/1.webp",
+              "responseEnd": 132.1,
+              "encodedBodySize": 8098
+            },
+            {
+              "path": "/tile/IceBeach/2/2/1.webp",
+              "responseEnd": 132.6,
+              "encodedBodySize": 18826
+            },
+            {
+              "path": "/tile/IceBeach/2/2/0.webp",
+              "responseEnd": 132.6,
+              "encodedBodySize": 12310
+            },
+            {
+              "path": "/tile/IceBeach/2/0/2.webp",
+              "responseEnd": 133.3,
+              "encodedBodySize": 6784
+            },
+            {
+              "path": "/tile/IceBeach/2/1/2.webp",
+              "responseEnd": 133.5,
+              "encodedBodySize": 7402
+            },
+            {
+              "path": "/tile/IceBeach/2/2/2.webp",
+              "responseEnd": 134,
+              "encodedBodySize": 8996
+            },
+            {
+              "path": "/tile/IceBeach/2/3/1.webp",
+              "responseEnd": 134.6,
+              "encodedBodySize": 5420
+            },
+            {
+              "path": "/tile/IceBeach/2/3/2.webp",
+              "responseEnd": 135.2,
+              "encodedBodySize": 3782
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "domContentLoadedMs": {
+          "median": 19.5,
+          "min": 11,
+          "max": 20.2
+        },
+        "loadEventMs": {
+          "median": 156.3,
+          "min": 0,
+          "max": 348
+        },
+        "loadingHiddenMs": {
+          "median": 155.7,
+          "min": 141.3,
+          "max": 452.2
+        },
+        "firstVisualAssetEndMs": {
+          "median": 131,
+          "min": 129.3,
+          "max": 135.5
+        },
+        "firstMiniAssetEndMs": {
+          "median": 131.7,
+          "min": 129.3,
+          "max": 136
+        },
+        "firstTileAssetEndMs": {
+          "median": 131,
+          "min": 129.9,
+          "max": 135.5
+        },
+        "firstFullImageAssetEndMs": {
+          "median": null,
+          "min": null,
+          "max": null
+        },
+        "tileCompleteMs": {
+          "median": 137.4,
+          "min": 136,
+          "max": 155.7
+        },
+        "visualAssetBytes": {
+          "median": 145948,
+          "min": 145948,
+          "max": 145948
+        }
+      }
+    },
+    {
+      "timestamp": "2026-06-25T05:17:42.523Z",
+      "label": "optimized-preload-icebeach",
+      "url": "http://127.0.0.1:4173/#IceBeach",
+      "map": "IceBeach",
+      "viewport": "1280x720",
+      "runs": [
+        {
+          "run": 1,
+          "requestedUrl": "http://127.0.0.1:4173/?perfRun=1782364661122-0#IceBeach",
+          "domContentLoadedMs": 58.40000000037253,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 246.09999999962747,
+          "firstVisualAssetEndMs": 38.19999999925494,
+          "firstMiniAssetEndMs": 38.19999999925494,
+          "firstTileAssetEndMs": 216.5,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 223.40000000037253,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4173/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 145948,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 38.2,
+              "encodedBodySize": 35646
+            },
+            {
+              "path": "/tile/IceBeach/2/2/1.webp",
+              "responseEnd": 216.5,
+              "encodedBodySize": 18826
+            },
+            {
+              "path": "/tile/IceBeach/2/2/0.webp",
+              "responseEnd": 216.6,
+              "encodedBodySize": 12310
+            },
+            {
+              "path": "/tile/IceBeach/2/0/0.webp",
+              "responseEnd": 216.7,
+              "encodedBodySize": 7336
+            },
+            {
+              "path": "/tile/IceBeach/2/1/0.webp",
+              "responseEnd": 216.8,
+              "encodedBodySize": 10916
+            },
+            {
+              "path": "/tile/IceBeach/2/0/1.webp",
+              "responseEnd": 216.9,
+              "encodedBodySize": 8098
+            },
+            {
+              "path": "/tile/IceBeach/2/1/1.webp",
+              "responseEnd": 217,
+              "encodedBodySize": 17024
+            },
+            {
+              "path": "/tile/IceBeach/2/0/2.webp",
+              "responseEnd": 218.7,
+              "encodedBodySize": 6784
+            },
+            {
+              "path": "/tile/IceBeach/2/1/2.webp",
+              "responseEnd": 218.8,
+              "encodedBodySize": 7402
+            },
+            {
+              "path": "/tile/IceBeach/2/2/2.webp",
+              "responseEnd": 219.8,
+              "encodedBodySize": 8996
+            },
+            {
+              "path": "/tile/IceBeach/2/3/0.webp",
+              "responseEnd": 220.1,
+              "encodedBodySize": 3408
+            },
+            {
+              "path": "/tile/IceBeach/2/3/2.webp",
+              "responseEnd": 220.1,
+              "encodedBodySize": 3782
+            }
+          ]
+        },
+        {
+          "run": 2,
+          "requestedUrl": "http://127.0.0.1:4173/?perfRun=1782364661438-1#IceBeach",
+          "domContentLoadedMs": 21.90000000037253,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 140.2000000011176,
+          "firstVisualAssetEndMs": 13.599999999627471,
+          "firstMiniAssetEndMs": 13.599999999627471,
+          "firstTileAssetEndMs": 128.30000000074506,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 140.30000000074506,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4173/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 145948,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 13.6,
+              "encodedBodySize": 35646
+            },
+            {
+              "path": "/tile/IceBeach/2/1/1.webp",
+              "responseEnd": 128.3,
+              "encodedBodySize": 17024
+            },
+            {
+              "path": "/tile/IceBeach/2/2/1.webp",
+              "responseEnd": 129.3,
+              "encodedBodySize": 18826
+            },
+            {
+              "path": "/tile/IceBeach/2/2/0.webp",
+              "responseEnd": 129.5,
+              "encodedBodySize": 12310
+            },
+            {
+              "path": "/tile/IceBeach/2/1/2.webp",
+              "responseEnd": 129.6,
+              "encodedBodySize": 7402
+            },
+            {
+              "path": "/tile/IceBeach/2/1/0.webp",
+              "responseEnd": 129.9,
+              "encodedBodySize": 10916
+            },
+            {
+              "path": "/tile/IceBeach/2/0/1.webp",
+              "responseEnd": 130.3,
+              "encodedBodySize": 8098
+            },
+            {
+              "path": "/tile/IceBeach/2/0/2.webp",
+              "responseEnd": 131.4,
+              "encodedBodySize": 6784
+            },
+            {
+              "path": "/tile/IceBeach/2/0/0.webp",
+              "responseEnd": 131.8,
+              "encodedBodySize": 7336
+            },
+            {
+              "path": "/tile/IceBeach/2/2/2.webp",
+              "responseEnd": 132.3,
+              "encodedBodySize": 8996
+            },
+            {
+              "path": "/tile/IceBeach/2/3/1.webp",
+              "responseEnd": 132.6,
+              "encodedBodySize": 5420
+            },
+            {
+              "path": "/tile/IceBeach/2/3/0.webp",
+              "responseEnd": 132.9,
+              "encodedBodySize": 3408
+            }
+          ]
+        },
+        {
+          "run": 3,
+          "requestedUrl": "http://127.0.0.1:4173/?perfRun=1782364661642-2#IceBeach",
+          "domContentLoadedMs": 20.90000000037253,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 141.5,
+          "firstVisualAssetEndMs": 13.199999999254942,
+          "firstMiniAssetEndMs": 13.199999999254942,
+          "firstTileAssetEndMs": 119.59999999962747,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 134,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4173/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 145948,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 13.2,
+              "encodedBodySize": 35646
+            },
+            {
+              "path": "/tile/IceBeach/2/1/1.webp",
+              "responseEnd": 119.6,
+              "encodedBodySize": 17024
+            },
+            {
+              "path": "/tile/IceBeach/2/1/0.webp",
+              "responseEnd": 119.8,
+              "encodedBodySize": 10916
+            },
+            {
+              "path": "/tile/IceBeach/2/0/1.webp",
+              "responseEnd": 120.1,
+              "encodedBodySize": 8098
+            },
+            {
+              "path": "/tile/IceBeach/2/0/0.webp",
+              "responseEnd": 120.2,
+              "encodedBodySize": 7336
+            },
+            {
+              "path": "/tile/IceBeach/2/2/0.webp",
+              "responseEnd": 120.4,
+              "encodedBodySize": 12310
+            },
+            {
+              "path": "/tile/IceBeach/2/2/1.webp",
+              "responseEnd": 121,
+              "encodedBodySize": 18826
+            },
+            {
+              "path": "/tile/IceBeach/2/1/2.webp",
+              "responseEnd": 121.5,
+              "encodedBodySize": 7402
+            },
+            {
+              "path": "/tile/IceBeach/2/0/2.webp",
+              "responseEnd": 121.9,
+              "encodedBodySize": 6784
+            },
+            {
+              "path": "/tile/IceBeach/2/2/2.webp",
+              "responseEnd": 122.4,
+              "encodedBodySize": 8996
+            },
+            {
+              "path": "/tile/IceBeach/2/3/1.webp",
+              "responseEnd": 122.6,
+              "encodedBodySize": 5420
+            },
+            {
+              "path": "/tile/IceBeach/2/3/0.webp",
+              "responseEnd": 123.3,
+              "encodedBodySize": 3408
+            }
+          ]
+        },
+        {
+          "run": 4,
+          "requestedUrl": "http://127.0.0.1:4173/?perfRun=1782364661840-3#IceBeach",
+          "domContentLoadedMs": 22,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 142.19999999925494,
+          "firstVisualAssetEndMs": 13.800000000745058,
+          "firstMiniAssetEndMs": 13.800000000745058,
+          "firstTileAssetEndMs": 120.80000000074506,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 134.59999999962747,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4173/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 145948,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 13.8,
+              "encodedBodySize": 35646
+            },
+            {
+              "path": "/tile/IceBeach/2/1/1.webp",
+              "responseEnd": 120.8,
+              "encodedBodySize": 17024
+            },
+            {
+              "path": "/tile/IceBeach/2/1/0.webp",
+              "responseEnd": 121.1,
+              "encodedBodySize": 10916
+            },
+            {
+              "path": "/tile/IceBeach/2/0/1.webp",
+              "responseEnd": 121.4,
+              "encodedBodySize": 8098
+            },
+            {
+              "path": "/tile/IceBeach/2/0/0.webp",
+              "responseEnd": 121.6,
+              "encodedBodySize": 7336
+            },
+            {
+              "path": "/tile/IceBeach/2/2/1.webp",
+              "responseEnd": 121.6,
+              "encodedBodySize": 18826
+            },
+            {
+              "path": "/tile/IceBeach/2/2/0.webp",
+              "responseEnd": 122.1,
+              "encodedBodySize": 12310
+            },
+            {
+              "path": "/tile/IceBeach/2/0/2.webp",
+              "responseEnd": 122.9,
+              "encodedBodySize": 6784
+            },
+            {
+              "path": "/tile/IceBeach/2/3/1.webp",
+              "responseEnd": 124.1,
+              "encodedBodySize": 5420
+            },
+            {
+              "path": "/tile/IceBeach/2/1/2.webp",
+              "responseEnd": 124.4,
+              "encodedBodySize": 7402
+            },
+            {
+              "path": "/tile/IceBeach/2/2/2.webp",
+              "responseEnd": 125,
+              "encodedBodySize": 8996
+            },
+            {
+              "path": "/tile/IceBeach/2/3/2.webp",
+              "responseEnd": 125.4,
+              "encodedBodySize": 3782
+            }
+          ]
+        },
+        {
+          "run": 5,
+          "requestedUrl": "http://127.0.0.1:4173/?perfRun=1782364662039-4#IceBeach",
+          "domContentLoadedMs": 21.300000000745058,
+          "loadEventMs": 373.30000000074506,
+          "loadingHiddenMs": 443.30000000074506,
+          "firstVisualAssetEndMs": 12.699999999254942,
+          "firstMiniAssetEndMs": 12.699999999254942,
+          "firstTileAssetEndMs": 120.69999999925494,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 136.80000000074506,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4173/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 145948,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 12.7,
+              "encodedBodySize": 35646
+            },
+            {
+              "path": "/tile/IceBeach/2/1/1.webp",
+              "responseEnd": 120.7,
+              "encodedBodySize": 17024
+            },
+            {
+              "path": "/tile/IceBeach/2/1/0.webp",
+              "responseEnd": 121.1,
+              "encodedBodySize": 10916
+            },
+            {
+              "path": "/tile/IceBeach/2/2/0.webp",
+              "responseEnd": 121.8,
+              "encodedBodySize": 12310
+            },
+            {
+              "path": "/tile/IceBeach/2/0/1.webp",
+              "responseEnd": 122,
+              "encodedBodySize": 8098
+            },
+            {
+              "path": "/tile/IceBeach/2/0/0.webp",
+              "responseEnd": 122.1,
+              "encodedBodySize": 7336
+            },
+            {
+              "path": "/tile/IceBeach/2/2/1.webp",
+              "responseEnd": 122.4,
+              "encodedBodySize": 18826
+            },
+            {
+              "path": "/tile/IceBeach/2/0/2.webp",
+              "responseEnd": 123.2,
+              "encodedBodySize": 6784
+            },
+            {
+              "path": "/tile/IceBeach/2/1/2.webp",
+              "responseEnd": 123.7,
+              "encodedBodySize": 7402
+            },
+            {
+              "path": "/tile/IceBeach/2/2/2.webp",
+              "responseEnd": 124.4,
+              "encodedBodySize": 8996
+            },
+            {
+              "path": "/tile/IceBeach/2/3/0.webp",
+              "responseEnd": 124.8,
+              "encodedBodySize": 3408
+            },
+            {
+              "path": "/tile/IceBeach/2/3/1.webp",
+              "responseEnd": 125,
+              "encodedBodySize": 5420
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "domContentLoadedMs": {
+          "median": 21.9,
+          "min": 20.9,
+          "max": 58.4
+        },
+        "loadEventMs": {
+          "median": 0,
+          "min": 0,
+          "max": 373.3
+        },
+        "loadingHiddenMs": {
+          "median": 142.2,
+          "min": 140.2,
+          "max": 443.3
+        },
+        "firstVisualAssetEndMs": {
+          "median": 13.6,
+          "min": 12.7,
+          "max": 38.2
+        },
+        "firstMiniAssetEndMs": {
+          "median": 13.6,
+          "min": 12.7,
+          "max": 38.2
+        },
+        "firstTileAssetEndMs": {
+          "median": 120.8,
+          "min": 119.6,
+          "max": 216.5
+        },
+        "firstFullImageAssetEndMs": {
+          "median": null,
+          "min": null,
+          "max": null
+        },
+        "tileCompleteMs": {
+          "median": 136.8,
+          "min": 134,
+          "max": 223.4
+        },
+        "visualAssetBytes": {
+          "median": 145948,
+          "min": 145948,
+          "max": 145948
+        }
+      }
+    },
+    {
+      "timestamp": "2026-06-25T05:23:49.865Z",
+      "label": "optimized-bootstrap-preview-icebeach",
+      "url": "http://127.0.0.1:4173/#IceBeach",
+      "map": "IceBeach",
+      "viewport": "1280x720",
+      "runs": [
+        {
+          "run": 1,
+          "requestedUrl": "http://127.0.0.1:4173/?perfRun=1782365028427-0#IceBeach",
+          "domContentLoadedMs": 71.29999999888241,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 88.40000000037253,
+          "firstVisualAssetEndMs": 45.19999999925494,
+          "firstMiniAssetEndMs": 45.19999999925494,
+          "firstTileAssetEndMs": 223.90000000037253,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 241.5,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4173/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 145948,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 45.2,
+              "encodedBodySize": 35646
+            },
+            {
+              "path": "/tile/IceBeach/2/0/1.webp",
+              "responseEnd": 223.9,
+              "encodedBodySize": 8098
+            },
+            {
+              "path": "/tile/IceBeach/2/0/0.webp",
+              "responseEnd": 224.1,
+              "encodedBodySize": 7336
+            },
+            {
+              "path": "/tile/IceBeach/2/1/1.webp",
+              "responseEnd": 224.2,
+              "encodedBodySize": 17024
+            },
+            {
+              "path": "/tile/IceBeach/2/1/0.webp",
+              "responseEnd": 224.3,
+              "encodedBodySize": 10916
+            },
+            {
+              "path": "/tile/IceBeach/2/2/0.webp",
+              "responseEnd": 224.6,
+              "encodedBodySize": 12310
+            },
+            {
+              "path": "/tile/IceBeach/2/2/1.webp",
+              "responseEnd": 224.8,
+              "encodedBodySize": 18826
+            },
+            {
+              "path": "/tile/IceBeach/2/3/1.webp",
+              "responseEnd": 226.9,
+              "encodedBodySize": 5420
+            },
+            {
+              "path": "/tile/IceBeach/2/3/0.webp",
+              "responseEnd": 227,
+              "encodedBodySize": 3408
+            },
+            {
+              "path": "/tile/IceBeach/2/3/2.webp",
+              "responseEnd": 227.5,
+              "encodedBodySize": 3782
+            },
+            {
+              "path": "/tile/IceBeach/2/0/2.webp",
+              "responseEnd": 227.7,
+              "encodedBodySize": 6784
+            },
+            {
+              "path": "/tile/IceBeach/2/1/2.webp",
+              "responseEnd": 227.8,
+              "encodedBodySize": 7402
+            }
+          ]
+        },
+        {
+          "run": 2,
+          "requestedUrl": "http://127.0.0.1:4173/?perfRun=1782365028755-1#IceBeach",
+          "domContentLoadedMs": 20.90000000037253,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 48,
+          "firstVisualAssetEndMs": 13.099999999627471,
+          "firstMiniAssetEndMs": 13.099999999627471,
+          "firstTileAssetEndMs": 118.40000000037253,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 141.09999999962747,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4173/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 145948,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 13.1,
+              "encodedBodySize": 35646
+            },
+            {
+              "path": "/tile/IceBeach/2/1/0.webp",
+              "responseEnd": 118.4,
+              "encodedBodySize": 10916
+            },
+            {
+              "path": "/tile/IceBeach/2/1/1.webp",
+              "responseEnd": 118.5,
+              "encodedBodySize": 17024
+            },
+            {
+              "path": "/tile/IceBeach/2/2/1.webp",
+              "responseEnd": 119.3,
+              "encodedBodySize": 18826
+            },
+            {
+              "path": "/tile/IceBeach/2/0/1.webp",
+              "responseEnd": 119.9,
+              "encodedBodySize": 8098
+            },
+            {
+              "path": "/tile/IceBeach/2/0/0.webp",
+              "responseEnd": 120.5,
+              "encodedBodySize": 7336
+            },
+            {
+              "path": "/tile/IceBeach/2/2/0.webp",
+              "responseEnd": 120.7,
+              "encodedBodySize": 12310
+            },
+            {
+              "path": "/tile/IceBeach/2/1/2.webp",
+              "responseEnd": 121.7,
+              "encodedBodySize": 7402
+            },
+            {
+              "path": "/tile/IceBeach/2/0/2.webp",
+              "responseEnd": 122,
+              "encodedBodySize": 6784
+            },
+            {
+              "path": "/tile/IceBeach/2/3/1.webp",
+              "responseEnd": 122.7,
+              "encodedBodySize": 5420
+            },
+            {
+              "path": "/tile/IceBeach/2/2/2.webp",
+              "responseEnd": 123,
+              "encodedBodySize": 8996
+            },
+            {
+              "path": "/tile/IceBeach/2/3/0.webp",
+              "responseEnd": 123.5,
+              "encodedBodySize": 3408
+            }
+          ]
+        },
+        {
+          "run": 3,
+          "requestedUrl": "http://127.0.0.1:4173/?perfRun=1782365028954-2#IceBeach",
+          "domContentLoadedMs": 12.200000001117587,
+          "loadEventMs": 324.30000000074506,
+          "loadingHiddenMs": 27.800000000745058,
+          "firstVisualAssetEndMs": 13.400000000372529,
+          "firstMiniAssetEndMs": 13.400000000372529,
+          "firstTileAssetEndMs": 123.59999999962747,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 140.59999999962747,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4173/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 145948,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 13.4,
+              "encodedBodySize": 35646
+            },
+            {
+              "path": "/tile/IceBeach/2/1/0.webp",
+              "responseEnd": 123.6,
+              "encodedBodySize": 10916
+            },
+            {
+              "path": "/tile/IceBeach/2/0/1.webp",
+              "responseEnd": 123.7,
+              "encodedBodySize": 8098
+            },
+            {
+              "path": "/tile/IceBeach/2/2/1.webp",
+              "responseEnd": 124.1,
+              "encodedBodySize": 18826
+            },
+            {
+              "path": "/tile/IceBeach/2/0/0.webp",
+              "responseEnd": 124.4,
+              "encodedBodySize": 7336
+            },
+            {
+              "path": "/tile/IceBeach/2/2/0.webp",
+              "responseEnd": 124.5,
+              "encodedBodySize": 12310
+            },
+            {
+              "path": "/tile/IceBeach/2/1/1.webp",
+              "responseEnd": 125.4,
+              "encodedBodySize": 17024
+            },
+            {
+              "path": "/tile/IceBeach/2/1/2.webp",
+              "responseEnd": 126.6,
+              "encodedBodySize": 7402
+            },
+            {
+              "path": "/tile/IceBeach/2/0/2.webp",
+              "responseEnd": 126.7,
+              "encodedBodySize": 6784
+            },
+            {
+              "path": "/tile/IceBeach/2/2/2.webp",
+              "responseEnd": 126.9,
+              "encodedBodySize": 8996
+            },
+            {
+              "path": "/tile/IceBeach/2/3/1.webp",
+              "responseEnd": 127.2,
+              "encodedBodySize": 5420
+            },
+            {
+              "path": "/tile/IceBeach/2/3/0.webp",
+              "responseEnd": 128.6,
+              "encodedBodySize": 3408
+            }
+          ]
+        },
+        {
+          "run": 4,
+          "requestedUrl": "http://127.0.0.1:4173/?perfRun=1782365029497-3#IceBeach",
+          "domContentLoadedMs": 22.100000001490116,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 50.100000001490116,
+          "firstVisualAssetEndMs": 12.800000000745058,
+          "firstMiniAssetEndMs": 12.800000000745058,
+          "firstTileAssetEndMs": 124.5,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 141,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4173/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 145948,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 12.8,
+              "encodedBodySize": 35646
+            },
+            {
+              "path": "/tile/IceBeach/2/1/1.webp",
+              "responseEnd": 124.5,
+              "encodedBodySize": 17024
+            },
+            {
+              "path": "/tile/IceBeach/2/0/0.webp",
+              "responseEnd": 124.7,
+              "encodedBodySize": 7336
+            },
+            {
+              "path": "/tile/IceBeach/2/0/1.webp",
+              "responseEnd": 125.4,
+              "encodedBodySize": 8098
+            },
+            {
+              "path": "/tile/IceBeach/2/1/0.webp",
+              "responseEnd": 125.7,
+              "encodedBodySize": 10916
+            },
+            {
+              "path": "/tile/IceBeach/2/2/1.webp",
+              "responseEnd": 125.8,
+              "encodedBodySize": 18826
+            },
+            {
+              "path": "/tile/IceBeach/2/0/2.webp",
+              "responseEnd": 127.4,
+              "encodedBodySize": 6784
+            },
+            {
+              "path": "/tile/IceBeach/2/2/2.webp",
+              "responseEnd": 127.5,
+              "encodedBodySize": 8996
+            },
+            {
+              "path": "/tile/IceBeach/2/2/0.webp",
+              "responseEnd": 127.7,
+              "encodedBodySize": 12310
+            },
+            {
+              "path": "/tile/IceBeach/2/1/2.webp",
+              "responseEnd": 127.9,
+              "encodedBodySize": 7402
+            },
+            {
+              "path": "/tile/IceBeach/2/3/1.webp",
+              "responseEnd": 128.1,
+              "encodedBodySize": 5420
+            },
+            {
+              "path": "/tile/IceBeach/2/3/0.webp",
+              "responseEnd": 128.3,
+              "encodedBodySize": 3408
+            }
+          ]
+        },
+        {
+          "run": 5,
+          "requestedUrl": "http://127.0.0.1:4173/?perfRun=1782365029699-4#IceBeach",
+          "domContentLoadedMs": 21.5,
+          "loadEventMs": 0,
+          "loadingHiddenMs": 49.5,
+          "firstVisualAssetEndMs": 13.099999999627471,
+          "firstMiniAssetEndMs": 13.099999999627471,
+          "firstTileAssetEndMs": 124.59999999962747,
+          "firstFullImageAssetEndMs": null,
+          "tileCompleteMs": 137.59999999962747,
+          "tileCount": 12,
+          "imageLayerSources": [
+            "http://127.0.0.1:4173/maps/IceBeach.mini.webp"
+          ],
+          "visualAssetBytes": 145948,
+          "visualResources": [
+            {
+              "path": "/maps/IceBeach.mini.webp",
+              "responseEnd": 13.1,
+              "encodedBodySize": 35646
+            },
+            {
+              "path": "/tile/IceBeach/2/1/1.webp",
+              "responseEnd": 124.6,
+              "encodedBodySize": 17024
+            },
+            {
+              "path": "/tile/IceBeach/2/1/0.webp",
+              "responseEnd": 124.6,
+              "encodedBodySize": 10916
+            },
+            {
+              "path": "/tile/IceBeach/2/2/0.webp",
+              "responseEnd": 124.7,
+              "encodedBodySize": 12310
+            },
+            {
+              "path": "/tile/IceBeach/2/0/1.webp",
+              "responseEnd": 125.1,
+              "encodedBodySize": 8098
+            },
+            {
+              "path": "/tile/IceBeach/2/0/0.webp",
+              "responseEnd": 125.4,
+              "encodedBodySize": 7336
+            },
+            {
+              "path": "/tile/IceBeach/2/2/1.webp",
+              "responseEnd": 125.6,
+              "encodedBodySize": 18826
+            },
+            {
+              "path": "/tile/IceBeach/2/1/2.webp",
+              "responseEnd": 126.8,
+              "encodedBodySize": 7402
+            },
+            {
+              "path": "/tile/IceBeach/2/0/2.webp",
+              "responseEnd": 127.5,
+              "encodedBodySize": 6784
+            },
+            {
+              "path": "/tile/IceBeach/2/3/1.webp",
+              "responseEnd": 127.7,
+              "encodedBodySize": 5420
+            },
+            {
+              "path": "/tile/IceBeach/2/3/2.webp",
+              "responseEnd": 127.9,
+              "encodedBodySize": 3782
+            },
+            {
+              "path": "/tile/IceBeach/2/2/2.webp",
+              "responseEnd": 128.2,
+              "encodedBodySize": 8996
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "domContentLoadedMs": {
+          "median": 21.5,
+          "min": 12.2,
+          "max": 71.3
+        },
+        "loadEventMs": {
+          "median": 0,
+          "min": 0,
+          "max": 324.3
+        },
+        "loadingHiddenMs": {
+          "median": 49.5,
+          "min": 27.8,
+          "max": 88.4
+        },
+        "firstVisualAssetEndMs": {
+          "median": 13.1,
+          "min": 12.8,
+          "max": 45.2
+        },
+        "firstMiniAssetEndMs": {
+          "median": 13.1,
+          "min": 12.8,
+          "max": 45.2
+        },
+        "firstTileAssetEndMs": {
+          "median": 124.5,
+          "min": 118.4,
+          "max": 223.9
+        },
+        "firstFullImageAssetEndMs": {
+          "median": null,
+          "min": null,
+          "max": null
+        },
+        "tileCompleteMs": {
+          "median": 141,
+          "min": 137.6,
+          "max": 241.5
+        },
+        "visualAssetBytes": {
+          "median": 145948,
+          "min": 145948,
+          "max": 145948
+        }
+      }
+    }
+  ]
+}

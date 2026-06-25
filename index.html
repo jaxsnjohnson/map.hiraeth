@@ -20,6 +20,44 @@
             themePreference: "themePreference"
         };
 
+        (function preloadRuntimeAssets() {
+            const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
+            const head = document.head;
+            const appendPreload = (href, as, options = {}) => {
+                if (!href || !head) return;
+                const link = document.createElement("link");
+                link.rel = "preload";
+                link.href = href;
+                link.as = as;
+                if (options.type) link.type = options.type;
+                if (options.crossOrigin) link.crossOrigin = options.crossOrigin;
+                head.appendChild(link);
+            };
+
+            [
+                "js/libs/leaflet.js",
+                "js/libs/Control.MiniMap.min.js",
+                "js/libs/lucide.min.js",
+                "js/starfield.js",
+                "js/shared-utils.js",
+                "js/app.js"
+            ].forEach((src) => appendPreload(`${src}?v=${version}`, "script"));
+
+            appendPreload(`maps/atlas-index.json?v=${version}`, "fetch", {
+                type: "application/json",
+                crossOrigin: "anonymous"
+            });
+
+            const directMapId = decodeURIComponent(String(window.location.hash || "").replace(/^#/, "").split("-s=")[0] || "").trim();
+            if (/^[A-Za-z0-9._-]+$/.test(directMapId)) {
+                const previewOverrides = {
+                    main_continent: "maps/Fair-Content.mini.webp"
+                };
+                window.__HIRAETH_DIRECT_MAP_PREVIEW__ = previewOverrides[directMapId] || `maps/${directMapId}.mini.webp`;
+                appendPreload(window.__HIRAETH_DIRECT_MAP_PREVIEW__, "image");
+            }
+        })();
+
         (function applyInitialTheme() {
             const root = document.documentElement;
             const keys = window.THEME_STORAGE_KEYS;
@@ -182,6 +220,31 @@
                 </div>
                 <button id="loading-retry-btn" type="button">Retry</button>
             </div>
+            <script>
+                (function mountBootstrapMapPreview() {
+                    const previewUrl = window.__HIRAETH_DIRECT_MAP_PREVIEW__;
+                    if (!previewUrl) return;
+                    const mapElement = document.getElementById("map");
+                    const loadingElement = document.getElementById("loading-indicator");
+                    if (!mapElement) return;
+
+                    const previewImage = new Image();
+                    previewImage.id = "map-bootstrap-preview";
+                    previewImage.alt = "";
+                    previewImage.decoding = "async";
+                    previewImage.onload = () => {
+                        document.documentElement.classList.add("bootstrap-map-preview-ready");
+                        if (loadingElement && loadingElement.classList.contains("initial-loader")) {
+                            loadingElement.style.display = "none";
+                        }
+                    };
+                    previewImage.onerror = () => {
+                        previewImage.remove();
+                    };
+                    previewImage.src = previewUrl;
+                    mapElement.appendChild(previewImage);
+                })();
+            </script>
 
             <div id="map-controls-container">
                 <button id="custom-zoom-in" title="Zoom In" aria-label="Zoom In" class="map-control-button">

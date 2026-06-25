@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-21T01:50:13.247Z",
+  "generatedAt": "2026-06-25T04:51:08.316Z",
   "tree": [
     {
       "type": "folder",
@@ -48,6 +48,15 @@
           "selectorDescription": "A frozen northern frontier of auroras, survival towns, glacier ruins, and post-winter scars.",
           "summary": "A northern arctic tundra of frozen coasts, hard frontier villages, auroras, and old dangers left behind by the Endless Winter.",
           "description": "Icebeach lies far northwest of Fair, where coastal towns cling to frozen beaches and the habitable world gives way to permafrost, glacier, and polar sea. Nine years after the Endless Winter broke, its people remain split between the Frozen, hardened survivors of the long dark, and the Thawed, newcomers drawn by trade, mining, wine, fish, and other opportunities exposed by the melt.",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/IceBeach/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 1,
+            "maxZoom": 5,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 5
+          },
           "dataUrl": "maps/IceBeach.json",
           "children": [
             {
@@ -60,6 +69,15 @@
               "scaleKilometers": 3600,
               "blurb": "Encased within a dome that holds the winter at bay, Castgate's picturesque beauty was earned through legendary battles against a goddess and an undead horde. Though its streets bustle with prosperity from gems and ships, the common folk work in the shadow of the very magic that shelters them.",
               "selectorDescription": "A prosperous dome-city that endures winter under old magic.",
+              "tileSource": {
+                "type": "xyz",
+                "urlTemplate": "tile/castgate/{z}/{x}/{y}.webp",
+                "tileSize": 256,
+                "minZoom": 1,
+                "maxZoom": 5,
+                "leafletNativeZoom": 0,
+                "zoomOffset": 5
+              },
               "dataUrl": "maps/castgate.json"
             }
           ]
@@ -138,6 +156,15 @@
               "scaleKilometers": 3600,
               "blurb": "Located on the southern side of the Ardoise Mountains and just off the old Chemin de Ronceval (Ronceval Road), Gelwood is a town defined by resilience. This revived frontier settlement is built upon the moss-covered stone foundations of a much older, forgotten settlement. In the last handful of years, hardy settlers from Rockdrift and Ironstream have begun to reclaim the ruins, building their homes and livelihoods amidst the ghosts of the past. It is now a burgeoning community of farmers, woodcutters, fur traders, and ambitious prospectors, all drawn by persistent tales of gold, platinum, and even diamonds hidden in the nearby mountains.",
               "selectorDescription": "A frontier town rebuilt on old stone and drawing settlers and prospectors.",
+              "tileSource": {
+                "type": "xyz",
+                "urlTemplate": "tile/Gelwood/{z}/{x}/{y}.webp",
+                "tileSize": 256,
+                "minZoom": 1,
+                "maxZoom": 5,
+                "leafletNativeZoom": 0,
+                "zoomOffset": 5
+              },
               "dataUrl": "maps/Gelwood.json"
             }
           ]
@@ -152,6 +179,15 @@
           "scaleKilometers": 13,
           "blurb": "",
           "selectorDescription": "A hard-edged river-delta port of docks, districts, and imperial pressure.",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/The-Port-City-of-Stomion/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 0,
+            "maxZoom": 4,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 4
+          },
           "dataUrl": "maps/The-Port-City-of-Stomion.json"
         }
       ]
@@ -184,6 +220,15 @@
           "scaleKilometers": 1,
           "blurb": "This map was made in 2014, it served as the map for the first adventures in the world of Hiraeth.",
           "selectorDescription": "An early 2014 Hiraeth map from the first adventures.",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/OLD-Oldlins/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 2,
+            "maxZoom": 6,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 6
+          },
           "dataUrl": "maps/OLD-Oldlins.json"
         },
         {
@@ -217,6 +262,15 @@
           "scaleKilometers": 1,
           "blurb": "This map was made in 2015, and would be to the left of the old Fair Map.",
           "selectorDescription": "An older companion map west of the original Fair layout.",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/OLD-CONT/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 1,
+            "maxZoom": 5,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 5
+          },
           "dataUrl": "maps/OLD-CONT.json"
         },
         {
@@ -229,6 +283,15 @@
           "scaleKilometers": 1,
           "blurb": "This map was made in 2020s, it was the base for a hex crawl that ended with the party just flying to the Platnium Spire.",
           "selectorDescription": "A 2020s hex-crawl map that ends in a flight to the Spire.",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/OLD-Goldwind/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 1,
+            "maxZoom": 5,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 5
+          },
           "dataUrl": "maps/OLD-Goldwind.json"
         },
         {
@@ -241,6 +304,15 @@
           "scaleKilometers": 1,
           "blurb": "This map was made in 2020, it served as the map for the Icebeach games.",
           "selectorDescription": "A hand-drawn Icebeach map from the campaign era.",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/OLD-Icebeach-Drawn-Map-POI/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 0,
+            "maxZoom": 4,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 4
+          },
           "dataUrl": "maps/OLD-Icebeach-Drawn-Map-POI.json"
         },
         {
@@ -253,6 +325,15 @@
           "scaleKilometers": 1,
           "blurb": "This map was made in 2022, it served as the map for the in person Icebeach games. The program that made this map crashed and would no longer work after this draft.  The plan was to have a red line mark where the party went.  It is persumed that all the tnt from the tower explotion broke the map.",
           "selectorDescription": "A 2022 in-person Icebeach map with a broken route tracker.",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/OLD-Icebeach-Map/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 0,
+            "maxZoom": 4,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 4
+          },
           "dataUrl": "maps/OLD-Icebeach-Map.json"
         },
         {
@@ -265,6 +346,15 @@
           "scaleKilometers": 1,
           "blurb": "This map was made in 2020s for the Ruby Hands climatic end to their first campign.",
           "selectorDescription": "A 2020s Rockdrift map from the Ruby Hands finale.",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/OLD-rockdrift/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 1,
+            "maxZoom": 5,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 5
+          },
           "dataUrl": "maps/OLD-rockdrift.json"
         },
         {
@@ -277,6 +367,15 @@
           "scaleKilometers": 1,
           "blurb": "This map was made in 2018 for the OG Collage D&D group for adventures in Triwater.",
           "selectorDescription": "A 2018 South Eastern Fair map for the Triwater adventures.",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/OLD-map-of-south-eastern-fair/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 0,
+            "maxZoom": 4,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 4
+          },
           "dataUrl": "maps/OLD-map-of-south-eastern-fair.json"
         },
         {
@@ -289,6 +388,15 @@
           "scaleKilometers": 1,
           "blurb": "This map was made in 2021 for the adventures of the Ruby Hand.",
           "selectorDescription": "A 2021 Arfordir map for the Ruby Hand adventures.",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/OLD-Arfordir/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 0,
+            "maxZoom": 4,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 4
+          },
           "dataUrl": "maps/OLD-Arfordir.json"
         },
         {
@@ -301,6 +409,15 @@
           "scaleKilometers": 1,
           "blurb": "This map was made in 2023 for a defunked D&D group.",
           "selectorDescription": "A 2023 Bec map from a defunct D&D group.",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/OLD-Bec/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 0,
+            "maxZoom": 4,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 4
+          },
           "dataUrl": "maps/OLD-Bec.json"
         },
         {
@@ -313,6 +430,15 @@
           "scaleKilometers": 1,
           "blurb": "This map was made in 2021 for the first Icebeach group.",
           "selectorDescription": "A 2021 Castgate map from the early Icebeach group.",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/OLD-Castgate/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 0,
+            "maxZoom": 4,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 4
+          },
           "dataUrl": "maps/OLD-Castgate.json"
         },
         {
@@ -325,6 +451,15 @@
           "scaleKilometers": 1,
           "blurb": "This map was made in 2019 for Wolgari and Zavi.",
           "selectorDescription": "A 2019 collage map for Wolgari and Zavi.",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/OLD-Wolgari-Collage/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 0,
+            "maxZoom": 4,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 4
+          },
           "dataUrl": "maps/OLD-Wolgari-Collage.json"
         },
         {
@@ -337,6 +472,15 @@
           "scaleKilometers": 1,
           "blurb": "This map was made in 2019 for Wolgari and Zavi.",
           "selectorDescription": "A 2019 collage map for Wolgari and Zavi.",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/OLD-Collage-Side/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 0,
+            "maxZoom": 4,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 4
+          },
           "dataUrl": "maps/OLD-Collage-Side.json"
         },
         {
@@ -349,6 +493,15 @@
           "scaleKilometers": 1,
           "blurb": "This map was made in 2020s for Icebeach.",
           "selectorDescription": "A larger 2020s Icebeach map from the early campaigns.",
+          "tileSource": {
+            "type": "xyz",
+            "urlTemplate": "tile/OLD-Icebeach-LARGE/{z}/{x}/{y}.webp",
+            "tileSize": 256,
+            "minZoom": 0,
+            "maxZoom": 4,
+            "leafletNativeZoom": 0,
+            "zoomOffset": 4
+          },
           "dataUrl": "maps/OLD-Icebeach-LARGE.json"
         },
         {
