@@ -2439,6 +2439,20 @@ html.bootstrap-map-preview-loading #loading-indicator.initial-loader {
     pointer-events: none;
 }
 
+html.bootstrap-map-preview-loading #sidebar {
+    width: 0 !important;
+    min-width: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    overflow: hidden !important;
+    border-right: 0 !important;
+    box-shadow: none !important;
+}
+
+html.bootstrap-map-preview-loading #toggle-sidebar-btn {
+    visibility: hidden !important;
+}
+
 html.bootstrap-map-preview-loading #loading-indicator.initial-loader .spinner,
 html.bootstrap-map-preview-loading #loading-indicator.initial-loader .loading-text,
 html.bootstrap-map-preview-loading #loading-indicator.initial-loader #loading-retry-btn {

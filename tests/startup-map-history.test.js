@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
 const appSource = fs.readFileSync('js/app.js', 'utf8');
+const styleSource = fs.readFileSync('css/style.css', 'utf8');
 
 assert.match(
     appSource,
@@ -19,6 +20,12 @@ assert.match(
     appSource,
     /function finalizeMapLoadState\(requestedMapId, selectedMap, usingAlternateMobileImage, loadStartedAt, options = \{\}\) \{[\s\S]*loadingIndicator\.style\.display = 'none';[\s\S]*document\.documentElement\.classList\.remove\('bootstrap-map-preview-loading'\);/,
     'startup should hide the bootstrap preview loading bar before clearing its slim-bar state.'
+);
+
+assert.match(
+    styleSource,
+    /html\.bootstrap-map-preview-loading #sidebar \{[\s\S]*width: 0 !important;[\s\S]*box-shadow: none !important;/,
+    'startup should hide the sidebar while the bootstrap preview is loading.'
 );
 
 assert.match(

@@ -11,8 +11,23 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <style>
+        html.bootstrap-map-preview-loading #sidebar {
+            width: 0 !important;
+            min-width: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            overflow: hidden !important;
+            border-right: 0 !important;
+            box-shadow: none !important;
+        }
 
-    <script src="js/app-config.js?v=0.1.27"></script>
+        html.bootstrap-map-preview-loading #toggle-sidebar-btn {
+            visibility: hidden !important;
+        }
+    </style>
+
+    <script src="js/app-config.js?v=0.1.28"></script>
     <script>
         window.APP_ASSET_VERSION = window.AppConfig ? window.AppConfig.get("assets.version", "0") : "0";
         window.THEME_STORAGE_KEYS = {
@@ -55,6 +70,7 @@
                     main_continent: "maps/Fair-Content.mini.webp"
                 };
                 window.__HIRAETH_DIRECT_MAP_PREVIEW__ = previewOverrides[directMapId] || `maps/${directMapId}.mini.webp`;
+                document.documentElement.classList.add("bootstrap-map-preview-loading");
                 appendPreload(window.__HIRAETH_DIRECT_MAP_PREVIEW__, "image", { fetchPriority: "high" });
             }
         })();

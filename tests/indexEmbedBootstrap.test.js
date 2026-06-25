@@ -23,6 +23,7 @@ assert.match(indexSource, /appendPreload\(`maps\/atlas-index\.json\?v=\$\{versio
 assert.match(indexSource, /window\.__HIRAETH_DIRECT_MAP_PREVIEW__ = previewOverrides\[directMapId\] \|\| `maps\/\$\{directMapId\}\.mini\.webp`/);
 assert.match(indexSource, /appendPreload\(window\.__HIRAETH_DIRECT_MAP_PREVIEW__, "image", \{ fetchPriority: "high" \}\)/);
 assert.match(indexSource, /main_continent: "maps\/Fair-Content\.mini\.webp"/);
+assert.match(indexSource, /document\.documentElement\.classList\.add\("bootstrap-map-preview-loading"\);[\s\S]*appendPreload\(window\.__HIRAETH_DIRECT_MAP_PREVIEW__, "image"/);
 assert.match(indexSource, /function mountBootstrapMapPreview\(\)/);
 assert.match(indexSource, /previewImage\.id = "map-bootstrap-preview"/);
 assert.match(indexSource, /previewImage\.fetchPriority = "high"/);
