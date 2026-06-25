@@ -21,7 +21,18 @@
         return response.json();
     }
 
+
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            const context = this;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(context, args), wait);
+        };
+    }
+
     return {
+        debounce,
         withAssetVersion,
         fetchJsonAsset
     };

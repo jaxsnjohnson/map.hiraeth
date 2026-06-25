@@ -1,13 +1,10 @@
-const assert = require('node:assert/strict');
-const fs = require('node:fs');
 const vm = require('node:vm');
+const fs = require('node:fs');
+const assert = require('node:assert/strict');
 
 const appSource = fs.readFileSync('js/app.js', 'utf8');
 
 const sandbox = {
-    SEARCH_SCOPE_ATLAS: 'atlas',
-    SEARCH_SCOPE_MAP: 'map',
-    currentSearchScope: 'map',
     console: { log: () => {}, warn: () => {}, error: () => {} },
     setTimeout, clearTimeout, setInterval, clearInterval,
     Object, Array, String, Number, Boolean, Math, Date, RegExp, Error, Map, Set, Promise, JSON,
@@ -18,7 +15,6 @@ const sandbox = {
     navigator: { userAgent: '' },
     MutationObserver: class { observe() {} disconnect() {} },
     window: {
-        SharedUtils: { debounce: (fn) => fn, withAssetVersion: (url) => url, fetchJsonAsset: () => Promise.resolve({}) },
         addEventListener: () => {},
         matchMedia: () => ({ matches: false, addEventListener: () => {} }),
         location: { search: '', pathname: '', hash: '' },
@@ -30,7 +26,12 @@ const sandbox = {
             get: (path, fallback) => fallback,
             applyDocumentMetadata: () => {},
             applyThemeTokens: () => {},
-            hydrateStaticDom: () => {} // Added hydrateStaticDom
+            hydrateStaticDom: () => {}
+        },
+        SharedUtils: {
+            debounce: (fn) => fn,
+            withAssetVersion: (url) => url,
+            fetchJsonAsset: () => Promise.resolve({})
         }
     },
     L: {
@@ -65,9 +66,19 @@ const elementHandler = {
     }
 };
 
+let liveCollectionMock = []; // We will mutate this array to simulate live collection changes
+
 sandbox.document = new Proxy({
     addEventListener: () => {},
-    getElementById: () => new Proxy({}, elementHandler),
+    getElementById: (id) => {
+        if (id === 'poi-filter-container') {
+            return {
+                getElementsByTagName: () => liveCollectionMock,
+                addEventListener: () => {}
+            };
+        }
+        return new Proxy({}, elementHandler);
+    },
     createElement: () => new Proxy({}, elementHandler),
     querySelector: () => new Proxy({}, elementHandler),
     querySelectorAll: () => [],
@@ -79,27 +90,33 @@ sandbox.document = new Proxy({
 }, elementHandler);
 
 vm.createContext(sandbox);
-
 vm.runInContext(appSource, sandbox);
 
-// Default behavior when no config overrides
-assert.equal(sandbox.getSearchScopeLabel(sandbox.SEARCH_SCOPE_ATLAS), 'Atlas');
-assert.equal(sandbox.getSearchScopeLabel('map'), 'This Map');
+// 1. Initial state (empty live collection)
+const emptyResult = sandbox.getStaticPoiFilterCheckboxes();
+assert.equal(emptyResult.length, 0, 'Should return empty array when live collection is empty');
+assert.equal(Array.isArray(emptyResult), true, 'Should be an array');
 
-vm.runInContext("currentSearchScope = SEARCH_SCOPE_ATLAS;", sandbox);
-assert.equal(vm.runInContext('getSearchScopeLabel()', sandbox), 'Atlas');
+// 2. Populate live collection and force a cache rebuild by clearing it
+liveCollectionMock.push({ type: 'checkbox', id: '1' });
+liveCollectionMock.push({ type: 'checkbox', id: '2' });
 
-vm.runInContext("currentSearchScope = 'map';", sandbox);
-assert.equal(vm.runInContext('getSearchScopeLabel()', sandbox), 'This Map');
+vm.runInContext('staticPoiFilterCheckboxesCache = null;', sandbox);
+const result1 = sandbox.getStaticPoiFilterCheckboxes();
 
-// Override config behavior
-sandbox.window.AppConfig.get = (path, fallback) => {
-    if (path === 'taxonomy.labels.atlasSearchScope') return 'Custom Atlas';
-    if (path === 'taxonomy.labels.mapSearchScope') return 'Custom Map';
-    return fallback;
-};
+assert.equal(result1.length, 2, 'Should cache and return array from live collection');
+assert.equal(result1[0].id, '1', 'Should match live collection items');
+assert.equal(Array.isArray(result1), true, 'Should return a real Array');
 
-assert.equal(sandbox.getSearchScopeLabel(sandbox.SEARCH_SCOPE_ATLAS), 'Custom Atlas');
-assert.equal(sandbox.getSearchScopeLabel('map'), 'Custom Map');
+// 3. Mutate live collection, but function should return the exact same cached reference
+liveCollectionMock.push({ type: 'checkbox', id: '3' });
+const result2 = sandbox.getStaticPoiFilterCheckboxes();
+assert.equal(result2.length, 2, 'Should return cached array, not update from live collection');
+assert.strictEqual(result1, result2, 'Should return the exact same cached reference');
 
-console.log('getSearchScopeLabel tests passed');
+// 4. Force cache clear and verify it rebuilds
+vm.runInContext('staticPoiFilterCheckboxesCache = null;', sandbox);
+const result3 = sandbox.getStaticPoiFilterCheckboxes();
+assert.equal(result3.length, 3, 'Should rebuild cache when cache is null');
+
+console.log('getStaticPoiFilterCheckboxes tests passed');

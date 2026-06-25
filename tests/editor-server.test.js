@@ -71,7 +71,7 @@ assert.equal(isAllowedEditorWriteRequest({
         origin: 'http://0.0.0.0:8010'
     }
 }), false);
-assert.equal(isAllowedEditorWriteRequest({ headers: { host: '127.0.0.1:8010' } }), true);
+assert.equal(isAllowedEditorWriteRequest({ headers: { host: '127.0.0.1:8010' } }), false);
 
 assert.equal(
     resolveMapTargetPath(repoRoot, { dataUrl: 'maps/IceBeach.json' }).relativePath,

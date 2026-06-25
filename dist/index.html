@@ -168,7 +168,7 @@
                 <h1 id="map-chooser-title">MAP ATLAS</h1>
                 <p id="map-chooser-subtitle">MAPS OF HIRAETH</p>
             </header>
-            <div id="map-chooser-grid" class="map-chooser-grid" aria-live="polite"></div>
+            <div id="map-chooser-grid" class="map-chooser-grid" aria-live="polite" aria-atomic="true"></div>
         </div>
     </section>
 
@@ -186,7 +186,7 @@
                 <ul id="map-list">
                 </ul>
             </section>
-            <section id="sidebar-poi-panel" class="sidebar-poi-panel" role="tabpanel" aria-labelledby="sidebar-tab-details" aria-live="polite" hidden></section>
+            <section id="sidebar-poi-panel" class="sidebar-poi-panel" role="tabpanel" aria-labelledby="sidebar-tab-details" aria-live="polite" aria-atomic="true" hidden></section>
             <div class="theme-switch-wrapper">
                 <label class="theme-switch" for="theme-checkbox">
                     <input type="checkbox" id="theme-checkbox" aria-label="Switch to dark theme" title="Switch to dark theme" />
@@ -214,7 +214,7 @@
 
             <div id="loading-indicator" class="initial-loader">
                 <div class="spinner"></div>
-                <div class="loading-text">Loading Map Data...</div>
+                <div class="loading-text" aria-live="polite" aria-atomic="true">Loading Map Data...</div>
                 <div class="progress-container">
                     <div class="progress-bar"></div>
                 </div>
@@ -277,14 +277,14 @@
                     <i class="ui-icon" data-lucide="circle-help" aria-hidden="true"></i>
                 </button>
             </div>
-            <div id="onboarding-coachmark" role="status" aria-live="polite" hidden>
+            <div id="onboarding-coachmark" role="status" aria-live="polite" aria-atomic="true" hidden>
                 <p>New here? Open the Traveler's Guide for controls and shortcuts.</p>
                 <div class="onboarding-actions">
                     <button id="onboarding-open-help-btn" type="button">Open Guide</button>
                     <button id="onboarding-dismiss-btn" type="button">Dismiss</button>
                 </div>
             </div>
-            <div id="share-relay-coachmark" role="status" aria-live="polite" hidden>
+            <div id="share-relay-coachmark" role="status" aria-live="polite" aria-atomic="true" hidden>
                 <p id="share-relay-copy">Shared with you. Pass it on to your party.</p>
                 <div class="onboarding-actions">
                     <button id="share-relay-action-btn" type="button">Share This</button>
@@ -307,7 +307,7 @@
                 </button>
             </div>
 
-            <div id="active-filters-container" class="leaflet-control" aria-live="polite"></div>
+            <div id="active-filters-container" class="leaflet-control" aria-live="polite" aria-atomic="true"></div>
             <button id="mobile-info-help-btn" type="button" aria-label="Open map info and help" aria-pressed="false" aria-expanded="false">
                 <i class="ui-icon" data-lucide="info" aria-hidden="true"></i>
             </button>
@@ -335,7 +335,7 @@
                 </div>
                 <div id="mobile-search-card-body">
                     <div id="mobile-search-card-search-slot"></div>
-                    <div id="mobile-search-card-results-slot" hidden></div>
+                    <div id="mobile-search-card-results-slot" aria-live="polite" aria-atomic="true" hidden></div>
                 </div>
             </div>
             <div id="mobile-tools-card" aria-hidden="true">
@@ -396,7 +396,7 @@
                     </div>
                 </div>
             </div>
-            <div id="search-results-container" class="leaflet-control"></div>
+            <div id="search-results-container" class="leaflet-control" aria-live="polite" aria-atomic="true"></div>
             <div id="poi-filter-container" class="leaflet-control">
                  <h3>Filter by Type:</h3>
                  <div class="filter-item">

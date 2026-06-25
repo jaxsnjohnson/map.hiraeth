@@ -7,7 +7,7 @@ const appSource = fs.readFileSync('js/app.js', 'utf8');
 const sandbox = {
     SEARCH_SCOPE_ATLAS: 'atlas',
     SEARCH_SCOPE_MAP: 'map',
-    currentSearchScope: 'map',
+    isMobileLayoutActive: false,
     console: { log: () => {}, warn: () => {}, error: () => {} },
     setTimeout, clearTimeout, setInterval, clearInterval,
     Object, Array, String, Number, Boolean, Math, Date, RegExp, Error, Map, Set, Promise, JSON,
@@ -18,7 +18,6 @@ const sandbox = {
     navigator: { userAgent: '' },
     MutationObserver: class { observe() {} disconnect() {} },
     window: {
-        SharedUtils: { debounce: (fn) => fn, withAssetVersion: (url) => url, fetchJsonAsset: () => Promise.resolve({}) },
         addEventListener: () => {},
         matchMedia: () => ({ matches: false, addEventListener: () => {} }),
         location: { search: '', pathname: '', hash: '' },
@@ -30,7 +29,12 @@ const sandbox = {
             get: (path, fallback) => fallback,
             applyDocumentMetadata: () => {},
             applyThemeTokens: () => {},
-            hydrateStaticDom: () => {} // Added hydrateStaticDom
+            hydrateStaticDom: () => {}
+        },
+        SharedUtils: {
+            debounce: (fn) => fn,
+            withAssetVersion: (url) => url,
+            fetchJsonAsset: () => Promise.resolve({})
         }
     },
     L: {
@@ -79,27 +83,13 @@ sandbox.document = new Proxy({
 }, elementHandler);
 
 vm.createContext(sandbox);
-
 vm.runInContext(appSource, sandbox);
 
-// Default behavior when no config overrides
-assert.equal(sandbox.getSearchScopeLabel(sandbox.SEARCH_SCOPE_ATLAS), 'Atlas');
-assert.equal(sandbox.getSearchScopeLabel('map'), 'This Map');
+assert.equal(sandbox.resolveSearchScope('atlas'), 'atlas', 'Should resolve atlas scope correctly');
+assert.equal(sandbox.resolveSearchScope('map'), 'map', 'Should resolve map scope correctly');
+assert.equal(sandbox.resolveSearchScope('unknown'), 'map', 'Should fallback to map scope for unknown values');
+assert.equal(sandbox.resolveSearchScope(null), 'map', 'Should fallback to map scope for null values');
+assert.equal(sandbox.resolveSearchScope(undefined), 'map', 'Should fallback to map scope for undefined values');
+assert.equal(sandbox.resolveSearchScope(''), 'map', 'Should fallback to map scope for empty string');
 
-vm.runInContext("currentSearchScope = SEARCH_SCOPE_ATLAS;", sandbox);
-assert.equal(vm.runInContext('getSearchScopeLabel()', sandbox), 'Atlas');
-
-vm.runInContext("currentSearchScope = 'map';", sandbox);
-assert.equal(vm.runInContext('getSearchScopeLabel()', sandbox), 'This Map');
-
-// Override config behavior
-sandbox.window.AppConfig.get = (path, fallback) => {
-    if (path === 'taxonomy.labels.atlasSearchScope') return 'Custom Atlas';
-    if (path === 'taxonomy.labels.mapSearchScope') return 'Custom Map';
-    return fallback;
-};
-
-assert.equal(sandbox.getSearchScopeLabel(sandbox.SEARCH_SCOPE_ATLAS), 'Custom Atlas');
-assert.equal(sandbox.getSearchScopeLabel('map'), 'Custom Map');
-
-console.log('getSearchScopeLabel tests passed');
+console.log('resolveSearchScope tests passed!');

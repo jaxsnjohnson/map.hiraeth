@@ -245,7 +245,7 @@
                     <button id="editor-delete-selection-btn" type="button">Delete Selected</button>
                     <button id="editor-reset-view-btn" type="button">Reset View</button>
                 </div>
-                <p id="editor-selection-status" class="map-editor-status">Loading atlas data...</p>
+                <p id="editor-selection-status" class="map-editor-status" aria-live="polite" aria-atomic="true">Loading atlas data...</p>
             </div>
             <div class="map-editor-toolbar-hint">
                 Click a feature to select it. Drag POI markers to move them, and drag orange vertex handles to reshape regions and lines.
@@ -265,7 +265,7 @@
                 <button id="save-atlas-structure-btn" type="button" disabled>Save Atlas Structure</button>
                 <button id="export-current-map-btn" type="button">Export Current Map JSON</button>
                 <button id="export-atlas-structure-btn" type="button">Export Atlas Structure</button>
-                <span id="editor-export-status" aria-live="polite"></span>
+                <span id="editor-export-status" aria-live="polite" aria-atomic="true"></span>
             </div>
         </main>
 

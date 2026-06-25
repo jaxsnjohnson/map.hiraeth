@@ -28,6 +28,8 @@ function extractFunctionSource(name) {
 }
 
 const snippets = [
+    extractFunctionSource('getSecondarySearchMatchCache'),
+    extractFunctionSource('rememberSecondarySearchMatch'),
     extractFunctionSource('getFuzzyMatchScore'),
     extractFunctionSource('checkSecondarySearchMatch')
 ].join('\n');
@@ -53,5 +55,28 @@ assert.deepEqual(longFuzzyMatch, { matched: true, score: 80, matchedByContent: t
 // no match
 const noMatch = checkSecondarySearchMatch('zzz', 'a cold harbor city');
 assert.equal(noMatch, null);
+
+const cachedSearchContext = {};
+const cachedFuzzyMatch = checkSecondarySearchMatch('cdh', 'a cold harbor city', cachedSearchContext);
+assert.deepEqual(cachedFuzzyMatch, fuzzyMatch);
+assert.equal(cachedSearchContext._secondarySearchMatchText, 'a cold harbor city');
+assert.ok(cachedSearchContext._secondarySearchMatchCache);
+assert.equal(cachedSearchContext._secondarySearchMatchCache.get('cdh'), cachedFuzzyMatch);
+
+const cachedSearchResults = cachedSearchContext._secondarySearchMatchCache;
+checkSecondarySearchMatch('ach', 'a cold harbor city', cachedSearchContext);
+assert.equal(cachedSearchContext._secondarySearchMatchCache, cachedSearchResults);
+
+const exactSearchContext = {};
+const cachedExactMatch = checkSecondarySearchMatch('cold', 'a cold harbor city', exactSearchContext);
+assert.deepEqual(cachedExactMatch, exactMatch);
+assert.equal(exactSearchContext._secondarySearchMatchCache.get('cold'), cachedExactMatch);
+
+const boundedSearchContext = {};
+for (let i = 0; i < 40; i += 1) {
+    checkSecondarySearchMatch(`z${i}`, 'a cold harbor city', boundedSearchContext);
+}
+assert.equal(boundedSearchContext._secondarySearchMatchCache.size, 32);
+assert.equal(boundedSearchContext._secondarySearchMatchCache.has('z0'), false);
 
 console.log('checkSecondarySearchMatch tests passed');

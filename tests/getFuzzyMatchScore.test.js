@@ -68,6 +68,9 @@ assert.equal(getFuzzyMatchScore('ac', 'abc'), 159, 'Should penalize score based 
 // score = max(40, 160-2) = 158
 assert.equal(getFuzzyMatchScore('ace', 'abcde'), 158, 'Should accumulate spread penalties');
 
+assert.equal(getFuzzyMatchScore('😀a', '😀a'), 159, 'Should preserve spread scoring for leading astral symbols');
+assert.equal(getFuzzyMatchScore('a😀', 'a😀'), 160, 'Should preserve adjacent astral symbol matches');
+
 // Max spread penalty behaviors (minimum score is 40)
 // spread penalty >= 120 should hit the floor of 40
 // let's construct a string with spread 150

@@ -129,3 +129,33 @@
 ## 2024-06-25 - Cache Region Filter Groups
 **Learning:** Automatically generating region filter groups involves iterating through potentially thousands of region entries, sorting, and array manipulation. Re-running this multiple times when the regions data pointer is stable causes performance degradation on render paths.
 **Action:** Use a `WeakMap` to cache the derived filter groups object by using the `regions` array as the key, guaranteeing stable cache hits without memory leaks. Furthermore, tracking unique values initially into a plain object `Object.create(null)` bypasses the `Set` conversion overhead (`Array.from(set).sort()`).
+
+## 2024-05-10 - Mocking DocumentFragment in legacy node:vm tests
+**Learning:** When using `DocumentFragment` to optimize DOM insertions in codebases tested with legacy custom mock DOM objects (e.g., `createMockElement` mimicking browser APIs), simple mocks don't natively "dissolve" fragments upon `appendChild` like real browsers do. If `document.createDocumentFragment` is unmocked, it causes `TypeError`. If it's mocked as a regular node, it stays in the mock DOM tree, breaking assertions that look for direct children.
+**Action:** When introducing `DocumentFragment`, verify the test suite's `document` mock. Ensure `createDocumentFragment` is mocked to return a mock fragment node, and proactively update any `childNodes` test assertions that check elements appended from the fragment to account for the fragment acting as a wrapper node in the simplistic mock implementation.
+## 2024-05-15 - Array Chaining Optimization
+**Learning:** Replaced chained array methods (`.map().filter()`) and array spreading (`[...roads, ...linesList]`) with single `for` loops in visibility extraction functions (`getVisiblePoints`, `getVisibleRegions`, `getVisibleLines`, `getVisibleRoutes`, `getVisibleEncounterTables`) to eliminate redundant intermediate array allocations. Microbenchmarking on table loops resulted in an improvement from ~441ms to ~88ms.
+**Action:** Always prefer single `for` loops over chained array methods for hot paths where performance is a concern.
+## 2024-05-24 - Optimize Single Active Element Toggling
+**Learning:** Using `querySelectorAll` to find a single element that just had a class added to it is an O(N) operation over the container.
+**Action:** Cache a direct reference to the active element. When the active element changes, use the cached reference to remove the class (O(1)), instead of searching the DOM tree.
+
+## 2024-02-14 - Optimize modal querySelectorAll on keydown
+**Learning:** querySelectorAll can be expensive when called inside high-frequency event listeners like keydown.
+**Action:** When focusable content in a container is static while the container is open, cache the result of querySelectorAll lazily on the first execution to eliminate query overhead on subsequent keystrokes.
+
+## 2024-05-24 - Cache repeated static DOM queries
+**Learning:** Using `querySelectorAll` repeatedly on static DOM structures is an O(N) operation that impacts performance, especially in sync functions like `syncSidebarTabButtons` that are called frequently.
+**Action:** Cache the resulting NodeList in a top-level module variable to achieve O(1) retrieval after the first query.
+
+## 2024-05-24 - Live HTMLCollection Layout Thrashing via getElementsByClassName
+**Learning:** Calling `getElementsByClassName` inside a hot loop or frequently called function forces the browser to traverse the DOM tree dynamically. If the DOM was just mutated (e.g., classes were changed immediately prior), accessing the live collection may force internal layout and style re-calculations that are exceptionally slow.
+**Action:** When iterating over a set of elements whose active states update frequently, cache a static NodeList using `querySelectorAll` instead of `getElementsByClassName` if you don't actually need a live updating list.
+
+## 2025-03-09 - Optimizing map item selection updates
+**Learning:** Using `getElementsByClassName` in a while loop continuously re-evaluates the live DOM node list which causes significant CPU overhead.
+**Action:** Replace live HTMLCollections with static `NodeList` arrays using `querySelectorAll` when bulk-removing classes to achieve a 2-3x performance speedup.
+
+## 2024-05-24 - Batch DOM creation using Array joins and innerHTML
+**Learning:** Constructing deep, complex DOM subtrees iteratively using `document.createElement()` and `appendChild()` introduces significant overhead inside loops. Building an HTML string using an Array and `.join('')` then assigning it to `.innerHTML` is significantly faster (35-45% faster in real-world benchmarks) because it shifts parsing and element instantiation to the browser's optimized native C++ implementation rather than executing thousands of individual JS-to-DOM boundary crossings.
+**Action:** When generating lists or complex repeated structures from data arrays, assemble the markup as a string array, join it, and inject via `innerHTML` or `insertAdjacentHTML` instead of manual element-by-element creation.
