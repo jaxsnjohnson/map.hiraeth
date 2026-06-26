@@ -12,6 +12,10 @@
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <style>
+        body.map-chooser-open .container {
+            display: none !important;
+        }
+
         html.bootstrap-map-preview-loading #sidebar {
             width: 0 !important;
             min-width: 0 !important;
@@ -68,7 +72,7 @@
         }
     </style>
 
-    <script src="js/app-config.js?v=0.1.29"></script>
+    <script src="js/app-config.js?v=0.1.30"></script>
     <script>
         window.APP_ASSET_VERSION = window.AppConfig ? window.AppConfig.get("assets.version", "0") : "0";
         window.THEME_STORAGE_KEYS = {

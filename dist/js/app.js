@@ -8358,9 +8358,12 @@ function initializeAppGlobalUIState() {
     initializeGMPillDrag();
 }
 
-function determineInitialSidebarState(hashSidebarState) {
+function determineInitialSidebarState(hashSidebarState, initialMapIdFromHash = '') {
     const sidebarFromStorage = safeGetStorage(UX_STORAGE_KEYS.sidebarState);
     const hasSidebarInHash = window.location.hash.includes('-s=');
+    if (!hasSidebarInHash && hasDirectMapHash(initialMapIdFromHash)) {
+        return 'c';
+    }
     return hasSidebarInHash ? hashSidebarState : (sidebarFromStorage || hashSidebarState);
 }
 
@@ -8454,7 +8457,7 @@ function initializeApp() {
 
     // Determine initial map and sidebar state
     const { mapId: initialMapIdFromHash, sidebarState: hashSidebarState } = parseHash();
-    const initialSidebarState = determineInitialSidebarState(hashSidebarState);
+    const initialSidebarState = determineInitialSidebarState(hashSidebarState, initialMapIdFromHash);
 
     const effectiveSidebarState = (isEmbeddedView || isMobileLayoutActive) ? 'c' : initialSidebarState;
     setSidebarState(effectiveSidebarState, false); // Set sidebar state without updating hash yet

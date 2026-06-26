@@ -454,6 +454,7 @@ html {
     line-height: 1.45;
 }
 
+body.map-chooser-open .container,
 body.map-chooser-open #loading-indicator,
 body.map-chooser-open #wip-popup,
 body.map-chooser-open #onboarding-coachmark,

@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const { JSDOM } = require('jsdom');
 
 const indexSource = fs.readFileSync('index.html', 'utf8');
+const styleSource = fs.readFileSync('css/style.css', 'utf8');
 
 assert.match(indexSource, /window\.__INITIAL_EMBEDDED_VIEW__\s*=\s*isEmbed/);
 assert.match(indexSource, /document\.documentElement\.classList\.toggle\("embedded-view",\s*isEmbed\)/);
@@ -39,6 +40,8 @@ assert.match(indexSource, /window\.__INITIAL_MAP_CHOOSER_OPEN__ !== true/);
 assert.match(indexSource, /chooser\.hidden = false/);
 assert.match(indexSource, /chooser\.setAttribute\("aria-hidden", "false"\)/);
 assert.match(indexSource, /document\.body\.classList\.add\("map-chooser-open"\)/);
+assert.match(indexSource, /body\.map-chooser-open \.container \{\s*display: none !important;\s*\}/);
+assert.match(styleSource, /body\.map-chooser-open \.container,\s*body\.map-chooser-open #loading-indicator,/);
 
 const chooserDomScriptIndex = indexSource.indexOf('function applyInitialMapChooserDomState()');
 const mapContainerIndex = indexSource.indexOf('<div class="container">');
@@ -65,6 +68,11 @@ async function main() {
     assert.equal(defaultChooser.getAttribute('aria-hidden'), 'false');
     assert.equal(defaultChooser.classList.contains('visible'), true);
     assert.equal(defaultDom.window.document.body.classList.contains('map-chooser-open'), true);
+    assert.equal(
+        defaultDom.window.getComputedStyle(defaultDom.window.document.querySelector('.container')).display,
+        'none',
+        'default route should not briefly paint the map shell under the chooser.'
+    );
     defaultDom.window.close();
 
     const directMapDom = await createStartupDom('http://127.0.0.1:4175/#main_continent-s=o');
@@ -73,6 +81,11 @@ async function main() {
     assert.equal(directMapChooser.hidden, true, 'direct map hash should keep chooser hidden for map-first startup.');
     assert.equal(directMapChooser.getAttribute('aria-hidden'), 'true');
     assert.equal(directMapDom.window.document.body.classList.contains('map-chooser-open'), false);
+    assert.notEqual(
+        directMapDom.window.getComputedStyle(directMapDom.window.document.querySelector('.container')).display,
+        'none',
+        'direct map startup should still show the map shell.'
+    );
     directMapDom.window.close();
 
     const embeddedDom = await createStartupDom('http://127.0.0.1:4175/?embed=true');
