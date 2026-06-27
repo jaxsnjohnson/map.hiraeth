@@ -3272,6 +3272,11 @@ function closeSearchResults({ clearMeta = true } = {}) {
     activeSearchResultIndex = -1;
     searchResultsContainer.style.display = 'none';
     searchResultsContainer.innerHTML = '';
+    searchResultsContainer.removeAttribute('role');
+    searchResultsContainer.removeAttribute('aria-label');
+    searchResultsContainer.removeAttribute('aria-activedescendant');
+    poiSearchInput.removeAttribute('aria-activedescendant');
+    poiSearchInput.setAttribute('aria-expanded', 'false');
     activeSearchResultElement = null;
     if (clearMeta) {
         setSearchMeta('');
@@ -4115,7 +4120,10 @@ function setActiveSearchResult(index) {
             newActive.classList.add('active');
             newActive.setAttribute('aria-selected', 'true');
             activeSearchResultElement = newActive;
+            poiSearchInput.setAttribute('aria-activedescendant', newActive.id || '');
         }
+    } else {
+        poiSearchInput.removeAttribute('aria-activedescendant');
     }
 }
 
@@ -4211,6 +4219,8 @@ function renderSearchResults(term, results) {
     activeSearchResultIndex = results.length > 0 ? 0 : -1;
     searchResultsContainer.innerHTML = '';
     activeSearchResultElement = null;
+    searchResultsContainer.removeAttribute('aria-activedescendant');
+    poiSearchInput.removeAttribute('aria-activedescendant');
 
     if (!term) {
         closeSearchResults();
@@ -4219,6 +4229,9 @@ function renderSearchResults(term, results) {
     }
 
     if (results.length === 0) {
+        searchResultsContainer.removeAttribute('role');
+        searchResultsContainer.removeAttribute('aria-label');
+        poiSearchInput.setAttribute('aria-expanded', 'true');
         const summary = document.createElement('div');
         summary.className = 'search-results-summary';
         summary.textContent = `0 results in ${getSearchScopeLabel()}`;
@@ -4229,8 +4242,13 @@ function renderSearchResults(term, results) {
         emptyState.textContent = `No ${getSearchScopeLabel().toLowerCase()} results match this search.`;
         searchResultsContainer.appendChild(emptyState);
     } else {
+        searchResultsContainer.setAttribute('role', 'listbox');
+        searchResultsContainer.setAttribute('aria-label', 'Search results');
+        poiSearchInput.setAttribute('aria-expanded', 'true');
         const summary = document.createElement('div');
         summary.className = 'search-results-summary';
+        summary.setAttribute('role', 'presentation');
+        summary.setAttribute('aria-hidden', 'true');
         summary.textContent = `${results.length} result${results.length === 1 ? '' : 's'} in ${getSearchScopeLabel()}`;
         searchResultsContainer.appendChild(summary);
 
@@ -4241,10 +4259,13 @@ function renderSearchResults(term, results) {
         results.forEach((result, index) => {
             const resultItem = document.createElement('div');
             resultItem.className = 'search-result-item';
+            resultItem.id = `search-result-${index}`;
             resultItem.dataset.resultIndex = String(index);
             resultItem.tabIndex = -1;
             resultItem.setAttribute('role', 'option');
             resultItem.setAttribute('aria-selected', index === activeSearchResultIndex ? 'true' : 'false');
+            resultItem.setAttribute('aria-posinset', String(index + 1));
+            resultItem.setAttribute('aria-setsize', String(results.length));
 
             const titleRow = document.createElement('div');
             titleRow.className = 'search-result-title';
@@ -7921,6 +7942,9 @@ function setupKeyboardAndModalLogic() {
 
         if (show) {
             lastFocus = document.activeElement; // Save focus
+            if (typeof aboutModal.setAttribute === 'function') {
+                aboutModal.setAttribute('aria-hidden', 'false');
+            }
             aboutModal.style.display = 'flex';
             // Small delay to allow display:flex to apply before adding visible class for transition
             requestAnimationFrame(() => {
@@ -7938,6 +7962,9 @@ function setupKeyboardAndModalLogic() {
             aboutModal.classList.remove('visible');
             setTimeout(() => {
                 aboutModal.style.display = 'none';
+                if (typeof aboutModal.setAttribute === 'function') {
+                    aboutModal.setAttribute('aria-hidden', 'true');
+                }
                 if (lastFocus) lastFocus.focus(); // Restore focus
             }, 300); // Match transition duration
         }
