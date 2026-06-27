@@ -13,13 +13,31 @@ const fs = require('node:fs');
 
     const snippet = appSource.slice(start, end);
 
+    function createMockElement() {
+        return {
+            style: { display: 'block' },
+            innerHTML: '<div>results</div>',
+            attrs: {},
+            setAttribute(name, value) {
+                this.attrs[name] = String(value);
+            },
+            removeAttribute(name) {
+                delete this.attrs[name];
+            }
+        };
+    }
+
     // Mock globals
     global.renderedSearchResults = ['item'];
     global.activeSearchResultIndex = 5;
-    global.searchResultsContainer = {
-        style: { display: 'block' },
-        innerHTML: '<div>results</div>'
-    };
+    global.activeSearchResultElement = { classList: { remove: () => {} } };
+    global.searchResultsContainer = createMockElement();
+    global.poiSearchInput = createMockElement();
+    global.searchResultsContainer.setAttribute('role', 'listbox');
+    global.searchResultsContainer.setAttribute('aria-label', 'Search results');
+    global.searchResultsContainer.setAttribute('aria-activedescendant', 'search-result-1');
+    global.poiSearchInput.setAttribute('aria-activedescendant', 'search-result-1');
+    global.poiSearchInput.setAttribute('aria-expanded', 'true');
 
     let searchMetaCalledWith = null;
     global.setSearchMeta = (val) => { searchMetaCalledWith = val; };
@@ -47,6 +65,11 @@ const fs = require('node:fs');
     assert.equal(global.activeSearchResultIndex, -1, 'activeSearchResultIndex should be reset');
     assert.equal(global.searchResultsContainer.style.display, 'none', 'container should be hidden');
     assert.equal(global.searchResultsContainer.innerHTML, '', 'container innerHTML should be cleared');
+    assert.equal(global.searchResultsContainer.attrs.role, undefined, 'container role should be cleared');
+    assert.equal(global.searchResultsContainer.attrs['aria-label'], undefined, 'container aria-label should be cleared');
+    assert.equal(global.searchResultsContainer.attrs['aria-activedescendant'], undefined, 'container active descendant should be cleared');
+    assert.equal(global.poiSearchInput.attrs['aria-activedescendant'], undefined, 'search input active descendant should be cleared');
+    assert.equal(global.poiSearchInput.attrs['aria-expanded'], 'false', 'search input should be collapsed');
 
     assert.equal(searchMetaCalledWith, '', 'setSearchMeta should be called with empty string');
     assert.equal(global.lastTrackedSearchSignature, '', 'lastTrackedSearchSignature should be cleared');
@@ -55,7 +78,13 @@ const fs = require('node:fs');
     // Reset mocks for Test 2
     global.renderedSearchResults = ['item'];
     global.activeSearchResultIndex = 5;
-    global.searchResultsContainer = { style: { display: 'block' }, innerHTML: '<div>results</div>' };
+    global.searchResultsContainer = createMockElement();
+    global.poiSearchInput = createMockElement();
+    global.searchResultsContainer.setAttribute('role', 'listbox');
+    global.searchResultsContainer.setAttribute('aria-label', 'Search results');
+    global.searchResultsContainer.setAttribute('aria-activedescendant', 'search-result-1');
+    global.poiSearchInput.setAttribute('aria-activedescendant', 'search-result-1');
+    global.poiSearchInput.setAttribute('aria-expanded', 'true');
     searchMetaCalledWith = null;
     global.lastTrackedSearchSignature = 'prev_sig';
     searchScopeCalledWith = null;
@@ -69,6 +98,11 @@ const fs = require('node:fs');
     assert.equal(global.activeSearchResultIndex, -1, 'activeSearchResultIndex should be reset');
     assert.equal(global.searchResultsContainer.style.display, 'none', 'container should be hidden');
     assert.equal(global.searchResultsContainer.innerHTML, '', 'container innerHTML should be cleared');
+    assert.equal(global.searchResultsContainer.attrs.role, undefined, 'container role should be cleared');
+    assert.equal(global.searchResultsContainer.attrs['aria-label'], undefined, 'container aria-label should be cleared');
+    assert.equal(global.searchResultsContainer.attrs['aria-activedescendant'], undefined, 'container active descendant should be cleared');
+    assert.equal(global.poiSearchInput.attrs['aria-activedescendant'], undefined, 'search input active descendant should be cleared');
+    assert.equal(global.poiSearchInput.attrs['aria-expanded'], 'false', 'search input should be collapsed');
 
     assert.equal(searchMetaCalledWith, null, 'setSearchMeta should not be called');
     assert.equal(global.lastTrackedSearchSignature, 'prev_sig', 'lastTrackedSearchSignature should not be cleared');

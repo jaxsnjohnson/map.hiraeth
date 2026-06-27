@@ -3272,6 +3272,11 @@ function closeSearchResults({ clearMeta = true } = {}) {
     activeSearchResultIndex = -1;
     searchResultsContainer.style.display = 'none';
     searchResultsContainer.innerHTML = '';
+    searchResultsContainer.removeAttribute('role');
+    searchResultsContainer.removeAttribute('aria-label');
+    searchResultsContainer.removeAttribute('aria-activedescendant');
+    poiSearchInput.removeAttribute('aria-activedescendant');
+    poiSearchInput.setAttribute('aria-expanded', 'false');
     activeSearchResultElement = null;
     if (clearMeta) {
         setSearchMeta('');
@@ -4115,10 +4120,10 @@ function setActiveSearchResult(index) {
             newActive.classList.add('active');
             newActive.setAttribute('aria-selected', 'true');
             activeSearchResultElement = newActive;
-            searchResultsContainer.setAttribute('aria-activedescendant', newActive.id || '');
+            poiSearchInput.setAttribute('aria-activedescendant', newActive.id || '');
         }
     } else {
-        searchResultsContainer.removeAttribute('aria-activedescendant');
+        poiSearchInput.removeAttribute('aria-activedescendant');
     }
 }
 
@@ -4215,6 +4220,7 @@ function renderSearchResults(term, results) {
     searchResultsContainer.innerHTML = '';
     activeSearchResultElement = null;
     searchResultsContainer.removeAttribute('aria-activedescendant');
+    poiSearchInput.removeAttribute('aria-activedescendant');
 
     if (!term) {
         closeSearchResults();
@@ -4225,6 +4231,7 @@ function renderSearchResults(term, results) {
     if (results.length === 0) {
         searchResultsContainer.removeAttribute('role');
         searchResultsContainer.removeAttribute('aria-label');
+        poiSearchInput.setAttribute('aria-expanded', 'true');
         const summary = document.createElement('div');
         summary.className = 'search-results-summary';
         summary.textContent = `0 results in ${getSearchScopeLabel()}`;
@@ -4237,6 +4244,7 @@ function renderSearchResults(term, results) {
     } else {
         searchResultsContainer.setAttribute('role', 'listbox');
         searchResultsContainer.setAttribute('aria-label', 'Search results');
+        poiSearchInput.setAttribute('aria-expanded', 'true');
         const summary = document.createElement('div');
         summary.className = 'search-results-summary';
         summary.setAttribute('role', 'presentation');
@@ -4256,7 +4264,8 @@ function renderSearchResults(term, results) {
             resultItem.tabIndex = -1;
             resultItem.setAttribute('role', 'option');
             resultItem.setAttribute('aria-selected', index === activeSearchResultIndex ? 'true' : 'false');
-            resultItem.setAttribute('aria-label', `Result ${index + 1} of ${results.length}`);
+            resultItem.setAttribute('aria-posinset', String(index + 1));
+            resultItem.setAttribute('aria-setsize', String(results.length));
 
             const titleRow = document.createElement('div');
             titleRow.className = 'search-result-title';
