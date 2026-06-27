@@ -18,6 +18,18 @@ assert.match(
 
 assert.match(
     appSource,
+    /function mountBootstrapMapPreview\(mapInfo\) \{[\s\S]*const previewImageUrl = getMiniMapImageUrl\(mapInfo\);[\s\S]*previewImage\.fetchPriority = 'high';[\s\S]*document\.documentElement\.classList\.add\('bootstrap-map-preview-loading'\);/,
+    'app-driven map loads should mount the low-resolution preview before detailed map pixels are ready.'
+);
+
+assert.match(
+    appSource,
+    /function initMapLoadContext\(mapId, preResolvedMap\) \{[\s\S]*const manifestEntry = preResolvedMap \|\| findMapRecursive\(mapData, requestedMapId\);[\s\S]*mountBootstrapMapPreview\(manifestEntry\);[\s\S]*setMapChooserVisible\(false\);/,
+    'app-driven map loads should mount the preview before revealing the map shell.'
+);
+
+assert.match(
+    appSource,
     /function finalizeMapLoadState\(requestedMapId, selectedMap, usingAlternateMobileImage, loadStartedAt, options = \{\}\) \{[\s\S]*loadingIndicator\.style\.display = 'none';[\s\S]*document\.documentElement\.classList\.remove\('bootstrap-map-preview-loading'\);/,
     'startup should hide the bootstrap preview loading bar before clearing its slim-bar state.'
 );

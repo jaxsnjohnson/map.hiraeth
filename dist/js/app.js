@@ -2416,6 +2416,51 @@ function removeMapPreviewLayer() {
     currentMapPreviewLayer = null;
 }
 
+function mountBootstrapMapPreview(mapInfo) {
+    if (typeof document === 'undefined') return;
+    const previewImageUrl = getMiniMapImageUrl(mapInfo);
+    const mapElement = document.getElementById('map');
+    if (!previewImageUrl || !mapElement) return;
+
+    let previewImage = document.getElementById('map-bootstrap-preview');
+    if (!previewImage || previewImage.tagName !== 'IMG') {
+        if (previewImage) previewImage.remove();
+        previewImage = new Image();
+        previewImage.id = 'map-bootstrap-preview';
+        previewImage.alt = '';
+        previewImage.decoding = 'async';
+        previewImage.fetchPriority = 'high';
+    }
+
+    previewImage.onload = () => {
+        if (document.documentElement) {
+            document.documentElement.classList.add('bootstrap-map-preview-ready');
+        }
+    };
+    previewImage.onerror = () => {
+        previewImage.remove();
+        if (document.documentElement) {
+            document.documentElement.classList.remove('bootstrap-map-preview-loading');
+        }
+    };
+
+    const versionedPreviewUrl = typeof withAssetVersion === 'function'
+        ? withAssetVersion(previewImageUrl)
+        : previewImageUrl;
+    const currentPreviewSrc = previewImage.getAttribute('src') || '';
+    if (currentPreviewSrc !== previewImageUrl && currentPreviewSrc !== versionedPreviewUrl) {
+        previewImage.src = versionedPreviewUrl;
+    }
+    mapElement.appendChild(previewImage);
+
+    if (document.documentElement) {
+        document.documentElement.classList.add('bootstrap-map-preview-loading');
+        if (previewImage.complete && previewImage.naturalWidth > 0) {
+            document.documentElement.classList.add('bootstrap-map-preview-ready');
+        }
+    }
+}
+
 function removeBootstrapMapPreview() {
     if (typeof document === 'undefined') return;
     const bootstrapPreview = document.getElementById('map-bootstrap-preview');
@@ -6099,11 +6144,15 @@ function finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileI
 function initMapLoadContext(mapId, preResolvedMap) {
     hideShareRelayPrompt('map_loading');
     const requestedMapId = String(mapId || '').trim();
-    if (requestedMapId) {
-        setMapChooserVisible(false);
-    }
     const requestToken = ++loadRequestToken;
     const manifestEntry = preResolvedMap || findMapRecursive(mapData, requestedMapId);
+
+    if (requestedMapId && manifestEntry && manifestEntry.status !== 'coming-soon') {
+        mountBootstrapMapPreview(manifestEntry);
+        setMapChooserVisible(false);
+    } else if (requestedMapId) {
+        setMapChooserVisible(false);
+    }
 
     loadingMapId = requestedMapId;
     trackAnalytics('map_load_started', { mapId: requestedMapId });
