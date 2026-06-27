@@ -984,6 +984,16 @@ textarea:focus-visible,
     visibility: visible !important;
 }
 
+/* Keep the map-bound background rectangle below real tile/image artwork. */
+#map > .leaflet-map-pane > .leaflet-tile-pane > svg {
+    z-index: 0;
+}
+
+#map > .leaflet-map-pane > .leaflet-tile-pane > .leaflet-layer,
+#map > .leaflet-map-pane > .leaflet-tile-pane > .leaflet-image-layer {
+    z-index: 1;
+}
+
 #map-bootstrap-preview {
     position: absolute;
     inset: 0;
