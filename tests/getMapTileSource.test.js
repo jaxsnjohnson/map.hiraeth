@@ -34,7 +34,11 @@ eval([
     extractFunctionSource('parsePositiveInteger'),
     extractFunctionSource('parseNonNegativeInteger'),
     extractFunctionSource('parseFiniteNumber'),
-    extractFunctionSource('getMapTileSource')
+    extractFunctionSource('getMapTileSource'),
+    extractFunctionSource('getGeneratedTileRowCount'),
+    extractFunctionSource('normalizeSimpleCrsTileCoords'),
+    extractFunctionSource('getTileLayerImageCounts'),
+    extractFunctionSource('areAllObservedTilesFailed')
 ].join('\n'));
 
 const normalized = getMapTileSource({
@@ -71,10 +75,74 @@ assert.match(
     'tile load errors should fall back to the full map image.'
 );
 
+const simpleCrsTileOptions = {
+    sourceHeight: 6144,
+    sourceMaxZoom: 5,
+    tileSize: 256
+};
+
+assert.equal(getGeneratedTileRowCount(simpleCrsTileOptions, 1), 2);
+assert.equal(getGeneratedTileRowCount(simpleCrsTileOptions, 2), 3);
+assert.equal(getGeneratedTileRowCount({}, 1), null);
+
+assert.deepEqual(
+    normalizeSimpleCrsTileCoords({ x: 0, y: -2, z: -4 }, simpleCrsTileOptions, 1),
+    { x: 0, y: 0, z: -4 }
+);
+assert.deepEqual(
+    normalizeSimpleCrsTileCoords({ x: 0, y: -1, z: -4 }, simpleCrsTileOptions, 1),
+    { x: 0, y: 1, z: -4 }
+);
+assert.deepEqual(
+    normalizeSimpleCrsTileCoords({ x: 0, y: -3, z: -3 }, simpleCrsTileOptions, 2),
+    { x: 0, y: 0, z: -3 }
+);
+assert.deepEqual(
+    normalizeSimpleCrsTileCoords({ x: 0, y: 0, z: -4 }, simpleCrsTileOptions, 1),
+    { x: 0, y: 0, z: -4 }
+);
+
+const loadedTile = { complete: true, naturalWidth: 256 };
+const pendingTile = { complete: false, naturalWidth: 0 };
+const failedTile = { complete: true, naturalWidth: 0 };
+
+assert.deepEqual(getTileLayerImageCounts(null), { total: 0, loaded: 0, failed: 0 });
+assert.deepEqual(
+    getTileLayerImageCounts({
+        querySelectorAll(selector) {
+            assert.equal(selector, 'img.leaflet-tile');
+            return [loadedTile, pendingTile, failedTile];
+        }
+    }),
+    { total: 3, loaded: 1, failed: 1 }
+);
+
+assert.equal(areAllObservedTilesFailed({ total: 0, loaded: 0, failed: 0 }), false);
+assert.equal(areAllObservedTilesFailed({ total: 2, loaded: 0, failed: 2 }), true);
+assert.equal(areAllObservedTilesFailed({ total: 2, loaded: 1, failed: 1 }), false);
+
 assert.match(
     appSource,
-    /function createSimpleCrsTileLayer\([\s\S]*y: coords\.y < 0 \? -coords\.y - 1 : coords\.y/,
-    'CRS.Simple tile rows should be normalized from Leaflet negative y coordinates.'
+    /function handleTileLayerLoad\(\) \{[\s\S]*hasOnlyFailedVisibleTiles\(\)[\s\S]*falling back to full map image[\s\S]*setTimeout\(attachImageFallback, 0\);[\s\S]*return;[\s\S]*finishDetailLoading\(\);[\s\S]*\}/,
+    'tile load completion should fall back to the full map image when every observed tile failed.'
+);
+
+assert.match(
+    appSource,
+    /currentImageLayer\.on\('load', handleTileLayerLoad\);/,
+    'tile layer load completion should use the fallback-aware load handler.'
+);
+
+assert.match(
+    appSource,
+    /function createSimpleCrsTileLayer\([\s\S]*normalizeSimpleCrsTileCoords\(coords, this\.options, tileZoom\)/,
+    'CRS.Simple tile rows should be normalized from Leaflet negative y coordinates using generated row counts.'
+);
+
+assert.match(
+    appSource,
+    /sourceHeight: selectedMap\.height,/,
+    'tile row normalization should use the selected map height inside createMapBaseLayer.'
 );
 
 console.log('getMapTileSource checks passed');

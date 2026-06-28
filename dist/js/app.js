@@ -2384,16 +2384,67 @@ function getMapTileSource(mapInfo) {
     };
 }
 
+function getGeneratedTileRowCount(options, tileZoom) {
+    const tileOptions = options || {};
+    const sourceHeight = Number(tileOptions.sourceHeight);
+    const tileSize = Number(tileOptions.tileSize);
+    const sourceMaxZoom = Number(tileOptions.sourceMaxZoom);
+    const zoom = Number(tileZoom);
+    if (!Number.isFinite(sourceHeight) || sourceHeight <= 0 ||
+        !Number.isFinite(tileSize) || tileSize <= 0 ||
+        !Number.isFinite(sourceMaxZoom) ||
+        !Number.isFinite(zoom)) {
+        return null;
+    }
+
+    const scale = Math.pow(2, zoom - sourceMaxZoom);
+    const scaledHeight = Math.max(1, Math.ceil(sourceHeight * scale));
+    return Math.ceil(scaledHeight / tileSize);
+}
+
+function normalizeSimpleCrsTileCoords(coords, options, tileZoom) {
+    const normalizedCoords = { ...coords };
+    const sourceY = Number(coords?.y);
+    if (!Number.isFinite(sourceY) || sourceY >= 0) {
+        return normalizedCoords;
+    }
+
+    const rowCount = getGeneratedTileRowCount(options, tileZoom);
+    normalizedCoords.y = Number.isInteger(rowCount) && rowCount > 0
+        ? sourceY + rowCount
+        : -sourceY - 1;
+    return normalizedCoords;
+}
+
 function createSimpleCrsTileLayer(urlTemplate, options) {
     const SimpleCrsTileLayer = L.TileLayer.extend({
         getTileUrl(coords) {
-            const normalizedCoords = L.extend({}, coords, {
-                y: coords.y < 0 ? -coords.y - 1 : coords.y
-            });
+            const tileZoom = typeof this._getZoomForUrl === 'function'
+                ? this._getZoomForUrl()
+                : coords.z;
+            const normalizedCoords = normalizeSimpleCrsTileCoords(coords, this.options, tileZoom);
             return L.TileLayer.prototype.getTileUrl.call(this, normalizedCoords);
         }
     });
     return new SimpleCrsTileLayer(urlTemplate, options);
+}
+
+function getTileLayerImageCounts(tileContainer) {
+    if (!tileContainer || typeof tileContainer.querySelectorAll !== 'function') {
+        return { total: 0, loaded: 0, failed: 0 };
+    }
+    const tiles = Array.from(tileContainer.querySelectorAll('img.leaflet-tile'));
+    const loaded = tiles.filter((tile) => tile.complete && tile.naturalWidth > 0).length;
+    const failed = tiles.filter((tile) => tile.complete && tile.naturalWidth === 0).length;
+    return {
+        total: tiles.length,
+        loaded,
+        failed
+    };
+}
+
+function areAllObservedTilesFailed(tileCounts) {
+    return !!tileCounts && tileCounts.total > 0 && tileCounts.loaded === 0 && tileCounts.failed === tileCounts.total;
 }
 
 function createMapPreviewLayer(mapInfo, bounds) {
@@ -2502,6 +2553,8 @@ function createMapBaseLayer(selectedMap, mapImageUrl, bounds) {
                 minNativeZoom: tileSource.minNativeZoom,
                 maxNativeZoom: tileSource.maxNativeZoom,
                 zoomOffset: tileSource.zoomOffset,
+                sourceHeight: selectedMap.height,
+                sourceMaxZoom: tileSource.maxZoom,
                 bounds: L.latLngBounds(bounds),
                 noWrap: true,
                 keepBuffer: 2,
@@ -6282,15 +6335,29 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
         const tileContainer = currentImageLayer && typeof currentImageLayer.getContainer === 'function'
             ? currentImageLayer.getContainer()
             : null;
-        if (!tileContainer || typeof tileContainer.querySelectorAll !== 'function') return;
-        const tiles = Array.from(tileContainer.querySelectorAll('img.leaflet-tile'));
-        if (tiles.length === 0) return;
-        const loadedTiles = tiles.filter((tile) => tile.complete && tile.naturalWidth > 0).length;
-        const tileProgress = 60 + (loadedTiles / tiles.length) * 35;
+        const tileCounts = getTileLayerImageCounts(tileContainer);
+        if (tileCounts.total === 0) return;
+        const tileProgress = 60 + (tileCounts.loaded / tileCounts.total) * 35;
         setLoadingProgressValue(Math.max(loadingProgress, tileProgress));
-        if (loadedTiles === tiles.length) {
+        if (tileCounts.loaded === tileCounts.total) {
             finishDetailLoading();
         }
+    }
+
+    function hasOnlyFailedVisibleTiles() {
+        const tileContainer = currentImageLayer && typeof currentImageLayer.getContainer === 'function'
+            ? currentImageLayer.getContainer()
+            : null;
+        return areAllObservedTilesFailed(getTileLayerImageCounts(tileContainer));
+    }
+
+    function handleTileLayerLoad() {
+        if (tileLoadFailures > 0 && currentMapPreviewLayer && hasOnlyFailedVisibleTiles()) {
+            console.warn('Tile layer finished without loading visible tiles; falling back to full map image:', selectedMap.id || selectedMap.name);
+            setTimeout(attachImageFallback, 0);
+            return;
+        }
+        finishDetailLoading();
     }
 
     function abortImageLoad() {
@@ -6360,7 +6427,7 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
     }
 
     if (currentMapBaseLayerMode === 'tile') {
-        currentImageLayer.on('load', finishDetailLoading);
+        currentImageLayer.on('load', handleTileLayerLoad);
         currentImageLayer.on('tileload', updateTileLoadingProgress);
         currentImageLayer.on('tileerror', function (event) {
             if (detailLoadingComplete) return;
