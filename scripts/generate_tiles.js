@@ -233,7 +233,7 @@ function buildTileMagickArgs(job, level, levelTmpDir, options = {}) {
         '-background',
         'none',
         '-gravity',
-        'NorthWest',
+        'SouthWest',
         '-extent',
         `${level.extentWidth}x${level.extentHeight}`,
         '-crop',

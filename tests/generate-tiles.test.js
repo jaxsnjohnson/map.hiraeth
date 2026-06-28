@@ -119,6 +119,7 @@ assert.throws(
 
         assert.equal(args[0], '--');
         assert.equal(args[1], `webp:${sourceImagePath}`);
+        assert.equal(args[args.indexOf('-gravity') + 1], 'SouthWest');
         assert.equal(args.at(-1), `webp:${path.join(levelTmpDir, 'tile-%06d.webp')}`);
     } finally {
         fs.rmSync(root, { recursive: true, force: true });
