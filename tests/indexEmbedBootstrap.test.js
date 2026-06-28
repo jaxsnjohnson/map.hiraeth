@@ -27,6 +27,7 @@ assert.match(indexSource, /main_continent: "maps\/Fair-Content\.mini\.webp"/);
 assert.match(indexSource, /document\.documentElement\.classList\.add\("bootstrap-map-preview-loading"\);[\s\S]*appendPreload\(window\.__HIRAETH_DIRECT_MAP_PREVIEW__, "image"/);
 assert.match(indexSource, /html\.bootstrap-map-preview-loading #loading-indicator\.initial-loader \{[\s\S]*height: 4px;[\s\S]*pointer-events: none;/);
 assert.match(indexSource, /html\.bootstrap-map-preview-loading #loading-indicator\.initial-loader \.progress-container \{[\s\S]*width: 100%;[\s\S]*height: 4px;/);
+assert.doesNotMatch(indexSource, /html\.bootstrap-map-preview-loading #(sidebar|toggle-sidebar-btn)\b/);
 assert.doesNotMatch(indexSource, /class="spinner"/);
 assert.doesNotMatch(styleSource, /\.spinner\b/);
 assert.match(indexSource, /function mountBootstrapMapPreview\(\)/);

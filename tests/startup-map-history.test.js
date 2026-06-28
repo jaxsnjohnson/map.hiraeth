@@ -40,10 +40,10 @@ assert.match(
     'failed map loads should clear bootstrap preview loading mode before showing error text and retry controls.'
 );
 
-assert.match(
+assert.doesNotMatch(
     styleSource,
-    /html\.bootstrap-map-preview-loading #sidebar \{[\s\S]*width: 0 !important;[\s\S]*box-shadow: none !important;/,
-    'startup should hide the sidebar while the bootstrap preview is loading.'
+    /html\.bootstrap-map-preview-loading #(sidebar|toggle-sidebar-btn)\b/,
+    'startup loading mode should not control sidebar or sidebar toggle visibility.'
 );
 
 assert.match(
