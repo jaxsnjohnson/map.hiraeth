@@ -2464,7 +2464,6 @@ html.bootstrap-map-preview-loading #toggle-sidebar-btn {
     visibility: hidden !important;
 }
 
-html.bootstrap-map-preview-loading #loading-indicator.initial-loader .spinner,
 html.bootstrap-map-preview-loading #loading-indicator.initial-loader .loading-text,
 html.bootstrap-map-preview-loading #loading-indicator.initial-loader #loading-retry-btn {
     display: none;
@@ -2512,24 +2511,6 @@ html.bootstrap-map-preview-loading #loading-indicator.initial-loader .progress-b
     border-radius: 0;
 }
 
-.spinner {
-    border: 4px solid rgba(255, 255, 255, 0.3); /* Light grey border */
-    border-left-color: #fff; /* White for the spinning part */
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    animation: spin 1s linear infinite;
-    margin-right: 10px; /* Space between spinner and text */
-}
-
-#loading-indicator.initial-loader .spinner {
-    border-color: var(--border-color);
-    border-left-color: var(--text-primary);
-    width: 40px;
-    height: 40px;
-    border-width: 4px;
-}
-
 #loading-retry-btn {
     margin-top: 12px;
     border: 1px solid rgba(255, 255, 255, 0.35);
@@ -2545,11 +2526,6 @@ html.bootstrap-map-preview-loading #loading-indicator.initial-loader .progress-b
 
 #loading-indicator.initial-loader #loading-retry-btn {
     border-color: var(--border-color);
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
 }
 @media (max-width: 768px) {
     #sidebar {

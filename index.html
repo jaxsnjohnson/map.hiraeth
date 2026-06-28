@@ -48,7 +48,6 @@
             z-index: 9999;
         }
 
-        html.bootstrap-map-preview-loading #loading-indicator.initial-loader .spinner,
         html.bootstrap-map-preview-loading #loading-indicator.initial-loader .loading-text,
         html.bootstrap-map-preview-loading #loading-indicator.initial-loader #loading-retry-btn {
             display: none;
@@ -109,7 +108,13 @@
                 crossOrigin: "anonymous"
             });
 
-            const directMapId = decodeURIComponent(String(window.location.hash || "").replace(/^#/, "").split("-s=")[0] || "").trim();
+            const rawDirectMapId = String(window.location.hash || "").replace(/^#/, "").split("-s=")[0] || "";
+            let directMapId = "";
+            try {
+                directMapId = decodeURIComponent(rawDirectMapId).trim();
+            } catch (error) {
+                directMapId = rawDirectMapId.trim();
+            }
             if (/^[A-Za-z0-9._-]+$/.test(directMapId)) {
                 const previewOverrides = {
                     main_continent: "maps/Fair-Content.mini.webp"
@@ -299,7 +304,6 @@
             </div>
 
             <div id="loading-indicator" class="initial-loader">
-                <div class="spinner"></div>
                 <div class="loading-text" aria-live="polite" aria-atomic="true">Loading Map Data...</div>
                 <div class="progress-container">
                     <div class="progress-bar"></div>

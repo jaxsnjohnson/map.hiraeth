@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const { JSDOM } = require('jsdom');
+const { JSDOM, VirtualConsole } = require('jsdom');
 
 const indexSource = fs.readFileSync('index.html', 'utf8');
 const styleSource = fs.readFileSync('css/style.css', 'utf8');
@@ -27,6 +27,8 @@ assert.match(indexSource, /main_continent: "maps\/Fair-Content\.mini\.webp"/);
 assert.match(indexSource, /document\.documentElement\.classList\.add\("bootstrap-map-preview-loading"\);[\s\S]*appendPreload\(window\.__HIRAETH_DIRECT_MAP_PREVIEW__, "image"/);
 assert.match(indexSource, /html\.bootstrap-map-preview-loading #loading-indicator\.initial-loader \{[\s\S]*height: 4px;[\s\S]*pointer-events: none;/);
 assert.match(indexSource, /html\.bootstrap-map-preview-loading #loading-indicator\.initial-loader \.progress-container \{[\s\S]*width: 100%;[\s\S]*height: 4px;/);
+assert.doesNotMatch(indexSource, /class="spinner"/);
+assert.doesNotMatch(styleSource, /\.spinner\b/);
 assert.match(indexSource, /function mountBootstrapMapPreview\(\)/);
 assert.match(indexSource, /previewImage\.id = "map-bootstrap-preview"/);
 assert.match(indexSource, /previewImage\.fetchPriority = "high"/);
@@ -50,11 +52,14 @@ assert.ok(
     'initial chooser DOM state should be applied before the map container can render.'
 );
 
-async function createStartupDom(url) {
+async function createStartupDom(url, errors = []) {
+    const virtualConsole = new VirtualConsole();
+    virtualConsole.on('jsdomError', error => errors.push(error));
     const dom = new JSDOM(indexSource, {
         url,
         runScripts: 'dangerously',
-        pretendToBeVisual: true
+        pretendToBeVisual: true,
+        virtualConsole
     });
     await new Promise(resolve => dom.window.queueMicrotask(resolve));
     return dom;
@@ -94,6 +99,13 @@ async function main() {
     assert.equal(embeddedChooser.hidden, true, 'embedded view should keep chooser hidden for map-first startup.');
     assert.equal(embeddedDom.window.document.body.classList.contains('map-chooser-open'), false);
     embeddedDom.window.close();
+
+    const malformedHashErrors = [];
+    const malformedHashDom = await createStartupDom('http://127.0.0.1:4175/#bad%', malformedHashErrors);
+    assert.deepEqual(malformedHashErrors, []);
+    assert.equal(malformedHashDom.window.__INITIAL_EFFECTIVE_THEME__, 'light');
+    assert.equal(malformedHashDom.window.__INITIAL_MAP_CHOOSER_OPEN__, false);
+    malformedHashDom.window.close();
 
     console.log('index embed bootstrap checks passed');
 }

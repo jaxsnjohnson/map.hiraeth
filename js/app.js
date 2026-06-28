@@ -3128,16 +3128,13 @@ function setSearchMeta(text = '') {
 function setLoadingMessage(message, options = {}) {
     if (!loadingIndicator) return;
     const {
-        showSpinner = true,
         showProgress = true,
         showRetry = false
     } = options;
 
     const loadingText = loadingIndicator.querySelector('.loading-text');
-    const spinner = loadingIndicator.querySelector('.spinner');
     const progressContainer = loadingIndicator.querySelector('.progress-container');
     if (loadingText) loadingText.textContent = message;
-    if (spinner) spinner.style.display = showSpinner ? 'block' : 'none';
     if (progressContainer) progressContainer.style.display = showProgress ? 'block' : 'none';
     if (loadingRetryBtn) loadingRetryBtn.style.display = showRetry ? 'inline-block' : 'none';
 }
@@ -6067,6 +6064,10 @@ function abortMapLoad(options = {}) {
     measureToolBtn.style.display = 'none';
     toggleFiltersBtn.style.display = 'none';
     searchControlContainer.style.display = 'none';
+    removeBootstrapMapPreview();
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.classList.remove('bootstrap-map-preview-loading');
+    }
 
     if (isUnavailable) {
         loadingMapId = null;
