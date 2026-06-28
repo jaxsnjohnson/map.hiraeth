@@ -1555,10 +1555,14 @@
         if (needsImageReset) {
             setupImageUnderlay(mapHeight, mapWidth, nextBounds);
         } else if (state.underlayLayer) {
-            state.underlayLayer.setStyle({
-                fillColor: state.currentMap.backgroundColor || '#0f172a',
-                color: state.currentMap.backgroundColor || '#0f172a'
-            });
+            // ⚡ Bolt: Check existing options before applying setStyle to prevent costly redundant Leaflet DOM updates
+            const targetColor = state.currentMap.backgroundColor || '#0f172a';
+            if (state.underlayLayer.options.fillColor !== targetColor || state.underlayLayer.options.color !== targetColor) {
+                state.underlayLayer.setStyle({
+                    fillColor: targetColor,
+                    color: targetColor
+                });
+            }
             setMapEmptyState({ hidden: true });
         }
 
