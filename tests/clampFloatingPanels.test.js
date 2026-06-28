@@ -30,7 +30,6 @@ function createPanelStyle() {
 }
 
 function resetPanels() {
-    global.routePanel = { style: createPanelStyle() };
     global.sessionToolkitPanel = { style: createPanelStyle() };
     global.gmPill = { style: createPanelStyle() };
 }
@@ -39,24 +38,18 @@ resetPanels();
 global.mobileLayoutV2Enabled = true;
 global.isMobileLayoutActive = true;
 clampFloatingPanels();
-assert.equal(global.routePanel.style.maxHeight, '100px');
+assert.equal(global.sessionToolkitPanel.style.maxHeight, '100px');
 
 resetPanels();
 global.mobileLayoutV2Enabled = false;
 global.isMobileLayoutActive = false;
 clampFloatingPanels();
-assert.equal(global.routePanel.style.maxHeight, '100px');
+assert.equal(global.sessionToolkitPanel.style.maxHeight, '100px');
 
 resetPanels();
 global.mobileLayoutV2Enabled = true;
 global.isMobileLayoutActive = false;
 clampFloatingPanels();
-assert.deepEqual(global.routePanel.style, {
-    maxHeight: '',
-    top: '',
-    right: '',
-    left: ''
-});
 assert.deepEqual(global.sessionToolkitPanel.style, {
     maxHeight: '',
     top: '',
@@ -70,7 +63,6 @@ assert.deepEqual(global.gmPill.style, {
     left: ''
 });
 
-global.routePanel = null;
 global.sessionToolkitPanel = null;
 global.gmPill = null;
 global.mobileLayoutV2Enabled = true;

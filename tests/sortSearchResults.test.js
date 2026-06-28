@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const code = fs.readFileSync('js/app.js', 'utf-8');
 
 // Global mock dependencies
-global.SEARCH_RESULT_GROUP_ORDER = ['poi', 'region', 'line', 'route', 'step', 'map'];
+global.SEARCH_RESULT_GROUP_ORDER = ['poi', 'region', 'line', 'map'];
 global.SEARCH_RESULT_GROUP_INDEX = Object.create(null);
 global.SEARCH_RESULT_GROUP_ORDER.forEach((group, index) => {
     global.SEARCH_RESULT_GROUP_INDEX[group] = index;

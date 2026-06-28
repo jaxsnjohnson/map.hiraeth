@@ -662,52 +662,6 @@
       "properties": {}
     }
   ],
-  "routes": [
-    {
-      "id": "castgate-intro",
-      "name": "First Footsteps in Castgate",
-      "summary": "A short welcome loop for new arrivals inside the Firmament.",
-      "tags": [
-        "starter",
-        "tour"
-      ],
-      "isFeatured": true,
-      "updatedAt": "2026-02-10T00:00:00Z",
-      "steps": [
-        {
-          "id": "step-arrival",
-          "title": "Arrive at the Docks",
-          "body": "Icebreakers offload cargo while sailors whisper about the dome's glow.",
-          "targetType": "region",
-          "targetId": "region-devarin-&-docie-docks",
-          "zoom": 0
-        },
-        {
-          "id": "step-frozen-rose",
-          "title": "Warmth at The Frozen Rose",
-          "body": "Meet Sub Rosa's trophies and the ever-warm hearth before heading deeper in.",
-          "targetType": "poi",
-          "targetId": "The Frozen Rose",
-          "zoom": 1
-        },
-        {
-          "id": "step-crystal-needle",
-          "title": "See the Crystal Needle",
-          "body": "Scholars trace the hum that powers the Firmament from this spire.",
-          "targetType": "poi",
-          "targetId": "The Crystal Needle"
-        },
-        {
-          "id": "step-hestia-hook",
-          "title": "GM Hook: Hestia's Whisper",
-          "body": "A secret envoy waits with news of a crack in the Firmament's weave.",
-          "targetType": "poi",
-          "targetId": "The Shrine of Hestia",
-          "gmOnly": true
-        }
-      ]
-    }
-  ],
   "encounterTables": [
     {
       "id": "castgate-harbor-day",

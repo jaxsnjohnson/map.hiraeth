@@ -61,7 +61,6 @@ function hasInlinePayload(item) {
             (Array.isArray(item.regions) && item.regions.length) ||
             (Array.isArray(item.roads) && item.roads.length) ||
             (Array.isArray(item.lines) && item.lines.length) ||
-            (Array.isArray(item.routes) && item.routes.length) ||
             (Array.isArray(item.encounterTables) && item.encounterTables.length)
         )
     );
@@ -252,7 +251,7 @@ function getGeneratedAtForNextAtlas(atlasIndexPath, nextComparablePayload) {
 }
 
 function addSearchEntry(context, entry) {
-    const key = `${entry.kind}:${entry.mapId}:${entry.routeId || ''}:${entry.itemId || entry.name}`;
+    const key = `${entry.kind}:${entry.mapId}:${entry.itemId || entry.name}`;
     if (context.seenSearchKeys.has(key)) return;
     context.seenSearchKeys.add(key);
     context.searchEntries.push(entry);
@@ -332,40 +331,6 @@ function buildSearchEntriesForMap(context, item) {
         });
     });
 
-    const routes = Array.isArray(item.routes) ? item.routes : [];
-    routes.forEach((route, routeIndex) => {
-        if (!route || !route.id) return;
-        addSearchEntry(context, {
-            kind: 'route',
-            id: `route:${item.id}:${route.id}`,
-            itemId: route.id,
-            routeId: route.id,
-            mapId: item.id,
-            mapName: item.name,
-            name: route.name || route.id,
-            summary: stripHtml(route.summary || ''),
-            description: '',
-            typeLabel: 'Route',
-            visibility: String(route.visibility || 'public').toLowerCase()
-        });
-
-        (Array.isArray(route.steps) ? route.steps : []).forEach((step, stepIndex) => {
-            if (!step || !step.id) return;
-            addSearchEntry(context, {
-                kind: 'step',
-                id: `step:${item.id}:${route.id}:${step.id}`,
-                itemId: step.id,
-                routeId: route.id,
-                mapId: item.id,
-                mapName: item.name,
-                name: step.title || step.id || `Step ${stepIndex + 1}`,
-                summary: stripHtml(step.body || ''),
-                description: '',
-                typeLabel: 'Step',
-                visibility: String(step.visibility || route.visibility || 'public').toLowerCase()
-            });
-        });
-    });
 }
 
 function writeGeneratedMapData(context, item, force = false) {

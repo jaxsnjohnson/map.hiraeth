@@ -25,7 +25,6 @@ assert.match(indexSource, /id="mobile-sound-btn"/);
 assert.match(indexSource, /id="mobile-coords-btn"/);
 assert.match(indexSource, /id="mobile-share-view-btn"/);
 assert.match(indexSource, /id="mobile-help-btn"/);
-assert.match(indexSource, /id="mobile-routes-btn"/);
 assert.doesNotMatch(indexSource, /id="mobile-gm-view-btn"/);
 assert.doesNotMatch(indexSource, /id="mobile-toolkit-btn"/);
 assert.doesNotMatch(indexSource, /id="toggle-gm-panel-btn"/);

@@ -17,7 +17,6 @@ const snippet = appSource.slice(start, end);
 
 // Global mocks
 global.isMobileLayoutActive = false;
-global.routePanel = { id: 'routePanel', style: {} };
 global.sessionToolkitPanel = { id: 'sessionToolkitPanel', style: {} };
 global.gmPill = { id: 'gmPill', style: {} };
 global.mobileToolsPanelSlot = { id: 'mobileToolsPanelSlot' };
@@ -67,44 +66,40 @@ assert.equal(mobileNonSpecialPanel.style.display, 'none');
 // Test 6: Mobile layout - special panel, mounted in tools, tools mode active, visible
 global.isMobileLayoutActive = true;
 global.mobileSurfaceMode = 'tools'; // isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) -> true
-global.routePanel.parentNode = global.mobileToolsPanelSlot;
-global.routePanel.style.display = '';
-setAuxPanelVisible(global.routePanel, true);
-assert.equal(global.routePanel.style.display, 'block');
+global.sessionToolkitPanel.parentNode = global.mobileToolsPanelSlot;
+global.sessionToolkitPanel.style.display = '';
+setAuxPanelVisible(global.sessionToolkitPanel, true);
+assert.equal(global.sessionToolkitPanel.style.display, 'block');
 
 // Test 7: Mobile layout - special panel, mounted in tools, tools mode active, hidden
-global.routePanel.style.display = '';
-setAuxPanelVisible(global.routePanel, false);
-assert.equal(global.routePanel.style.display, 'none');
+global.sessionToolkitPanel.style.display = '';
+setAuxPanelVisible(global.sessionToolkitPanel, false);
+assert.equal(global.sessionToolkitPanel.style.display, 'none');
 
 // Test 8: Mobile layout - special panel, not mounted in tools
 global.mobileSurfaceMode = 'tools'; // tools mode active
 const someOtherNode = { id: 'someOtherNode' };
-global.routePanel.parentNode = someOtherNode; // not mobileToolsPanelSlot
-global.routePanel.style.display = '';
-setAuxPanelVisible(global.routePanel, true);
-assert.equal(global.routePanel.style.display, 'none'); // fails condition mountedInMobileTools
-setAuxPanelVisible(global.routePanel, false);
-assert.equal(global.routePanel.style.display, 'none');
+global.sessionToolkitPanel.parentNode = someOtherNode; // not mobileToolsPanelSlot
+global.sessionToolkitPanel.style.display = '';
+setAuxPanelVisible(global.sessionToolkitPanel, true);
+assert.equal(global.sessionToolkitPanel.style.display, 'none'); // fails condition mountedInMobileTools
+setAuxPanelVisible(global.sessionToolkitPanel, false);
+assert.equal(global.sessionToolkitPanel.style.display, 'none');
 
 // Test 9: Mobile layout - special panel, mounted in tools, tools mode NOT active
 global.mobileSurfaceMode = 'atlas'; // tools mode not active
-global.routePanel.parentNode = global.mobileToolsPanelSlot;
-global.routePanel.style.display = '';
-setAuxPanelVisible(global.routePanel, true);
-assert.equal(global.routePanel.style.display, 'none'); // fails isMobileSurfaceMode check
-setAuxPanelVisible(global.routePanel, false);
-assert.equal(global.routePanel.style.display, 'none');
+global.sessionToolkitPanel.parentNode = global.mobileToolsPanelSlot;
+global.sessionToolkitPanel.style.display = '';
+setAuxPanelVisible(global.sessionToolkitPanel, true);
+assert.equal(global.sessionToolkitPanel.style.display, 'none'); // fails isMobileSurfaceMode check
+setAuxPanelVisible(global.sessionToolkitPanel, false);
+assert.equal(global.sessionToolkitPanel.style.display, 'none');
 
 // Test 10: Mobile layout - test all special panels
 global.isMobileLayoutActive = true;
 global.mobileSurfaceMode = 'tools';
-global.routePanel.parentNode = global.mobileToolsPanelSlot;
 global.sessionToolkitPanel.parentNode = global.mobileToolsPanelSlot;
 global.gmPill.parentNode = global.mobileToolsPanelSlot;
-
-setAuxPanelVisible(global.routePanel, true);
-assert.equal(global.routePanel.style.display, 'block');
 
 setAuxPanelVisible(global.sessionToolkitPanel, true);
 assert.equal(global.sessionToolkitPanel.style.display, 'block');

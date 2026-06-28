@@ -20,11 +20,6 @@ global.checkAndFocusFeature = () => {
     return checkAndFocusFeatureReturnValue;
 };
 
-let startRouteArgs = null;
-global.startRoute = (routeId, stepId) => {
-    startRouteArgs = { routeId, stepId };
-};
-
 let resolveInitialMapViewportReturnValue = { mode: 'fit-bounds' };
 let resolveInitialMapViewportArgs = null;
 global.resolveInitialMapViewport = (params) => {
@@ -66,7 +61,6 @@ eval(functionSource);
 function resetMocks() {
     checkAndFocusFeatureCalled = false;
     checkAndFocusFeatureReturnValue = false;
-    startRouteArgs = null;
     resolveInitialMapViewportReturnValue = { mode: 'fit-bounds' };
     resolveInitialMapViewportArgs = null;
     mapSetViewArgs = null;
@@ -84,7 +78,6 @@ let params = new URLSearchParams('poi=test');
 let result = applySearchParamsToCurrentMap(params);
 assert.equal(result, true, 'Should return true when feature is focused');
 assert.equal(checkAndFocusFeatureCalled, true, 'Should call checkAndFocusFeature');
-assert.equal(startRouteArgs, null, 'Should not call startRoute');
 
 resetMocks();
 checkAndFocusFeatureReturnValue = true;
@@ -100,14 +93,7 @@ result = applySearchParamsToCurrentMap(params);
 assert.equal(result, true, 'Should return true when line feature is focused');
 assert.equal(checkAndFocusFeatureCalled, true, 'Should call checkAndFocusFeature');
 
-// Test case 2: When params have 'route' and featureFocused is false
-resetMocks();
-params = new URLSearchParams('route=merchant-run&step=2');
-result = applySearchParamsToCurrentMap(params);
-assert.equal(result, true, 'Should return true when route is started');
-assert.deepEqual(startRouteArgs, { routeId: 'merchant-run', stepId: '2' }, 'Should call startRoute with correct args');
-
-// Test case 3: When resolveInitialMapViewport returns explicit view
+// Test case 2: When resolveInitialMapViewport returns explicit view
 resetMocks();
 params = new URLSearchParams('view=10,20,5');
 resolveInitialMapViewportReturnValue = {
@@ -122,7 +108,7 @@ assert.deepEqual(mapSetViewArgs, { center: [10, 20], zoom: 5, options: { animate
 assert.deepEqual(trackShareViewOpenFromParamsArgs, { params, rawView: '10,20,5' }, 'Should call trackShareViewOpenFromParams');
 assert.deepEqual(showShareRelayPromptArgs, { some: 'context' }, 'Should call showShareRelayPrompt when context exists');
 
-// Test case 4: When resolveInitialMapViewport returns explicit view but no share context
+// Test case 3: When resolveInitialMapViewport returns explicit view but no share context
 resetMocks();
 params = new URLSearchParams('view=10,20,5');
 resolveInitialMapViewportReturnValue = {
@@ -137,7 +123,7 @@ assert.deepEqual(mapSetViewArgs, { center: [10, 20], zoom: 5, options: { animate
 assert.deepEqual(trackShareViewOpenFromParamsArgs, { params, rawView: '10,20,5' }, 'Should call trackShareViewOpenFromParams');
 assert.equal(showShareRelayPromptArgs, null, 'Should not call showShareRelayPrompt');
 
-// Test case 5: When resolveInitialMapViewport returns fit bounds and currentBounds is set
+// Test case 4: When resolveInitialMapViewport returns fit bounds and currentBounds is set
 resetMocks();
 params = new URLSearchParams('');
 global.currentBounds = [[-10, -10], [10, 10]];

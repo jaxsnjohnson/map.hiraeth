@@ -460,10 +460,6 @@
                             <i class="ui-icon" data-lucide="circle-help" aria-hidden="true"></i>
                             <span>Guide</span>
                         </button>
-                        <button id="mobile-routes-btn" type="button" aria-pressed="false">
-                            <i class="ui-icon" data-lucide="route" aria-hidden="true"></i>
-                            <span>Routes</span>
-                        </button>
                     </div>
                     <div id="mobile-tools-panel-slot" hidden></div>
                 </div>
@@ -488,23 +484,6 @@
                  </div>
                  <div id="dynamic-filters-container"></div>
             </div>
-            <div id="route-panel" class="leaflet-control">
-                <div class="panel-header">
-                    <div>
-                        <strong>Routes</strong>
-                        <span id="route-count-badge" class="pill muted">0</span>
-                    </div>
-                    <div class="panel-actions">
-                        <button id="route-start-btn" type="button">Start</button>
-                        <button id="route-reset-btn" type="button">Reset</button>
-                        <button id="route-collapse-btn" type="button" aria-expanded="true">Collapse</button>
-                    </div>
-                </div>
-                <label class="sr-only" for="route-select">Select route</label>
-                <select id="route-select"></select>
-                <div id="route-step-list" class="stacked-list"></div>
-            </div>
-
             <div id="bottom-link-bar">
                 <a href="#" target="_blank" rel="noopener noreferrer">Wiki</a>
                 <a href="#" target="_blank" rel="noopener noreferrer">Blog</a>

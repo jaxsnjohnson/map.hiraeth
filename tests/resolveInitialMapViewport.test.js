@@ -33,9 +33,6 @@ assert.deepEqual(result, { mode: 'feature' });
 result = resolveInitialMapViewport(new URLSearchParams('line=King%27s%20Road'));
 assert.deepEqual(result, { mode: 'feature' });
 
-result = resolveInitialMapViewport(new URLSearchParams('route=merchant-run'));
-assert.deepEqual(result, { mode: 'route' });
-
 result = resolveInitialMapViewport(new URLSearchParams('view=bad,data'));
 assert.deepEqual(result, { mode: 'fit-bounds' });
 

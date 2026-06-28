@@ -23,19 +23,12 @@ eval(snippet);
 global.mobileLayoutV2Enabled = true;
 global.isMobileLayoutActive = false;
 
-global.routePanel = { style: { maxHeight: '220px', top: '20px', right: '10px', left: '30px' } };
 global.sessionToolkitPanel = { style: { maxHeight: '180px', top: '40px', right: '12px', left: '32px' } };
 global.gmPill = { style: { maxHeight: '120px', top: '60px', right: '14px', left: '34px' } };
 global.poiFilterContainer = { style: { maxHeight: '320px', top: '80px', right: '16px', left: '120px' } };
 
 clampFloatingPanels();
 
-assert.deepEqual(global.routePanel.style, {
-    maxHeight: '',
-    top: '',
-    right: '',
-    left: ''
-});
 assert.deepEqual(global.sessionToolkitPanel.style, {
     maxHeight: '',
     top: '',

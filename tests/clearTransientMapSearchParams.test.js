@@ -20,7 +20,7 @@ assert.equal(
 );
 
 assert.equal(
-    clearTransientMapSearchParams('?route=merchant-run&step=2&src=share&stype=view'),
+    clearTransientMapSearchParams('?view=1,2,3&src=share&stype=view'),
     ''
 );
 

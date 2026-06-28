@@ -239,9 +239,6 @@ function validateMapDocument(mapDocument, context) {
     validateFeatureArray(mapDocument, 'lines', validateLine, context);
     validateFeatureArray(mapDocument, 'roads', validateLine, context);
 
-    if (mapDocument.routes !== undefined && !Array.isArray(mapDocument.routes)) {
-        addError(`${context}.routes: expected an array`);
-    }
     if (mapDocument.encounterTables !== undefined && !Array.isArray(mapDocument.encounterTables)) {
         addError(`${context}.encounterTables: expected an array`);
     }

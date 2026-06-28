@@ -1068,7 +1068,6 @@ html.map-interacting #share-relay-coachmark,
 html.map-interacting #search-control-container,
 html.map-interacting #search-results-container,
 html.map-interacting #poi-filter-container,
-html.map-interacting #route-panel,
 html.map-interacting #map-blurb,
 html.map-interacting #bottom-link-bar,
 html.map-interacting .leaflet-control-zoom a {
@@ -2197,59 +2196,6 @@ body.embedded-view #share-relay-coachmark {
 }
 /* --- END: Search Results Container --- */
 
-/* --- Route Panel --- */
-#route-panel {
-    position: absolute;
-    right: 10px;
-    z-index: 1001;
-    background: var(--glass-bg-light);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid var(--glass-border-light);
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0 6px 20px var(--shadow-color);
-    color: var(--text-primary);
-}
-:root[data-theme="dark"] #route-panel {
-    background: var(--glass-bg-dark);
-    border-color: var(--glass-border-dark);
-}
-
-#route-panel { top: 64px; width: 260px; }
-
-.panel-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    margin-bottom: 6px;
-}
-.panel-actions button { padding: 4px 8px; border-radius: 4px; border: 1px solid var(--glass-border-light); background: var(--bg-secondary); cursor: pointer; }
-:root[data-theme="dark"] .panel-actions button { border-color: var(--glass-border-dark); }
-
-.pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 0.8rem; border: 1px solid var(--glass-border-light); }
-.pill.muted { color: var(--text-secondary); }
-
-.stacked-list { display: flex; flex-direction: column; gap: 6px; }
-.stacked-list .list-item { padding: 6px 8px; border-radius: 6px; border: 1px solid var(--glass-border-light); background: var(--bg-secondary); cursor: pointer; }
-.stacked-list .list-item.active { border-color: var(--text-secondary); background: var(--highlight-bg); }
-:root[data-theme="dark"] .stacked-list .list-item { border-color: var(--glass-border-dark); }
-
-#route-select {
-    width: 100%;
-    box-sizing: border-box;
-    margin-bottom: 8px;
-    padding: 6px 8px;
-    border-radius: 4px;
-    border: 1px solid var(--glass-border-light);
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-}
-:root[data-theme="dark"] #route-select {
-    border-color: var(--glass-border-dark);
-}
-
 .badge-kind {
     flex: 0 0 auto;
     font-size: 0.72rem;
@@ -2258,19 +2204,6 @@ body.embedded-view #share-relay-coachmark {
     border: 1px solid var(--glass-border-light);
     margin-left: auto;
     color: var(--text-secondary);
-}
-
-#route-panel.collapsed label,
-#route-panel.collapsed select,
-#route-panel.collapsed #route-step-list {
-    display: none;
-}
-
-@media (max-width: 900px) {
-    #route-panel {
-        right: 6px;
-        width: 220px;
-    }
 }
 
 #active-filters-container {
@@ -3023,7 +2956,6 @@ html.mobile-layout-v2.map-interacting .map-control-button,
 html.mobile-layout-v2.map-interacting #search-control-container,
 html.mobile-layout-v2.map-interacting #search-results-container,
 html.mobile-layout-v2.map-interacting #poi-filter-container,
-html.mobile-layout-v2.map-interacting #route-panel,
 html.mobile-layout-v2.map-interacting #map-blurb {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
@@ -3534,24 +3466,6 @@ html.mobile-layout-v2.map-interacting #map-blurb {
         margin-top: 10px !important;
         padding-top: 10px !important;
         border-top: 1px solid color-mix(in srgb, var(--mobile-card-border) 72%, transparent) !important;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #route-panel.mobile-tools-mounted {
-        position: static !important;
-        width: 100% !important;
-        max-width: none !important;
-        max-height: none !important;
-        margin: 0 !important;
-        transform: none !important;
-        border-radius: 8px !important;
-        box-shadow: none !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-    }
-
-    html.mobile-layout-v2.is-mobile-layout #route-panel.mobile-tools-mounted {
-        padding: 10px !important;
-        overflow: visible !important;
     }
 
     html.mobile-layout-v2.is-mobile-layout #map-blurb {

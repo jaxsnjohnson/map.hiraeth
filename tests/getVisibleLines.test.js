@@ -5,7 +5,7 @@ const appSource = fs.readFileSync('js/app.js', 'utf8');
 
 // Extract getVisibleLines using the existing project convention: slicing up to the next function declaration
 const fnStart = appSource.indexOf('function getVisibleLines(mapObj) {');
-const fnEnd = appSource.indexOf('function getVisibleRoutes(mapObj) {');
+const fnEnd = appSource.indexOf('function getVisibleEncounterTables(mapObj) {');
 if (fnStart === -1 || fnEnd === -1 || fnEnd <= fnStart) {
     throw new Error('Could not locate getVisibleLines function in js/app.js');
 }

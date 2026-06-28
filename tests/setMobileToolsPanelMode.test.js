@@ -21,18 +21,14 @@ const mobileToolPanelSource = extractFunctionRange(
 );
 
 const MOBILE_SURFACE_MODE_TOOLS = 'tools';
-const MOBILE_TOOLS_PANEL_ROUTES = 'routes';
 const MOBILE_TOOLS_PANEL_TOOLKIT = 'toolkit';
 const MOBILE_TOOLS_PANEL_GM = 'gm';
 
-let routePanel;
 let sessionToolkitPanel;
 let gmPill;
-let mobileRoutePanelAnchor;
 let mobileToolkitPanelAnchor;
 let mobileGmPillAnchor;
 let mobileToolsPanelSlot;
-let mobileRoutesBtn;
 let mobileToolkitBtn;
 let mobileGmViewBtn;
 let isMobileLayoutActive;
@@ -49,19 +45,12 @@ class MockElement {
         this.classes = new Set();
         this.attributes = new Map();
         this.classList = {
-            add: (className) => {
-                this.classes.add(className);
-            },
-            remove: (className) => {
-                this.classes.delete(className);
-            },
+            add: (className) => this.classes.add(className),
+            remove: (className) => this.classes.delete(className),
             contains: (className) => this.classes.has(className),
             toggle: (className, force) => {
-                if (force) {
-                    this.classes.add(className);
-                } else {
-                    this.classes.delete(className);
-                }
+                if (force) this.classes.add(className);
+                else this.classes.delete(className);
             }
         };
     }
@@ -111,23 +100,18 @@ eval(mobileToolPanelSource);
 
 function resetState() {
     const desktopRoot = new MockElement('desktop-root');
-    routePanel = new MockElement('route-panel');
     sessionToolkitPanel = new MockElement('session-toolkit-panel');
     gmPill = new MockElement('gm-pill');
-    desktopRoot.appendChild(routePanel);
     desktopRoot.appendChild(sessionToolkitPanel);
     desktopRoot.appendChild(gmPill);
 
-    mobileRoutePanelAnchor = new MockElement('mobile-route-panel-anchor');
     mobileToolkitPanelAnchor = new MockElement('mobile-toolkit-panel-anchor');
     mobileGmPillAnchor = new MockElement('mobile-gm-pill-anchor');
-    desktopRoot.insertBefore(mobileRoutePanelAnchor, routePanel);
     desktopRoot.insertBefore(mobileToolkitPanelAnchor, sessionToolkitPanel);
     desktopRoot.insertBefore(mobileGmPillAnchor, gmPill);
 
     mobileToolsPanelSlot = new MockElement('mobile-tools-panel-slot');
-    mobileToolsPanelSlot.hidden = true;
-    mobileRoutesBtn = new MockElement('mobile-routes-btn');
+    mobileToolsPanelSlot.hidden = false;
     mobileToolkitBtn = new MockElement('mobile-toolkit-btn');
     mobileGmViewBtn = new MockElement('mobile-gm-view-btn');
     isMobileLayoutActive = true;
@@ -137,71 +121,32 @@ function resetState() {
     return { desktopRoot };
 }
 
-function assertButtonPressed(button, expected, label) {
-    assert.equal(button.classList.contains('active'), expected, `${label} active state`);
-    assert.equal(button.getAttribute('aria-pressed'), expected ? 'true' : 'false', `${label} aria-pressed`);
-}
-
 resetState();
-setMobileToolsPanelMode(MOBILE_TOOLS_PANEL_ROUTES);
-
-assert.equal(mobileToolsPanelMode, MOBILE_TOOLS_PANEL_ROUTES);
-assert.equal(routePanel.parentNode, mobileToolsPanelSlot);
-assert.equal(mobileToolsPanelSlot.children[0], routePanel);
-assert.equal(routePanel.style.display, 'block');
-assert.equal(sessionToolkitPanel.style.display, 'none');
-assert.equal(gmPill.style.display, 'none');
-assert.equal(routePanel.classList.contains('mobile-tools-mounted'), true);
-assert.equal(mobileToolsPanelSlot.hidden, false);
-assertButtonPressed(mobileRoutesBtn, true, 'routes button');
-assertButtonPressed(mobileToolkitBtn, false, 'toolkit button');
-assertButtonPressed(mobileGmViewBtn, false, 'GM button');
-
-resetState();
-setMobileToolsPanelMode(MOBILE_TOOLS_PANEL_ROUTES);
 setMobileToolsPanelMode(MOBILE_TOOLS_PANEL_TOOLKIT);
 
 assert.equal(mobileToolsPanelMode, null);
-assert.equal(routePanel.style.display, 'none');
 assert.equal(sessionToolkitPanel.style.display, 'none');
 assert.equal(gmPill.style.display, 'none');
 assert.equal(mobileToolsPanelSlot.hidden, true);
-assertButtonPressed(mobileRoutesBtn, false, 'routes button after unsupported mode');
-assertButtonPressed(mobileToolkitBtn, false, 'toolkit button after unsupported mode');
-assertButtonPressed(mobileGmViewBtn, false, 'GM button after unsupported mode');
-
-{
-    const { desktopRoot } = resetState();
-    sessionToolkitPanel.classList.add('mobile-tools-mounted');
-    gmPill.classList.add('mobile-tools-mounted');
-    setMobileToolsPanelMode(MOBILE_TOOLS_PANEL_ROUTES);
-
-    isMobileLayoutActive = false;
-    setMobileToolsPanelMode(MOBILE_TOOLS_PANEL_ROUTES);
-
-    assert.equal(routePanel.parentNode, desktopRoot);
-    assert.equal(mobileRoutePanelAnchor.nextSibling, routePanel);
-    assert.equal(routePanel.classList.contains('mobile-tools-mounted'), false);
-    assert.equal(sessionToolkitPanel.classList.contains('mobile-tools-mounted'), false);
-    assert.equal(gmPill.classList.contains('mobile-tools-mounted'), false);
-    assert.equal(mobileToolsPanelMode, MOBILE_TOOLS_PANEL_ROUTES);
-    assertButtonPressed(mobileRoutesBtn, false, 'routes button while inactive');
-}
+assert.equal(mobileToolkitBtn.classList.contains('active'), false);
+assert.equal(mobileToolkitBtn.getAttribute('aria-pressed'), 'false');
+assert.equal(mobileGmViewBtn.classList.contains('active'), false);
+assert.equal(mobileGmViewBtn.getAttribute('aria-pressed'), 'false');
 
 {
     const { desktopRoot } = resetState();
     const strayParent = new MockElement('stray-parent');
-    strayParent.appendChild(routePanel);
-    routePanel.classList.add('mobile-tools-mounted');
+    strayParent.appendChild(sessionToolkitPanel);
+    sessionToolkitPanel.classList.add('mobile-tools-mounted');
     mobileToolsPanelSlot = null;
 
-    setMobileToolsPanelMode(MOBILE_TOOLS_PANEL_ROUTES);
+    setMobileToolsPanelMode(MOBILE_TOOLS_PANEL_GM);
 
-    assert.equal(routePanel.parentNode, desktopRoot);
-    assert.equal(mobileRoutePanelAnchor.nextSibling, routePanel);
+    assert.equal(sessionToolkitPanel.parentNode, desktopRoot);
+    assert.equal(mobileToolkitPanelAnchor.nextSibling, sessionToolkitPanel);
     assert.equal(strayParent.children.length, 0);
-    assert.equal(routePanel.classList.contains('mobile-tools-mounted'), false);
-    assertButtonPressed(mobileRoutesBtn, true, 'routes button without slot');
+    assert.equal(sessionToolkitPanel.classList.contains('mobile-tools-mounted'), false);
+    assert.equal(mobileToolsPanelMode, null);
 }
 
 console.log('setMobileToolsPanelMode regression checks passed');

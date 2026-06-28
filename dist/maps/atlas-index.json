@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-25T18:47:30.740Z",
+  "generatedAt": "2026-06-28T02:14:58.370Z",
   "tree": [
     {
       "type": "folder",
@@ -717,71 +717,6 @@
       "summary": "",
       "description": "",
       "typeLabel": "other",
-      "visibility": "public"
-    },
-    {
-      "kind": "route",
-      "id": "route:castgate:castgate-intro",
-      "itemId": "castgate-intro",
-      "routeId": "castgate-intro",
-      "mapId": "castgate",
-      "mapName": "Castgate",
-      "name": "First Footsteps in Castgate",
-      "summary": "A short welcome loop for new arrivals inside the Firmament.",
-      "description": "",
-      "typeLabel": "Route",
-      "visibility": "public"
-    },
-    {
-      "kind": "step",
-      "id": "step:castgate:castgate-intro:step-arrival",
-      "itemId": "step-arrival",
-      "routeId": "castgate-intro",
-      "mapId": "castgate",
-      "mapName": "Castgate",
-      "name": "Arrive at the Docks",
-      "summary": "Icebreakers offload cargo while sailors whisper about the dome's glow.",
-      "description": "",
-      "typeLabel": "Step",
-      "visibility": "public"
-    },
-    {
-      "kind": "step",
-      "id": "step:castgate:castgate-intro:step-frozen-rose",
-      "itemId": "step-frozen-rose",
-      "routeId": "castgate-intro",
-      "mapId": "castgate",
-      "mapName": "Castgate",
-      "name": "Warmth at The Frozen Rose",
-      "summary": "Meet Sub Rosa's trophies and the ever-warm hearth before heading deeper in.",
-      "description": "",
-      "typeLabel": "Step",
-      "visibility": "public"
-    },
-    {
-      "kind": "step",
-      "id": "step:castgate:castgate-intro:step-crystal-needle",
-      "itemId": "step-crystal-needle",
-      "routeId": "castgate-intro",
-      "mapId": "castgate",
-      "mapName": "Castgate",
-      "name": "See the Crystal Needle",
-      "summary": "Scholars trace the hum that powers the Firmament from this spire.",
-      "description": "",
-      "typeLabel": "Step",
-      "visibility": "public"
-    },
-    {
-      "kind": "step",
-      "id": "step:castgate:castgate-intro:step-hestia-hook",
-      "itemId": "step-hestia-hook",
-      "routeId": "castgate-intro",
-      "mapId": "castgate",
-      "mapName": "Castgate",
-      "name": "GM Hook: Hestia's Whisper",
-      "summary": "A secret envoy waits with news of a crack in the Firmament's weave.",
-      "description": "",
-      "typeLabel": "Step",
       "visibility": "public"
     },
     {

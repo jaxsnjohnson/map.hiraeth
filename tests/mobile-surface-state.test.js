@@ -24,7 +24,6 @@ const snippets = [
 global.MOBILE_SURFACE_MODE_ATLAS = 'atlas';
 global.MOBILE_SURFACE_MODE_SEARCH = 'search';
 global.MOBILE_SURFACE_MODE_TOOLS = 'tools';
-global.MOBILE_TOOLS_PANEL_ROUTES = 'routes';
 global.MOBILE_TOOLS_PANEL_TOOLKIT = 'toolkit';
 global.MOBILE_TOOLS_PANEL_GM = 'gm';
 global.isMobileLayoutActive = true;
@@ -198,11 +197,11 @@ assert.equal(global.mobileSurfaceMode, null);
 assert.equal(global.mobileSearchLauncherBtn.focusCalled, searchFocusCountAfterSheetClose + 1);
 
 openMobileToolsPanel({
-    panelMode: global.MOBILE_TOOLS_PANEL_ROUTES,
+    panelMode: null,
     triggerButton: global.mobileToolsLauncherBtn
 });
 assert.equal(global.mobileSurfaceMode, 'tools');
-assert.equal(global.mobileToolsPanelMode, 'routes');
+assert.equal(global.mobileToolsPanelMode, null);
 assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'true');
 assert.equal(global.mobileToolsCard.attrs['aria-hidden'], 'false');
 assert.equal(global.container.classes.has('mobile-tools-card-open'), true);

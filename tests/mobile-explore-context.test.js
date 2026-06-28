@@ -56,7 +56,7 @@ assert.equal(
 );
 assert.equal(
     getMobileMapSummaryExcerpt({ blurb: '' }),
-    'Search locations, routes, and regions on this map.'
+    'Search locations and regions on this map.'
 );
 assert.match(
     getMobileMapSummaryExcerpt({ blurb: '<p>This is a deliberately long blurb used to verify truncation happens cleanly without leaving dangling partial words behind in the mobile explore summary.</p>' }, 72),

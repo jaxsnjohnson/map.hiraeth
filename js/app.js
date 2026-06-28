@@ -35,7 +35,6 @@ const UX_STORAGE_KEYS = {
     lastMapId: 'lastMapId',
     mapViews: 'mapViews',
     gmUnlocked: 'gmUnlocked',
-    routePanelCollapsed: 'routePanelCollapsed',
     toolkitPanelCollapsed: 'toolkitPanelCollapsed',
     gmPanelVisible: 'gmPanelVisible',
     toolkitPanelVisible: 'toolkitPanelVisible',
@@ -63,7 +62,7 @@ let prefetchImageInFlight = false;
 let scheduledPrefetchIdleId = null;
 const SEARCH_SCOPE_MAP = 'map';
 const SEARCH_SCOPE_ATLAS = 'atlas';
-const SEARCH_RESULT_GROUP_ORDER = ['poi', 'region', 'line', 'route', 'step', 'map'];
+const SEARCH_RESULT_GROUP_ORDER = ['poi', 'region', 'line', 'map'];
 const SEARCH_RESULT_GROUP_INDEX = Object.create(null);
 SEARCH_RESULT_GROUP_ORDER.forEach((group, index) => {
     SEARCH_RESULT_GROUP_INDEX[group] = index;
@@ -78,7 +77,6 @@ const MOBILE_LAYOUT_BREAKPOINT = getPerformanceNumber('mobileBreakpoint', 768);
 const MOBILE_SURFACE_MODE_ATLAS = 'atlas';
 const MOBILE_SURFACE_MODE_SEARCH = 'search';
 const MOBILE_SURFACE_MODE_TOOLS = 'tools';
-const MOBILE_TOOLS_PANEL_ROUTES = 'routes';
 const MOBILE_TOOLS_PANEL_TOOLKIT = 'toolkit';
 const MOBILE_TOOLS_PANEL_GM = 'gm';
 const MOBILE_LAYOUT_QUERY_PARAM = 'mobileLayout';
@@ -289,13 +287,8 @@ let cachedMultiPointPixelDistance = 0; // Cached total distance of fixed segment
 let temporaryMouseMoveLine = null; // L.Polyline for the line from last point to cursor
 let temporaryMouseMoveTooltip = null; // L.Tooltip for the temporary line's length
 
-// --- Routes State ---
+// --- Map Feature State ---
 let gmContentVisible = false;
-let currentRoutes = [];
-let currentRoutesById = new Map(); // Bolt: O(1) lookups for routes
-let visibleRoutes = [];
-let currentRoute = null;
-let currentRouteStepIndex = -1;
 let currentEncounterTables = [];
 let currentEncounterTablesById = new Map(); // Bolt: O(1) lookups for encounter tables
 let lastMeasuredDistanceKm = null;
@@ -531,8 +524,6 @@ function clearTransientMapSearchParams(search = window.location.search) {
         'poi',
         'region',
         'line',
-        'route',
-        'step',
         'src',
         'stype'
     ].forEach((key) => params.delete(key));
@@ -571,10 +562,6 @@ function resolveInitialMapViewport(params) {
         return { mode: 'feature' };
     }
 
-    if (params.has('route')) {
-        return { mode: 'route' };
-    }
-
     const explicitViewParam = params.get('view');
     if (explicitViewParam) {
         const [lat, lng, zoom] = explicitViewParam.split(',').map(Number);
@@ -595,13 +582,6 @@ function applySearchParamsToCurrentMap(params = new URLSearchParams(window.locat
     if (params.has('poi') || params.has('region') || params.has('line')) {
         featureFocused = checkAndFocusFeature();
     }
-    if (!featureFocused && params.has('route')) {
-        const routeIdParam = params.get('route');
-        const stepIdParam = params.get('step');
-        startRoute(routeIdParam, stepIdParam);
-        featureFocused = true;
-    }
-
     if (!featureFocused) {
         const initialViewport = resolveInitialMapViewport(params);
         if (initialViewport.mode === 'explicit-view' && initialViewport.view) {
@@ -912,26 +892,6 @@ function getVisibleLines(mapObj) {
     return result;
 }
 
-function getVisibleRoutes(mapObj) {
-    const routes = Array.isArray(mapObj.routes) ? mapObj.routes : [];
-    const result = [];
-    for (let i = 0; i < routes.length; i++) {
-        const route = routes[i];
-        if (!visibilityAllowed(route)) continue;
-
-        const steps = Array.isArray(route.steps) ? route.steps : [];
-        const validSteps = [];
-        for (let j = 0; j < steps.length; j++) {
-            if (visibilityAllowed(steps[j])) validSteps.push(steps[j]);
-        }
-
-        if (validSteps.length > 0) {
-            result.push({ ...route, steps: validSteps });
-        }
-    }
-    return result;
-}
-
 function getVisibleEncounterTables(mapObj) {
     const tables = Array.isArray(mapObj.encounterTables) ? mapObj.encounterTables : [];
     const result = [];
@@ -1046,7 +1006,6 @@ const mobileShareViewBtn = document.getElementById('mobile-share-view-btn');
 const mobileCoordsBtn = document.getElementById('mobile-coords-btn');
 const mobileHelpBtn = document.getElementById('mobile-help-btn');
 const mobileGmViewBtn = null;
-const mobileRoutesBtn = document.getElementById('mobile-routes-btn');
 const mobileToolkitBtn = null;
 const onboardingCoachmark = document.getElementById('onboarding-coachmark');
 const onboardingOpenHelpBtn = document.getElementById('onboarding-open-help-btn');
@@ -1062,14 +1021,6 @@ const lightAmbient = document.getElementById('light-ambient');
 const darkAmbient = document.getElementById('dark-ambient');
 const toggleSoundBtn = document.getElementById('toggle-sound-btn');
 const soundIcon = document.getElementById('sound-icon');
-// Route panel DOM
-const routePanel = document.getElementById('route-panel');
-const routeSelect = document.getElementById('route-select');
-const routeStartBtn = document.getElementById('route-start-btn');
-const routeResetBtn = document.getElementById('route-reset-btn');
-const routeCollapseBtn = document.getElementById('route-collapse-btn');
-const routeStepList = document.getElementById('route-step-list');
-const routeCountBadge = document.getElementById('route-count-badge');
 const sessionToolkitPanel = null;
 const toolkitCollapseBtn = null;
 const gmPill = null;
@@ -1219,27 +1170,24 @@ function resolveControlVisibilityState({
     hasPOIs = false,
     hasRegions = false,
     hasRoads = false,
-    hasRoutes = false,
     hasValidScale = false,
     hasBlurb = false,
     hasLatLonBounds = false,
     allowGMToolkit = false,
     atlasSearchCount = 0,
-    routeCount = 0,
     toolkitVisible = false,
     gmVisible = false
 } = {}) {
     const featureEnabled = (name, fallbackValue = true) =>
         (typeof getFeatureFlag === 'function') ? getFeatureFlag(name, fallbackValue) : fallbackValue;
     const showMarkers = hasPOIs || hasRegions;
-    const showSearch = featureEnabled('atlasSearch', true) && (hasPOIs || hasRegions || hasRoads || hasRoutes || atlasSearchCount > 0);
+    const showSearch = featureEnabled('atlasSearch', true) && (hasPOIs || hasRegions || hasRoads || atlasSearchCount > 0);
     const showFilters = featureEnabled('filters', true) && (hasPOIs || hasRegions || hasRoads);
     const showAdvanced = advancedControls && !isEmbedded;
     const showMobileSheet = isMobileLayout && !isEmbedded;
     const showMobileCoreUtility = showMobileSheet;
     const showMobileGM = showMobileSheet && allowGMToolkit && featureEnabled('gmMode', false);
     const showMobileToolkit = showMobileSheet && allowGMToolkit && featureEnabled('sessionToolkit', false);
-    const showMobileRoutes = showMobileSheet && routeCount > 0 && featureEnabled('routes', true);
 
     return {
         showMarkersButton: showMarkers && !isMobileLayout,
@@ -1255,7 +1203,6 @@ function resolveControlVisibilityState({
         showShareButton: featureEnabled('shareLinks', true) && showAdvanced && !isMobileLayout,
         showGMButton: featureEnabled('gmMode', false) && showAdvanced && allowGMToolkit && !isMobileLayout,
         showToolkitButton: featureEnabled('sessionToolkit', false) && showAdvanced && allowGMToolkit && !isMobileLayout,
-        showRoutePanel: featureEnabled('routes', true) && routeCount > 0 && !isEmbedded && !isMobileLayout,
         showToolkitPanel: featureEnabled('sessionToolkit', false) && allowGMToolkit && toolkitVisible && !isMobileLayout,
         showGMPill: featureEnabled('gmMode', false) && allowGMToolkit && gmVisible && !isMobileLayout,
         showMobileExploreMode: showMobileSheet,
@@ -1270,7 +1217,6 @@ function resolveControlVisibilityState({
         showMobileCoordsAction: featureEnabled('coordinates', true) && showMobileCoreUtility && hasLatLonBounds,
         showMobileHelpAction: showMobileCoreUtility,
         showMobileGMAction: showMobileGM,
-        showMobileRoutesAction: showMobileRoutes,
         showMobileToolkitAction: showMobileToolkit,
         showMobileMapBlurb: false,
         mobileMarkersDisabled: !showMarkers,
@@ -1281,7 +1227,6 @@ function resolveControlVisibilityState({
         mobileCoordsDisabled: !hasLatLonBounds,
         mobileHelpDisabled: false,
         mobileGMDisabled: !showMobileGM,
-        mobileRoutesDisabled: routeCount <= 0,
         mobileToolkitDisabled: !showMobileToolkit
     };
 }
@@ -1312,7 +1257,6 @@ function createMobilePlacementAnchor(element) {
 const mobileSearchControlAnchor = createMobilePlacementAnchor(searchControlContainer);
 const mobileSearchResultsAnchor = createMobilePlacementAnchor(searchResultsContainer);
 const mobileFilterAnchor = createMobilePlacementAnchor(poiFilterContainer);
-const mobileRoutePanelAnchor = createMobilePlacementAnchor(routePanel);
 const mobileToolkitPanelAnchor = createMobilePlacementAnchor(sessionToolkitPanel);
 const mobileGmPillAnchor = createMobilePlacementAnchor(gmPill);
 
@@ -1323,32 +1267,16 @@ function restorePlacedNode(anchor, element) {
 }
 
 function restoreMobileToolPanels() {
-    restorePlacedNode(mobileRoutePanelAnchor, routePanel);
     restorePlacedNode(mobileToolkitPanelAnchor, sessionToolkitPanel);
     restorePlacedNode(mobileGmPillAnchor, gmPill);
-    [routePanel, sessionToolkitPanel, gmPill].forEach((panel) => {
+    [sessionToolkitPanel, gmPill].forEach((panel) => {
         if (panel) {
             panel.classList.remove('mobile-tools-mounted');
         }
     });
 }
 
-function mountMobileToolPanel(panel, displayMode = 'block') {
-    if (!panel || !mobileToolsPanelSlot) return false;
-    if (panel.parentNode !== mobileToolsPanelSlot) {
-        mobileToolsPanelSlot.appendChild(panel);
-    }
-    panel.classList.add('mobile-tools-mounted');
-    panel.style.display = displayMode;
-    return true;
-}
-
 function syncMobileToolPanelButtonState() {
-    if (mobileRoutesBtn) {
-        const active = isMobileLayoutActive && mobileSurfaceMode === MOBILE_SURFACE_MODE_TOOLS && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES;
-        mobileRoutesBtn.classList.toggle('active', active);
-        mobileRoutesBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
-    }
     if (mobileToolkitBtn) {
         const active = isMobileLayoutActive && mobileSurfaceMode === MOBILE_SURFACE_MODE_TOOLS && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT;
         mobileToolkitBtn.classList.toggle('active', active);
@@ -1362,23 +1290,18 @@ function syncMobileToolPanelButtonState() {
 }
 
 function setMobileToolsPanelMode(mode = null) {
-    mobileToolsPanelMode = [MOBILE_TOOLS_PANEL_ROUTES].includes(mode) ? mode : null;
+    mobileToolsPanelMode = null;
     if (!isMobileLayoutActive || !mobileToolsPanelSlot) {
         restoreMobileToolPanels();
         syncMobileToolPanelButtonState();
         return;
     }
 
-    [routePanel, sessionToolkitPanel, gmPill].forEach((panel) => {
+    [sessionToolkitPanel, gmPill].forEach((panel) => {
         if (panel) panel.style.display = 'none';
     });
 
-    let mounted = false;
-    if (mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES) {
-        mounted = mountMobileToolPanel(routePanel, 'block');
-    }
-
-    mobileToolsPanelSlot.hidden = !mounted;
+    mobileToolsPanelSlot.hidden = true;
     syncMobileToolPanelButtonState();
 }
 
@@ -1538,7 +1461,7 @@ function syncBottomBarHeightVariable() {
 
 function clampFloatingPanels() {
     if (!mobileLayoutV2Enabled || isMobileLayoutActive) return;
-    [routePanel, sessionToolkitPanel, gmPill].forEach((panel) => {
+    [sessionToolkitPanel, gmPill].forEach((panel) => {
         if (!panel) return;
         panel.style.maxHeight = '';
         panel.style.top = '';
@@ -1819,11 +1742,6 @@ function syncMobileSheetActionState(visibilityState) {
         pressed: mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM || gmContentVisible,
         disabled: visibilityState.mobileGMDisabled
     });
-    syncMobileUtilityButton(mobileRoutesBtn, {
-        visible: visibilityState.showMobileRoutesAction,
-        pressed: mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES,
-        disabled: visibilityState.mobileRoutesDisabled
-    });
     syncMobileUtilityButton(mobileToolkitBtn, {
         visible: visibilityState.showMobileToolkitAction,
         pressed: mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT,
@@ -1839,7 +1757,6 @@ function syncMobileSheetActionState(visibilityState) {
             mobileCoordsBtn,
             mobileHelpBtn,
             mobileGmViewBtn,
-            mobileRoutesBtn,
             mobileToolkitBtn
         ].some((button) => button && !button.hidden);
         mobileToolsLauncherBtn.hidden = !visibilityState.showMobileToolsToggle || !hasVisibleTool;
@@ -3055,7 +2972,7 @@ function setPanelCollapsed(panelEl, buttonEl, collapsed, storageKey) {
 
 function setAuxPanelVisible(panelEl, visible, displayMode = 'block') {
     if (!panelEl) return;
-    if (isMobileLayoutActive && (panelEl === routePanel || panelEl === sessionToolkitPanel || panelEl === gmPill)) {
+    if (isMobileLayoutActive && (panelEl === sessionToolkitPanel || panelEl === gmPill)) {
         const mountedInMobileTools = mobileToolsPanelSlot && panelEl.parentNode === mobileToolsPanelSlot && isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS);
         panelEl.style.display = mountedInMobileTools && visible ? displayMode : 'none';
         return;
@@ -3352,7 +3269,7 @@ function setSearchScope(scope) {
 function getMobileMapSummaryExcerpt(mapInfo, maxLength = 148) {
     const rawBlurb = stripHtml(mapInfo?.blurb || '');
     if (!rawBlurb) {
-        return 'Search locations, routes, and regions on this map.';
+        return 'Search locations and regions on this map.';
     }
     if (rawBlurb.length <= maxLength) {
         return rawBlurb;
@@ -3625,13 +3542,6 @@ function collectLinkedMapPrefetchCandidates(mapDefinition) {
     getVisiblePoints(mapDefinition).forEach((point) => maybeAdd(point.linkedMapId));
     getVisibleRegions(mapDefinition).forEach((region) => maybeAdd(region.linkedMapId));
     getVisibleLines(mapDefinition).forEach((line) => maybeAdd(line.linkedMapId));
-    getVisibleRoutes(mapDefinition).forEach((route) => {
-        route.steps.forEach((step) => {
-            if (step.targetType === 'map') {
-                maybeAdd(step.targetId);
-            }
-        });
-    });
 
     return Array.from(candidateIds);
 }
@@ -3857,13 +3767,11 @@ function buildControlVisibilityState(mapInfo) {
         hasPOIs,
         hasRegions,
         hasRoads,
-        hasRoutes: Array.isArray(currentRoutes) && currentRoutes.length > 0,
         hasValidScale,
         hasBlurb: !!mapInfo.blurb,
         hasLatLonBounds: !!mapInfo.latLonBounds,
         allowGMToolkit,
         atlasSearchCount: Array.isArray(atlasSearchIndex) ? atlasSearchIndex.length : 0,
-        routeCount: Array.isArray(currentRoutes) ? currentRoutes.length : 0,
         toolkitVisible: toolkitPanelVisible,
         gmVisible: gmPanelVisible
     });
@@ -3886,12 +3794,6 @@ function applyPrimaryControlVisibility(visibilityState) {
 }
 
 function applyAuxiliaryPanelVisibility(visibilityState) {
-    if (routePanel) {
-        routePanel.style.display = visibilityState.showRoutePanel ||
-            (isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES)
-            ? 'block'
-            : 'none';
-    }
     if (sessionToolkitPanel) {
         sessionToolkitPanel.style.display = visibilityState.showToolkitPanel ||
             (isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT)
@@ -3950,7 +3852,6 @@ function applyAdvancedControlsLock() {
 function applyMobileLayoutVisibility(mapInfo) {
     setMapBlurbVisible(false);
     coordinateDisplay.style.display = coordsDisplayEnabled && mapInfo.latLonBounds ? 'block' : 'none';
-    setAuxPanelVisible(routePanel, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES);
     setAuxPanelVisible(gmPill, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_GM, 'flex');
     setAuxPanelVisible(sessionToolkitPanel, isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS) && mobileToolsPanelMode === MOBILE_TOOLS_PANEL_TOOLKIT);
     if (activeFiltersContainer) {
@@ -3964,7 +3865,6 @@ function updateCurrentControlVisibility(selectedMap = null) {
     if (!mapInfo) return;
 
     if (isEmbeddedView) {
-        setAuxPanelVisible(routePanel, false);
         setAuxPanelVisible(sessionToolkitPanel, false);
         setAuxPanelVisible(gmPill, false);
     }
@@ -4150,28 +4050,6 @@ if (searchRefineClearBtn) {
     });
 }
 
-if (routeStartBtn) {
-    routeStartBtn.addEventListener('click', () => {
-        const selectedRouteId = routeSelect?.value;
-        if (selectedRouteId) startRoute(selectedRouteId);
-    });
-}
-if (routeResetBtn) {
-    routeResetBtn.addEventListener('click', () => {
-        resetRoute();
-    });
-}
-if (routeSelect) {
-    routeSelect.addEventListener('change', () => {
-        renderRouteSteps(null);
-    });
-}
-if (routeCollapseBtn) {
-    routeCollapseBtn.addEventListener('click', () => {
-        const collapsed = !routePanel.classList.contains('collapsed');
-        setPanelCollapsed(routePanel, routeCollapseBtn, collapsed, UX_STORAGE_KEYS.routePanelCollapsed);
-    });
-}
 if (encounterRollBtn) {
     encounterRollBtn.addEventListener('click', () => {
         rollEncounter();
@@ -4256,7 +4134,7 @@ function selectSearchResult(index = activeSearchResultIndex) {
 
 function buildScopedSearchParams(entry) {
     const params = new URLSearchParams(window.location.search);
-    ['view', 'poi', 'region', 'line', 'route', 'step', 'src', 'stype'].forEach((key) => params.delete(key));
+    ['view', 'poi', 'region', 'line', 'src', 'stype'].forEach((key) => params.delete(key));
 
     switch (entry.kind) {
         case 'poi':
@@ -4267,13 +4145,6 @@ function buildScopedSearchParams(entry) {
             break;
         case 'line':
             params.set('line', entry.name);
-            break;
-        case 'route':
-            params.set('route', entry.routeId || entry.itemId || entry.id);
-            break;
-        case 'step':
-            params.set('route', entry.routeId);
-            params.set('step', entry.itemId || entry.stepId);
             break;
         default:
             break;
@@ -4594,39 +4465,6 @@ function searchMapLines(searchTerm, results, searchFiltersCurrentMap) {
         });
 }
 
-function searchMapRoutes(searchTerm, results, searchFiltersCurrentMap) {
-    if (searchFiltersCurrentMap && currentRoutes && currentRoutes.length > 0) {
-        currentRoutes.forEach((route) => {
-            const routeName = route.name || route.id;
-            const routeMatch = computeSearchMatch(searchTerm, routeName, () => route.summary || '');
-            if (routeMatch.matched) {
-                results.push({
-                    group: 'route',
-                    badge: 'Route',
-                    title: routeName,
-                    subtitle: routeMatch.matchedByContent ? 'Matched in route summary' : 'Start route',
-                    score: routeMatch.score,
-                    onSelect: () => startRoute(route.id)
-                });
-            }
-
-            route.steps.forEach((step) => {
-                const stepTitle = step.title || step.id;
-                const stepMatch = computeSearchMatch(searchTerm, stepTitle, () => step.body || '');
-                if (!stepMatch.matched) return;
-                results.push({
-                    group: 'step',
-                    badge: 'Step',
-                    title: stepTitle,
-                    subtitle: routeName,
-                    score: stepMatch.score,
-                    onSelect: () => startRoute(route.id, step.id)
-                });
-            });
-        });
-    }
-}
-
 function searchAtlasIndex(searchTerm, results) {
     if (currentSearchScope === SEARCH_SCOPE_ATLAS && searchTerm) {
         for (let i = 0; i < atlasSearchIndex.length; i++) {
@@ -4662,9 +4500,8 @@ function updateVisibleMarkersAndSearch() {
     const hasMarkers = !!currentMarkerGroup && allMapMarkers.length > 0;
     const hasRegions = !!currentRegionGroup && currentRegionGroup.getLayers().length > 0;
     const hasLines = !!currentRoadGroup && currentRoadGroup.getLayers().length > 0;
-    const hasRoutes = Array.isArray(currentRoutes) && currentRoutes.length > 0;
     const hasAtlasIndex = Array.isArray(atlasSearchIndex) && atlasSearchIndex.length > 0;
-    const searchable = hasMarkers || hasRegions || hasLines || hasRoutes || hasAtlasIndex;
+    const searchable = hasMarkers || hasRegions || hasLines || hasAtlasIndex;
 
     if (!searchable) {
         searchControlContainer.style.display = 'none';
@@ -4699,7 +4536,6 @@ function updateVisibleMarkersAndSearch() {
     searchMapMarkers(searchTerm, results, allPoiGroupsChecked, activeSpecificGroupFilters, searchFiltersCurrentMap);
     searchMapRegions(searchTerm, results, searchFiltersCurrentMap);
     searchMapLines(searchTerm, results, searchFiltersCurrentMap);
-    searchMapRoutes(searchTerm, results, searchFiltersCurrentMap);
     searchAtlasIndex(searchTerm, results);
 
     if (!searchTerm) {
@@ -4711,128 +4547,6 @@ function updateVisibleMarkersAndSearch() {
 
     updateActiveFilterChips();
     syncMobileExploreVisibility();
-}
-
-// --- Route Mode Helpers ---
-function renderRoutesPanel() {
-    if (!routePanel || !routeSelect || !routeStepList) return;
-    routeSelect.innerHTML = '';
-    routeStepList.innerHTML = '';
-    if (!currentRoutes || currentRoutes.length === 0) {
-        routePanel.style.display = 'none';
-        return;
-    }
-    routePanel.style.display = isMobileLayoutActive ? 'none' : 'block';
-    if (routeCountBadge) routeCountBadge.textContent = currentRoutes.length;
-    currentRoutes.forEach(route => {
-        const option = document.createElement('option');
-        option.value = route.id;
-        option.textContent = route.name || route.id;
-        routeSelect.appendChild(option);
-    });
-    if (routeSelect.options.length > 0) {
-        routeSelect.selectedIndex = 0;
-    }
-    renderRouteSteps(null);
-}
-
-function renderRouteSteps(activeStepId) {
-    if (!routeStepList) return;
-    routeStepList.innerHTML = '';
-    const selectedRouteId = routeSelect?.value;
-    // ⚡ Bolt: Use O(1) Map lookup instead of O(N) Array.find
-    const route = currentRoutesById.get(selectedRouteId);
-    if (!route) return;
-    const fragment = document.createDocumentFragment();
-    route.steps.forEach(step => {
-        const div = document.createElement('div');
-        div.className = 'list-item';
-        if (activeStepId && step.id === activeStepId) div.classList.add('active');
-        div.textContent = step.title || step.id;
-        div.addEventListener('click', () => {
-            startRoute(route.id, step.id);
-        });
-        fragment.appendChild(div);
-    });
-    routeStepList.appendChild(fragment);
-}
-
-function updateRouteUrl(routeId, stepId) {
-    const url = new URL(window.location.href);
-    if (routeId) url.searchParams.set('route', routeId); else url.searchParams.delete('route');
-    if (stepId) url.searchParams.set('step', stepId); else url.searchParams.delete('step');
-    history.replaceState(history.state, '', url.toString());
-}
-
-function handleRouteMapStepNavigation(route, step) {
-    const targetMapId = step.targetId;
-    if (!targetMapId || targetMapId === currentlyLoadedMapId) return;
-
-    const targetMap = findMapRecursive(mapData, targetMapId);
-    if (!isRenderableMapEntry(targetMap)) {
-        trackAnalytics('route_step_map_unavailable', { routeId: route.id, targetMapId });
-        return;
-    }
-
-    navigateToMap(targetMapId, { preResolvedMap: targetMap, preserveSearch: true });
-}
-
-function focusRouteStep(route, step) {
-    if (!route || !step) return;
-    renderRouteSteps(step.id);
-    switch (step.targetType) {
-        case 'poi': {
-            // ⚡ Bolt: Use O(1) Map lookup instead of O(N) Array.find
-            const marker = allMapMarkersById.get(step.targetId) || allMapMarkersByName.get(step.targetId);
-            if (marker) {
-                map.flyTo(marker.getLatLng(), step.zoom != null ? step.zoom : Math.max(map.getZoom(), 1));
-                marker.openPopup();
-            }
-            break;
-        }
-        case 'region': {
-            if (currentRegionGroup) {
-                // ⚡ Bolt: Use O(1) Map lookup instead of O(N) LayerGroup iteration
-                const layer = allMapRegionsById.get(step.targetId) || allMapRegionsByName.get(step.targetId);
-                if (layer) {
-                    map.fitBounds(layer.getBounds(), { maxZoom: step.zoom != null ? step.zoom : Math.max(map.getZoom(), 1) });
-                    layer.openPopup();
-                }
-            }
-            break;
-        }
-        case 'coords': {
-            if (Array.isArray(step.coords) && step.coords.length === 2) {
-                map.flyTo(step.coords, step.zoom != null ? step.zoom : Math.max(map.getZoom(), 1));
-            }
-            break;
-        }
-        case 'map': {
-            handleRouteMapStepNavigation(route, step);
-            break;
-        }
-        default:
-            break;
-    }
-    updateRouteUrl(route.id, step.id);
-}
-
-function startRoute(routeId, stepId = null) {
-    // ⚡ Bolt: Use O(1) Map lookup instead of O(N) Array.find
-    const route = currentRoutesById.get(routeId) || currentRoutes[0];
-    if (!route) return;
-    currentRoute = route;
-    const idx = stepId ? route.steps.findIndex(s => s.id === stepId) : 0;
-    currentRouteStepIndex = idx >= 0 ? idx : 0;
-    const step = route.steps[currentRouteStepIndex];
-    focusRouteStep(route, step);
-}
-
-function resetRoute() {
-    currentRoute = null;
-    currentRouteStepIndex = -1;
-    renderRouteSteps(null);
-    updateRouteUrl(null, null);
 }
 
 // --- Encounter and Travel Helpers ---
@@ -5480,8 +5194,6 @@ function clearShareTargetSearchParams(searchParams) {
         'poi',
         'region',
         'line',
-        'route',
-        'step',
         'src',
         'stype'
     ].forEach((key) => searchParams.delete(key));
@@ -6093,12 +5805,8 @@ function renderMapFeatures(selectedMap, requestedMapId) {
     visiblePointsCache = getVisiblePoints(selectedMap);
     visibleRegionsCache = getVisibleRegions(selectedMap);
     visibleLinesCache = getVisibleLines(selectedMap);
-    visibleRoutes = getVisibleRoutes(selectedMap);
-    currentRoutes = visibleRoutes;
-    currentRoutesById = new Map(currentRoutes.map(route => [route.id, route]));
     currentEncounterTables = getVisibleEncounterTables(selectedMap);
     currentEncounterTablesById = new Map((currentEncounterTables || []).map(t => [t.id, t]));
-    renderRoutesPanel();
     updateEncounterSelect();
     updateTravelTime();
     populateFilters(visiblePointsCache, requestedMapId);
@@ -7472,18 +7180,6 @@ if (mobileHelpBtn) {
     });
 }
 
-if (mobileRoutesBtn) {
-    mobileRoutesBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        if (mobileRoutesBtn.hidden || mobileRoutesBtn.disabled) return;
-        unlockAdvancedControls('mobile_routes_panel');
-        openMobileToolsPanel({
-            panelMode: mobileToolsPanelMode === MOBILE_TOOLS_PANEL_ROUTES ? null : MOBILE_TOOLS_PANEL_ROUTES,
-            triggerButton: mobileRoutesBtn
-        });
-    });
-}
-
 // --- Handle Hash Changes / Back/Forward Navigation ---
 window.addEventListener('popstate', (event) => {
     const { mapId: hashMpId, sidebarState: hashSidebarState } = parseHash(); // Re-parse hash
@@ -8446,7 +8142,6 @@ function hideInitialControls() {
     searchControlContainer.style.display = 'none';
     closeSearchResults();
     poiFilterContainer.classList.remove('visible');
-    setAuxPanelVisible(routePanel, false);
     setAuxPanelVisible(sessionToolkitPanel, false);
     setAuxPanelVisible(gmPill, false);
 }
@@ -8491,12 +8186,6 @@ function initializeAppGlobalUIState() {
         safeSetStorage(UX_STORAGE_KEYS.advancedControlsUnlocked, 'true');
     }
     initializeGMVisibility();
-    setPanelCollapsed(
-        routePanel,
-        routeCollapseBtn,
-        safeGetStorage(UX_STORAGE_KEYS.routePanelCollapsed) === 'true',
-        null
-    );
     setPanelCollapsed(
         sessionToolkitPanel,
         toolkitCollapseBtn,

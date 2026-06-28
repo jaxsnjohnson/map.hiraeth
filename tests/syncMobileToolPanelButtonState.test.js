@@ -31,7 +31,6 @@ const snippets = extractFunctionSource('syncMobileToolPanelButtonState');
 
 // Setup required constants from js/app.js
 global.MOBILE_SURFACE_MODE_TOOLS = 'tools';
-global.MOBILE_TOOLS_PANEL_ROUTES = 'routes';
 global.MOBILE_TOOLS_PANEL_TOOLKIT = 'toolkit';
 global.MOBILE_TOOLS_PANEL_GM = 'gm';
 
@@ -73,7 +72,6 @@ class MockButton {
     }
 }
 
-global.mobileRoutesBtn = new MockButton();
 global.mobileToolkitBtn = new MockButton();
 global.mobileGmViewBtn = new MockButton();
 
@@ -83,29 +81,11 @@ eval(snippets);
 
 // Helper to reset button state before each test
 function resetButtons() {
-    global.mobileRoutesBtn = new MockButton();
     global.mobileToolkitBtn = new MockButton();
     global.mobileGmViewBtn = new MockButton();
 }
 
-// Test case 1: mobileRoutesBtn should be active
-resetButtons();
-global.isMobileLayoutActive = true;
-global.mobileSurfaceMode = global.MOBILE_SURFACE_MODE_TOOLS;
-global.mobileToolsPanelMode = global.MOBILE_TOOLS_PANEL_ROUTES;
-
-syncMobileToolPanelButtonState();
-
-assert.equal(global.mobileRoutesBtn.classList.contains('active'), true);
-assert.equal(global.mobileRoutesBtn.getAttribute('aria-pressed'), 'true');
-
-assert.equal(global.mobileToolkitBtn.classList.contains('active'), false);
-assert.equal(global.mobileToolkitBtn.getAttribute('aria-pressed'), 'false');
-
-assert.equal(global.mobileGmViewBtn.classList.contains('active'), false);
-assert.equal(global.mobileGmViewBtn.getAttribute('aria-pressed'), 'false');
-
-// Test case 2: mobileToolkitBtn should be active
+// Test case 1: mobileToolkitBtn should be active
 resetButtons();
 global.isMobileLayoutActive = true;
 global.mobileSurfaceMode = global.MOBILE_SURFACE_MODE_TOOLS;
@@ -113,16 +93,13 @@ global.mobileToolsPanelMode = global.MOBILE_TOOLS_PANEL_TOOLKIT;
 
 syncMobileToolPanelButtonState();
 
-assert.equal(global.mobileRoutesBtn.classList.contains('active'), false);
-assert.equal(global.mobileRoutesBtn.getAttribute('aria-pressed'), 'false');
-
 assert.equal(global.mobileToolkitBtn.classList.contains('active'), true);
 assert.equal(global.mobileToolkitBtn.getAttribute('aria-pressed'), 'true');
 
 assert.equal(global.mobileGmViewBtn.classList.contains('active'), false);
 assert.equal(global.mobileGmViewBtn.getAttribute('aria-pressed'), 'false');
 
-// Test case 3: mobileGmViewBtn should be active
+// Test case 2: mobileGmViewBtn should be active
 resetButtons();
 global.isMobileLayoutActive = true;
 global.mobileSurfaceMode = global.MOBILE_SURFACE_MODE_TOOLS;
@@ -130,25 +107,19 @@ global.mobileToolsPanelMode = global.MOBILE_TOOLS_PANEL_GM;
 
 syncMobileToolPanelButtonState();
 
-assert.equal(global.mobileRoutesBtn.classList.contains('active'), false);
-assert.equal(global.mobileRoutesBtn.getAttribute('aria-pressed'), 'false');
-
 assert.equal(global.mobileToolkitBtn.classList.contains('active'), false);
 assert.equal(global.mobileToolkitBtn.getAttribute('aria-pressed'), 'false');
 
 assert.equal(global.mobileGmViewBtn.classList.contains('active'), true);
 assert.equal(global.mobileGmViewBtn.getAttribute('aria-pressed'), 'true');
 
-// Test case 4: isMobileLayoutActive is false (all buttons inactive)
+// Test case 3: isMobileLayoutActive is false (all buttons inactive)
 resetButtons();
 global.isMobileLayoutActive = false;
 global.mobileSurfaceMode = global.MOBILE_SURFACE_MODE_TOOLS;
-global.mobileToolsPanelMode = global.MOBILE_TOOLS_PANEL_ROUTES; // This would normally make routes active
+global.mobileToolsPanelMode = global.MOBILE_TOOLS_PANEL_TOOLKIT;
 
 syncMobileToolPanelButtonState();
-
-assert.equal(global.mobileRoutesBtn.classList.contains('active'), false);
-assert.equal(global.mobileRoutesBtn.getAttribute('aria-pressed'), 'false');
 
 assert.equal(global.mobileToolkitBtn.classList.contains('active'), false);
 assert.equal(global.mobileToolkitBtn.getAttribute('aria-pressed'), 'false');
@@ -156,16 +127,13 @@ assert.equal(global.mobileToolkitBtn.getAttribute('aria-pressed'), 'false');
 assert.equal(global.mobileGmViewBtn.classList.contains('active'), false);
 assert.equal(global.mobileGmViewBtn.getAttribute('aria-pressed'), 'false');
 
-// Test case 5: mobileSurfaceMode is not 'tools' (all buttons inactive)
+// Test case 4: mobileSurfaceMode is not 'tools' (all buttons inactive)
 resetButtons();
 global.isMobileLayoutActive = true;
 global.mobileSurfaceMode = 'search'; // Anything other than 'tools'
-global.mobileToolsPanelMode = global.MOBILE_TOOLS_PANEL_ROUTES; // This would normally make routes active
+global.mobileToolsPanelMode = global.MOBILE_TOOLS_PANEL_TOOLKIT;
 
 syncMobileToolPanelButtonState();
-
-assert.equal(global.mobileRoutesBtn.classList.contains('active'), false);
-assert.equal(global.mobileRoutesBtn.getAttribute('aria-pressed'), 'false');
 
 assert.equal(global.mobileToolkitBtn.classList.contains('active'), false);
 assert.equal(global.mobileToolkitBtn.getAttribute('aria-pressed'), 'false');
@@ -173,14 +141,13 @@ assert.equal(global.mobileToolkitBtn.getAttribute('aria-pressed'), 'false');
 assert.equal(global.mobileGmViewBtn.classList.contains('active'), false);
 assert.equal(global.mobileGmViewBtn.getAttribute('aria-pressed'), 'false');
 
-// Test case 6: button elements are null (function should safely exit without throwing errors)
+// Test case 5: button elements are null (function should safely exit without throwing errors)
 resetButtons();
-global.mobileRoutesBtn = null;
 global.mobileToolkitBtn = null;
 global.mobileGmViewBtn = null;
 global.isMobileLayoutActive = true;
 global.mobileSurfaceMode = global.MOBILE_SURFACE_MODE_TOOLS;
-global.mobileToolsPanelMode = global.MOBILE_TOOLS_PANEL_ROUTES;
+global.mobileToolsPanelMode = global.MOBILE_TOOLS_PANEL_TOOLKIT;
 
 // This should run without throwing an error
 syncMobileToolPanelButtonState();

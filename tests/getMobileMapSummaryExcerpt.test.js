@@ -26,19 +26,19 @@ eval(getMobileMapSummaryExcerptSource);
 // Test 1: No blurb or undefined mapInfo
 assert.equal(
     getMobileMapSummaryExcerpt({}),
-    'Search locations, routes, and regions on this map.',
+    'Search locations and regions on this map.',
     'Should return default string for empty mapInfo'
 );
 
 assert.equal(
     getMobileMapSummaryExcerpt({ blurb: '' }),
-    'Search locations, routes, and regions on this map.',
+    'Search locations and regions on this map.',
     'Should return default string for empty blurb'
 );
 
 assert.equal(
     getMobileMapSummaryExcerpt(null),
-    'Search locations, routes, and regions on this map.',
+    'Search locations and regions on this map.',
     'Should return default string for null mapInfo'
 );
 

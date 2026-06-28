@@ -27,7 +27,7 @@ const relaySource = appSource.slice(relaySourceStart, relaySourceEnd);
 
 global.window = {
     location: {
-        href: 'https://maps.hiraeth.wiki/?view=12.01,30.4,2&route=north-road&poi=Old%20Dock#line-map-s=o'
+        href: 'https://maps.hiraeth.wiki/?view=12.01,30.4,2&poi=Old%20Dock#line-map-s=o'
     }
 };
 global.map = {
@@ -49,7 +49,6 @@ const parsedShareUrl = new URL(sharedRegionUrl);
 assert.equal(parsedShareUrl.searchParams.get('region'), 'Starfall Bay');
 assert.equal(parsedShareUrl.searchParams.get('poi'), null);
 assert.equal(parsedShareUrl.searchParams.get('line'), null);
-assert.equal(parsedShareUrl.searchParams.get('route'), null);
 assert.equal(parsedShareUrl.searchParams.get('view'), null);
 assert.equal(parsedShareUrl.searchParams.get('src'), 'share');
 assert.equal(parsedShareUrl.searchParams.get('stype'), 'region');
@@ -64,7 +63,6 @@ assert.equal(parsedViewShareUrl.searchParams.get('view'), '18.1235,-27.6543,3');
 assert.equal(parsedViewShareUrl.searchParams.get('poi'), null);
 assert.equal(parsedViewShareUrl.searchParams.get('region'), null);
 assert.equal(parsedViewShareUrl.searchParams.get('line'), null);
-assert.equal(parsedViewShareUrl.searchParams.get('route'), null);
 assert.equal(parsedViewShareUrl.searchParams.get('src'), 'share');
 assert.equal(parsedViewShareUrl.searchParams.get('stype'), 'view');
 assert.equal(parsedViewShareUrl.hash, '#line-map-s=o');

@@ -30,7 +30,6 @@ function isRenderableMapEntry(item) {
 function getVisiblePoints(def) { return def.points || []; }
 function getVisibleRegions(def) { return def.regions || []; }
 function getVisibleLines(def) { return def.lines || []; }
-function getVisibleRoutes(def) { return def.routes || []; }
 
 // eslint-disable-next-line no-eval
 eval(fnSource);
@@ -43,15 +42,12 @@ function runTests() {
     const defAllTypes = {
         points: [{ linkedMapId: 'map1' }],
         regions: [{ linkedMapId: 'map1' }],
-        lines: [{ linkedMapId: 'map3' }],
-        routes: [
-            { steps: [{ targetType: 'map', targetId: 'map1' }, { targetType: 'poi', targetId: 'poi1' }] }
-        ]
+        lines: [{ linkedMapId: 'map3' }]
     };
     assert.deepEqual(
         collectLinkedMapPrefetchCandidates(defAllTypes),
         ['map1', 'map3'],
-        'Should collect from points, regions, lines, routes and deduplicate'
+        'Should collect from points, regions and lines, then deduplicate'
     );
 
     // 3. Trimming and ignoring empty strings
