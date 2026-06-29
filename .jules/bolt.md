@@ -162,3 +162,7 @@
 ## 2024-06-25 - Redundant Leaflet setStyle calls in hot paths
 **Learning:** Calling `layer.setStyle()` on Leaflet layers unconditionally within filtering loops (like `updateVisibleRegions` or `updateVisibleLines`) triggers expensive internal updates and DOM recalculations, even if the new style properties match the existing ones. This causes severe performance bottlenecks when updating the visibility of hundreds or thousands of elements simultaneously.
 **Action:** Always check the layer's current `options` (e.g., `layer.options.opacity !== expectedOpacity`) before invoking `layer.setStyle()` inside bulk update loops.
+
+## 2026-06-18 - Optimize Leaflet bringToBack in hot paths
+**Learning:** Calling Leaflet's `layer.bringToBack()` unconditionally inside iterative map layer loops (like `updateVisibleRegions`) triggers expensive DOM re-orderings and layout reflows, causing significant UI lag (e.g., taking ~60ms vs ~0.2ms) when map visibility state is updated but nothing fundamentally changed for that layer.
+**Action:** Always conditionally track if a layer's style or visibility was actually modified (e.g., via a `styleUpdated` flag when `layer.setStyle` is invoked) before calling structural DOM methods like `layer.bringToBack()` or `layer.bringToFront()`.
