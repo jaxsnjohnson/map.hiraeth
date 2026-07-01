@@ -6288,8 +6288,9 @@ function updateVisibleRegions() {
                     opacity: 1,
                     fillOpacity: targetFillOpacity
                 });
+                // ⚡ Bolt: Only call bringToBack when style is actually modified to prevent expensive DOM layout recalculations
+                layer.bringToBack();
             }
-            layer.bringToBack();
         } else {
             if (layer.options.stroke !== false || layer.options.fill !== false) {
                 layer.setStyle({
