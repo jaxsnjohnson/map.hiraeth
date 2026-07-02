@@ -6281,6 +6281,7 @@ function updateVisibleRegions() {
         // Apply visibility and interactivity based on *both* the overall toggle AND the type filter match
         if (regionsVisible && typeMatch) { // regionsVisible is synced with markersVisible
             const targetFillOpacity = region.fillOpacity || 0.2;
+            let styleModified = false;
             if (layer.options.stroke !== true || layer.options.fill !== true || layer.options.opacity !== 1 || layer.options.fillOpacity !== targetFillOpacity) {
                 layer.setStyle({
                     stroke: true,
@@ -6288,8 +6289,11 @@ function updateVisibleRegions() {
                     opacity: 1,
                     fillOpacity: targetFillOpacity
                 });
+                styleModified = true;
             }
-            layer.bringToBack();
+            if (styleModified) {
+                layer.bringToBack();
+            }
         } else {
             if (layer.options.stroke !== false || layer.options.fill !== false) {
                 layer.setStyle({
