@@ -162,3 +162,6 @@
 ## 2024-06-25 - Redundant Leaflet setStyle calls in hot paths
 **Learning:** Calling `layer.setStyle()` on Leaflet layers unconditionally within filtering loops (like `updateVisibleRegions` or `updateVisibleLines`) triggers expensive internal updates and DOM recalculations, even if the new style properties match the existing ones. This causes severe performance bottlenecks when updating the visibility of hundreds or thousands of elements simultaneously.
 **Action:** Always check the layer's current `options` (e.g., `layer.options.opacity !== expectedOpacity`) before invoking `layer.setStyle()` inside bulk update loops.
+## 2025-06-25 - Optimize map editor renderFeatureLists
+**Learning:** In the map editor (`map-editor.js`), rendering feature lists combined a chained `.map().filter()` array pipeline with individual `appendChild` operations inside a loop, causing significant object allocation overhead and layout thrashing (triggering continuous reflows) during searches and state updates.
+**Action:** When evaluating features and constructing DOM nodes simultaneously, use a standard `for` loop to eliminate the intermediate array allocations from `.map()` and `.filter()`. Additionally, always use a `DocumentFragment` to batch the multiple `appendChild` calls, only appending to the live DOM once after the loop.
