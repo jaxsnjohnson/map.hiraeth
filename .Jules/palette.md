@@ -42,3 +42,7 @@
 ## 2026-06-20 - Dynamic Status Announcements
 **Learning:** Screen readers may fail to announce text that is dynamically injected via JavaScript into utility output containers (like status messages or export outcomes) unless explicitly instructed.
 **Action:** When implementing containers for dynamic status updates, always add `aria-live="polite"` and `aria-atomic="true"` to ensure the content changes are announced to assistive technologies without interrupting the user's current flow.
+
+## 2026-06-21 - Custom Summary Focus States
+**Learning:** While native HTML `<summary>` tags inside `<details>` elements usually receive default browser focus rings, this behavior is often overridden or styled out entirely in custom design systems. This degrades keyboard accessibility and makes it hard for mouse users to discover interactability.
+**Action:** When implementing custom styling for `<summary>` elements in components like accordions or file groups, explicitly define `:focus-visible` (e.g., outline) and `:hover` states to ensure they remain accessible and discoverable.
