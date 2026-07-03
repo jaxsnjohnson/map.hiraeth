@@ -429,7 +429,7 @@ function escapeForSingleQuotedAttribute(value) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/\\/g, '\\\\')
-        .replace(/'/g, "\\'");
+        .replace(/'/g, '&#39;');
 }
 
 function sanitizeWikiLinkForHref(value) {
