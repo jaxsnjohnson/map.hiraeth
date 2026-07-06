@@ -45,3 +45,7 @@
 **Vulnerability:** DOM-based XSS via unsafe innerHTML usage with dynamically highlighted search terms. The fix replaced innerHTML with document.createElement and textContent, but the initial attempt introduced an infinite loop bug.
 **Learning:** When replacing String.prototype.replace() with RegExp.prototype.exec() in a while loop to manually construct DOM nodes, account for non-global regular expressions. If a RegExp lacks the global (`g`) flag, repeated exec calls can return the same match without advancing `lastIndex`.
 **Prevention:** Clone highlight regexes with the global flag or otherwise advance the loop explicitly before using `RegExp.prototype.exec()` in a loop.
+## 2025-05-24 - [DOM-based XSS in Single-Quoted Event Handlers - Amendment]
+**Vulnerability:** XSS via `escapeForSingleQuotedAttribute` when the output is rendered using `innerHTML`. The function escaped single quotes using `\'`, which works for JavaScript string escaping but leaves the string vulnerable to premature attribute termination in HTML because `\` is not an HTML attribute escape sequence. When the string is injected via `.innerHTML`, the parser sees the single quote as closing the attribute.
+**Learning:** When sanitizing strings that will be placed inside inline event handlers (like `onclick='...'`) and injected via `innerHTML`, the escaping must use the HTML entity `&#39;` for single quotes to ensure the HTML parser does not prematurely close the attribute.
+**Prevention:** Use `&#39;` for single quotes instead of `\'` when escaping strings destined for HTML attributes.
