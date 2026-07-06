@@ -4077,6 +4077,8 @@ if (travelModeSelect) {
 }
 
 // ⚡ Bolt: Optimizes active search result DOM traversal by maintaining a reference to the active element, turning an O(N) operation into O(1) (Measured improvement: ~64x speedup)
+let cachedSearchResultsNodeList = null;
+
 function setActiveSearchResult(index) {
     activeSearchResultIndex = index;
 
@@ -4087,7 +4089,11 @@ function setActiveSearchResult(index) {
     }
 
     if (index >= 0) {
-        const items = searchResultsContainer.querySelectorAll('.search-result-item');
+        // ⚡ Bolt: Cache querySelectorAll result to avoid O(N) DOM query on every keystroke
+        if (!cachedSearchResultsNodeList || cachedSearchResultsNodeList.length === 0 || cachedSearchResultsNodeList[0].parentNode !== searchResultsContainer) {
+            cachedSearchResultsNodeList = searchResultsContainer.querySelectorAll('.search-result-item');
+        }
+        const items = cachedSearchResultsNodeList;
         const newActive = items[index];
         if (newActive) {
             newActive.classList.add('active');
@@ -4185,6 +4191,7 @@ function renderSearchResults(term, results) {
     activeSearchResultIndex = results.length > 0 ? 0 : -1;
     searchResultsContainer.innerHTML = '';
     activeSearchResultElement = null;
+    cachedSearchResultsNodeList = null; // Invalidate cache when search results change
     searchResultsContainer.removeAttribute('aria-activedescendant');
     poiSearchInput.removeAttribute('aria-activedescendant');
 

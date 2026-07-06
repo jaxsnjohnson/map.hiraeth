@@ -162,3 +162,7 @@
 ## 2024-06-25 - Redundant Leaflet setStyle calls in hot paths
 **Learning:** Calling `layer.setStyle()` on Leaflet layers unconditionally within filtering loops (like `updateVisibleRegions` or `updateVisibleLines`) triggers expensive internal updates and DOM recalculations, even if the new style properties match the existing ones. This causes severe performance bottlenecks when updating the visibility of hundreds or thousands of elements simultaneously.
 **Action:** Always check the layer's current `options` (e.g., `layer.options.opacity !== expectedOpacity`) before invoking `layer.setStyle()` inside bulk update loops.
+
+## 2026-07-06 - Optimize POI search layout thrashing on active item changes
+**Learning:** Calling `querySelectorAll` for every keystroke to update the active item during search navigation is O(N) and expensive.
+**Action:** When a focusable content list inside a container remains relatively static while active changes occur, cache the `NodeList` object in a persistent variable and invalidate the cache only when the container is rebuilt (e.g. search term changed). This saves redundant query allocations.
