@@ -1,0 +1,1317 @@
+{
+  "generatedAt": "2026-07-08T19:39:33.764Z",
+  "maps": [
+    {
+      "id": "main_continent",
+      "name": "Fair",
+      "width": 8192,
+      "height": 6144,
+      "imageUrl": "maps/Fair-Content.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/main_continent/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 1,
+        "maxZoom": 5
+      },
+      "levels": [
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 512,
+          "scaledHeight": 384
+        },
+        {
+          "z": 2,
+          "columns": 4,
+          "rows": 3,
+          "tileCount": 12,
+          "scaledWidth": 1024,
+          "scaledHeight": 768
+        },
+        {
+          "z": 3,
+          "columns": 8,
+          "rows": 6,
+          "tileCount": 48,
+          "scaledWidth": 2048,
+          "scaledHeight": 1536
+        },
+        {
+          "z": 4,
+          "columns": 16,
+          "rows": 12,
+          "tileCount": 192,
+          "scaledWidth": 4096,
+          "scaledHeight": 3072
+        },
+        {
+          "z": 5,
+          "columns": 32,
+          "rows": 24,
+          "tileCount": 768,
+          "scaledWidth": 8192,
+          "scaledHeight": 6144
+        }
+      ],
+      "totalTiles": 1024
+    },
+    {
+      "id": "IceBeach",
+      "name": "IceBeach",
+      "width": 7016,
+      "height": 4960,
+      "imageUrl": "maps/IceBeach.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/IceBeach/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 1,
+        "maxZoom": 5
+      },
+      "levels": [
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 439,
+          "scaledHeight": 310
+        },
+        {
+          "z": 2,
+          "columns": 4,
+          "rows": 3,
+          "tileCount": 12,
+          "scaledWidth": 877,
+          "scaledHeight": 620
+        },
+        {
+          "z": 3,
+          "columns": 7,
+          "rows": 5,
+          "tileCount": 35,
+          "scaledWidth": 1754,
+          "scaledHeight": 1240
+        },
+        {
+          "z": 4,
+          "columns": 14,
+          "rows": 10,
+          "tileCount": 140,
+          "scaledWidth": 3508,
+          "scaledHeight": 2480
+        },
+        {
+          "z": 5,
+          "columns": 28,
+          "rows": 20,
+          "tileCount": 560,
+          "scaledWidth": 7016,
+          "scaledHeight": 4960
+        }
+      ],
+      "totalTiles": 751
+    },
+    {
+      "id": "castgate",
+      "name": "Castgate",
+      "width": 8192,
+      "height": 8192,
+      "imageUrl": "maps/castgate.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/castgate/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 1,
+        "maxZoom": 5
+      },
+      "levels": [
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 512,
+          "scaledHeight": 512
+        },
+        {
+          "z": 2,
+          "columns": 4,
+          "rows": 4,
+          "tileCount": 16,
+          "scaledWidth": 1024,
+          "scaledHeight": 1024
+        },
+        {
+          "z": 3,
+          "columns": 8,
+          "rows": 8,
+          "tileCount": 64,
+          "scaledWidth": 2048,
+          "scaledHeight": 2048
+        },
+        {
+          "z": 4,
+          "columns": 16,
+          "rows": 16,
+          "tileCount": 256,
+          "scaledWidth": 4096,
+          "scaledHeight": 4096
+        },
+        {
+          "z": 5,
+          "columns": 32,
+          "rows": 32,
+          "tileCount": 1024,
+          "scaledWidth": 8192,
+          "scaledHeight": 8192
+        }
+      ],
+      "totalTiles": 1364
+    },
+    {
+      "id": "southern-thalassia",
+      "name": "Southern Thalassia",
+      "width": 8192,
+      "height": 6144,
+      "imageUrl": "maps/southern-thalassia.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/southern-thalassia/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 1,
+        "maxZoom": 5
+      },
+      "levels": [
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 512,
+          "scaledHeight": 384
+        },
+        {
+          "z": 2,
+          "columns": 4,
+          "rows": 3,
+          "tileCount": 12,
+          "scaledWidth": 1024,
+          "scaledHeight": 768
+        },
+        {
+          "z": 3,
+          "columns": 8,
+          "rows": 6,
+          "tileCount": 48,
+          "scaledWidth": 2048,
+          "scaledHeight": 1536
+        },
+        {
+          "z": 4,
+          "columns": 16,
+          "rows": 12,
+          "tileCount": 192,
+          "scaledWidth": 4096,
+          "scaledHeight": 3072
+        },
+        {
+          "z": 5,
+          "columns": 32,
+          "rows": 24,
+          "tileCount": 768,
+          "scaledWidth": 8192,
+          "scaledHeight": 6144
+        }
+      ],
+      "totalTiles": 1024
+    },
+    {
+      "id": "Cursed-Old-Lin",
+      "name": "Cursed-Old-Lin",
+      "width": 8192,
+      "height": 6144,
+      "imageUrl": "maps/Cursed-Old-Lin.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/Cursed-Old-Lin/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 1,
+        "maxZoom": 5
+      },
+      "levels": [
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 512,
+          "scaledHeight": 384
+        },
+        {
+          "z": 2,
+          "columns": 4,
+          "rows": 3,
+          "tileCount": 12,
+          "scaledWidth": 1024,
+          "scaledHeight": 768
+        },
+        {
+          "z": 3,
+          "columns": 8,
+          "rows": 6,
+          "tileCount": 48,
+          "scaledWidth": 2048,
+          "scaledHeight": 1536
+        },
+        {
+          "z": 4,
+          "columns": 16,
+          "rows": 12,
+          "tileCount": 192,
+          "scaledWidth": 4096,
+          "scaledHeight": 3072
+        },
+        {
+          "z": 5,
+          "columns": 32,
+          "rows": 24,
+          "tileCount": 768,
+          "scaledWidth": 8192,
+          "scaledHeight": 6144
+        }
+      ],
+      "totalTiles": 1024
+    },
+    {
+      "id": "Arfordir",
+      "name": "Arfordir",
+      "width": 7456,
+      "height": 8192,
+      "imageUrl": "maps/Arfordir.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/Arfordir/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 1,
+        "maxZoom": 5
+      },
+      "levels": [
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 466,
+          "scaledHeight": 512
+        },
+        {
+          "z": 2,
+          "columns": 4,
+          "rows": 4,
+          "tileCount": 16,
+          "scaledWidth": 932,
+          "scaledHeight": 1024
+        },
+        {
+          "z": 3,
+          "columns": 8,
+          "rows": 8,
+          "tileCount": 64,
+          "scaledWidth": 1864,
+          "scaledHeight": 2048
+        },
+        {
+          "z": 4,
+          "columns": 15,
+          "rows": 16,
+          "tileCount": 240,
+          "scaledWidth": 3728,
+          "scaledHeight": 4096
+        },
+        {
+          "z": 5,
+          "columns": 30,
+          "rows": 32,
+          "tileCount": 960,
+          "scaledWidth": 7456,
+          "scaledHeight": 8192
+        }
+      ],
+      "totalTiles": 1284
+    },
+    {
+      "id": "Gelwood",
+      "name": "Gelwood",
+      "width": 8192,
+      "height": 6144,
+      "imageUrl": "maps/Gelwood.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/Gelwood/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 1,
+        "maxZoom": 5
+      },
+      "levels": [
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 512,
+          "scaledHeight": 384
+        },
+        {
+          "z": 2,
+          "columns": 4,
+          "rows": 3,
+          "tileCount": 12,
+          "scaledWidth": 1024,
+          "scaledHeight": 768
+        },
+        {
+          "z": 3,
+          "columns": 8,
+          "rows": 6,
+          "tileCount": 48,
+          "scaledWidth": 2048,
+          "scaledHeight": 1536
+        },
+        {
+          "z": 4,
+          "columns": 16,
+          "rows": 12,
+          "tileCount": 192,
+          "scaledWidth": 4096,
+          "scaledHeight": 3072
+        },
+        {
+          "z": 5,
+          "columns": 32,
+          "rows": 24,
+          "tileCount": 768,
+          "scaledWidth": 8192,
+          "scaledHeight": 6144
+        }
+      ],
+      "totalTiles": 1024
+    },
+    {
+      "id": "The-Port-City-of-Stomion",
+      "name": "The Port City of Stomion",
+      "width": 4096,
+      "height": 3072,
+      "imageUrl": "maps/The-Port-City-of-Stomion.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/The-Port-City-of-Stomion/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 0,
+        "maxZoom": 4
+      },
+      "levels": [
+        {
+          "z": 0,
+          "columns": 1,
+          "rows": 1,
+          "tileCount": 1,
+          "scaledWidth": 256,
+          "scaledHeight": 192
+        },
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 512,
+          "scaledHeight": 384
+        },
+        {
+          "z": 2,
+          "columns": 4,
+          "rows": 3,
+          "tileCount": 12,
+          "scaledWidth": 1024,
+          "scaledHeight": 768
+        },
+        {
+          "z": 3,
+          "columns": 8,
+          "rows": 6,
+          "tileCount": 48,
+          "scaledWidth": 2048,
+          "scaledHeight": 1536
+        },
+        {
+          "z": 4,
+          "columns": 16,
+          "rows": 12,
+          "tileCount": 192,
+          "scaledWidth": 4096,
+          "scaledHeight": 3072
+        }
+      ],
+      "totalTiles": 257
+    },
+    {
+      "id": "OLD-Oldlins",
+      "name": "Oldlin",
+      "width": 10000,
+      "height": 9578,
+      "imageUrl": "maps/OLD-Oldlins.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/OLD-Oldlins/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 2,
+        "maxZoom": 6
+      },
+      "levels": [
+        {
+          "z": 2,
+          "columns": 3,
+          "rows": 3,
+          "tileCount": 9,
+          "scaledWidth": 625,
+          "scaledHeight": 599
+        },
+        {
+          "z": 3,
+          "columns": 5,
+          "rows": 5,
+          "tileCount": 25,
+          "scaledWidth": 1250,
+          "scaledHeight": 1198
+        },
+        {
+          "z": 4,
+          "columns": 10,
+          "rows": 10,
+          "tileCount": 100,
+          "scaledWidth": 2500,
+          "scaledHeight": 2395
+        },
+        {
+          "z": 5,
+          "columns": 20,
+          "rows": 19,
+          "tileCount": 380,
+          "scaledWidth": 5000,
+          "scaledHeight": 4789
+        },
+        {
+          "z": 6,
+          "columns": 40,
+          "rows": 38,
+          "tileCount": 1520,
+          "scaledWidth": 10000,
+          "scaledHeight": 9578
+        }
+      ],
+      "totalTiles": 2034
+    },
+    {
+      "id": "OLD-Fair",
+      "name": "Fair",
+      "width": 6560,
+      "height": 5040,
+      "imageUrl": "maps/OLD-Fair.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/OLD-Fair/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 1,
+        "maxZoom": 5
+      },
+      "levels": [
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 410,
+          "scaledHeight": 315
+        },
+        {
+          "z": 2,
+          "columns": 4,
+          "rows": 3,
+          "tileCount": 12,
+          "scaledWidth": 820,
+          "scaledHeight": 630
+        },
+        {
+          "z": 3,
+          "columns": 7,
+          "rows": 5,
+          "tileCount": 35,
+          "scaledWidth": 1640,
+          "scaledHeight": 1260
+        },
+        {
+          "z": 4,
+          "columns": 13,
+          "rows": 10,
+          "tileCount": 130,
+          "scaledWidth": 3280,
+          "scaledHeight": 2520
+        },
+        {
+          "z": 5,
+          "columns": 26,
+          "rows": 20,
+          "tileCount": 520,
+          "scaledWidth": 6560,
+          "scaledHeight": 5040
+        }
+      ],
+      "totalTiles": 701
+    },
+    {
+      "id": "OLD-CONT",
+      "name": "Found Content",
+      "width": 6668,
+      "height": 5249,
+      "imageUrl": "maps/OLD-CONT.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/OLD-CONT/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 1,
+        "maxZoom": 5
+      },
+      "levels": [
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 417,
+          "scaledHeight": 329
+        },
+        {
+          "z": 2,
+          "columns": 4,
+          "rows": 3,
+          "tileCount": 12,
+          "scaledWidth": 834,
+          "scaledHeight": 657
+        },
+        {
+          "z": 3,
+          "columns": 7,
+          "rows": 6,
+          "tileCount": 42,
+          "scaledWidth": 1667,
+          "scaledHeight": 1313
+        },
+        {
+          "z": 4,
+          "columns": 14,
+          "rows": 11,
+          "tileCount": 154,
+          "scaledWidth": 3334,
+          "scaledHeight": 2625
+        },
+        {
+          "z": 5,
+          "columns": 27,
+          "rows": 21,
+          "tileCount": 567,
+          "scaledWidth": 6668,
+          "scaledHeight": 5249
+        }
+      ],
+      "totalTiles": 779
+    },
+    {
+      "id": "OLD-Goldwind",
+      "name": "Goldwind",
+      "width": 4703,
+      "height": 5691,
+      "imageUrl": "maps/OLD-Goldwind.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/OLD-Goldwind/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 1,
+        "maxZoom": 5
+      },
+      "levels": [
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 294,
+          "scaledHeight": 356
+        },
+        {
+          "z": 2,
+          "columns": 3,
+          "rows": 3,
+          "tileCount": 9,
+          "scaledWidth": 588,
+          "scaledHeight": 712
+        },
+        {
+          "z": 3,
+          "columns": 5,
+          "rows": 6,
+          "tileCount": 30,
+          "scaledWidth": 1176,
+          "scaledHeight": 1423
+        },
+        {
+          "z": 4,
+          "columns": 10,
+          "rows": 12,
+          "tileCount": 120,
+          "scaledWidth": 2352,
+          "scaledHeight": 2846
+        },
+        {
+          "z": 5,
+          "columns": 19,
+          "rows": 23,
+          "tileCount": 437,
+          "scaledWidth": 4703,
+          "scaledHeight": 5691
+        }
+      ],
+      "totalTiles": 600
+    },
+    {
+      "id": "OLD-Icebeach-Drawn-Map-POI",
+      "name": "Hand Drawn Icebeach",
+      "width": 4032,
+      "height": 3024,
+      "imageUrl": "maps/OLD-Icebeach-Drawn-Map-POI.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/OLD-Icebeach-Drawn-Map-POI/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 0,
+        "maxZoom": 4
+      },
+      "levels": [
+        {
+          "z": 0,
+          "columns": 1,
+          "rows": 1,
+          "tileCount": 1,
+          "scaledWidth": 252,
+          "scaledHeight": 189
+        },
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 504,
+          "scaledHeight": 378
+        },
+        {
+          "z": 2,
+          "columns": 4,
+          "rows": 3,
+          "tileCount": 12,
+          "scaledWidth": 1008,
+          "scaledHeight": 756
+        },
+        {
+          "z": 3,
+          "columns": 8,
+          "rows": 6,
+          "tileCount": 48,
+          "scaledWidth": 2016,
+          "scaledHeight": 1512
+        },
+        {
+          "z": 4,
+          "columns": 16,
+          "rows": 12,
+          "tileCount": 192,
+          "scaledWidth": 4032,
+          "scaledHeight": 3024
+        }
+      ],
+      "totalTiles": 257
+    },
+    {
+      "id": "OLD-Icebeach-Map",
+      "name": "Icebeach 2022",
+      "width": 3750,
+      "height": 2500,
+      "imageUrl": "maps/OLD-Icebeach-Map.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/OLD-Icebeach-Map/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 0,
+        "maxZoom": 4
+      },
+      "levels": [
+        {
+          "z": 0,
+          "columns": 1,
+          "rows": 1,
+          "tileCount": 1,
+          "scaledWidth": 235,
+          "scaledHeight": 157
+        },
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 469,
+          "scaledHeight": 313
+        },
+        {
+          "z": 2,
+          "columns": 4,
+          "rows": 3,
+          "tileCount": 12,
+          "scaledWidth": 938,
+          "scaledHeight": 625
+        },
+        {
+          "z": 3,
+          "columns": 8,
+          "rows": 5,
+          "tileCount": 40,
+          "scaledWidth": 1875,
+          "scaledHeight": 1250
+        },
+        {
+          "z": 4,
+          "columns": 15,
+          "rows": 10,
+          "tileCount": 150,
+          "scaledWidth": 3750,
+          "scaledHeight": 2500
+        }
+      ],
+      "totalTiles": 207
+    },
+    {
+      "id": "OLD-rockdrift",
+      "name": "Rockdrift",
+      "width": 4517,
+      "height": 3714,
+      "imageUrl": "maps/OLD-rockdrift.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/OLD-rockdrift/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 1,
+        "maxZoom": 5
+      },
+      "levels": [
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 1,
+          "tileCount": 2,
+          "scaledWidth": 283,
+          "scaledHeight": 233
+        },
+        {
+          "z": 2,
+          "columns": 3,
+          "rows": 2,
+          "tileCount": 6,
+          "scaledWidth": 565,
+          "scaledHeight": 465
+        },
+        {
+          "z": 3,
+          "columns": 5,
+          "rows": 4,
+          "tileCount": 20,
+          "scaledWidth": 1130,
+          "scaledHeight": 929
+        },
+        {
+          "z": 4,
+          "columns": 9,
+          "rows": 8,
+          "tileCount": 72,
+          "scaledWidth": 2259,
+          "scaledHeight": 1857
+        },
+        {
+          "z": 5,
+          "columns": 18,
+          "rows": 15,
+          "tileCount": 270,
+          "scaledWidth": 4517,
+          "scaledHeight": 3714
+        }
+      ],
+      "totalTiles": 370
+    },
+    {
+      "id": "OLD-map-of-south-eastern-fair",
+      "name": "South Eastern Fair",
+      "width": 3732,
+      "height": 2876,
+      "imageUrl": "maps/OLD-map-of-south-eastern-fair.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/OLD-map-of-south-eastern-fair/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 0,
+        "maxZoom": 4
+      },
+      "levels": [
+        {
+          "z": 0,
+          "columns": 1,
+          "rows": 1,
+          "tileCount": 1,
+          "scaledWidth": 234,
+          "scaledHeight": 180
+        },
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 467,
+          "scaledHeight": 360
+        },
+        {
+          "z": 2,
+          "columns": 4,
+          "rows": 3,
+          "tileCount": 12,
+          "scaledWidth": 933,
+          "scaledHeight": 719
+        },
+        {
+          "z": 3,
+          "columns": 8,
+          "rows": 6,
+          "tileCount": 48,
+          "scaledWidth": 1866,
+          "scaledHeight": 1438
+        },
+        {
+          "z": 4,
+          "columns": 15,
+          "rows": 12,
+          "tileCount": 180,
+          "scaledWidth": 3732,
+          "scaledHeight": 2876
+        }
+      ],
+      "totalTiles": 245
+    },
+    {
+      "id": "OLD-Arfordir",
+      "name": "Arfordir",
+      "width": 3024,
+      "height": 4032,
+      "imageUrl": "maps/OLD-Arfordir.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/OLD-Arfordir/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 0,
+        "maxZoom": 4
+      },
+      "levels": [
+        {
+          "z": 0,
+          "columns": 1,
+          "rows": 1,
+          "tileCount": 1,
+          "scaledWidth": 189,
+          "scaledHeight": 252
+        },
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 378,
+          "scaledHeight": 504
+        },
+        {
+          "z": 2,
+          "columns": 3,
+          "rows": 4,
+          "tileCount": 12,
+          "scaledWidth": 756,
+          "scaledHeight": 1008
+        },
+        {
+          "z": 3,
+          "columns": 6,
+          "rows": 8,
+          "tileCount": 48,
+          "scaledWidth": 1512,
+          "scaledHeight": 2016
+        },
+        {
+          "z": 4,
+          "columns": 12,
+          "rows": 16,
+          "tileCount": 192,
+          "scaledWidth": 3024,
+          "scaledHeight": 4032
+        }
+      ],
+      "totalTiles": 257
+    },
+    {
+      "id": "OLD-Bec",
+      "name": "Bec",
+      "width": 3024,
+      "height": 4032,
+      "imageUrl": "maps/OLD-Bec.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/OLD-Bec/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 0,
+        "maxZoom": 4
+      },
+      "levels": [
+        {
+          "z": 0,
+          "columns": 1,
+          "rows": 1,
+          "tileCount": 1,
+          "scaledWidth": 189,
+          "scaledHeight": 252
+        },
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 378,
+          "scaledHeight": 504
+        },
+        {
+          "z": 2,
+          "columns": 3,
+          "rows": 4,
+          "tileCount": 12,
+          "scaledWidth": 756,
+          "scaledHeight": 1008
+        },
+        {
+          "z": 3,
+          "columns": 6,
+          "rows": 8,
+          "tileCount": 48,
+          "scaledWidth": 1512,
+          "scaledHeight": 2016
+        },
+        {
+          "z": 4,
+          "columns": 12,
+          "rows": 16,
+          "tileCount": 192,
+          "scaledWidth": 3024,
+          "scaledHeight": 4032
+        }
+      ],
+      "totalTiles": 257
+    },
+    {
+      "id": "OLD-Castgate",
+      "name": "Castgate",
+      "width": 3024,
+      "height": 4032,
+      "imageUrl": "maps/OLD-Castgate.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/OLD-Castgate/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 0,
+        "maxZoom": 4
+      },
+      "levels": [
+        {
+          "z": 0,
+          "columns": 1,
+          "rows": 1,
+          "tileCount": 1,
+          "scaledWidth": 189,
+          "scaledHeight": 252
+        },
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 378,
+          "scaledHeight": 504
+        },
+        {
+          "z": 2,
+          "columns": 3,
+          "rows": 4,
+          "tileCount": 12,
+          "scaledWidth": 756,
+          "scaledHeight": 1008
+        },
+        {
+          "z": 3,
+          "columns": 6,
+          "rows": 8,
+          "tileCount": 48,
+          "scaledWidth": 1512,
+          "scaledHeight": 2016
+        },
+        {
+          "z": 4,
+          "columns": 12,
+          "rows": 16,
+          "tileCount": 192,
+          "scaledWidth": 3024,
+          "scaledHeight": 4032
+        }
+      ],
+      "totalTiles": 257
+    },
+    {
+      "id": "OLD-Wolgari-Collage",
+      "name": "Collage Top",
+      "width": 4032,
+      "height": 3024,
+      "imageUrl": "maps/OLD-Wolgari-Collage.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/OLD-Wolgari-Collage/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 0,
+        "maxZoom": 4
+      },
+      "levels": [
+        {
+          "z": 0,
+          "columns": 1,
+          "rows": 1,
+          "tileCount": 1,
+          "scaledWidth": 252,
+          "scaledHeight": 189
+        },
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 504,
+          "scaledHeight": 378
+        },
+        {
+          "z": 2,
+          "columns": 4,
+          "rows": 3,
+          "tileCount": 12,
+          "scaledWidth": 1008,
+          "scaledHeight": 756
+        },
+        {
+          "z": 3,
+          "columns": 8,
+          "rows": 6,
+          "tileCount": 48,
+          "scaledWidth": 2016,
+          "scaledHeight": 1512
+        },
+        {
+          "z": 4,
+          "columns": 16,
+          "rows": 12,
+          "tileCount": 192,
+          "scaledWidth": 4032,
+          "scaledHeight": 3024
+        }
+      ],
+      "totalTiles": 257
+    },
+    {
+      "id": "OLD-Collage-Side",
+      "name": "Collage Side",
+      "width": 3024,
+      "height": 4032,
+      "imageUrl": "maps/OLD-Collage-Side.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/OLD-Collage-Side/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 0,
+        "maxZoom": 4
+      },
+      "levels": [
+        {
+          "z": 0,
+          "columns": 1,
+          "rows": 1,
+          "tileCount": 1,
+          "scaledWidth": 189,
+          "scaledHeight": 252
+        },
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 378,
+          "scaledHeight": 504
+        },
+        {
+          "z": 2,
+          "columns": 3,
+          "rows": 4,
+          "tileCount": 12,
+          "scaledWidth": 756,
+          "scaledHeight": 1008
+        },
+        {
+          "z": 3,
+          "columns": 6,
+          "rows": 8,
+          "tileCount": 48,
+          "scaledWidth": 1512,
+          "scaledHeight": 2016
+        },
+        {
+          "z": 4,
+          "columns": 12,
+          "rows": 16,
+          "tileCount": 192,
+          "scaledWidth": 3024,
+          "scaledHeight": 4032
+        }
+      ],
+      "totalTiles": 257
+    },
+    {
+      "id": "OLD-Icebeach-LARGE",
+      "name": "Large Icebeach",
+      "width": 4032,
+      "height": 3024,
+      "imageUrl": "maps/OLD-Icebeach-LARGE.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/OLD-Icebeach-LARGE/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 0,
+        "maxZoom": 4
+      },
+      "levels": [
+        {
+          "z": 0,
+          "columns": 1,
+          "rows": 1,
+          "tileCount": 1,
+          "scaledWidth": 252,
+          "scaledHeight": 189
+        },
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 504,
+          "scaledHeight": 378
+        },
+        {
+          "z": 2,
+          "columns": 4,
+          "rows": 3,
+          "tileCount": 12,
+          "scaledWidth": 1008,
+          "scaledHeight": 756
+        },
+        {
+          "z": 3,
+          "columns": 8,
+          "rows": 6,
+          "tileCount": 48,
+          "scaledWidth": 2016,
+          "scaledHeight": 1512
+        },
+        {
+          "z": 4,
+          "columns": 16,
+          "rows": 12,
+          "tileCount": 192,
+          "scaledWidth": 4032,
+          "scaledHeight": 3024
+        }
+      ],
+      "totalTiles": 257
+    },
+    {
+      "id": "Astrousia",
+      "name": "Astrousia",
+      "width": 7308,
+      "height": 8192,
+      "imageUrl": "maps/Astrousia.webp",
+      "tileSource": {
+        "type": "xyz",
+        "urlTemplate": "tile/Astrousia/{z}/{x}/{y}.webp",
+        "tileSize": 256,
+        "minZoom": 1,
+        "maxZoom": 5
+      },
+      "levels": [
+        {
+          "z": 1,
+          "columns": 2,
+          "rows": 2,
+          "tileCount": 4,
+          "scaledWidth": 457,
+          "scaledHeight": 512
+        },
+        {
+          "z": 2,
+          "columns": 4,
+          "rows": 4,
+          "tileCount": 16,
+          "scaledWidth": 914,
+          "scaledHeight": 1024
+        },
+        {
+          "z": 3,
+          "columns": 8,
+          "rows": 8,
+          "tileCount": 64,
+          "scaledWidth": 1827,
+          "scaledHeight": 2048
+        },
+        {
+          "z": 4,
+          "columns": 15,
+          "rows": 16,
+          "tileCount": 240,
+          "scaledWidth": 3654,
+          "scaledHeight": 4096
+        },
+        {
+          "z": 5,
+          "columns": 29,
+          "rows": 32,
+          "tileCount": 928,
+          "scaledWidth": 7308,
+          "scaledHeight": 8192
+        }
+      ],
+      "totalTiles": 1252
+    }
+  ],
+  "totalTiles": 15739
+}

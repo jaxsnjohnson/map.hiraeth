@@ -57,7 +57,7 @@
         }
     </style>
 
-    <script src="js/app-config.js?v=0.1.31"></script>
+    <script src="js/app-config.js?v=0.1.32"></script>
     <script>
         window.APP_ASSET_VERSION = window.AppConfig ? window.AppConfig.get("assets.version", "0") : "0";
         window.THEME_STORAGE_KEYS = {
@@ -105,9 +105,18 @@
                 const previewOverrides = {
                     main_continent: "maps/Fair-Content.mini.webp"
                 };
+                const dataUrlOverrides = {
+                    main_continent: "maps/Fair-Content.json"
+                };
                 window.__HIRAETH_DIRECT_MAP_PREVIEW__ = previewOverrides[directMapId] || `maps/${directMapId}.mini.webp`;
+                window.__HIRAETH_DIRECT_MAP_DATA_URL__ = dataUrlOverrides[directMapId] || `maps/${directMapId}.json`;
                 document.documentElement.classList.add("bootstrap-map-preview-loading");
                 appendPreload(window.__HIRAETH_DIRECT_MAP_PREVIEW__, "image", { fetchPriority: "high" });
+                appendPreload(`${window.__HIRAETH_DIRECT_MAP_DATA_URL__}?v=${version}`, "fetch", {
+                    type: "application/json",
+                    crossOrigin: "anonymous",
+                    fetchPriority: "high"
+                });
             }
         })();
 

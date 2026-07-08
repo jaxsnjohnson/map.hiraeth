@@ -2364,6 +2364,55 @@ function areAllObservedTilesFailed(tileCounts) {
     return !!tileCounts && tileCounts.total > 0 && tileCounts.loaded === 0 && tileCounts.failed === tileCounts.total;
 }
 
+function getTilePreviewFadeConfig() {
+    const retireRatio = Math.max(0.05, Math.min(1, getPerformanceNumber('tilePreviewRetireRatio', 0.76)));
+    const fadeStartRatio = Math.max(0, Math.min(retireRatio, getPerformanceNumber('tilePreviewFadeStartRatio', 0.45)));
+    return { fadeStartRatio, retireRatio };
+}
+
+function getMapPreviewLayerElement() {
+    return currentMapPreviewLayer && typeof currentMapPreviewLayer.getElement === 'function'
+        ? currentMapPreviewLayer.getElement()
+        : null;
+}
+
+function setMapPreviewLayerOpacity(opacity) {
+    if (!currentMapPreviewLayer) return;
+    const rawOpacity = Number(opacity);
+    const normalizedOpacity = Number.isFinite(rawOpacity)
+        ? Math.max(0, Math.min(1, rawOpacity))
+        : 1;
+    if (typeof currentMapPreviewLayer.setOpacity === 'function') {
+        currentMapPreviewLayer.setOpacity(normalizedOpacity);
+    }
+    const previewElement = getMapPreviewLayerElement();
+    if (previewElement) {
+        previewElement.style.opacity = String(normalizedOpacity);
+    }
+}
+
+function updateMapPreviewLayerForTileProgress(tileCounts) {
+    if (!currentMapPreviewLayer || !tileCounts || tileCounts.total <= 0) return;
+    if (tileCounts.failed > 0) {
+        setMapPreviewLayerOpacity(1);
+        return;
+    }
+
+    const loadedRatio = tileCounts.loaded / tileCounts.total;
+    const { fadeStartRatio, retireRatio } = getTilePreviewFadeConfig();
+    if (loadedRatio >= retireRatio) {
+        setMapPreviewLayerOpacity(0);
+        return;
+    }
+    if (loadedRatio <= fadeStartRatio || retireRatio <= fadeStartRatio) {
+        setMapPreviewLayerOpacity(1);
+        return;
+    }
+
+    const fadeProgress = (loadedRatio - fadeStartRatio) / (retireRatio - fadeStartRatio);
+    setMapPreviewLayerOpacity(1 - (fadeProgress * 0.82));
+}
+
 function createMapPreviewLayer(mapInfo, bounds) {
     const previewImageUrl = getMiniMapImageUrl(mapInfo);
     const mapImageUrl = getPreferredMapImageUrl(mapInfo);
@@ -6046,6 +6095,7 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
             : null;
         const tileCounts = getTileLayerImageCounts(tileContainer);
         if (tileCounts.total === 0) return;
+        updateMapPreviewLayerForTileProgress(tileCounts);
         const tileProgress = 60 + (tileCounts.loaded / tileCounts.total) * 35;
         setLoadingProgressValue(Math.max(loadingProgress, tileProgress));
         if (tileCounts.loaded === tileCounts.total) {
@@ -6143,6 +6193,7 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
             tileLoadFailures += 1;
             const failedTileUrl = event && event.tile ? event.tile.currentSrc || event.tile.src : '';
             if (currentMapPreviewLayer) {
+                setMapPreviewLayerOpacity(1);
                 console.warn('Tile layer failed to load; keeping the low-resolution preview behind tiles:', failedTileUrl || selectedMap.id || selectedMap.name);
                 setLoadingProgressValue(Math.max(loadingProgress, 90));
                 setTimeout(updateTileLoadingProgress, 0);

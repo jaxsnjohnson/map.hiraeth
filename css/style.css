@@ -979,9 +979,14 @@ textarea:focus-visible,
 #map .leaflet-tooltip-pane { z-index: 650; }
 #map .leaflet-popup-pane { z-index: 700; }
 #map .leaflet-control-container { z-index: 1000; }
-#map .leaflet-image-layer {
+#map .leaflet-image-layer:not(.map-preview-layer) {
     opacity: 1 !important;
     visibility: visible !important;
+}
+
+#map .map-preview-layer {
+    transition: opacity 180ms ease;
+    will-change: opacity;
 }
 
 /* Keep the map-bound background rectangle below real tile/image artwork. */
@@ -1222,7 +1227,7 @@ html.map-interacting .leaflet-control-zoom a {
     animation: auroraDrift 54s ease-in-out infinite reverse, auroraSweep 34s linear infinite reverse, auroraPulse 13s ease-in-out infinite;
 }
 
-:root[data-theme="dark"] #map-container[data-atmosphere="aurora"] #map .leaflet-image-layer {
+:root[data-theme="dark"] #map-container[data-atmosphere="aurora"] #map .leaflet-image-layer:not(.map-preview-layer) {
     opacity: 1 !important;
 }
 
