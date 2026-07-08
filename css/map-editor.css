@@ -512,6 +512,16 @@ details[open] .map-editor-section-header h2::before {
     grid-column: 1 / -1;
 }
 
+
+.map-editor-readiness-details summary:focus-visible {
+    outline: 2px solid var(--focus-ring, #0f5fbf);
+    outline-offset: 2px;
+}
+
+.map-editor-readiness-details summary:hover {
+    color: var(--text-primary);
+}
+
 .map-editor-readiness-details summary {
     display: inline-flex;
     cursor: pointer;
@@ -580,6 +590,16 @@ details[open] .map-editor-section-header h2::before {
     background: color-mix(in srgb, var(--bg-secondary) 55%, transparent);
 }
 
+
+.map-editor-file-group summary:focus-visible {
+    outline: 2px solid var(--focus-ring, #0f5fbf);
+    outline-offset: -2px;
+}
+
+.map-editor-file-group summary:hover {
+    background: color-mix(in srgb, var(--bg-secondary) 75%, transparent);
+}
+
 .map-editor-file-group summary {
     display: flex;
     justify-content: space-between;
@@ -633,6 +653,16 @@ details[open] .map-editor-section-header h2::before {
     border-radius: 8px;
     background: color-mix(in srgb, var(--bg-secondary) 58%, transparent);
 }
+
+.map-editor-form summary:focus-visible {
+    outline: 2px solid var(--focus-ring, #0f5fbf);
+    outline-offset: 2px;
+}
+
+.map-editor-form summary:hover {
+    color: var(--text-primary);
+}
+
 .map-editor-form summary {
     cursor: pointer;
     color: var(--text-secondary);
