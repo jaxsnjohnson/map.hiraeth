@@ -2270,6 +2270,35 @@ function parseFiniteNumber(value, fallbackValue) {
     return Number.isFinite(parsed) ? parsed : fallbackValue;
 }
 
+function normalizeTileAssetRoot(value) {
+    const rawRoot = String(value || '').trim().replace(/\\/g, '/');
+    if (!rawRoot || rawRoot === '.') return '';
+
+    const normalizedRoot = rawRoot
+        .replace(/^\.?\//, '')
+        .replace(/\/+$/, '');
+    if (!normalizedRoot ||
+        /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(normalizedRoot) ||
+        normalizedRoot === '..' ||
+        normalizedRoot.startsWith('../') ||
+        normalizedRoot.includes('/../')) {
+        return '';
+    }
+    return normalizedRoot;
+}
+
+function resolveTileUrlTemplate(urlTemplate) {
+    const normalizedTemplate = String(urlTemplate || '').trim().replace(/\\/g, '/');
+    const tileAssetRoot = normalizeTileAssetRoot(getConfigValue('performance.tileAssetRoot', 'tile'));
+    if (!tileAssetRoot || normalizedTemplate.startsWith(`${tileAssetRoot}/`)) {
+        return normalizedTemplate;
+    }
+    if (normalizedTemplate.startsWith('tile/')) {
+        return `${tileAssetRoot}/${normalizedTemplate.slice('tile/'.length)}`;
+    }
+    return normalizedTemplate;
+}
+
 function getMapTileSource(mapInfo) {
     const source = mapInfo && mapInfo.tileSource;
     if (!source || typeof source !== 'object' || Array.isArray(source)) return null;
@@ -2290,7 +2319,7 @@ function getMapTileSource(mapInfo) {
     const zoomOffset = parseFiniteNumber(source.zoomOffset, maxZoom - leafletNativeZoom);
     return {
         type,
-        urlTemplate,
+        urlTemplate: resolveTileUrlTemplate(urlTemplate),
         tileSize: parsePositiveInteger(source.tileSize, 256),
         minZoom,
         maxZoom,

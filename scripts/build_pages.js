@@ -10,7 +10,6 @@ const outputDir = path.join(repoRoot, 'dist');
 const runtimeFiles = [
     'index.html',
     'CNAME',
-    'site.config.json',
     'sw.js',
     'favicon-16x16.png',
     'favicon-32x32.png',
@@ -85,6 +84,26 @@ function copyFile(relativePath) {
     assertExists(sourcePath, relativePath);
     fs.mkdirSync(path.dirname(destinationPath), { recursive: true });
     fs.copyFileSync(sourcePath, destinationPath);
+}
+
+function createPagesSiteConfig(sourceConfig) {
+    const pagesConfig = JSON.parse(JSON.stringify(sourceConfig || {}));
+    pagesConfig.performance = {
+        ...(pagesConfig.performance || {}),
+        tileAssetRoot: 'tile'
+    };
+    return pagesConfig;
+}
+
+function copyPagesSiteConfig() {
+    const relativePath = 'site.config.json';
+    const sourcePath = resolveRepoPath(relativePath);
+    const destinationPath = resolveOutputPath(relativePath);
+    assertExists(sourcePath, relativePath);
+    const sourceConfig = JSON.parse(fs.readFileSync(sourcePath, 'utf8'));
+    const pagesConfig = createPagesSiteConfig(sourceConfig);
+    fs.mkdirSync(path.dirname(destinationPath), { recursive: true });
+    fs.writeFileSync(destinationPath, `${JSON.stringify(pagesConfig, null, 2)}\n`);
 }
 
 function copyDirectory(relativePath) {
@@ -212,6 +231,7 @@ function buildPagesBundle() {
     fs.mkdirSync(outputDir, { recursive: true });
 
     runtimeFiles.forEach(copyFile);
+    copyPagesSiteConfig();
     runtimeAssetFiles.forEach(copyFile);
     runtimeDirectories.forEach(copyDirectory);
     copyPublicMapAssets();
@@ -267,6 +287,7 @@ module.exports = {
     buildPagesBundle,
     collectPublicMapAssetFiles,
     countFiles,
+    createPagesSiteConfig,
     forbiddenPublicFiles: [...forbiddenPublicFiles],
     ignoredAssetFileNames: [...ignoredAssetFileNames],
     runtimeAssetFiles: [...runtimeAssetFiles],

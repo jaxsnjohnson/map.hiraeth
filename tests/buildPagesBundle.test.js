@@ -1,6 +1,7 @@
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 
-const { collectPublicMapAssetFiles } = require('../scripts/build_pages.js');
+const { collectPublicMapAssetFiles, createPagesSiteConfig } = require('../scripts/build_pages.js');
 
 const publicMapAssets = collectPublicMapAssetFiles();
 
@@ -35,6 +36,15 @@ assert.equal(
     publicMapAssets.some((assetPath) => assetPath.startsWith('tile/')),
     false,
     'generated tile paths should not be copied from the source tree'
+);
+
+const sourceSiteConfig = JSON.parse(fs.readFileSync('site.config.json', 'utf8'));
+const pagesSiteConfig = createPagesSiteConfig(sourceSiteConfig);
+assert.equal(sourceSiteConfig.performance.tileAssetRoot, 'dist/tile');
+assert.equal(
+    pagesSiteConfig.performance.tileAssetRoot,
+    'tile',
+    'dist-root Pages bundles should keep generated tile URLs relative to the bundle root'
 );
 
 console.log('Pages bundle map asset collection checks passed');

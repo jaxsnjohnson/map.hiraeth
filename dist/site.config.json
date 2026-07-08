@@ -15,7 +15,7 @@
     }
   },
   "assets": {
-    "version": "0.1.32",
+    "version": "0.1.33",
     "cloudTexture": "images/clouds.webp",
     "previewImage": "images/hiraeth-maps-preview.png",
     "poiIcons": {
@@ -156,6 +156,7 @@
     "mobileBreakpoint": 768,
     "starCount": 450,
     "starFps": 30,
+    "tileAssetRoot": "tile",
     "tilePreviewFadeStartRatio": 0.45,
     "tilePreviewRetireRatio": 0.76,
     "linkedMapPrefetchLimit": 3,
@@ -165,21 +166,87 @@
   },
   "taxonomy": {
     "poiTypeGroups": {
-      "Settlements": ["City", "Town", "Village", "Hamlet", "Settlement", "Capital"],
-      "Structures": ["Castle", "Fortress", "Fort", "Tower", "Ruin", "Temple", "Shrine", "Mine", "Lighthouse", "Bridge", "Gate", "Dungeon", "Lair", "Camp", "Asylum", "Landmark", "Building"],
-      "Natural Features": ["Mountain", "Peak", "Forest", "Wood", "River", "Lake", "Cave", "Cavern", "Coast", "Bay", "Cove", "Swamp", "Marsh", "Desert", "Natural Landmark"],
-      "Other": ["Point of Interest", "Region", "Portal", "Tavern", "Dock & Trading", "Market", "Trade", "Market & Trade", "Market / Trade"],
-      "Unknown": ["Unknown"]
+      "Settlements": [
+        "City",
+        "Town",
+        "Village",
+        "Hamlet",
+        "Settlement",
+        "Capital"
+      ],
+      "Structures": [
+        "Castle",
+        "Fortress",
+        "Fort",
+        "Tower",
+        "Ruin",
+        "Temple",
+        "Shrine",
+        "Mine",
+        "Lighthouse",
+        "Bridge",
+        "Gate",
+        "Dungeon",
+        "Lair",
+        "Camp",
+        "Asylum",
+        "Landmark",
+        "Building"
+      ],
+      "Natural Features": [
+        "Mountain",
+        "Peak",
+        "Forest",
+        "Wood",
+        "River",
+        "Lake",
+        "Cave",
+        "Cavern",
+        "Coast",
+        "Bay",
+        "Cove",
+        "Swamp",
+        "Marsh",
+        "Desert",
+        "Natural Landmark"
+      ],
+      "Other": [
+        "Point of Interest",
+        "Region",
+        "Portal",
+        "Tavern",
+        "Dock & Trading",
+        "Market",
+        "Trade",
+        "Market & Trade",
+        "Market / Trade"
+      ],
+      "Unknown": [
+        "Unknown"
+      ]
     }
   },
   "copy": {
     "sidebarTitle": "Select Map",
     "themeLabel": "Theme",
     "bottomLinks": [
-      { "label": "Wiki", "href": "https://jsnj.link/maps-to-wiki" },
-      { "label": "Blog", "href": "https://jsnj.link/maps-blog-post" },
-      { "label": "About", "href": "#", "id": "about-link" },
-      { "label": "Source", "href": "https://jsnj.link/map-hiraeth-source" }
+      {
+        "label": "Wiki",
+        "href": "https://jsnj.link/maps-to-wiki"
+      },
+      {
+        "label": "Blog",
+        "href": "https://jsnj.link/maps-blog-post"
+      },
+      {
+        "label": "About",
+        "href": "#",
+        "id": "about-link"
+      },
+      {
+        "label": "Source",
+        "href": "https://jsnj.link/map-hiraeth-source"
+      }
     ],
     "share": {
       "currentViewTitle": "Current View",

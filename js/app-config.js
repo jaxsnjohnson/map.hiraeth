@@ -19,7 +19,7 @@
 
     function getDefaultAssetsConfig() {
         return {
-                version: '0.1.32',
+                version: '0.1.33',
                 stylesheets: [
                     'css/leaflet.css',
                     'css/style.css',
@@ -231,6 +231,7 @@
                 mobileBreakpoint: 768,
                 starCount: 450,
                 starFps: 30,
+                tileAssetRoot: 'tile',
                 tilePreviewFadeStartRatio: 0.45,
                 tilePreviewRetireRatio: 0.76,
                 linkedMapPrefetchLimit: 3,
@@ -410,6 +411,26 @@
         return cursor === undefined ? fallbackValue : cursor;
     }
 
+    function getCurrentReleaseChangelogHtml(version) {
+        const versionLabel = escapeHtml(`v${String(version || '').trim()}`);
+        return `<div class="changelog-entry"><div class="changelog-header"><h3>Tile Deployment Path Fix</h3><span class="version-pill" title="Current release">${versionLabel}</span></div><ul class="changelog-list"><li>Pointed the live GitHub Pages shell at the generated tile bundle under dist/tile.</li><li>Kept dist-root previews on the plain tile path used by the Pages bundle.</li><li>Bumped the shell asset version so browsers pick up the corrected tile URL logic.</li></ul></div>`;
+    }
+
+    function syncCurrentReleaseChangelog(config) {
+        const changelogTabs = config?.copy?.help?.tabs;
+        if (!Array.isArray(changelogTabs)) return;
+        const changelogTab = changelogTabs.find((tab) => tab && tab.id === 'changelog');
+        if (!changelogTab || typeof changelogTab.html !== 'string') return;
+
+        const version = String(config?.assets?.version || '').trim();
+        if (!version) return;
+        const versionLabel = `v${version}`;
+        if (changelogTab.html.includes(`>${versionLabel}<`) && changelogTab.html.includes('title="Current release"')) {
+            return;
+        }
+        changelogTab.html = `${getCurrentReleaseChangelogHtml(version)}${changelogTab.html.replace(/\s+title="Current release"/g, '')}`;
+    }
+
     function normalizeConfig(rawConfig = {}) {
         const merged = deepMerge(DEFAULT_SITE_CONFIG, rawConfig);
         if (!merged.brand.socialPreviewImage && merged.assets.previewImage) {
@@ -417,6 +438,7 @@
         }
         merged.theme.tokens.light['--font-family-main'] = merged.theme.fontFamilyMain;
         merged.theme.tokens.dark['--font-family-main'] = merged.theme.fontFamilyMain;
+        syncCurrentReleaseChangelog(merged);
         return merged;
     }
 
@@ -463,6 +485,14 @@
         }
         if (!Number.isFinite(Number(candidate.performance.starFps)) || Number(candidate.performance.starFps) <= 0) {
             errors.push('performance.starFps must be a positive number.');
+        }
+        const tileAssetRoot = String(candidate.performance.tileAssetRoot || '').trim().replace(/\\/g, '/');
+        if (!tileAssetRoot ||
+            /^(?:[a-z][a-z0-9+.-]*:|\/\/|\/)/i.test(tileAssetRoot) ||
+            tileAssetRoot === '..' ||
+            tileAssetRoot.startsWith('../') ||
+            tileAssetRoot.includes('/../')) {
+            errors.push('performance.tileAssetRoot must be a safe repository-relative path.');
         }
         return errors;
     }

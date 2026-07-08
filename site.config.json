@@ -15,7 +15,7 @@
     }
   },
   "assets": {
-    "version": "0.1.32",
+    "version": "0.1.33",
     "cloudTexture": "images/clouds.webp",
     "previewImage": "images/hiraeth-maps-preview.png",
     "poiIcons": {
@@ -156,6 +156,7 @@
     "mobileBreakpoint": 768,
     "starCount": 450,
     "starFps": 30,
+    "tileAssetRoot": "dist/tile",
     "tilePreviewFadeStartRatio": 0.45,
     "tilePreviewRetireRatio": 0.76,
     "linkedMapPrefetchLimit": 3,

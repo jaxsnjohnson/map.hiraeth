@@ -28,12 +28,19 @@ function extractFunctionSource(name) {
 }
 
 const mapOptions = { minZoom: -4, maxZoom: 4 };
+let tileAssetRoot = 'tile';
+function getConfigValue(path, fallbackValue) {
+    if (path === 'performance.tileAssetRoot') return tileAssetRoot;
+    return fallbackValue;
+}
 
 // eslint-disable-next-line no-eval
 eval([
     extractFunctionSource('parsePositiveInteger'),
     extractFunctionSource('parseNonNegativeInteger'),
     extractFunctionSource('parseFiniteNumber'),
+    extractFunctionSource('normalizeTileAssetRoot'),
+    extractFunctionSource('resolveTileUrlTemplate'),
     extractFunctionSource('getMapTileSource'),
     extractFunctionSource('getGeneratedTileRowCount'),
     extractFunctionSource('normalizeSimpleCrsTileCoords'),
@@ -64,6 +71,36 @@ assert.deepEqual(normalized, {
     minNativeZoom: -4,
     maxNativeZoom: 0
 });
+
+tileAssetRoot = 'dist/tile';
+assert.equal(
+    getMapTileSource({
+        tileSource: {
+            type: 'xyz',
+            urlTemplate: 'tile/main_continent/{z}/{x}/{y}.webp',
+            tileSize: 256,
+            minZoom: 1,
+            maxZoom: 5
+        }
+    }).urlTemplate,
+    'dist/tile/main_continent/{z}/{x}/{y}.webp',
+    'root Pages deployments should rewrite map tile templates to the configured generated tile bundle'
+);
+
+assert.equal(
+    getMapTileSource({
+        tileSource: {
+            type: 'xyz',
+            urlTemplate: 'dist/tile/main_continent/{z}/{x}/{y}.webp',
+            tileSize: 256,
+            minZoom: 1,
+            maxZoom: 5
+        }
+    }).urlTemplate,
+    'dist/tile/main_continent/{z}/{x}/{y}.webp',
+    'tile templates already using the configured root should not be double-prefixed'
+);
+tileAssetRoot = 'tile';
 
 assert.equal(getMapTileSource({}), null);
 assert.equal(getMapTileSource({ tileSource: { type: 'xyz', urlTemplate: 'tile/map/{z}/{x}.webp', tileSize: 256, minZoom: 0, maxZoom: 1 } }), null);
