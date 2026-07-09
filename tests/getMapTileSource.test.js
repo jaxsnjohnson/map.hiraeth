@@ -182,4 +182,10 @@ assert.match(
     'tile row normalization should use the selected map height inside createMapBaseLayer.'
 );
 
+assert.match(
+    appSource,
+    /updateWhenZooming:\s*false,/,
+    'tile layers should keep the current tiles visible during wheel zoom instead of swapping to blank unloaded levels.'
+);
+
 console.log('getMapTileSource checks passed');

@@ -2554,6 +2554,7 @@ function createMapBaseLayer(selectedMap, mapImageUrl, bounds) {
                 noWrap: true,
                 keepBuffer: 2,
                 updateWhenIdle: isMobileLayoutActive,
+                updateWhenZooming: false,
                 className: 'map-tile-layer'
             })
         };
