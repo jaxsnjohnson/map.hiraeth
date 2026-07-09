@@ -162,3 +162,6 @@
 ## 2024-06-25 - Redundant Leaflet setStyle calls in hot paths
 **Learning:** Calling `layer.setStyle()` on Leaflet layers unconditionally within filtering loops (like `updateVisibleRegions` or `updateVisibleLines`) triggers expensive internal updates and DOM recalculations, even if the new style properties match the existing ones. This causes severe performance bottlenecks when updating the visibility of hundreds or thousands of elements simultaneously.
 **Action:** Always check the layer's current `options` (e.g., `layer.options.opacity !== expectedOpacity`) before invoking `layer.setStyle()` inside bulk update loops.
+## 2026-07-09 - Prevent redundant bringToBack calls
+**Learning:** Unconditionally calling `layer.bringToBack()` within Leaflet feature loops executes expensive DOM re-orderings (`parentNode.insertBefore`), causing layout reflows and performance degradation during bulk visibility updates, even when the element is already correctly ordered.
+**Action:** When conditionally updating the visibility or style of Leaflet layers inside loops, always track if a modification actually occurred (e.g., using a `styleChanged` boolean) and only invoke structural DOM methods like `bringToBack()` if the style was actually changed.

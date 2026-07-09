@@ -6348,6 +6348,7 @@ function updateVisibleRegions() {
         // Apply visibility and interactivity based on *both* the overall toggle AND the type filter match
         if (regionsVisible && typeMatch) { // regionsVisible is synced with markersVisible
             const targetFillOpacity = region.fillOpacity || 0.2;
+            let styleChanged = false;
             if (layer.options.stroke !== true || layer.options.fill !== true || layer.options.opacity !== 1 || layer.options.fillOpacity !== targetFillOpacity) {
                 layer.setStyle({
                     stroke: true,
@@ -6355,8 +6356,13 @@ function updateVisibleRegions() {
                     opacity: 1,
                     fillOpacity: targetFillOpacity
                 });
+                styleChanged = true;
             }
-            layer.bringToBack();
+
+            // ⚡ Bolt: Prevent expensive DOM re-orderings and layout reflows by only calling bringToBack when the style is actually modified.
+            if (styleChanged) {
+                layer.bringToBack();
+            }
         } else {
             if (layer.options.stroke !== false || layer.options.fill !== false) {
                 layer.setStyle({
