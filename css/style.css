@@ -989,6 +989,18 @@ textarea:focus-visible,
     will-change: opacity;
 }
 
+#map .map-tile-layer {
+    isolation: isolate;
+}
+
+#map .map-tile-layer img.leaflet-tile {
+    mix-blend-mode: normal;
+}
+
+#map .map-tile-layer img.leaflet-tile-loaded {
+    opacity: 1 !important;
+}
+
 /* Keep the map-bound background rectangle below real tile/image artwork. */
 #map > .leaflet-map-pane > .leaflet-tile-pane > svg {
     z-index: 0;

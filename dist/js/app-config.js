@@ -19,7 +19,7 @@
 
     function getDefaultAssetsConfig() {
         return {
-                version: '0.1.35',
+                version: '0.1.36',
                 stylesheets: [
                     'css/leaflet.css',
                     'css/style.css',
@@ -413,7 +413,7 @@
 
     function getCurrentReleaseChangelogHtml(version) {
         const versionLabel = escapeHtml(`v${String(version || '').trim()}`);
-        return `<div class="changelog-entry"><div class="changelog-header"><h3>Tile Zoom Stability</h3><span class="version-pill" title="Current release">${versionLabel}</span></div><ul class="changelog-list"><li>Kept the current tile level visible during wheel zoom so the map does not flash white while scrolling.</li><li>Deferred tile-level swaps until zoom movement settles, preserving the fast tiled loading path.</li><li>Bumped the shell asset version so browsers pick up the smoother zoom behavior.</li></ul></div>`;
+        return `<div class="changelog-entry"><div class="changelog-header"><h3>Tile Clarity and Zoom Stability</h3><span class="version-pill" title="Current release">${versionLabel}</span></div><ul class="changelog-list"><li>Kept the current tile level visible during wheel zoom so the map does not flash white while scrolling.</li><li>Rendered loaded map tiles at full opacity without blending against the low-resolution preview underlay.</li><li>Bumped the shell asset version so browsers pick up the sharper tiled map behavior.</li></ul></div>`;
     }
 
     function syncCurrentReleaseChangelog(config) {

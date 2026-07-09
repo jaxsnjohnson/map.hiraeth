@@ -125,7 +125,8 @@ const mapOptions = {
     zoomSnap: WHEEL_ZOOM_SNAP,
     zoomDelta: SMOOTH_ZOOM_STEP,
     scrollWheelZoom: false,
-    zoomAnimation: !prefersReducedMotion()
+    zoomAnimation: !prefersReducedMotion(),
+    fadeAnimation: false
 };
 
 if (isFirefox) {
