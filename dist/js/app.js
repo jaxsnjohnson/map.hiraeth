@@ -2422,24 +2422,7 @@ function setMapPreviewLayerOpacity(opacity) {
 
 function updateMapPreviewLayerForTileProgress(tileCounts) {
     if (!currentMapPreviewLayer || !tileCounts || tileCounts.total <= 0) return;
-    if (tileCounts.failed > 0) {
-        setMapPreviewLayerOpacity(1);
-        return;
-    }
-
-    const loadedRatio = tileCounts.loaded / tileCounts.total;
-    const { fadeStartRatio, retireRatio } = getTilePreviewFadeConfig();
-    if (loadedRatio >= retireRatio) {
-        setMapPreviewLayerOpacity(0);
-        return;
-    }
-    if (loadedRatio <= fadeStartRatio || retireRatio <= fadeStartRatio) {
-        setMapPreviewLayerOpacity(1);
-        return;
-    }
-
-    const fadeProgress = (loadedRatio - fadeStartRatio) / (retireRatio - fadeStartRatio);
-    setMapPreviewLayerOpacity(1 - (fadeProgress * 0.82));
+    setMapPreviewLayerOpacity(1);
 }
 
 function createMapPreviewLayer(mapInfo, bounds) {
@@ -6108,9 +6091,11 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
         detailLoadingComplete = true;
         clearLoadingTimers();
         const hadPreviewLayer = !!currentMapPreviewLayer;
-        const keepPreviewLayer = currentMapBaseLayerMode === 'tile' && tileLoadFailures > 0 && !!currentMapPreviewLayer;
+        const keepPreviewLayer = currentMapBaseLayerMode === 'tile' && !!currentMapPreviewLayer;
         removeBootstrapMapPreview();
-        if (!keepPreviewLayer) {
+        if (keepPreviewLayer) {
+            setMapPreviewLayerOpacity(1);
+        } else {
             removeMapPreviewLayer();
         }
         finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileImage, loadStartedAt, {

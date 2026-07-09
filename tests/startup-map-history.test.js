@@ -60,8 +60,8 @@ assert.match(
 
 assert.match(
     appSource,
-    /function finishDetailLoading\(\) \{[\s\S]*const hadPreviewLayer = !!currentMapPreviewLayer;[\s\S]*const keepPreviewLayer = currentMapBaseLayerMode === 'tile' && tileLoadFailures > 0 && !!currentMapPreviewLayer;[\s\S]*if \(!keepPreviewLayer\) \{[\s\S]*removeMapPreviewLayer\(\);[\s\S]*hideDelayMs: hadPreviewLayer \? 0 : 300/,
-    'detail completion should hide the loading bar immediately while preserving the preview behind failed tiles.'
+    /function finishDetailLoading\(\) \{[\s\S]*const hadPreviewLayer = !!currentMapPreviewLayer;[\s\S]*const keepPreviewLayer = currentMapBaseLayerMode === 'tile' && !!currentMapPreviewLayer;[\s\S]*if \(keepPreviewLayer\) \{[\s\S]*setMapPreviewLayerOpacity\(1\);[\s\S]*\} else \{[\s\S]*removeMapPreviewLayer\(\);[\s\S]*hideDelayMs: hadPreviewLayer \? 0 : 300/,
+    'detail completion should hide the loading bar immediately while preserving the preview as a tile underlay.'
 );
 
 assert.doesNotMatch(

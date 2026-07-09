@@ -69,13 +69,13 @@ assert.equal(preview.element.style.opacity, '1');
 
 preview = createPreviewLayer();
 updateMapPreviewLayerForTileProgress({ total: 10, loaded: 6, failed: 0 });
-assert.ok(preview.opacityValues.at(-1) < 1);
-assert.ok(preview.opacityValues.at(-1) > 0);
+assert.equal(preview.opacityValues.at(-1), 1);
+assert.equal(preview.element.style.opacity, '1');
 
 preview = createPreviewLayer();
 updateMapPreviewLayerForTileProgress({ total: 10, loaded: 8, failed: 0 });
-assert.equal(preview.opacityValues.at(-1), 0);
-assert.equal(preview.element.style.opacity, '0');
+assert.equal(preview.opacityValues.at(-1), 1);
+assert.equal(preview.element.style.opacity, '1');
 
 preview = createPreviewLayer();
 updateMapPreviewLayerForTileProgress({ total: 10, loaded: 8, failed: 1 });
