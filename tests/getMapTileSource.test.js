@@ -69,8 +69,22 @@ assert.deepEqual(normalized, {
     leafletNativeZoom: 0,
     zoomOffset: 5,
     minNativeZoom: -4,
-    maxNativeZoom: 0
+    maxNativeZoom: 0,
+    cacheVersion: ''
 });
+
+assert.equal(
+    getMapTileSource({
+        tileSource: {
+            type: 'xyz',
+            urlTemplate: 'tile/main_continent/{z}/{x}/{y}.webp',
+            minZoom: 1,
+            maxZoom: 5,
+            cacheVersion: 'abcdef0123456789'
+        }
+    }).cacheVersion,
+    'abcdef0123456789'
+);
 
 tileAssetRoot = 'dist/tile';
 assert.equal(
@@ -186,6 +200,12 @@ assert.match(
     appSource,
     /updateWhenZooming:\s*false,/,
     'tile layers should keep the current tiles visible during wheel zoom instead of swapping to blank unloaded levels.'
+);
+
+assert.match(
+    appSource,
+    /withAssetVersion\(tileSource\.urlTemplate, tileSource\.cacheVersion\)/,
+    'tile requests should use their map fingerprint instead of invalidating every map on shell-only releases.'
 );
 
 console.log('getMapTileSource checks passed');

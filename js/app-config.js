@@ -19,7 +19,7 @@
 
     function getDefaultAssetsConfig() {
         return {
-                version: '0.1.36',
+                version: '0.1.39',
                 stylesheets: [
                     'css/leaflet.css',
                     'css/style.css',
@@ -129,13 +129,11 @@
                         'favicon-32x32.png',
                         'favicon.png',
                         'apple-touch-icon.png',
-                        'images/sky-background.webp',
                         'images/clouds.webp',
                         'images/toggle.svg',
                         'css/images/marker-icon.png',
                         'css/images/marker-icon-2x.png',
                         'css/images/marker-shadow.png',
-                        'images/hiraeth-maps-preview.png',
                         'images/poi-icons/settlements.svg',
                         'images/poi-icons/structures.svg',
                         'images/poi-icons/natural-features.svg',
@@ -234,6 +232,7 @@
                 tileAssetRoot: 'tile',
                 tilePreviewFadeStartRatio: 0.45,
                 tilePreviewRetireRatio: 0.76,
+                tileFullImageFallback: true,
                 linkedMapPrefetchLimit: 3,
                 prefetchImages: true,
                 prefetchJson: true,
@@ -270,7 +269,7 @@
 
     function getDefaultCopyConfig() {
         return {
-                sidebarTitle: 'Select Map',
+                sidebarTitle: 'Atlas',
                 themeLabel: 'Theme',
                 loading: {
                     mapData: 'Loading Map Data...',
@@ -413,7 +412,7 @@
 
     function getCurrentReleaseChangelogHtml(version) {
         const versionLabel = escapeHtml(`v${String(version || '').trim()}`);
-        return `<div class="changelog-entry"><div class="changelog-header"><h3>Tile Clarity and Zoom Stability</h3><span class="version-pill" title="Current release">${versionLabel}</span></div><ul class="changelog-list"><li>Kept the current tile level visible during wheel zoom so the map does not flash white while scrolling.</li><li>Rendered loaded map tiles at full opacity without blending against the low-resolution preview underlay.</li><li>Bumped the shell asset version so browsers pick up the sharper tiled map behavior.</li></ul></div>`;
+        return `<div class="changelog-entry"><div class="changelog-header"><h3>Atlas Navigation and Faster Pages Delivery</h3><span class="version-pill" title="Current release">${versionLabel}</span></div><ul class="changelog-list"><li>Made Atlas the dedicated left-side navigation and moved selected locations into an expandable detail sheet.</li><li>Added a mobile bottom-sheet detail flow while keeping search anchored to the bottom navigation.</li><li>Reduced the Pages artifact by omitting duplicate full images for tiled maps and raised native-detail tile quality.</li><li>Started styles earlier and cached versioned shell, data, and image assets without repeat revalidation.</li></ul></div>`;
     }
 
     function syncCurrentReleaseChangelog(config) {
@@ -516,6 +515,10 @@
 
     function loadConfig(url = 'site.config.json') {
         if (readyPromise) return readyPromise;
+        if (root.__SITE_CONFIG_EMBEDDED__ === true) {
+            readyPromise = Promise.resolve(setConfig(root.__SITE_CONFIG__ || activeConfig));
+            return readyPromise;
+        }
         if (typeof root.fetch !== 'function') {
             readyPromise = Promise.resolve(setConfig(activeConfig));
             return readyPromise;
@@ -698,7 +701,7 @@
 
     function hydrateStaticDom(documentRef = root.document) {
         if (!documentRef) return;
-        setText(documentRef, '.sidebar-header h2', get('copy.sidebarTitle'));
+        setText(documentRef, '.atlas-sidebar-heading h1', get('copy.sidebarTitle'));
         setText(documentRef, '.theme-switch-wrapper span', get('copy.themeLabel'));
         setText(documentRef, '#loading-indicator .loading-text', get('copy.loading.mapData'));
         setText(documentRef, '#loading-retry-btn', get('copy.loading.retry'));

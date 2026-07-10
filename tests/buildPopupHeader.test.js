@@ -53,6 +53,9 @@ const fs = require('node:fs');
     assert.ok(result.includes('<h3>Shareable Location</h3>'), 'Should contain basic h3');
     assert.ok(result.includes('<button class="share-btn" onclick="copyFeatureLink(this, \'poi\', \'Shareable Location\')"'), 'Should contain share button with correct params');
     assert.ok(result.includes('data-lucide="link-2"'), 'Should contain link icon');
+    assert.ok(result.includes('class="popup-detail-expand"'), 'Should contain the detail sheet action');
+    assert.ok(result.includes('onclick="return openSelectedFeatureDetails()"'), 'Detail action should open the selected feature sheet');
+    assert.ok(result.includes('aria-haspopup="dialog"'), 'Detail action should expose its dialog relationship');
 
     // Test 4: data.name, type, and safePronunciation present.
     reset();

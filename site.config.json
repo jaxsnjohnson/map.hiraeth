@@ -15,7 +15,7 @@
     }
   },
   "assets": {
-    "version": "0.1.36",
+    "version": "0.1.39",
     "cloudTexture": "images/clouds.webp",
     "previewImage": "images/hiraeth-maps-preview.png",
     "poiIcons": {
@@ -159,6 +159,7 @@
     "tileAssetRoot": "dist/tile",
     "tilePreviewFadeStartRatio": 0.45,
     "tilePreviewRetireRatio": 0.76,
+    "tileFullImageFallback": true,
     "linkedMapPrefetchLimit": 3,
     "prefetchImages": true,
     "prefetchJson": true,
@@ -174,7 +175,7 @@
     }
   },
   "copy": {
-    "sidebarTitle": "Select Map",
+    "sidebarTitle": "Atlas",
     "themeLabel": "Theme",
     "bottomLinks": [
       { "label": "Wiki", "href": "https://jsnj.link/maps-to-wiki" },

@@ -11,6 +11,64 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script>
+        window.APP_ASSET_VERSION = "0.1.39";
+
+        (function preloadDirectMapAssets() {
+            const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
+            const appendPreload = (href, as, options = {}) => {
+                if (!href || !document.head) return;
+                const link = document.createElement("link");
+                link.rel = "preload";
+                link.href = href;
+                link.as = as;
+                link.dataset.appPreload = "true";
+                if (options.type) link.type = options.type;
+                if (options.crossOrigin) link.crossOrigin = options.crossOrigin;
+                if (options.fetchPriority) link.fetchPriority = options.fetchPriority;
+                document.head.appendChild(link);
+            };
+
+            const rawDirectMapId = String(window.location.hash || "").replace(/^#/, "").split("-s=")[0] || "";
+            let directMapId = "";
+            try {
+                directMapId = decodeURIComponent(rawDirectMapId).trim();
+            } catch (error) {
+                directMapId = rawDirectMapId.trim();
+            }
+            const startupParams = new URLSearchParams(window.location.search || "");
+            if (!directMapId && startupParams.get("gallery") !== "true") {
+                let storedMapId = "";
+                try {
+                    storedMapId = String(localStorage.getItem("lastMapId") || "").trim();
+                } catch (error) {
+                    storedMapId = "";
+                }
+                directMapId = /^[A-Za-z0-9._-]+$/.test(storedMapId) ? storedMapId : "main_continent";
+            }
+            if (!/^[A-Za-z0-9._-]+$/.test(directMapId)) return;
+
+            const previewOverrides = {
+                main_continent: "maps/Fair-Content.mini.webp"
+            };
+            const dataUrlOverrides = {
+                main_continent: "maps/Fair-Content.json"
+            };
+            const directMapPreview = previewOverrides[directMapId] || `maps/${directMapId}.mini.webp`;
+            const previewSeparator = directMapPreview.includes("?") ? "&" : "?";
+            window.__HIRAETH_DIRECT_MAP_PREVIEW__ = `${directMapPreview}${previewSeparator}v=${version}`;
+            window.__HIRAETH_DIRECT_MAP_DATA_URL__ = dataUrlOverrides[directMapId] || `maps/${directMapId}.json`;
+            document.documentElement.classList.add("bootstrap-map-preview-loading");
+            appendPreload(window.__HIRAETH_DIRECT_MAP_PREVIEW__, "image", { fetchPriority: "high" });
+            appendPreload(`${window.__HIRAETH_DIRECT_MAP_DATA_URL__}?v=${version}`, "fetch", {
+                type: "application/json",
+                crossOrigin: "anonymous",
+                fetchPriority: "high"
+            });
+        })();
+    </script>
     <style>
         body.map-chooser-open .container {
             display: none !important;
@@ -57,7 +115,20 @@
         }
     </style>
 
-    <script src="js/app-config.js?v=0.1.36"></script>
+    <link rel="stylesheet" href="css/leaflet.css?v=0.1.39" data-app-stylesheet="true">
+    <link rel="stylesheet" href="css/style.css?v=0.1.39" data-app-stylesheet="true">
+    <link rel="stylesheet" href="css/stars.css?v=0.1.39" data-app-stylesheet="true">
+    <link rel="stylesheet" href="css/Control.MiniMap.min.css?v=0.1.39" data-app-stylesheet="true">
+    <link rel="preload" href="js/libs/leaflet.js?v=0.1.39" as="script" data-app-preload="true">
+    <link rel="preload" href="js/libs/Control.MiniMap.min.js?v=0.1.39" as="script" data-app-preload="true">
+    <link rel="preload" href="js/libs/lucide.min.js?v=0.1.39" as="script" data-app-preload="true">
+    <link rel="preload" href="js/libs/purify.min.js?v=0.1.39" as="script" data-app-preload="true">
+    <link rel="preload" href="js/starfield.js?v=0.1.39" as="script" data-app-preload="true">
+    <link rel="preload" href="js/shared-utils.js?v=0.1.39" as="script" data-app-preload="true">
+    <link rel="preload" href="js/app.js?v=0.1.39" as="script" data-app-preload="true">
+    <link rel="preload" href="maps/atlas-index.json?v=0.1.39" as="fetch" type="application/json" crossorigin="anonymous" data-app-preload="true">
+
+    <script src="js/app-config.js?v=0.1.39"></script>
     <script>
         window.APP_ASSET_VERSION = window.AppConfig ? window.AppConfig.get("assets.version", "0") : "0";
         window.THEME_STORAGE_KEYS = {
@@ -68,22 +139,52 @@
         (function preloadRuntimeAssets() {
             const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
             const head = document.head;
+            const loadedStylesheets = new Set(
+                Array.from(document.querySelectorAll('link[data-app-stylesheet]'))
+                    .map((link) => link.getAttribute('href'))
+                    .filter(Boolean)
+            );
+            const preloadedAssets = new Set(
+                Array.from(document.querySelectorAll('link[data-app-preload]'))
+                    .map((link) => link.getAttribute('href'))
+                    .filter(Boolean)
+            );
             const appendPreload = (href, as, options = {}) => {
-                if (!href || !head) return;
+                if (!href || !head || preloadedAssets.has(href)) return;
+                preloadedAssets.add(href);
                 const link = document.createElement("link");
                 link.rel = "preload";
                 link.href = href;
                 link.as = as;
+                link.dataset.appPreload = "true";
                 if (options.type) link.type = options.type;
                 if (options.crossOrigin) link.crossOrigin = options.crossOrigin;
                 if (options.fetchPriority) link.fetchPriority = options.fetchPriority;
                 head.appendChild(link);
             };
+            const appendStylesheets = (stylesheets) => {
+                (Array.isArray(stylesheets) ? stylesheets : []).forEach((href) => {
+                    const versionedHref = `${href}?v=${version}`;
+                    if (!href || loadedStylesheets.has(versionedHref)) return;
+                    loadedStylesheets.add(versionedHref);
+                    const link = document.createElement("link");
+                    link.rel = "stylesheet";
+                    link.href = versionedHref;
+                    link.dataset.appStylesheet = "true";
+                    head.appendChild(link);
+                });
+            };
+
+            window.__HIRAETH_APPEND_STYLESHEETS__ = appendStylesheets;
+            appendStylesheets(window.AppConfig
+                ? window.AppConfig.get("assets.stylesheets", ["css/leaflet.css", "css/style.css", "css/stars.css", "css/Control.MiniMap.min.css"])
+                : ["css/leaflet.css", "css/style.css", "css/stars.css", "css/Control.MiniMap.min.css"]);
 
             [
                 "js/libs/leaflet.js",
                 "js/libs/Control.MiniMap.min.js",
                 "js/libs/lucide.min.js",
+                "js/libs/purify.min.js",
                 "js/starfield.js",
                 "js/shared-utils.js",
                 "js/app.js"
@@ -94,30 +195,6 @@
                 crossOrigin: "anonymous"
             });
 
-            const rawDirectMapId = String(window.location.hash || "").replace(/^#/, "").split("-s=")[0] || "";
-            let directMapId = "";
-            try {
-                directMapId = decodeURIComponent(rawDirectMapId).trim();
-            } catch (error) {
-                directMapId = rawDirectMapId.trim();
-            }
-            if (/^[A-Za-z0-9._-]+$/.test(directMapId)) {
-                const previewOverrides = {
-                    main_continent: "maps/Fair-Content.mini.webp"
-                };
-                const dataUrlOverrides = {
-                    main_continent: "maps/Fair-Content.json"
-                };
-                window.__HIRAETH_DIRECT_MAP_PREVIEW__ = previewOverrides[directMapId] || `maps/${directMapId}.mini.webp`;
-                window.__HIRAETH_DIRECT_MAP_DATA_URL__ = dataUrlOverrides[directMapId] || `maps/${directMapId}.json`;
-                document.documentElement.classList.add("bootstrap-map-preview-loading");
-                appendPreload(window.__HIRAETH_DIRECT_MAP_PREVIEW__, "image", { fetchPriority: "high" });
-                appendPreload(`${window.__HIRAETH_DIRECT_MAP_DATA_URL__}?v=${version}`, "fetch", {
-                    type: "application/json",
-                    crossOrigin: "anonymous",
-                    fetchPriority: "high"
-                });
-            }
         })();
 
         (function applyInitialTheme() {
@@ -172,6 +249,7 @@
         })();
 
         (function applyInitialMapChooserMode() {
+            const params = new URLSearchParams(window.location.search || "");
             const rawMapId = String(window.location.hash || "").replace(/^#/, "").split("-s=")[0] || "";
             let mapId = "";
             try {
@@ -179,7 +257,7 @@
             } catch (error) {
                 mapId = rawMapId.trim();
             }
-            const shouldOpenChooser = window.__INITIAL_EMBEDDED_VIEW__ !== true && !mapId;
+            const shouldOpenChooser = window.__INITIAL_EMBEDDED_VIEW__ !== true && !mapId && params.get("gallery") === "true";
             window.__INITIAL_MAP_CHOOSER_OPEN__ = shouldOpenChooser;
             document.documentElement.classList.toggle("map-chooser-first", shouldOpenChooser);
         })();
@@ -212,7 +290,7 @@
             document.documentElement.classList.toggle("mobile-layout-v2", mode === "v2");
         })();
 
-        (function loadConfigAndInjectVersionedStyles() {
+        (function loadConfigAndHydrateShell() {
             const loadConfig = window.AppConfig ? window.AppConfig.loadConfig() : Promise.resolve();
             loadConfig.then(() => {
                 if (window.AppConfig) {
@@ -220,17 +298,12 @@
                     window.AppConfig.applyThemeTokens(document);
                     window.AppConfig.injectFont(document);
                 }
-                const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
                 const localStylesheets = window.AppConfig
                     ? window.AppConfig.get("assets.stylesheets", ["css/style.css", "css/stars.css", "css/Control.MiniMap.min.css"])
                     : ["css/style.css", "css/stars.css", "css/Control.MiniMap.min.css"];
-
-                localStylesheets.forEach((href) => {
-                    const link = document.createElement("link");
-                    link.rel = "stylesheet";
-                    link.href = `${href}?v=${version}`;
-                    document.head.appendChild(link);
-                });
+                if (typeof window.__HIRAETH_APPEND_STYLESHEETS__ === "function") {
+                    window.__HIRAETH_APPEND_STYLESHEETS__(localStylesheets);
+                }
             });
         })();
     </script>
@@ -240,6 +313,9 @@
         <div class="map-chooser-frame" aria-hidden="true"></div>
         <div class="map-chooser-inner">
             <header class="map-chooser-header">
+                <button id="map-chooser-close-btn" type="button" title="Return to map" aria-label="Return to map">
+                    <i class="ui-icon" data-lucide="x" aria-hidden="true"></i>
+                </button>
                 <h1 id="map-chooser-title">MAP ATLAS</h1>
                 <p id="map-chooser-subtitle">MAPS OF HIRAETH</p>
             </header>
@@ -260,19 +336,24 @@
 
     <div class="container">
         <div id="sidebar">
-            <div id="sidebar-tabs" class="sidebar-tabs" role="tablist" aria-label="Sidebar sections" aria-orientation="horizontal">
-                <button id="sidebar-tab-maps" type="button" data-sidebar-tab="maps" role="tab" aria-selected="true" aria-controls="sidebar-map-panel" tabindex="0">Maps</button>
-                <button id="sidebar-tab-details" type="button" data-sidebar-tab="details" role="tab" aria-selected="false" aria-controls="sidebar-poi-panel" tabindex="-1">POI Detail</button>
-            </div>
-            <section id="sidebar-map-panel" class="sidebar-map-panel" role="tabpanel" aria-labelledby="sidebar-tab-maps">
-                <button id="sidebar-back-to-chooser" class="sidebar-back-btn" title="Return to Map Chooser" aria-label="Return to Map Chooser">
-                    <i class="ui-icon" data-lucide="arrow-left" aria-hidden="true"></i>
-                    <span class="sidebar-back-title">Select Map</span>
-                </button>
+            <header class="atlas-sidebar-header">
+                <div class="atlas-sidebar-heading">
+                    <span class="atlas-sidebar-kicker">Hiraeth</span>
+                    <h1 id="atlas-sidebar-title">Atlas</h1>
+                </div>
+                <div class="atlas-sidebar-actions">
+                    <button id="sidebar-back-to-chooser" class="atlas-header-action" type="button" title="Browse map gallery" aria-label="Browse map gallery">
+                        <i class="ui-icon" data-lucide="layout-grid" aria-hidden="true"></i>
+                    </button>
+                    <button id="mobile-atlas-close-btn" class="atlas-header-action" type="button" title="Close atlas" aria-label="Close atlas">
+                        <i class="ui-icon" data-lucide="x" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </header>
+            <section id="sidebar-map-panel" class="sidebar-map-panel" role="region" aria-labelledby="atlas-sidebar-title">
                 <ul id="map-list">
                 </ul>
             </section>
-            <section id="sidebar-poi-panel" class="sidebar-poi-panel" role="tabpanel" aria-labelledby="sidebar-tab-details" aria-live="polite" aria-atomic="true" hidden></section>
             <div class="theme-switch-wrapper">
                 <label class="theme-switch" for="theme-checkbox">
                     <input type="checkbox" id="theme-checkbox" aria-label="Switch to dark theme" title="Switch to dark theme" />
@@ -285,10 +366,15 @@
             <button id="toggle-sidebar-btn" title="Collapse Sidebar" aria-label="Collapse Sidebar" aria-expanded="true">
                 <i class="ui-icon" data-lucide="chevron-left" aria-hidden="true"></i>
             </button>
-            <div id="map">
+            <div id="map" tabindex="0" aria-label="Interactive map">
                 <div id="star-field">
                     <canvas id="star-canvas" aria-hidden="true"></canvas>
                 </div>
+            </div>
+
+            <div id="wip-popup" role="status">
+                <p>This atlas is still being refined.</p>
+                <p>Some markers, names, and boundaries may be inaccurate.</p>
             </div>
 
             <div id="map-blurb"></div>
@@ -406,7 +492,7 @@
             <button id="mobile-tools-launcher-btn" type="button" aria-label="Open tools" aria-pressed="false" aria-expanded="false">
                 <i class="ui-icon" data-lucide="sliders-horizontal" aria-hidden="true"></i>
             </button>
-            <div id="mobile-dock" aria-label="Mobile navigation">
+            <div id="mobile-dock" role="navigation" aria-label="Mobile navigation">
                 <button id="mobile-sheet-launcher-btn" type="button" aria-label="Open atlas" aria-pressed="false" aria-expanded="false">
                     <i class="ui-icon" data-lucide="chevron-right" aria-hidden="true"></i>
                     <span class="mobile-fab-label">Atlas</span>
@@ -440,7 +526,7 @@
                     </button>
                 </div>
                 <div id="mobile-tools-card-body">
-                    <div id="mobile-tools-actions" aria-label="Map tools">
+                    <div id="mobile-tools-actions" role="group" aria-label="Map tools">
                         <button id="mobile-markers-btn" type="button" aria-pressed="true">
                             <i class="ui-icon" data-lucide="map-pin" aria-hidden="true"></i>
                             <span>Markers</span>
@@ -476,6 +562,7 @@
             <div id="search-control-container" class="leaflet-control">
                 <label for="poi-search-input" class="sr-only">Search locations</label>
                 <div class="search-input-shell">
+                    <i class="ui-icon search-leading-icon" data-lucide="search" aria-hidden="true"></i>
                     <input type="search" id="poi-search-input" placeholder="Search locations..." role="combobox" aria-autocomplete="list" aria-controls="search-results-container" aria-expanded="false">
                     <div class="search-inline-actions">
                         <button id="search-scope-atlas-btn" type="button" aria-pressed="false">Atlas</button>
@@ -485,7 +572,7 @@
                 </div>
             </div>
             <div id="search-results-container" class="leaflet-control" aria-live="polite" aria-atomic="true"></div>
-            <div id="poi-filter-container" class="leaflet-control">
+            <div id="poi-filter-container" class="leaflet-control" role="region" aria-label="Map filters" aria-hidden="true" inert>
                  <h3>Filter by Type:</h3>
                  <div class="filter-item">
                      <input type="checkbox" id="filter-toggle-all" checked>
@@ -501,6 +588,21 @@
             </div>
             <div id="sidebar-backdrop" aria-hidden="true"></div>
         </div>
+        <div id="feature-detail-backdrop" aria-hidden="true" hidden></div>
+        <section id="feature-detail-sheet" role="dialog" aria-modal="false" aria-labelledby="feature-detail-title" aria-hidden="true" tabindex="-1" hidden>
+            <header class="feature-detail-shell-header">
+                <span class="feature-detail-shell-label">Location details</span>
+                <div class="feature-detail-shell-actions">
+                    <button id="feature-detail-expand-btn" type="button" title="Expand details" aria-label="Expand details" aria-pressed="false">
+                        <i class="ui-icon" data-lucide="maximize-2" aria-hidden="true"></i>
+                    </button>
+                    <button id="feature-detail-close-btn" type="button" title="Close details" aria-label="Close details">
+                        <i class="ui-icon" data-lucide="x" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </header>
+            <div id="sidebar-poi-panel" class="feature-detail-content" aria-live="polite" aria-atomic="true"></div>
+        </section>
     </div>
 
     <audio id="light-ambient" loop preload="none"> <source data-src="sounds/gentle-winds.mp3" type="audio/mpeg">
@@ -510,7 +612,7 @@
       Your browser does not support the audio element.
     </audio>
 
-    <script src="js/libs/purify.min.js"></script>
+    <script src="js/libs/purify.min.js?v=0.1.39"></script>
 
     <script>
         (function loadVersionedLocalScripts() {
@@ -557,10 +659,6 @@
         })();
     </script>
 
-    <div id="wip-popup">
-        <p>This atlas is still being refined.</p>
-        <p>Some markers, names, and boundaries may be inaccurate.</p>
-    </div>
     <div id="about-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="about-modal-title" aria-hidden="true" style="display: none;">
         <div class="modal-content">
             <h2 id="about-modal-title" class="sr-only">Help and About</h2>

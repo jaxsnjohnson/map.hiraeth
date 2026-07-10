@@ -24,6 +24,12 @@ assert.match(
 
 assert.match(
     appSource,
+    /function createMapPreviewLayer\(mapInfo, bounds\) \{[\s\S]*withAssetVersion\(previewImageUrl\)[\s\S]*L\.imageOverlay\(versionedPreviewImageUrl, bounds/,
+    'Leaflet preview layers should reuse the versioned bootstrap image instead of requesting a stale duplicate.'
+);
+
+assert.match(
+    appSource,
     /function initMapLoadContext\(mapId, preResolvedMap\) \{[\s\S]*const manifestEntry = preResolvedMap \|\| findMapRecursive\(mapData, requestedMapId\);[\s\S]*mountBootstrapMapPreview\(manifestEntry\);[\s\S]*setMapChooserVisible\(false\);/,
     'app-driven map loads should mount the preview before revealing the map shell.'
 );

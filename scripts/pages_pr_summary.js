@@ -3,7 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
-const { countFiles } = require('./build_pages.js');
+const { countFiles, getDirectorySizeBytes } = require('./build_pages.js');
 
 const repoRoot = path.resolve(__dirname, '..');
 
@@ -35,6 +35,9 @@ function getChangedMapFiles() {
 const atlas = readJson('maps/atlas-index.json');
 const distPath = path.join(repoRoot, 'dist');
 const distFileCount = fs.existsSync(distPath) ? countFiles(distPath) : 0;
+const distSizeMiB = fs.existsSync(distPath) ? (getDirectorySizeBytes(distPath) / 1024 / 1024).toFixed(1) : '0.0';
+const tileManifestPath = path.join(distPath, 'tile', 'manifest.json');
+const tileManifest = fs.existsSync(tileManifestPath) ? JSON.parse(fs.readFileSync(tileManifestPath, 'utf8')) : null;
 const changedMaps = getChangedMapFiles();
 const runUrl = process.env.GITHUB_SERVER_URL && process.env.GITHUB_REPOSITORY && process.env.GITHUB_RUN_ID
     ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}#artifacts`
@@ -43,7 +46,8 @@ const runUrl = process.env.GITHUB_SERVER_URL && process.env.GITHUB_REPOSITORY &&
 console.log('## Pages Build Summary');
 console.log('');
 console.log(`- Search entries: ${Array.isArray(atlas.searchIndex) ? atlas.searchIndex.length : 0}`);
-console.log(`- Bundle files: ${distFileCount}`);
+console.log(`- Bundle: ${distFileCount} files, ${distSizeMiB} MiB`);
+console.log(`- Generated map tiles: ${Number(tileManifest?.totalTiles) || 0}`);
 console.log(`- Changed map files: ${changedMaps.length ? changedMaps.join(', ') : 'None'}`);
 if (runUrl) {
     console.log(`- Artifact: [pages-static-bundle](${runUrl})`);

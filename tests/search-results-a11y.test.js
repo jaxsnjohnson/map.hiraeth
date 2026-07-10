@@ -10,6 +10,15 @@ assert.match(
     'Search input should expose the controlled search results listbox'
 );
 
+const searchMetaStart = appSource.indexOf('function setSearchMeta(text = \'\') {');
+const searchMetaEnd = appSource.indexOf('function setLoadingMessage(', searchMetaStart);
+assert.notEqual(searchMetaStart, -1, 'Could not locate setSearchMeta');
+assert.notEqual(searchMetaEnd, -1, 'Could not locate setLoadingMessage');
+const searchMetaSource = appSource.slice(searchMetaStart, searchMetaEnd);
+assert.match(searchMetaSource, /status\.setAttribute\('role', 'status'\)/);
+assert.match(searchMetaSource, /status\.textContent = message/);
+assert.match(searchMetaSource, /poiSearchInput\.setAttribute\('aria-expanded', 'true'\)/);
+
 const setActiveStart = appSource.indexOf('function setActiveSearchResult(index) {');
 const setActiveEnd = appSource.indexOf('function moveSearchResultSelection(direction) {', setActiveStart);
 assert.notEqual(setActiveStart, -1, 'Could not locate setActiveSearchResult');

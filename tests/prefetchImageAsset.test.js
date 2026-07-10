@@ -35,6 +35,11 @@ let withAssetVersionCalls = [];
 let drainCallCount = 0;
 const prefetchedImageUrls = new Set();
 let prefetchImageQueue = [];
+let avoidOptionalPrefetch = false;
+
+function shouldAvoidOptionalPrefetch() {
+    return avoidOptionalPrefetch;
+}
 
 function getConfigValue(path, fallbackValue) {
     assert.equal(path, 'performance.prefetchImages');
@@ -58,11 +63,19 @@ eval(`prefetchImageAsset = ${extractFunctionSource('prefetchImageAsset')}`);
 
 function resetPrefetchState() {
     prefetchImagesEnabled = true;
+    avoidOptionalPrefetch = false;
     withAssetVersionCalls = [];
     drainCallCount = 0;
     prefetchedImageUrls.clear();
     prefetchImageQueue = [];
 }
+
+resetPrefetchState();
+avoidOptionalPrefetch = true;
+prefetchImageAsset('maps/Arfordir.webp');
+assert.deepEqual(withAssetVersionCalls, []);
+assert.deepEqual(prefetchImageQueue, []);
+assert.equal(drainCallCount, 0);
 
 resetPrefetchState();
 prefetchImageAsset('maps/Arfordir.webp');

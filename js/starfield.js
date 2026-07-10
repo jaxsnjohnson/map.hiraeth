@@ -27,6 +27,8 @@
     let dpr = Math.max(1, Math.round(window.devicePixelRatio || 1));
     let lastFrame = 0;
     let running = false;
+    let animationFrameId = null;
+    let canvasIsClear = true;
 
     const offscreen = useOffscreen ? new OffscreenCanvas(1, 1) : null;
     let bufferCtx = offscreen ? offscreen.getContext('2d') : null;
@@ -68,6 +70,7 @@
         canvas.style.width = `${width}px`;
         canvas.style.height = `${height}px`;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        canvasIsClear = true;
 
         if (offscreen) {
             offscreen.width = width * dpr;
@@ -81,9 +84,11 @@
     }
 
     function syncCanvasToContainer(now = performance.now()) {
-        const resized = resize();
-        if (resized || shouldRender()) {
+        resize();
+        if (shouldRender()) {
             renderFrame(now);
+        } else {
+            clearCanvas();
         }
     }
 
@@ -119,22 +124,50 @@
             ctx.clearRect(0, 0, width, height);
             ctx.drawImage(offscreen, 0, 0, width, height);
         }
+        canvasIsClear = false;
+    }
+
+    function clearCanvas() {
+        if (canvasIsClear) return;
+        ctx.clearRect(0, 0, width, height);
+        if (bufferCtx) bufferCtx.clearRect(0, 0, width, height);
+        canvasIsClear = true;
+    }
+
+    function cancelAnimationLoop() {
+        if (animationFrameId === null) return;
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+
+    function scheduleAnimationLoop() {
+        if (!running || prefersReducedMotion.matches || !shouldRender() || animationFrameId !== null) return;
+        animationFrameId = requestAnimationFrame(loop);
     }
 
     function loop(now) {
-        if (!running) return;
+        animationFrameId = null;
+        if (!running || !shouldRender()) {
+            clearCanvas();
+            return;
+        }
         const elapsed = now - lastFrame;
         if (elapsed >= 1000 / FPS) {
             lastFrame = now;
-            if (shouldRender()) {
-                renderFrame(now);
-            } else {
-                // Clear when hidden or light mode to avoid stale pixels.
-                ctx.clearRect(0, 0, width, height);
-                if (bufferCtx) bufferCtx.clearRect(0, 0, width, height);
-            }
+            renderFrame(now);
         }
-        requestAnimationFrame(loop);
+        scheduleAnimationLoop();
+    }
+
+    function syncAnimationState(now = performance.now()) {
+        if (!running) return;
+        if (!shouldRender()) {
+            cancelAnimationLoop();
+            clearCanvas();
+            return;
+        }
+        renderFrame(now);
+        scheduleAnimationLoop();
     }
 
     function start() {
@@ -142,16 +175,13 @@
         createStars();
         running = true;
         lastFrame = performance.now();
-        renderFrame(lastFrame);
-        if (!prefersReducedMotion.matches) {
-            requestAnimationFrame(loop);
-        }
+        syncAnimationState(lastFrame);
     }
 
     function restart() {
         running = false;
-        ctx.clearRect(0, 0, width, height);
-        if (bufferCtx) bufferCtx.clearRect(0, 0, width, height);
+        cancelAnimationLoop();
+        clearCanvas();
         start();
     }
 
@@ -168,10 +198,8 @@
     window.addEventListener('resize', debouncedResize);
     prefersReducedMotion.addEventListener('change', restart);
     document.addEventListener('visibilitychange', () => {
-        if (!document.hidden && running) {
-            lastFrame = performance.now();
-            renderFrame(lastFrame);
-        }
+        lastFrame = performance.now();
+        syncAnimationState(lastFrame);
     });
 
     if (typeof ResizeObserver === 'function') {
@@ -182,7 +210,7 @@
     }
 
     const themeObserver = new MutationObserver(() => {
-        renderFrame(performance.now());
+        syncAnimationState();
     });
     themeObserver.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
 

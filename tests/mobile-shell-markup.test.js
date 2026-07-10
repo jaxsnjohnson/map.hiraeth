@@ -25,6 +25,10 @@ assert.match(indexSource, /id="mobile-sound-btn"/);
 assert.match(indexSource, /id="mobile-coords-btn"/);
 assert.match(indexSource, /id="mobile-share-view-btn"/);
 assert.match(indexSource, /id="mobile-help-btn"/);
+assert.match(indexSource, /id="mobile-atlas-close-btn"/);
+assert.match(indexSource, /id="feature-detail-sheet"/);
+assert.match(indexSource, /id="feature-detail-expand-btn"/);
+assert.match(indexSource, /id="map" tabindex="0" aria-label="Interactive map"/);
 assert.doesNotMatch(indexSource, /id="mobile-gm-view-btn"/);
 assert.doesNotMatch(indexSource, /id="mobile-toolkit-btn"/);
 assert.doesNotMatch(indexSource, /id="toggle-gm-panel-btn"/);
@@ -53,9 +57,10 @@ assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #map-blurb \
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #map-blurb \{[\s\S]*width: min\(300px,[\s\S]*background: var\(--mobile-card-bg\) !important;/m);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-card \{/);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-card \{[\s\S]*bottom: calc\(var\(--safe-bottom\) \+ 70px\) !important;[\s\S]*max-height: min\(54vh,/m);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-card,[\s\S]*visibility 0s linear 0\.18s !important;/m);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-tools-card \{/);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-tools-actions \{/);
-assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.container\.mobile-search-card-open #mobile-search-card,/);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.container\.mobile-search-card-open #mobile-search-card,[\s\S]*transition-delay: 0s, 0s, 0s !important;/m);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.container\.mobile-tools-card-open #mobile-tools-card/);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-card-search-slot \{/);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-card-results-slot\[hidden\],/);
@@ -63,9 +68,15 @@ assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.mobile-map
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #mobile-search-card #search-control-container,/);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.leaflet-control-minimap \{[\s\S]*display: block !important;[\s\S]*margin-bottom: calc\(var\(--safe-bottom\) \+ 78px\) !important;/m);
 assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.container\.mobile-search-card-open \.leaflet-control-minimap,/);
-assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.container\.mobile-surface-atlas \.leaflet-control-minimap \{[\s\S]*opacity: 0 !important;[\s\S]*pointer-events: none !important;/m);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.container\.mobile-surface-atlas \.leaflet-control-minimap,/m);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout \.container\.feature-detail-open \.leaflet-control-minimap \{[\s\S]*opacity: 0 !important;[\s\S]*pointer-events: none !important;/m);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #feature-detail-sheet \{[\s\S]*bottom: 0 !important;[\s\S]*height: min\(58vh,[\s\S]*max-height: min\(58vh,/m);
+assert.match(styleSource, /html\.mobile-layout-v2\.is-mobile-layout #feature-detail-sheet\.expanded \{[\s\S]*bottom: calc\(var\(--safe-bottom\) \+ 8px\) !important;[\s\S]*height: auto !important;/m);
 
-assert.match(appSource, /if \(selectedSidebarFeature && isMobileLayoutActive\) \{[\s\S]*openMobileSheet\(\{[\s\S]*mode: MOBILE_SURFACE_MODE_ATLAS,/m);
-assert.match(appSource, /function selectSearchResult\(index = activeSearchResultIndex\) \{[\s\S]*closeMobileSheet\(\{ restoreFocus: false \}\);[\s\S]*if \(selectedSidebarFeature && isMobileLayoutActive\) \{[\s\S]*mode: MOBILE_SURFACE_MODE_ATLAS,/m);
+assert.doesNotMatch(appSource, /if \(selectedSidebarFeature && isMobileLayoutActive\) \{[\s\S]*mode: MOBILE_SURFACE_MODE_ATLAS,/m);
+assert.doesNotMatch(appSource, /requestAnimationFrame\(\(\) => poiSearchInput\.focus/);
+assert.match(appSource, /poiSearchInput\.focus\(\{ preventScroll: true \}\)/);
+assert.match(appSource, /function selectSearchResult\(index = activeSearchResultIndex\) \{[\s\S]*closeMobileSheet\(\{ restoreFocus: false \}\);[\s\S]*updateActiveFilterChips\(\);/m);
+assert.match(appSource, /function openSelectedFeatureDetails\(\) \{[\s\S]*closeMobileSheet\(\{ restoreFocus: false \}\);/m);
 
 console.log('mobile shell markup checks passed');

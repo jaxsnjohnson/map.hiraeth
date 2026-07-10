@@ -32,6 +32,8 @@ global.fetch = async (url, options) => {
 global.prefetchJsonEnabled = true;
 global.fetchShouldFail = false;
 global.fetchCalls = [];
+global.avoidOptionalPrefetch = false;
+global.shouldAvoidOptionalPrefetch = () => global.avoidOptionalPrefetch;
 
 const prefetchCode = extractFunctionRange('async function prefetchJsonAsset(', 'function prefetchImageAsset(');
 
@@ -46,6 +48,7 @@ async function runTests() {
     global.fetchCalls = [];
     global.prefetchJsonEnabled = true;
     global.fetchShouldFail = false;
+    global.avoidOptionalPrefetch = false;
 
     // Test 1: Disabled via config
     global.prefetchJsonEnabled = false;
@@ -53,8 +56,14 @@ async function runTests() {
     assert.equal(global.prefetchedJsonUrls.size, 0, 'Should not prefetch if config is disabled');
     assert.equal(global.fetchCalls.length, 0, 'Should not call fetch if config is disabled');
 
-    // Test 2: Successful prefetch
     global.prefetchJsonEnabled = true;
+    global.avoidOptionalPrefetch = true;
+    await prefetchJsonAsset('constrained.json');
+    assert.equal(global.prefetchedJsonUrls.size, 0, 'Should not prefetch on a constrained connection');
+    assert.equal(global.fetchCalls.length, 0, 'Should not call fetch on a constrained connection');
+    global.avoidOptionalPrefetch = false;
+
+    // Test 2: Successful prefetch
     await prefetchJsonAsset('test1.json');
     assert.equal(global.prefetchedJsonUrls.size, 1, 'Should add to Set');
     assert.equal(global.prefetchedJsonUrls.has('test1.json?v=test'), true, 'Should use normalized URL');
