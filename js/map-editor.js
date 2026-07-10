@@ -858,6 +858,8 @@
         const limit = expanded ? filteredItems.length : defaultLimit;
         const visibleItems = filteredItems.slice(0, limit);
 
+        // ⚡ Bolt: Batch DOM insertions using DocumentFragment to prevent layout thrashing
+        const fragment = document.createDocumentFragment();
         visibleItems.forEach(({ item, index }) => {
             const button = document.createElement('button');
             button.type = 'button';
@@ -877,8 +879,9 @@
             button.appendChild(metaSpan);
 
             button.addEventListener('click', () => selectFeature(type, index));
-            dom.unifiedFeatureList.appendChild(button);
+            fragment.appendChild(button);
         });
+        dom.unifiedFeatureList.appendChild(fragment);
 
         if (filteredItems.length > defaultLimit) {
             dom.featureShowMoreButton.hidden = false;
@@ -972,15 +975,16 @@
             : '';
     }
 
+    // ⚡ Bolt: Use a null-prototype object instead of Set for O(1) deduplication with less overhead
     function parseTags(value) {
-        const seen = new Set();
+        const seen = Object.create(null);
         return String(value || '')
             .split(/[\n,]/)
             .map((tag) => tag.trim())
             .filter((tag) => {
                 const key = tag.toLowerCase();
-                if (!tag || seen.has(key)) return false;
-                seen.add(key);
+                if (!tag || seen[key]) return false;
+                seen[key] = true;
                 return true;
             });
     }
