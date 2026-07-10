@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="app-booting">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,8 +13,51 @@
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style id="app-boot-style">
+        html {
+            min-height: 100%;
+            background: #050510;
+        }
+
+        html[data-theme="light"] {
+            background: #f4f0eb;
+        }
+
+        html.app-booting body {
+            visibility: hidden;
+        }
+
+        html.app-booting::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 2147483647;
+            background: inherit;
+        }
+    </style>
     <script>
-        window.APP_ASSET_VERSION = "0.1.39";
+        window.APP_ASSET_VERSION = "0.1.45";
+        window.__markAppStylesReady = function markAppStylesReady() {
+            document.documentElement.classList.remove("app-booting");
+            if (window.__APP_STYLE_READY_TIMEOUT__) {
+                clearTimeout(window.__APP_STYLE_READY_TIMEOUT__);
+                window.__APP_STYLE_READY_TIMEOUT__ = null;
+            }
+        };
+        window.__APP_STYLE_READY_TIMEOUT__ = setTimeout(window.__markAppStylesReady, 4000);
+
+        (function applyBootTheme() {
+            let preference = "system";
+            try {
+                preference = localStorage.getItem("themePreference") || localStorage.getItem("theme") || "system";
+            } catch (error) {
+                preference = "system";
+            }
+            const systemTheme = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches
+                ? "light"
+                : "dark";
+            document.documentElement.setAttribute("data-theme", preference === "light" || preference === "dark" ? preference : systemTheme);
+        })();
 
         (function preloadDirectMapAssets() {
             const version = encodeURIComponent(window.APP_ASSET_VERSION || "0");
@@ -115,20 +158,21 @@
         }
     </style>
 
-    <link rel="stylesheet" href="css/leaflet.css?v=0.1.39" data-app-stylesheet="true">
-    <link rel="stylesheet" href="css/style.css?v=0.1.39" data-app-stylesheet="true">
-    <link rel="stylesheet" href="css/stars.css?v=0.1.39" data-app-stylesheet="true">
-    <link rel="stylesheet" href="css/Control.MiniMap.min.css?v=0.1.39" data-app-stylesheet="true">
-    <link rel="preload" href="js/libs/leaflet.js?v=0.1.39" as="script" data-app-preload="true">
-    <link rel="preload" href="js/libs/Control.MiniMap.min.js?v=0.1.39" as="script" data-app-preload="true">
-    <link rel="preload" href="js/libs/lucide.min.js?v=0.1.39" as="script" data-app-preload="true">
-    <link rel="preload" href="js/libs/purify.min.js?v=0.1.39" as="script" data-app-preload="true">
-    <link rel="preload" href="js/starfield.js?v=0.1.39" as="script" data-app-preload="true">
-    <link rel="preload" href="js/shared-utils.js?v=0.1.39" as="script" data-app-preload="true">
-    <link rel="preload" href="js/app.js?v=0.1.39" as="script" data-app-preload="true">
-    <link rel="preload" href="maps/atlas-index.json?v=0.1.39" as="fetch" type="application/json" crossorigin="anonymous" data-app-preload="true">
+    <link rel="stylesheet" href="css/leaflet.css?v=0.1.45" data-app-stylesheet="true">
+    <link rel="stylesheet" href="css/style.css?v=0.1.45" data-app-stylesheet="true">
+    <link rel="stylesheet" href="css/stars.css?v=0.1.45" data-app-stylesheet="true">
+    <link rel="stylesheet" href="css/Control.MiniMap.min.css?v=0.1.45" data-app-stylesheet="true">
+    <script>window.__markAppStylesReady && window.__markAppStylesReady();</script>
+    <link rel="preload" href="js/libs/leaflet.js?v=0.1.45" as="script" data-app-preload="true">
+    <link rel="preload" href="js/libs/Control.MiniMap.min.js?v=0.1.45" as="script" data-app-preload="true">
+    <link rel="preload" href="js/libs/lucide.min.js?v=0.1.45" as="script" data-app-preload="true">
+    <link rel="preload" href="js/libs/purify.min.js?v=0.1.45" as="script" data-app-preload="true">
+    <link rel="preload" href="js/starfield.js?v=0.1.45" as="script" data-app-preload="true">
+    <link rel="preload" href="js/shared-utils.js?v=0.1.45" as="script" data-app-preload="true">
+    <link rel="preload" href="js/app.js?v=0.1.45" as="script" data-app-preload="true">
+    <link rel="preload" href="maps/atlas-index.json?v=0.1.45" as="fetch" type="application/json" crossorigin="anonymous" data-app-preload="true">
 
-    <script src="js/app-config.js?v=0.1.39"></script>
+    <script src="js/app-config.js?v=0.1.45"></script>
     <script>
         window.APP_ASSET_VERSION = window.AppConfig ? window.AppConfig.get("assets.version", "0") : "0";
         window.THEME_STORAGE_KEYS = {
@@ -336,6 +380,7 @@
 
     <div class="container">
         <div id="sidebar">
+            <div id="atlas-resize-handle" class="workspace-resize-handle workspace-resize-handle-right" role="separator" aria-label="Resize Atlas panel" aria-orientation="vertical" aria-valuemin="240" aria-valuemax="420" aria-valuenow="286" tabindex="0"></div>
             <header class="atlas-sidebar-header">
                 <div class="atlas-sidebar-heading">
                     <span class="atlas-sidebar-kicker">Hiraeth</span>
@@ -590,11 +635,12 @@
         </div>
         <div id="feature-detail-backdrop" aria-hidden="true" hidden></div>
         <section id="feature-detail-sheet" role="dialog" aria-modal="false" aria-labelledby="feature-detail-title" aria-hidden="true" tabindex="-1" hidden>
+            <div id="feature-detail-dock-resize-handle" class="workspace-resize-handle workspace-resize-handle-left" role="separator" aria-label="Resize Details panel" aria-orientation="vertical" aria-valuemin="320" aria-valuemax="520" aria-valuenow="380" tabindex="0"></div>
             <header class="feature-detail-shell-header">
                 <span class="feature-detail-shell-label">Location details</span>
                 <div class="feature-detail-shell-actions">
-                    <button id="feature-detail-expand-btn" type="button" title="Expand details" aria-label="Expand details" aria-pressed="false">
-                        <i class="ui-icon" data-lucide="maximize-2" aria-hidden="true"></i>
+                    <button id="feature-detail-layout-btn" type="button" title="Dock details to right" aria-label="Dock details to right" aria-pressed="false">
+                        <i class="ui-icon" data-lucide="panel-right" aria-hidden="true"></i>
                     </button>
                     <button id="feature-detail-close-btn" type="button" title="Close details" aria-label="Close details">
                         <i class="ui-icon" data-lucide="x" aria-hidden="true"></i>
@@ -602,6 +648,7 @@
                 </div>
             </header>
             <div id="sidebar-poi-panel" class="feature-detail-content" aria-live="polite" aria-atomic="true"></div>
+            <div id="feature-detail-corner-resize-handle" class="workspace-corner-resize-handle" role="separator" aria-label="Resize details window" aria-orientation="horizontal" tabindex="0"></div>
         </section>
     </div>
 
@@ -612,7 +659,7 @@
       Your browser does not support the audio element.
     </audio>
 
-    <script src="js/libs/purify.min.js?v=0.1.39"></script>
+    <script src="js/libs/purify.min.js?v=0.1.45"></script>
 
     <script>
         (function loadVersionedLocalScripts() {

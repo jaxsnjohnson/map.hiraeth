@@ -15,7 +15,7 @@
     }
   },
   "assets": {
-    "version": "0.1.39",
+    "version": "0.1.45",
     "cloudTexture": "images/clouds.webp",
     "previewImage": "images/hiraeth-maps-preview.png",
     "poiIcons": {
@@ -160,6 +160,14 @@
     "tilePreviewFadeStartRatio": 0.45,
     "tilePreviewRetireRatio": 0.76,
     "tileFullImageFallback": true,
+    "idleTileWarmup": true,
+    "idleTileWarmupDelayMs": 1800,
+    "idleTileWarmupBatchSize": 4,
+    "idleTileWarmupBatchDelayMs": 80,
+    "idleTileWarmupMaxTiles": 768,
+    "idleTileWarmupMobileMaxTiles": 192,
+    "idleTileUpgradeMaxTiles": 160,
+    "idleTileUpgradeMobileMaxTiles": 72,
     "linkedMapPrefetchLimit": 3,
     "prefetchImages": true,
     "prefetchJson": true,

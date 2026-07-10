@@ -57,7 +57,7 @@ assert.match(swSource, /async function cacheFirstTask\(request, cacheName\)/);
 assert.match(swSource, /const TILE_CACHE = 'hag-tiles-v1'/);
 assert.match(swSource, /function respondWithCacheTask\(event, task\)/);
 assert.match(swSource, /event\.waitUntil\(taskPromise/);
-assert.match(swSource, /MAX_TILE_CACHE_ENTRIES = 640/);
+assert.match(swSource, /MAX_TILE_CACHE_ENTRIES = 1024/);
 assert.match(swSource, /\? cacheFirstTask\(request, SHELL_CACHE\)/);
 assert.match(swSource, /: networkFirstTask\(request, SHELL_CACHE\)/);
 assert.match(swSource, /const DEFAULT_VERSIONED_SHELL_ASSETS = \[[\s\S]*'css\/style\.css'/);

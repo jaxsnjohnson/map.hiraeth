@@ -19,7 +19,7 @@
 
     function getDefaultAssetsConfig() {
         return {
-                version: '0.1.39',
+                version: '0.1.45',
                 stylesheets: [
                     'css/leaflet.css',
                     'css/style.css',
@@ -233,6 +233,14 @@
                 tilePreviewFadeStartRatio: 0.45,
                 tilePreviewRetireRatio: 0.76,
                 tileFullImageFallback: true,
+                idleTileWarmup: true,
+                idleTileWarmupDelayMs: 1800,
+                idleTileWarmupBatchSize: 4,
+                idleTileWarmupBatchDelayMs: 80,
+                idleTileWarmupMaxTiles: 768,
+                idleTileWarmupMobileMaxTiles: 192,
+                idleTileUpgradeMaxTiles: 160,
+                idleTileUpgradeMobileMaxTiles: 72,
                 linkedMapPrefetchLimit: 3,
                 prefetchImages: true,
                 prefetchJson: true,
@@ -412,7 +420,7 @@
 
     function getCurrentReleaseChangelogHtml(version) {
         const versionLabel = escapeHtml(`v${String(version || '').trim()}`);
-        return `<div class="changelog-entry"><div class="changelog-header"><h3>Atlas Navigation and Faster Pages Delivery</h3><span class="version-pill" title="Current release">${versionLabel}</span></div><ul class="changelog-list"><li>Made Atlas the dedicated left-side navigation and moved selected locations into an expandable detail sheet.</li><li>Added a mobile bottom-sheet detail flow while keeping search anchored to the bottom navigation.</li><li>Reduced the Pages artifact by omitting duplicate full images for tiled maps and raised native-detail tile quality.</li><li>Started styles earlier and cached versioned shell, data, and image assets without repeat revalidation.</li></ul></div>`;
+        return `<div class="changelog-entry"><div class="changelog-header"><h3>Faster Maps and Flexible Details</h3><span class="version-pill" title="Current release">${versionLabel}</span></div><ul class="changelog-list"><li>Shows a quick map preview first, then quietly loads and saves sharper map tiles while the view is resting.</li><li>Stops background loading as soon as the map moves, avoids extra work on data-saving connections, and reuses saved tiles on later visits.</li><li>Prevents white zoom flashes and unstyled startup text while detailed map imagery is loading.</li><li>Gives Atlas, Search, and location details clearer jobs, with a large player-friendly Details window that can also dock to the right.</li><li>Lets desktop players drag and resize Details, adjust both sidebars, and keep their preferred layout after refreshing.</li><li>Puts place names and story text first, keeps internal fields behind Stats, and replaces the wide Focus button with a compact map-target control.</li><li>Keeps Search visible unless the floating Details window actually covers it, with calmer timing near the overlap boundary.</li><li>Keeps the mobile experience predictable with a fixed bottom sheet and fullscreen details option.</li></ul></div>`;
     }
 
     function syncCurrentReleaseChangelog(config) {

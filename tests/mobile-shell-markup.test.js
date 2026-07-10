@@ -27,7 +27,7 @@ assert.match(indexSource, /id="mobile-share-view-btn"/);
 assert.match(indexSource, /id="mobile-help-btn"/);
 assert.match(indexSource, /id="mobile-atlas-close-btn"/);
 assert.match(indexSource, /id="feature-detail-sheet"/);
-assert.match(indexSource, /id="feature-detail-expand-btn"/);
+assert.match(indexSource, /id="feature-detail-layout-btn"/);
 assert.match(indexSource, /id="map" tabindex="0" aria-label="Interactive map"/);
 assert.doesNotMatch(indexSource, /id="mobile-gm-view-btn"/);
 assert.doesNotMatch(indexSource, /id="mobile-toolkit-btn"/);

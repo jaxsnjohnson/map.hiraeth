@@ -3,6 +3,15 @@ const fs = require('node:fs');
 const { JSDOM, VirtualConsole } = require('jsdom');
 
 const indexSource = fs.readFileSync('index.html', 'utf8');
+
+assert.match(indexSource, /<html lang="en" class="app-booting">/);
+assert.match(indexSource, /html\.app-booting body \{\s*visibility: hidden;/);
+assert.match(indexSource, /window\.__APP_STYLE_READY_TIMEOUT__ = setTimeout\(window\.__markAppStylesReady, 4000\)/);
+assert.match(indexSource, /css\/style\.css\?v=[^" ]+" data-app-stylesheet="true">[\s\S]*window\.__markAppStylesReady/);
+assert.ok(
+    indexSource.indexOf('id="app-boot-style"') < indexSource.indexOf('<link rel="stylesheet"'),
+    'the critical boot shell must be parser-visible before external stylesheets'
+);
 const styleSource = fs.readFileSync('css/style.css', 'utf8');
 
 assert.match(indexSource, /window\.__INITIAL_EMBEDDED_VIEW__\s*=\s*isEmbed/);

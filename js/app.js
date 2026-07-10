@@ -39,6 +39,10 @@ const UX_STORAGE_KEYS = {
     gmPanelVisible: 'gmPanelVisible',
     toolkitPanelVisible: 'toolkitPanelVisible',
     mobileLayoutMode: 'mobileLayoutMode',
+    featureDetailMode: 'featureDetailMode',
+    atlasSidebarWidth: 'atlasSidebarWidth',
+    featureDetailDockedWidth: 'featureDetailDockedWidth',
+    featureDetailGeometry: 'featureDetailGeometry',
     shareRelayDismissedSession: 'shareRelayDismissedSession'
 };
 let isEmbeddedView = window.__INITIAL_EMBEDDED_VIEW__ === true;
@@ -63,6 +67,9 @@ const prefetchedImageUrls = new Set();
 let prefetchImageQueue = [];
 let prefetchImageInFlight = false;
 let scheduledPrefetchIdleId = null;
+let idleTileWarmupTimer = null;
+let idleTileWarmupGeneration = 0;
+let idleDetailTileLayer = null;
 const SEARCH_SCOPE_MAP = 'map';
 const SEARCH_SCOPE_ATLAS = 'atlas';
 const SEARCH_RESULT_GROUP_ORDER = ['poi', 'region', 'line', 'map'];
@@ -84,6 +91,18 @@ const MOBILE_TOOLS_PANEL_GM = 'gm';
 const MOBILE_LAYOUT_QUERY_PARAM = 'mobileLayout';
 const MOBILE_LAYOUT_MODE_V2 = 'v2';
 const MOBILE_LAYOUT_MODE_LEGACY = 'legacy';
+const FEATURE_DETAIL_MODE_FLOATING = 'floating';
+const FEATURE_DETAIL_MODE_DOCKED = 'docked';
+const ATLAS_WIDTH_DEFAULT = 286;
+const ATLAS_WIDTH_MIN = 240;
+const ATLAS_WIDTH_MAX = 420;
+const DETAIL_DOCKED_WIDTH_DEFAULT = 380;
+const DETAIL_DOCKED_WIDTH_MIN = 320;
+const DETAIL_DOCKED_WIDTH_MAX = 520;
+const DETAIL_FLOATING_WIDTH_MIN = 420;
+const DETAIL_FLOATING_HEIGHT_MIN = 300;
+const WORKSPACE_MAP_WIDTH_MIN = 360;
+const WORKSPACE_EDGE_MARGIN = 12;
 const MOBILE_PANEL_MARGIN = 10;
 const SMOOTH_ZOOM_STEP = 0.5;
 const WHEEL_ZOOM_SNAP = 0;
@@ -257,6 +276,7 @@ map.on('popupopen', refreshLucideIcons);
 let interactionCooldownId = null;
 const beginMapInteraction = () => {
     rootElement.classList.add('map-interacting');
+    cancelIdleTileWarmup({ removeDetailLayer: true });
     if (interactionCooldownId) {
         clearTimeout(interactionCooldownId);
         interactionCooldownId = null;
@@ -266,6 +286,7 @@ const endMapInteraction = () => {
     if (interactionCooldownId) clearTimeout(interactionCooldownId);
     interactionCooldownId = setTimeout(() => {
         rootElement.classList.remove('map-interacting');
+        scheduleIdleTileWarmup();
     }, 140);
 };
 map.on('movestart zoomstart', beginMapInteraction);
@@ -273,6 +294,16 @@ map.on('moveend zoomend', endMapInteraction);
 
 if (map && map.getContainer && typeof map.getContainer().addEventListener === 'function') {
     map.getContainer().addEventListener('wheel', handleSmoothWheelZoom, { passive: false });
+}
+
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            cancelIdleTileWarmup({ removeDetailLayer: false });
+        } else {
+            scheduleIdleTileWarmup();
+        }
+    });
 }
 
 // NOW Initialize measurementLayerGroup
@@ -928,8 +959,12 @@ const sidebarMapPanel = document.getElementById('sidebar-map-panel');
 const sidebarPoiPanel = document.getElementById('sidebar-poi-panel');
 const featureDetailSheet = document.getElementById('feature-detail-sheet');
 const featureDetailBackdrop = document.getElementById('feature-detail-backdrop');
-const featureDetailExpandBtn = document.getElementById('feature-detail-expand-btn');
+const featureDetailLayoutBtn = document.getElementById('feature-detail-layout-btn');
 const featureDetailCloseBtn = document.getElementById('feature-detail-close-btn');
+const atlasResizeHandle = document.getElementById('atlas-resize-handle');
+const featureDetailDockResizeHandle = document.getElementById('feature-detail-dock-resize-handle');
+const featureDetailCornerResizeHandle = document.getElementById('feature-detail-corner-resize-handle');
+const featureDetailHeader = featureDetailSheet ? featureDetailSheet.querySelector('.feature-detail-shell-header') : null;
 const mobileAtlasCloseBtn = document.getElementById('mobile-atlas-close-btn');
 const toggleBtn = document.getElementById('toggle-sidebar-btn');
 const mapChooserElement = document.getElementById('map-chooser');
@@ -1081,6 +1116,13 @@ let selectedSidebarFeature = null;
 let selectedSidebarFeatureType = '';
 let featureDetailSheetOpen = false;
 let featureDetailSheetExpanded = false;
+let featureDetailSheetDocked = false;
+let atlasSidebarWidth = ATLAS_WIDTH_DEFAULT;
+let featureDetailDockedWidth = DETAIL_DOCKED_WIDTH_DEFAULT;
+let featureDetailFloatingGeometry = null;
+let workspaceMapResizeFrame = null;
+let featureDetailSearchVisibilityTimer = null;
+let featureDetailSearchTargetObscured = false;
 let lastFeatureDetailTrigger = null;
 let restoreMapChooserTriggerOnPopState = false;
 
@@ -1496,6 +1538,13 @@ function syncBottomBarHeightVariable() {
 
 function clampFloatingPanels() {
     if (!mobileLayoutV2Enabled || isMobileLayoutActive) return;
+    if (typeof applyFeatureDetailDockedWidth === 'function' && typeof applyAtlasSidebarWidth === 'function') {
+        applyFeatureDetailDockedWidth(featureDetailDockedWidth);
+        applyAtlasSidebarWidth(atlasSidebarWidth);
+    }
+    if (typeof applyFloatingFeatureDetailGeometry === 'function' && featureDetailSheetOpen && !featureDetailSheetDocked && featureDetailFloatingGeometry) {
+        applyFloatingFeatureDetailGeometry(featureDetailFloatingGeometry, { persist: true });
+    }
     [sessionToolkitPanel, gmPill].forEach((panel) => {
         if (!panel) return;
         panel.style.maxHeight = '';
@@ -1639,6 +1688,7 @@ function updateMobileLayoutState() {
     syncMobileSearchPanelState();
     syncMobileFilterState();
     syncMiniMapControl();
+    if (featureDetailSheetOpen) syncFeatureDetailSheetState();
     clampFloatingPanels();
 }
 
@@ -1926,18 +1976,10 @@ function getSidebarFeatureTitle(feature) {
 }
 
 function getSidebarFeatureTypeLabel(feature, type) {
-    if (type === 'poi') return getPoiGroup(feature?.type) || feature?.type || 'POI';
+    if (type === 'poi') return feature?.type || 'Point of interest';
     if (type === 'region') return feature?.value || feature?.type || 'Region';
     if (type === 'line') return feature?.type || 'Line';
     return 'Feature';
-}
-
-function getSidebarFeatureKicker(feature, type) {
-    const typeLabel = getSidebarFeatureTypeLabel(feature, type);
-    if (type === 'poi') return `POI / ${typeLabel}`;
-    if (type === 'region') return `Region / ${typeLabel}`;
-    if (type === 'line') return `Line / ${typeLabel}`;
-    return typeLabel;
 }
 
 function appendSidebarMetaRow(parent, label, value) {
@@ -2038,7 +2080,7 @@ function buildSidebarFeatureDetailModel(feature, type) {
     const summary = getSidebarPlainText(feature.summary);
     const description = getSidebarPlainText(feature.description);
     const linkedMap = resolveLinkedMapData(feature);
-    const metaRows = [
+    const technicalRows = [
         ['Type', feature.type || getSidebarFeatureTypeLabel(feature, type)],
         ['Linked map', linkedMap?.name || ''],
         ['ID', feature.id || ''],
@@ -2047,10 +2089,10 @@ function buildSidebarFeatureDetailModel(feature, type) {
 
     return {
         title: getSidebarFeatureTitle(feature),
-        kicker: getSidebarFeatureKicker(feature, type),
+        typeLabel: getSidebarFeatureTypeLabel(feature, type),
         summary,
         description: description && description !== summary ? description : '',
-        metaRows,
+        technicalRows,
         sections: getFeatureDetailSections(feature),
         tags: getFeatureTags(feature),
         linkedMap
@@ -2136,23 +2178,14 @@ function renderSidebarFeaturePanel() {
 
     const header = document.createElement('header');
     header.className = 'sidebar-detail-header';
-    header.appendChild(createSidebarTextElement('span', 'sidebar-detail-kicker', detailModel.kicker));
     const title = createSidebarTextElement('h2', 'sidebar-detail-title', detailModel.title);
     title.id = 'feature-detail-title';
     header.appendChild(title);
+    header.appendChild(createSidebarTextElement('span', 'sidebar-detail-type', detailModel.typeLabel));
     sidebarPoiPanel.appendChild(header);
 
     if (detailModel.summary) {
         sidebarPoiPanel.appendChild(createSidebarTextElement('p', 'sidebar-detail-summary', detailModel.summary));
-    }
-
-    const meta = document.createElement('div');
-    meta.className = 'sidebar-detail-meta';
-    detailModel.metaRows.forEach(([key, value]) => {
-        appendSidebarMetaRow(meta, key, value);
-    });
-    if (meta.children.length > 0) {
-        sidebarPoiPanel.appendChild(meta);
     }
 
     appendSidebarTextSection(sidebarPoiPanel, 'Overview', detailModel.description);
@@ -2163,9 +2196,44 @@ function renderSidebarFeaturePanel() {
 
     const actions = document.createElement('div');
     actions.className = 'sidebar-detail-actions';
+
+    if (detailModel.technicalRows.length > 0) {
+        const technicalPanel = document.createElement('section');
+        technicalPanel.id = 'feature-detail-technical';
+        technicalPanel.className = 'sidebar-detail-technical';
+        technicalPanel.hidden = true;
+        technicalPanel.appendChild(createSidebarTextElement('h3', 'sr-only', 'Technical details'));
+        const technicalMeta = document.createElement('div');
+        technicalMeta.className = 'sidebar-detail-meta';
+        detailModel.technicalRows.forEach(([key, value]) => {
+            appendSidebarMetaRow(technicalMeta, key, value);
+        });
+        technicalPanel.appendChild(technicalMeta);
+        sidebarPoiPanel.appendChild(technicalPanel);
+
+        const technicalToggle = document.createElement('button');
+        technicalToggle.type = 'button';
+        technicalToggle.className = 'sidebar-detail-technical-toggle';
+        technicalToggle.title = 'Stats for nerds';
+        technicalToggle.setAttribute('aria-label', 'Show technical details');
+        technicalToggle.setAttribute('aria-controls', technicalPanel.id);
+        technicalToggle.setAttribute('aria-expanded', 'false');
+        technicalToggle.innerHTML = '<i class="ui-icon" data-lucide="database" aria-hidden="true"></i><span>Stats</span>';
+        technicalToggle.addEventListener('click', () => {
+            const expanded = technicalToggle.getAttribute('aria-expanded') !== 'true';
+            technicalToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            technicalToggle.setAttribute('aria-label', expanded ? 'Hide technical details' : 'Show technical details');
+            technicalPanel.hidden = !expanded;
+        });
+        actions.appendChild(technicalToggle);
+    }
+
     const focusButton = document.createElement('button');
     focusButton.type = 'button';
-    focusButton.innerHTML = '<i class="ui-icon" data-lucide="crosshair" aria-hidden="true"></i><span>Focus</span>';
+    focusButton.className = 'sidebar-detail-focus-action';
+    focusButton.title = 'Focus on map';
+    focusButton.setAttribute('aria-label', 'Focus on map');
+    focusButton.innerHTML = '<i class="ui-icon" data-lucide="crosshair" aria-hidden="true"></i>';
     focusButton.addEventListener('click', focusSidebarSelectedFeature);
     actions.appendChild(focusButton);
 
@@ -2182,39 +2250,401 @@ function renderSidebarFeaturePanel() {
     sidebarPoiPanel.appendChild(actions);
 }
 
+function refreshMapAfterFeatureDetailLayoutChange() {
+    if (!map || typeof map.invalidateSize !== 'function') return;
+    requestAnimationFrame(() => map.invalidateSize({ pan: false }));
+    setTimeout(() => map.invalidateSize({ pan: false }), transitionDuration + 20);
+}
+
+function syncFeatureDetailSearchVisibility() {
+    if (!container) return;
+    let obscuresSearch = false;
+    const canObscureSearch =
+        featureDetailSheetOpen &&
+        !isMobileLayoutActive &&
+        !featureDetailSheetDocked &&
+        featureDetailSheet &&
+        searchControlContainer &&
+        window.getComputedStyle(searchControlContainer).display !== 'none';
+    if (canObscureSearch) {
+        const sheetRect = featureDetailSheet.getBoundingClientRect();
+        const searchRect = searchControlContainer.getBoundingClientRect();
+        const margin = 14;
+        obscuresSearch = searchRect.width > 0 && searchRect.height > 0 && !(
+            sheetRect.right < searchRect.left - margin ||
+            sheetRect.left > searchRect.right + margin ||
+            sheetRect.bottom < searchRect.top - margin ||
+            sheetRect.top > searchRect.bottom + margin
+        );
+    }
+    if (!canObscureSearch) {
+        if (featureDetailSearchVisibilityTimer !== null) {
+            clearTimeout(featureDetailSearchVisibilityTimer);
+            featureDetailSearchVisibilityTimer = null;
+        }
+        featureDetailSearchTargetObscured = false;
+        container.classList.remove('feature-detail-obscures-search');
+        return;
+    }
+    if (
+        featureDetailSearchTargetObscured === obscuresSearch &&
+        (
+            featureDetailSearchVisibilityTimer !== null ||
+            container.classList.contains('feature-detail-obscures-search') === obscuresSearch
+        )
+    ) {
+        return;
+    }
+    featureDetailSearchTargetObscured = obscuresSearch;
+    if (featureDetailSearchVisibilityTimer !== null) {
+        clearTimeout(featureDetailSearchVisibilityTimer);
+    }
+    const delay = obscuresSearch ? 180 : 320;
+    featureDetailSearchVisibilityTimer = setTimeout(() => {
+        featureDetailSearchVisibilityTimer = null;
+        container.classList.toggle('feature-detail-obscures-search', featureDetailSearchTargetObscured);
+    }, delay);
+}
+
+function clampWorkspaceValue(value, min, max) {
+    return Math.min(Math.max(Number(value) || min, min), Math.max(min, max));
+}
+
+function scheduleWorkspaceMapResize() {
+    if (workspaceMapResizeFrame !== null) return;
+    const scheduleFrame = typeof requestAnimationFrame === 'function'
+        ? requestAnimationFrame
+        : (callback) => setTimeout(callback, 0);
+    workspaceMapResizeFrame = scheduleFrame(() => {
+        workspaceMapResizeFrame = null;
+        if (map && typeof map.invalidateSize === 'function') {
+            map.invalidateSize({ pan: false });
+        }
+    });
+}
+
+function getWorkspaceWidthLimits() {
+    const containerWidth = container ? container.clientWidth : window.innerWidth;
+    const atlasAllowance = featureDetailSheetOpen && featureDetailSheetDocked
+        ? featureDetailDockedWidth
+        : 0;
+    const atlasMax = Math.min(
+        ATLAS_WIDTH_MAX,
+        containerWidth - atlasAllowance - WORKSPACE_MAP_WIDTH_MIN
+    );
+    const visibleAtlasWidth = container && container.classList.contains('sidebar-collapsed')
+        ? 0
+        : atlasSidebarWidth;
+    const detailMax = Math.min(
+        DETAIL_DOCKED_WIDTH_MAX,
+        containerWidth - visibleAtlasWidth - WORKSPACE_MAP_WIDTH_MIN
+    );
+    return {
+        atlasMax: Math.max(ATLAS_WIDTH_MIN, atlasMax),
+        detailMax: Math.max(DETAIL_DOCKED_WIDTH_MIN, detailMax)
+    };
+}
+
+function applyAtlasSidebarWidth(value, { persist = false } = {}) {
+    const { atlasMax } = getWorkspaceWidthLimits();
+    atlasSidebarWidth = clampWorkspaceValue(value, ATLAS_WIDTH_MIN, atlasMax);
+    if (container) {
+        container.style.setProperty('--atlas-sidebar-width', `${Math.round(atlasSidebarWidth)}px`);
+        container.style.setProperty('--atlas-sidebar-offset', `${Math.round(atlasSidebarWidth / 2)}px`);
+    }
+    if (atlasResizeHandle) {
+        atlasResizeHandle.setAttribute('aria-valuemax', String(Math.round(atlasMax)));
+        atlasResizeHandle.setAttribute('aria-valuenow', String(Math.round(atlasSidebarWidth)));
+    }
+    if (persist) safeSetStorage(UX_STORAGE_KEYS.atlasSidebarWidth, String(Math.round(atlasSidebarWidth)));
+    scheduleWorkspaceMapResize();
+}
+
+function applyFeatureDetailDockedWidth(value, { persist = false } = {}) {
+    const { detailMax } = getWorkspaceWidthLimits();
+    featureDetailDockedWidth = clampWorkspaceValue(value, DETAIL_DOCKED_WIDTH_MIN, detailMax);
+    if (container) container.style.setProperty('--feature-detail-docked-width', `${Math.round(featureDetailDockedWidth)}px`);
+    if (featureDetailDockResizeHandle) {
+        featureDetailDockResizeHandle.setAttribute('aria-valuemax', String(Math.round(detailMax)));
+        featureDetailDockResizeHandle.setAttribute('aria-valuenow', String(Math.round(featureDetailDockedWidth)));
+    }
+    if (persist) safeSetStorage(UX_STORAGE_KEYS.featureDetailDockedWidth, String(Math.round(featureDetailDockedWidth)));
+    scheduleWorkspaceMapResize();
+}
+
+function getFloatingDetailBounds() {
+    const containerRect = container
+        ? container.getBoundingClientRect()
+        : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+    const sidebarBoundary = sidebar && container && !container.classList.contains('sidebar-collapsed')
+        ? sidebar.getBoundingClientRect().right - containerRect.left
+        : 0;
+    const left = sidebarBoundary + WORKSPACE_EDGE_MARGIN;
+    const top = WORKSPACE_EDGE_MARGIN;
+    return {
+        left,
+        top,
+        right: containerRect.width - WORKSPACE_EDGE_MARGIN,
+        bottom: containerRect.height - WORKSPACE_EDGE_MARGIN
+    };
+}
+
+function applyFloatingFeatureDetailGeometry(geometry, { persist = false } = {}) {
+    if (!featureDetailSheet || !geometry) return;
+    const bounds = getFloatingDetailBounds();
+    const maxWidth = Math.max(1, bounds.right - bounds.left);
+    const maxHeight = Math.max(1, bounds.bottom - bounds.top);
+    const minWidth = Math.min(DETAIL_FLOATING_WIDTH_MIN, maxWidth);
+    const minHeight = Math.min(DETAIL_FLOATING_HEIGHT_MIN, maxHeight);
+    const width = clampWorkspaceValue(geometry.width, minWidth, maxWidth);
+    const height = clampWorkspaceValue(geometry.height, minHeight, maxHeight);
+    const left = clampWorkspaceValue(geometry.left, bounds.left, bounds.right - width);
+    const top = clampWorkspaceValue(geometry.top, bounds.top, bounds.bottom - height);
+    featureDetailFloatingGeometry = { left, top, width, height };
+    featureDetailSheet.classList.add('user-positioned');
+    featureDetailSheet.style.left = `${Math.round(left)}px`;
+    featureDetailSheet.style.top = `${Math.round(top)}px`;
+    featureDetailSheet.style.width = `${Math.round(width)}px`;
+    featureDetailSheet.style.height = `${Math.round(height)}px`;
+    featureDetailSheet.style.transform = 'none';
+    syncFeatureDetailSearchVisibility();
+    if (featureDetailCornerResizeHandle) {
+        featureDetailCornerResizeHandle.setAttribute('aria-valuenow', `${Math.round(width)} by ${Math.round(height)}`);
+    }
+    if (persist) safeSetJSON(UX_STORAGE_KEYS.featureDetailGeometry, featureDetailFloatingGeometry);
+}
+
+function clearFloatingFeatureDetailStyles() {
+    if (!featureDetailSheet) return;
+    featureDetailSheet.classList.remove('user-positioned');
+    ['left', 'top', 'width', 'height', 'transform'].forEach((property) => {
+        featureDetailSheet.style[property] = '';
+    });
+    syncFeatureDetailSearchVisibility();
+}
+
+function resetFloatingFeatureDetailGeometry() {
+    featureDetailFloatingGeometry = null;
+    safeRemoveStorage(UX_STORAGE_KEYS.featureDetailGeometry);
+    clearFloatingFeatureDetailStyles();
+}
+
+function syncFeatureDetailLayoutGeometry() {
+    if (!featureDetailSheet || isMobileLayoutActive || featureDetailSheetDocked) {
+        clearFloatingFeatureDetailStyles();
+        return;
+    }
+    if (featureDetailFloatingGeometry) {
+        applyFloatingFeatureDetailGeometry(featureDetailFloatingGeometry);
+    } else {
+        clearFloatingFeatureDetailStyles();
+    }
+}
+
+function beginWorkspaceResize(handle, onMove, onFinish) {
+    return (event) => {
+        if (isMobileLayoutActive || event.button !== 0) return;
+        event.preventDefault();
+        container?.classList.add('workspace-resizing');
+        handle.setPointerCapture?.(event.pointerId);
+        const move = (moveEvent) => onMove(moveEvent);
+        const finish = (finishEvent) => {
+            window.removeEventListener('pointermove', move);
+            window.removeEventListener('pointerup', finish);
+            window.removeEventListener('pointercancel', finish);
+            container?.classList.remove('workspace-resizing');
+            handle.releasePointerCapture?.(finishEvent.pointerId);
+            onFinish?.();
+            refreshMapAfterFeatureDetailLayoutChange();
+        };
+        window.addEventListener('pointermove', move);
+        window.addEventListener('pointerup', finish);
+        window.addEventListener('pointercancel', finish);
+    };
+}
+
+function initializeResizableWorkspace() {
+    const storedAtlasWidth = Number(safeGetStorage(UX_STORAGE_KEYS.atlasSidebarWidth));
+    const storedDockedWidth = Number(safeGetStorage(UX_STORAGE_KEYS.featureDetailDockedWidth));
+    const storedGeometry = safeGetJSON(UX_STORAGE_KEYS.featureDetailGeometry, null);
+    atlasSidebarWidth = Number.isFinite(storedAtlasWidth) && storedAtlasWidth > 0 ? storedAtlasWidth : ATLAS_WIDTH_DEFAULT;
+    featureDetailDockedWidth = Number.isFinite(storedDockedWidth) && storedDockedWidth > 0
+        ? storedDockedWidth
+        : DETAIL_DOCKED_WIDTH_DEFAULT;
+    featureDetailFloatingGeometry = storedGeometry && ['left', 'top', 'width', 'height'].every((key) => Number.isFinite(Number(storedGeometry[key])))
+        ? storedGeometry
+        : null;
+    applyAtlasSidebarWidth(atlasSidebarWidth);
+    applyFeatureDetailDockedWidth(featureDetailDockedWidth);
+
+    if (atlasResizeHandle) {
+        atlasResizeHandle.addEventListener('pointerdown', beginWorkspaceResize(
+            atlasResizeHandle,
+            (event) => {
+                const containerLeft = container?.getBoundingClientRect().left || 0;
+                applyAtlasSidebarWidth(event.clientX - containerLeft);
+            },
+            () => applyAtlasSidebarWidth(atlasSidebarWidth, { persist: true })
+        ));
+        atlasResizeHandle.addEventListener('keydown', (event) => {
+            if (!['ArrowLeft', 'ArrowRight', 'Home'].includes(event.key)) return;
+            event.preventDefault();
+            const next = event.key === 'Home'
+                ? ATLAS_WIDTH_DEFAULT
+                : atlasSidebarWidth + (event.key === 'ArrowRight' ? 16 : -16);
+            applyAtlasSidebarWidth(next, { persist: true });
+        });
+    }
+
+    if (featureDetailDockResizeHandle) {
+        featureDetailDockResizeHandle.addEventListener('pointerdown', beginWorkspaceResize(
+            featureDetailDockResizeHandle,
+            (event) => {
+                const containerRight = container?.getBoundingClientRect().right || window.innerWidth;
+                applyFeatureDetailDockedWidth(containerRight - event.clientX);
+            },
+            () => applyFeatureDetailDockedWidth(featureDetailDockedWidth, { persist: true })
+        ));
+        featureDetailDockResizeHandle.addEventListener('keydown', (event) => {
+            if (!['ArrowLeft', 'ArrowRight', 'Home'].includes(event.key)) return;
+            event.preventDefault();
+            const next = event.key === 'Home'
+                ? DETAIL_DOCKED_WIDTH_DEFAULT
+                : featureDetailDockedWidth + (event.key === 'ArrowLeft' ? 16 : -16);
+            applyFeatureDetailDockedWidth(next, { persist: true });
+        });
+    }
+
+    if (featureDetailHeader) {
+        featureDetailHeader.addEventListener('pointerdown', (event) => {
+            if (isMobileLayoutActive || !featureDetailSheet?.classList.contains('floating') || event.button !== 0) return;
+            if (event.target instanceof Element && event.target.closest('button, .workspace-corner-resize-handle')) return;
+            const containerRect = container.getBoundingClientRect();
+            const sheetRect = featureDetailSheet.getBoundingClientRect();
+            const startX = event.clientX;
+            const startY = event.clientY;
+            const startGeometry = {
+                left: sheetRect.left - containerRect.left,
+                top: sheetRect.top - containerRect.top,
+                width: sheetRect.width,
+                height: sheetRect.height
+            };
+            applyFloatingFeatureDetailGeometry(startGeometry);
+            beginWorkspaceResize(featureDetailHeader, (moveEvent) => {
+                applyFloatingFeatureDetailGeometry({
+                    ...startGeometry,
+                    left: startGeometry.left + moveEvent.clientX - startX,
+                    top: startGeometry.top + moveEvent.clientY - startY
+                });
+            }, () => applyFloatingFeatureDetailGeometry(featureDetailFloatingGeometry, { persist: true }))(event);
+        });
+        featureDetailHeader.addEventListener('dblclick', (event) => {
+            if (event.target instanceof Element && event.target.closest('button')) return;
+            resetFloatingFeatureDetailGeometry();
+        });
+    }
+
+    if (featureDetailCornerResizeHandle) {
+        featureDetailCornerResizeHandle.addEventListener('pointerdown', (event) => {
+            if (!featureDetailSheet?.classList.contains('floating')) return;
+            const containerRect = container.getBoundingClientRect();
+            const sheetRect = featureDetailSheet.getBoundingClientRect();
+            const startX = event.clientX;
+            const startY = event.clientY;
+            const startGeometry = {
+                left: sheetRect.left - containerRect.left,
+                top: sheetRect.top - containerRect.top,
+                width: sheetRect.width,
+                height: sheetRect.height
+            };
+            beginWorkspaceResize(featureDetailCornerResizeHandle, (moveEvent) => {
+                applyFloatingFeatureDetailGeometry({
+                    ...startGeometry,
+                    width: startGeometry.width + moveEvent.clientX - startX,
+                    height: startGeometry.height + moveEvent.clientY - startY
+                });
+            }, () => applyFloatingFeatureDetailGeometry(featureDetailFloatingGeometry, { persist: true }))(event);
+        });
+        featureDetailCornerResizeHandle.addEventListener('keydown', (event) => {
+            if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home'].includes(event.key)) return;
+            event.preventDefault();
+            if (event.key === 'Home') {
+                resetFloatingFeatureDetailGeometry();
+                return;
+            }
+            const rect = featureDetailSheet.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            applyFloatingFeatureDetailGeometry({
+                left: rect.left - containerRect.left,
+                top: rect.top - containerRect.top,
+                width: rect.width + (event.key === 'ArrowRight' ? 16 : event.key === 'ArrowLeft' ? -16 : 0),
+                height: rect.height + (event.key === 'ArrowDown' ? 16 : event.key === 'ArrowUp' ? -16 : 0)
+            }, { persist: true });
+        });
+    }
+}
+
 function syncFeatureDetailSheetState() {
     const open = featureDetailSheetOpen && !!selectedSidebarFeature;
     if (!open) featureDetailSheetExpanded = false;
-    const modal = open && featureDetailSheetExpanded;
+    if (!isMobileLayoutActive) featureDetailSheetExpanded = false;
+    const mobileExpanded = open && isMobileLayoutActive && featureDetailSheetExpanded;
+    const floating = open && !isMobileLayoutActive && !featureDetailSheetDocked;
+    const docked = open && !isMobileLayoutActive && featureDetailSheetDocked;
+    const modal = mobileExpanded;
 
     if (featureDetailSheet) {
         featureDetailSheet.hidden = !open;
         featureDetailSheet.classList.toggle('visible', open);
-        featureDetailSheet.classList.toggle('expanded', open && featureDetailSheetExpanded);
+        featureDetailSheet.classList.toggle('floating', floating);
+        featureDetailSheet.classList.toggle('docked', docked);
+        featureDetailSheet.classList.toggle('expanded', mobileExpanded);
         featureDetailSheet.setAttribute('aria-hidden', open ? 'false' : 'true');
         featureDetailSheet.setAttribute('aria-modal', modal ? 'true' : 'false');
     }
     if (featureDetailBackdrop) {
-        const showBackdrop = open && featureDetailSheetExpanded;
+        const showBackdrop = mobileExpanded;
         featureDetailBackdrop.hidden = !showBackdrop;
         featureDetailBackdrop.classList.toggle('visible', showBackdrop);
         featureDetailBackdrop.setAttribute('aria-hidden', showBackdrop ? 'false' : 'true');
     }
-    if (featureDetailExpandBtn) {
-        featureDetailExpandBtn.setAttribute('aria-pressed', featureDetailSheetExpanded ? 'true' : 'false');
-        featureDetailExpandBtn.setAttribute('aria-label', featureDetailSheetExpanded ? 'Restore details' : 'Expand details');
-        featureDetailExpandBtn.setAttribute('title', featureDetailSheetExpanded ? 'Restore details' : 'Expand details');
-        featureDetailExpandBtn.innerHTML = featureDetailSheetExpanded
-            ? '<i class="ui-icon" data-lucide="minimize-2" aria-hidden="true"></i>'
-            : '<i class="ui-icon" data-lucide="maximize-2" aria-hidden="true"></i>';
+    if (featureDetailLayoutBtn) {
+        const pressed = isMobileLayoutActive ? featureDetailSheetExpanded : featureDetailSheetDocked;
+        const label = isMobileLayoutActive
+            ? (featureDetailSheetExpanded ? 'Restore details' : 'Expand details')
+            : (featureDetailSheetDocked ? 'Open as main panel' : 'Dock details to right');
+        const iconMarkup = isMobileLayoutActive
+            ? (featureDetailSheetExpanded
+                ? '<i class="ui-icon" data-lucide="minimize-2" aria-hidden="true"></i>'
+                : '<i class="ui-icon" data-lucide="maximize-2" aria-hidden="true"></i>')
+            : (featureDetailSheetDocked
+                ? '<i class="ui-icon" data-lucide="panel-right-open" aria-hidden="true"></i>'
+                : '<i class="ui-icon" data-lucide="panel-right" aria-hidden="true"></i>');
+        featureDetailLayoutBtn.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+        featureDetailLayoutBtn.setAttribute('aria-label', label);
+        featureDetailLayoutBtn.setAttribute('title', label);
+        featureDetailLayoutBtn.innerHTML = iconMarkup;
     }
     if (container) {
         container.classList.toggle('feature-detail-open', open);
-        container.classList.toggle('feature-detail-expanded', open && featureDetailSheetExpanded);
+        container.classList.toggle('feature-detail-floating', floating);
+        container.classList.toggle('feature-detail-docked', docked);
+        container.classList.toggle('feature-detail-expanded', mobileExpanded);
     }
     if (bodyElement) {
         bodyElement.classList.toggle('feature-detail-open', open);
+        bodyElement.classList.toggle('feature-detail-floating', floating);
+        bodyElement.classList.toggle('feature-detail-docked', docked);
         bodyElement.classList.toggle('feature-detail-expanded', modal);
+    }
+    if (!isMobileLayoutActive) {
+        applyFeatureDetailDockedWidth(featureDetailDockedWidth);
+        applyAtlasSidebarWidth(atlasSidebarWidth);
+    }
+    syncFeatureDetailLayoutGeometry();
+    syncFeatureDetailSearchVisibility();
+    if (typeof requestAnimationFrame === 'function') {
+        requestAnimationFrame(syncFeatureDetailSearchVisibility);
     }
     syncSidebarInteractionState();
     if (mapContainerElement) mapContainerElement.inert = modal;
@@ -2237,6 +2667,7 @@ function openSelectedFeatureDetails() {
         map.closePopup();
     }
     syncFeatureDetailSheetState();
+    refreshMapAfterFeatureDetailLayoutChange();
     requestAnimationFrame(() => featureDetailSheet.focus({ preventScroll: true }));
     trackAnalytics('feature_details_opened', {
         featureType: selectedSidebarFeatureType,
@@ -2250,6 +2681,7 @@ function closeFeatureDetailSheet({ restoreFocus = true } = {}) {
     featureDetailSheetOpen = false;
     featureDetailSheetExpanded = false;
     syncFeatureDetailSheetState();
+    refreshMapAfterFeatureDetailLayoutChange();
     if (restoreFocus) {
         const focusTarget = lastFeatureDetailTrigger && lastFeatureDetailTrigger.isConnected
             ? lastFeatureDetailTrigger
@@ -2261,15 +2693,24 @@ function closeFeatureDetailSheet({ restoreFocus = true } = {}) {
     lastFeatureDetailTrigger = null;
 }
 
-function toggleFeatureDetailExpanded() {
+function toggleFeatureDetailLayout() {
     if (!featureDetailSheetOpen || !selectedSidebarFeature) return;
-    featureDetailSheetExpanded = !featureDetailSheetExpanded;
+    if (isMobileLayoutActive) {
+        featureDetailSheetExpanded = !featureDetailSheetExpanded;
+    } else {
+        featureDetailSheetDocked = !featureDetailSheetDocked;
+        safeSetStorage(
+            UX_STORAGE_KEYS.featureDetailMode,
+            featureDetailSheetDocked ? FEATURE_DETAIL_MODE_DOCKED : FEATURE_DETAIL_MODE_FLOATING
+        );
+    }
     syncFeatureDetailSheetState();
+    refreshMapAfterFeatureDetailLayoutChange();
     if (featureDetailSheet) featureDetailSheet.focus({ preventScroll: true });
 }
 
 function trapFeatureDetailFocus(event) {
-    if (!featureDetailSheetExpanded || event.key !== 'Tab' || !featureDetailSheet) return;
+    if (!isMobileLayoutActive || !featureDetailSheetExpanded || event.key !== 'Tab' || !featureDetailSheet) return;
     const focusable = Array.from(featureDetailSheet.querySelectorAll(
         'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
     )).filter((element) => !element.hidden && element.getAttribute('aria-hidden') !== 'true');
@@ -2308,11 +2749,13 @@ function setSidebarSelectedFeature(feature, type) {
 }
 
 function initializeFeatureDetailSheet() {
+    featureDetailSheetDocked = safeGetStorage(UX_STORAGE_KEYS.featureDetailMode) === FEATURE_DETAIL_MODE_DOCKED;
+    initializeResizableWorkspace();
     if (featureDetailCloseBtn) {
         featureDetailCloseBtn.addEventListener('click', () => closeFeatureDetailSheet());
     }
-    if (featureDetailExpandBtn) {
-        featureDetailExpandBtn.addEventListener('click', toggleFeatureDetailExpanded);
+    if (featureDetailLayoutBtn) {
+        featureDetailLayoutBtn.addEventListener('click', toggleFeatureDetailLayout);
     }
     if (featureDetailBackdrop) {
         featureDetailBackdrop.addEventListener('click', () => closeFeatureDetailSheet());
@@ -2477,6 +2920,249 @@ function createSimpleCrsTileLayer(urlTemplate, options) {
     return new SimpleCrsTileLayer(urlTemplate, options);
 }
 
+function buildGeneratedTileUrl(tileSource, coords) {
+    if (!tileSource || !coords) return '';
+    const url = String(tileSource.urlTemplate || '')
+        .replace('{z}', String(coords.z))
+        .replace('{x}', String(coords.x))
+        .replace('{y}', String(coords.y));
+    return typeof withAssetVersion === 'function'
+        ? withAssetVersion(url, tileSource.cacheVersion)
+        : url;
+}
+
+function getVisibleSourceTileCoordinates(tileLayer, tileSource) {
+    if (!tileLayer || !tileSource || !tileLayer._tiles || typeof tileLayer._getZoomForUrl !== 'function') {
+        return [];
+    }
+
+    const sourceZoom = Number(tileLayer._getZoomForUrl());
+    if (!Number.isInteger(sourceZoom) || sourceZoom < tileSource.minZoom || sourceZoom > tileSource.maxZoom) {
+        return [];
+    }
+
+    const seen = new Set();
+    return Object.values(tileLayer._tiles).reduce((coordinates, tileEntry) => {
+        if (!tileEntry || tileEntry.current === false || !tileEntry.coords) return coordinates;
+        const normalized = normalizeSimpleCrsTileCoords(tileEntry.coords, tileLayer.options, sourceZoom);
+        const x = Number(normalized.x);
+        const y = Number(normalized.y);
+        if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || y < 0) return coordinates;
+        const key = `${sourceZoom}:${x}:${y}`;
+        if (seen.has(key)) return coordinates;
+        seen.add(key);
+        coordinates.push({ z: sourceZoom, x, y });
+        return coordinates;
+    }, []);
+}
+
+function getIdleTileWarmupCandidates(mapInfo, tileLayer, tileSource) {
+    const visibleTiles = getVisibleSourceTileCoordinates(tileLayer, tileSource);
+    const sourceWidth = Number(mapInfo?.width);
+    const sourceHeight = Number(mapInfo?.height);
+    if (visibleTiles.length === 0 || !Number.isFinite(sourceWidth) || !Number.isFinite(sourceHeight)) {
+        return [];
+    }
+
+    const targetZoom = tileSource.maxZoom;
+    const sourceZoom = visibleTiles[0].z;
+    const zoomDelta = targetZoom - sourceZoom;
+    if (zoomDelta <= 0) return [];
+
+    const descendantScale = Math.pow(2, zoomDelta);
+    const maxColumns = Math.ceil(sourceWidth / tileSource.tileSize);
+    const maxRows = Math.ceil(sourceHeight / tileSource.tileSize);
+    const minVisibleX = Math.min(...visibleTiles.map((tile) => tile.x));
+    const maxVisibleX = Math.max(...visibleTiles.map((tile) => tile.x + 1));
+    const minVisibleY = Math.min(...visibleTiles.map((tile) => tile.y));
+    const maxVisibleY = Math.max(...visibleTiles.map((tile) => tile.y + 1));
+    const centerX = ((minVisibleX + maxVisibleX) * descendantScale) / 2;
+    const centerY = ((minVisibleY + maxVisibleY) * descendantScale) / 2;
+    const candidates = new Map();
+
+    visibleTiles.forEach((tile) => {
+        const startX = Math.max(0, tile.x * descendantScale);
+        const endX = Math.min(maxColumns, (tile.x + 1) * descendantScale);
+        const startY = Math.max(0, tile.y * descendantScale);
+        const endY = Math.min(maxRows, (tile.y + 1) * descendantScale);
+        for (let y = startY; y < endY; y += 1) {
+            for (let x = startX; x < endX; x += 1) {
+                const key = `${targetZoom}:${x}:${y}`;
+                if (candidates.has(key)) continue;
+                const coords = { z: targetZoom, x, y };
+                candidates.set(key, {
+                    ...coords,
+                    url: buildGeneratedTileUrl(tileSource, coords),
+                    distance: Math.pow(x + 0.5 - centerX, 2) + Math.pow(y + 0.5 - centerY, 2)
+                });
+            }
+        }
+    });
+
+    return Array.from(candidates.values())
+        .sort((left, right) => left.distance - right.distance)
+        .map(({ distance, ...candidate }) => candidate);
+}
+
+function isIdleTileWarmupAllowed() {
+    if (getConfigValue('performance.idleTileWarmup', true) === false) return false;
+    if (typeof document !== 'undefined' && document.hidden) return false;
+    const connection = typeof navigator !== 'undefined'
+        ? navigator.connection || navigator.mozConnection || navigator.webkitConnection
+        : null;
+    if (!connection) return true;
+    if (connection.saveData) return false;
+    return !/^(?:slow-)?2g$/i.test(String(connection.effectiveType || ''));
+}
+
+function removeIdleDetailTileLayer() {
+    if (!idleDetailTileLayer) return;
+    if (map && map.hasLayer(idleDetailTileLayer)) {
+        map.removeLayer(idleDetailTileLayer);
+    }
+    idleDetailTileLayer = null;
+}
+
+function cancelIdleTileWarmup(options = {}) {
+    idleTileWarmupGeneration += 1;
+    if (idleTileWarmupTimer) {
+        clearTimeout(idleTileWarmupTimer);
+        idleTileWarmupTimer = null;
+    }
+    if (options.removeDetailLayer) {
+        removeIdleDetailTileLayer();
+    }
+}
+
+function waitForIdleTileSlice() {
+    return new Promise((resolve) => {
+        scheduleIdleTask(resolve, 1200);
+    });
+}
+
+async function cacheIdleTileBatch(urls) {
+    const results = await Promise.all(urls.map(async (url) => {
+        try {
+            const response = await fetch(url, {
+                cache: 'force-cache',
+                credentials: 'same-origin'
+            });
+            if (!response || !response.ok) return false;
+            await response.blob();
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }));
+    return results.every(Boolean);
+}
+
+function showIdleDetailTileLayer(mapInfo, tileSource, generation) {
+    if (generation !== idleTileWarmupGeneration || currentMapData !== mapInfo || currentMapBaseLayerMode !== 'tile') {
+        return;
+    }
+
+    removeIdleDetailTileLayer();
+    const urlTemplate = typeof withAssetVersion === 'function'
+        ? withAssetVersion(tileSource.urlTemplate, tileSource.cacheVersion)
+        : tileSource.urlTemplate;
+    const detailLayer = createSimpleCrsTileLayer(urlTemplate, {
+        tileSize: tileSource.tileSize,
+        minZoom: mapOptions.minZoom,
+        maxZoom: mapOptions.maxZoom,
+        minNativeZoom: tileSource.leafletNativeZoom,
+        maxNativeZoom: tileSource.leafletNativeZoom,
+        zoomOffset: tileSource.zoomOffset,
+        sourceWidth: mapInfo.width,
+        sourceHeight: mapInfo.height,
+        sourceMaxZoom: tileSource.maxZoom,
+        bounds: L.latLngBounds(currentBounds),
+        noWrap: true,
+        keepBuffer: 0,
+        updateWhenIdle: true,
+        updateWhenZooming: false,
+        opacity: 0,
+        className: 'map-idle-detail-tile'
+    });
+    let tileFailures = 0;
+    detailLayer.on('tileerror', () => {
+        tileFailures += 1;
+    });
+    detailLayer.on('load', () => {
+        if (generation !== idleTileWarmupGeneration || tileFailures > 0 || idleDetailTileLayer !== detailLayer) {
+            if (idleDetailTileLayer === detailLayer) removeIdleDetailTileLayer();
+            return;
+        }
+        const container = detailLayer.getContainer && detailLayer.getContainer();
+        if (container?.classList) container.classList.add('map-idle-detail-layer');
+        detailLayer.setOpacity(1);
+    });
+    idleDetailTileLayer = detailLayer;
+    detailLayer.addTo(map);
+    const container = detailLayer.getContainer && detailLayer.getContainer();
+    if (container?.classList) container.classList.add('map-idle-detail-layer');
+}
+
+async function runIdleTileWarmup(generation) {
+    idleTileWarmupTimer = null;
+    if (generation !== idleTileWarmupGeneration || !isIdleTileWarmupAllowed()) return;
+    if (!currentMapData || !currentImageLayer || currentMapBaseLayerMode !== 'tile') return;
+
+    const mapInfo = currentMapData;
+    const tileLayer = currentImageLayer;
+    const tileSource = getMapTileSource(mapInfo);
+    if (!tileSource) return;
+
+    const candidates = getIdleTileWarmupCandidates(mapInfo, tileLayer, tileSource);
+    if (candidates.length === 0) return;
+
+    const mobile = typeof isMobileLayoutActive !== 'undefined' && isMobileLayoutActive;
+    const configuredMaxTiles = Math.floor(getPerformanceNumber(
+        mobile ? 'idleTileWarmupMobileMaxTiles' : 'idleTileWarmupMaxTiles',
+        mobile ? 192 : 768
+    ));
+    const maxTiles = Math.max(0, configuredMaxTiles);
+    const batchSize = Math.max(1, Math.min(8, Math.floor(getPerformanceNumber('idleTileWarmupBatchSize', 4))));
+    const batchDelayMs = Math.max(0, getPerformanceNumber('idleTileWarmupBatchDelayMs', 80));
+    const displayLimit = Math.max(0, Math.floor(getPerformanceNumber(
+        mobile ? 'idleTileUpgradeMobileMaxTiles' : 'idleTileUpgradeMaxTiles',
+        mobile ? 72 : 160
+    )));
+    const warmupCandidates = candidates.slice(0, maxTiles);
+    const canUpgradeVisibleMap = candidates.length <= displayLimit && candidates.length <= maxTiles;
+    let allTilesCached = true;
+
+    for (let index = 0; index < warmupCandidates.length; index += batchSize) {
+        if (generation !== idleTileWarmupGeneration || !isIdleTileWarmupAllowed() || currentMapData !== mapInfo) {
+            return;
+        }
+        await waitForIdleTileSlice();
+        if (generation !== idleTileWarmupGeneration || !isIdleTileWarmupAllowed() || currentMapData !== mapInfo) {
+            return;
+        }
+        const batch = warmupCandidates.slice(index, index + batchSize).map((candidate) => candidate.url);
+        const batchCached = await cacheIdleTileBatch(batch);
+        allTilesCached = allTilesCached && batchCached;
+        if (batchDelayMs > 0 && index + batchSize < warmupCandidates.length) {
+            await new Promise((resolve) => setTimeout(resolve, batchDelayMs));
+        }
+    }
+
+    if (allTilesCached && canUpgradeVisibleMap) {
+        showIdleDetailTileLayer(mapInfo, tileSource, generation);
+    }
+}
+
+function scheduleIdleTileWarmup() {
+    if (idleDetailTileLayer || !isIdleTileWarmupAllowed()) return;
+    if (idleTileWarmupTimer) clearTimeout(idleTileWarmupTimer);
+    const generation = ++idleTileWarmupGeneration;
+    const delayMs = Math.max(250, getPerformanceNumber('idleTileWarmupDelayMs', 1800));
+    idleTileWarmupTimer = setTimeout(() => {
+        runIdleTileWarmup(generation).catch(() => undefined);
+    }, delayMs);
+}
+
 function getTileLayerImageCounts(tileContainer) {
     if (!tileContainer || typeof tileContainer.querySelectorAll !== 'function') {
         return { total: 0, loaded: 0, failed: 0 };
@@ -2636,6 +3322,7 @@ function createMapBaseLayer(selectedMap, mapImageUrl, bounds) {
                 minNativeZoom: tileSource.minNativeZoom,
                 maxNativeZoom: tileSource.maxNativeZoom,
                 zoomOffset: tileSource.zoomOffset,
+                sourceWidth: selectedMap.width,
                 sourceHeight: selectedMap.height,
                 sourceMaxZoom: tileSource.maxZoom,
                 bounds: L.latLngBounds(bounds),
@@ -3938,7 +4625,10 @@ function setSidebarState(state, updateHash = true) {
         refreshLucideIcons();
 
         // Invalidate map size after CSS transition completes
-        setTimeout(() => { map.invalidateSize({ animate: true }); }, transitionDuration);
+        setTimeout(() => {
+            map.invalidateSize({ animate: true });
+            syncFeatureDetailLayoutGeometry();
+        }, transitionDuration);
 
             currentSidebarState = state;
             if (updateHash && currentlyLoadedMapId) {
@@ -5956,6 +6646,7 @@ function replaceMapHistoryState(mapId, updateHash = true) {
 }
 
 function resetMapState() {
+    cancelIdleTileWarmup({ removeDetailLayer: true });
     if (isMeasuringMultiPoint) finalizeMultiPointMeasure(false);
     measurementLayerGroup.clearLayers();
 
@@ -6257,6 +6948,7 @@ function finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileI
         durationMs: Math.round(performance.now() - loadStartedAt)
     });
     clampFloatingPanels();
+    scheduleIdleTileWarmup();
 }
 
 // --- Function to Load/Switch Map ---
