@@ -32,7 +32,7 @@ eval(fnSource);
 
 storedSidebarState = 'o';
 window.location.hash = '#main_continent';
-assert.equal(determineInitialSidebarState('o', 'main_continent'), 'c');
+assert.equal(determineInitialSidebarState('o', 'main_continent'), 'o');
 
 storedSidebarState = 'o';
 window.location.hash = '#main_continent-s=o';
@@ -49,5 +49,9 @@ assert.equal(determineInitialSidebarState('o', ''), 'c');
 storedSidebarState = null;
 window.location.hash = '';
 assert.equal(determineInitialSidebarState('o', ''), 'o');
+
+storedSidebarState = 'c';
+window.location.hash = '#main_continent';
+assert.equal(determineInitialSidebarState('o', 'main_continent'), 'c');
 
 console.log('determineInitialSidebarState regression checks passed');

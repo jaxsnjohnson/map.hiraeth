@@ -30,17 +30,56 @@ global.isMobileLayoutActive = true;
 global.mobileSurfaceMode = null;
 global.mobileToolsPanelMode = null;
 global.lastMobileSurfaceTriggerButton = null;
+global.featureDetailSheetOpen = false;
+global.closeFeatureDetailSheet = () => { global.featureDetailSheetOpen = false; };
 global.currentSearchScope = 'map';
 global.searchControlContainer = { style: { display: 'block' } };
+global.mobileMarkersBtn = { hidden: false };
+global.mobileFiltersBtn = { hidden: false };
+global.mobileMeasureBtn = { hidden: false };
+global.mobileSoundBtn = { hidden: false };
+global.mobileShareViewBtn = { hidden: false };
+global.mobileCoordsBtn = { hidden: false };
+global.mobileHelpBtn = { hidden: false };
+global.mobileGmViewBtn = null;
+global.mobileToolkitBtn = null;
 global.searchResultsContainer = {
     style: { display: 'none' },
     innerHTML: ''
 };
-global.poiSearchInput = { focusCalled: 0, focus() { this.focusCalled += 1; } };
+global.poiSearchInput = {
+    focusCalled: 0,
+    focus(options) {
+        this.focusCalled += 1;
+        assert.deepEqual(options, { preventScroll: true });
+    }
+};
 global.mobileSheetLauncherBtn = { focusCalled: 0, focus() { this.focusCalled += 1; } };
 global.mobileSearchLauncherBtn = { focusCalled: 0, focus() { this.focusCalled += 1; } };
 global.mobileToolsLauncherBtn = { focusCalled: 0, focus() { this.focusCalled += 1; } };
+global.mobileAtlasCloseBtn = {
+    focusCalled: 0,
+    focus(options) {
+        this.focusCalled += 1;
+        assert.deepEqual(options, { preventScroll: true });
+    }
+};
+global.mobileToolsCardCloseBtn = {
+    focusCalled: 0,
+    focus(options) {
+        this.focusCalled += 1;
+        assert.deepEqual(options, { preventScroll: true });
+    }
+};
+global.sidebar = {
+    inert: false,
+    attrs: {},
+    setAttribute(name, value) {
+        this.attrs[name] = value;
+    }
+};
 global.mobileSearchPanel = {
+    inert: false,
     attrs: {},
     dataset: {},
     setAttribute(name, value) {
@@ -49,6 +88,7 @@ global.mobileSearchPanel = {
 };
 global.mobileSearchPanelTitle = { textContent: '' };
 global.mobileToolsCard = {
+    inert: false,
     attrs: {},
     dataset: {},
     setAttribute(name, value) {
@@ -124,7 +164,6 @@ global.setSidebarState = (state) => {
     syncMobileSearchPanelState();
 };
 global.setSearchScope = (scope) => { global.currentSearchScope = scope; };
-global.requestAnimationFrame = (callback) => callback();
 global.escapeHtml = (value) => String(value || '');
 global.getMapRuntimeData = () => ({ name: 'Fallback', blurb: '<p>Fallback.</p>' });
 
@@ -136,6 +175,8 @@ assert.equal(hasOpenMobileSurface(), false);
 openMobileSheet({ mode: 'atlas', triggerButton: global.mobileSheetLauncherBtn });
 assert.equal(global.mobileSurfaceMode, 'atlas');
 assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'true');
+assert.equal(global.mobileSearchPanel.inert, true);
+assert.equal(global.mobileToolsCard.inert, true);
 assert.equal(global.mobileSearchPanel.dataset.mode, '');
 assert.equal(global.mobileSearchPanelTitle.textContent, 'Search');
 assert.equal(global.mobileSearchPanelCloseBtn.attrs['aria-label'], 'Close search');
@@ -144,6 +185,9 @@ assert.equal(global.container.classes.has('mobile-search-card-open'), false);
 assert.equal(global.container.classes.has('mobile-surface-atlas'), true);
 assert.equal(global.container.classes.has('sidebar-collapsed'), false);
 assert.deepEqual(global.setSidebarStateCalls, ['o']);
+assert.equal(global.mobileAtlasCloseBtn.focusCalled, 1);
+assert.equal(global.sidebar.inert, false);
+assert.equal(global.sidebar.attrs['aria-hidden'], 'false');
 
 closeMobileSheet({ restoreFocus: true });
 assert.equal(global.mobileSurfaceMode, null);
@@ -152,6 +196,8 @@ assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'true');
 assert.equal(global.mobileToolsCard.attrs['aria-hidden'], 'true');
 assert.equal(global.container.classes.has('sidebar-collapsed'), true);
 assert.deepEqual(global.setSidebarStateCalls, ['o', 'c']);
+assert.equal(global.sidebar.inert, true);
+assert.equal(global.sidebar.attrs['aria-hidden'], 'true');
 
 global.searchResultsContainer.style.display = 'block';
 global.searchResultsContainer.innerHTML = '<li>Result</li>';
@@ -161,6 +207,8 @@ assert.equal(global.poiSearchInput.focusCalled, 1);
 assert.equal(global.mobileSearchPanelTitle.textContent, 'Search');
 assert.equal(global.mobileSearchPanelCloseBtn.attrs['aria-label'], 'Close search');
 assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'false');
+assert.equal(global.mobileSearchPanel.inert, false);
+assert.equal(global.mobileToolsCard.inert, true);
 assert.equal(global.mobileToolsCard.attrs['aria-hidden'], 'true');
 assert.equal(global.mobileSearchPanel.dataset.mode, 'search');
 assert.equal(global.mobileSearchPanelSearchSlot.hidden, false);
@@ -204,8 +252,11 @@ assert.equal(global.mobileSurfaceMode, 'tools');
 assert.equal(global.mobileToolsPanelMode, null);
 assert.equal(global.mobileSearchPanel.attrs['aria-hidden'], 'true');
 assert.equal(global.mobileToolsCard.attrs['aria-hidden'], 'false');
+assert.equal(global.mobileSearchPanel.inert, true);
+assert.equal(global.mobileToolsCard.inert, false);
 assert.equal(global.container.classes.has('mobile-tools-card-open'), true);
 assert.equal(global.container.classes.has('mobile-surface-tools'), true);
+assert.equal(global.mobileToolsCardCloseBtn.focusCalled, 1);
 
 closeMobileSheet({ restoreFocus: true });
 assert.equal(global.mobileSurfaceMode, null);

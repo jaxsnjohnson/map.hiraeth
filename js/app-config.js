@@ -19,7 +19,7 @@
 
     function getDefaultAssetsConfig() {
         return {
-                version: '0.1.31',
+                version: '0.1.45',
                 stylesheets: [
                     'css/leaflet.css',
                     'css/style.css',
@@ -129,13 +129,11 @@
                         'favicon-32x32.png',
                         'favicon.png',
                         'apple-touch-icon.png',
-                        'images/sky-background.webp',
                         'images/clouds.webp',
                         'images/toggle.svg',
                         'css/images/marker-icon.png',
                         'css/images/marker-icon-2x.png',
                         'css/images/marker-shadow.png',
-                        'images/hiraeth-maps-preview.png',
                         'images/poi-icons/settlements.svg',
                         'images/poi-icons/structures.svg',
                         'images/poi-icons/natural-features.svg',
@@ -231,6 +229,18 @@
                 mobileBreakpoint: 768,
                 starCount: 450,
                 starFps: 30,
+                tileAssetRoot: 'tile',
+                tilePreviewFadeStartRatio: 0.45,
+                tilePreviewRetireRatio: 0.76,
+                tileFullImageFallback: true,
+                idleTileWarmup: true,
+                idleTileWarmupDelayMs: 1800,
+                idleTileWarmupBatchSize: 4,
+                idleTileWarmupBatchDelayMs: 80,
+                idleTileWarmupMaxTiles: 768,
+                idleTileWarmupMobileMaxTiles: 192,
+                idleTileUpgradeMaxTiles: 160,
+                idleTileUpgradeMobileMaxTiles: 72,
                 linkedMapPrefetchLimit: 3,
                 prefetchImages: true,
                 prefetchJson: true,
@@ -267,7 +277,7 @@
 
     function getDefaultCopyConfig() {
         return {
-                sidebarTitle: 'Select Map',
+                sidebarTitle: 'Atlas',
                 themeLabel: 'Theme',
                 loading: {
                     mapData: 'Loading Map Data...',
@@ -314,7 +324,7 @@
                         {
                             id: 'changelog',
                             label: 'Changelog',
-                            html: '<div class="changelog-entry"><div class="changelog-header"><h3>Map Loading Stabilization</h3><span class="version-pill" title="Current release">v0.1.31</span></div><ul class="changelog-list"><li>Kept the low-resolution map preview visible while detailed tiles or fallback images finish loading.</li><li>Restored the slim startup progress bar on first paint for direct map links.</li><li>Kept plain direct map links focused on the map by starting with the sidebar collapsed unless the URL explicitly opens it.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Current Atlas Stabilization</h3><span class="version-pill" title="June 2026">v0.1.7</span></div><ul class="changelog-list"><li>Fixed map-view share URL handling and expanded regression coverage around shared map views.</li><li>Added Astrousia archive maps, IceBeach lore summaries, and updated atlas accessibility notes.</li><li>Hardened GitHub Pages validation, local-only editor access, atlas generation, and map-editor save flows.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Security, Tests, and Performance Sweep</h3><span class="version-pill" title="May 2026 to June 2026">v0.1.6</span></div><ul class="changelog-list"><li>Closed multiple DOM XSS risks in popups, map editor controls, app config rendering, help modals, search highlights, and encounter tables.</li><li>Added broad unit coverage for search, filters, storage helpers, popup builders, mobile layout, map loading, and share-link behavior.</li><li>Improved atlas search, filter loops, hydration, DOM traversal, and Leaflet line lookups for smoother large-map browsing.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Mobile Atlas and Editor Rebuild</h3><span class="version-pill" title="April 2026">v0.1.5</span></div><ul class="changelog-list"><li>Reworked mobile map navigation into focused search, maps, drawer, and bottom-sheet surfaces.</li><li>Migrated the atlas to file-backed map JSON manifests with generated runtime indexes and preserved metadata.</li><li>Added the map editor, map chooser UI, responsive minimap thumbnails, preset grouping, runtime guards, and configurable site bootstrap.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Smart Sharing and Atlas Polish</h3><span class="version-pill" title="March 2026">v0.1.4</span></div><ul class="changelog-list"><li>Introduced Smart Share Links, shared-view coachmarks, popup opacity tuning, and mobile layout refinements.</li><li>Added POI hover tooltips, reset-view improvements, compact search controls, and search highlight fixes.</li><li>Started the atlas manifest performance pass and refreshed Fair map artwork, boundaries, and Apsley content.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Deep Links, Embeds, and Safe Popups</h3><span class="version-pill" title="February 2026">v0.1.3</span></div><ul class="changelog-list"><li>Added custom icons, local-only GM/editor gating, UI refinements, and background polish.</li><li>Fixed URL history, hash generation, invalid-map startup fallback, coordinate labels, and sidebar state restoration.</li><li>Sanitized popup content, popup headers, custom properties, and wiki links while improving embed-first loading.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Sharing, Minimap, and Site Shell</h3><span class="version-pill" title="December 2025 to January 2026">v0.1.2</span></div><ul class="changelog-list"><li>Added feature sharing, map-view deep links, MiniMap support, and refined viewport indicator behavior.</li><li>Redesigned the about page, embed link generator, loading state, starfield, and point-finder map selection.</li><li>Added Stomion updates, dynamic controls, accessibility improvements, search bar fixes, and map-content polish.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>World Expansion and Richer Map Tools</h3><span class="version-pill" title="May 2025 to October 2025">v0.1.1</span></div><ul class="changelog-list"><li>Expanded Hiraeth with Old-Lin, Southern Thalassia, Gelwood, Arfordir, Krasnogory Krai, Zafra, Pyralis, and many Fair map revisions.</li><li>Added map lines, hierarchical filters, map-specific filter groups, custom feature properties, collapsible popups, pronunciation guides, and summaries.</li><li>Improved point-finder workflows, scale export, recursive map listings, region visibility tools, mobile controls, and README documentation.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Origin Launch</h3><span class="version-pill" title="April 2025">v0.1.0</span></div><ul class="changelog-list"><li>Created the first Leaflet-based Hiraeth map viewer with Icebeach and Fair maps.</li><li>Added the sidebar, dark and light themes, EB Garamond styling, glassy UI, bottom links, about page, favicons, and wiki/blog/source links.</li><li>Introduced POI imports, marker types, region overlays, the measurement tool, ambient audio, embed mode, and early map data structure.</li></ul></div>'
+                            html: '<div class="changelog-entry"><div class="changelog-header"><h3>Map Loading Stabilization</h3><span class="version-pill" title="Current release">v0.1.32</span></div><ul class="changelog-list"><li>Faded the low-resolution map preview once detailed tiles cover most of the viewport.</li><li>Preloaded direct map definitions during startup so GitHub Pages can fetch map data sooner.</li><li>Bumped the shell asset version so service-worker caches pick up the deployment.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Current Atlas Stabilization</h3><span class="version-pill" title="June 2026">v0.1.7</span></div><ul class="changelog-list"><li>Fixed map-view share URL handling and expanded regression coverage around shared map views.</li><li>Added Astrousia archive maps, IceBeach lore summaries, and updated atlas accessibility notes.</li><li>Hardened GitHub Pages validation, local-only editor access, atlas generation, and map-editor save flows.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Security, Tests, and Performance Sweep</h3><span class="version-pill" title="May 2026 to June 2026">v0.1.6</span></div><ul class="changelog-list"><li>Closed multiple DOM XSS risks in popups, map editor controls, app config rendering, help modals, search highlights, and encounter tables.</li><li>Added broad unit coverage for search, filters, storage helpers, popup builders, mobile layout, map loading, and share-link behavior.</li><li>Improved atlas search, filter loops, hydration, DOM traversal, and Leaflet line lookups for smoother large-map browsing.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Mobile Atlas and Editor Rebuild</h3><span class="version-pill" title="April 2026">v0.1.5</span></div><ul class="changelog-list"><li>Reworked mobile map navigation into focused search, maps, drawer, and bottom-sheet surfaces.</li><li>Migrated the atlas to file-backed map JSON manifests with generated runtime indexes and preserved metadata.</li><li>Added the map editor, map chooser UI, responsive minimap thumbnails, preset grouping, runtime guards, and configurable site bootstrap.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Smart Sharing and Atlas Polish</h3><span class="version-pill" title="March 2026">v0.1.4</span></div><ul class="changelog-list"><li>Introduced Smart Share Links, shared-view coachmarks, popup opacity tuning, and mobile layout refinements.</li><li>Added POI hover tooltips, reset-view improvements, compact search controls, and search highlight fixes.</li><li>Started the atlas manifest performance pass and refreshed Fair map artwork, boundaries, and Apsley content.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Deep Links, Embeds, and Safe Popups</h3><span class="version-pill" title="February 2026">v0.1.3</span></div><ul class="changelog-list"><li>Added custom icons, local-only GM/editor gating, UI refinements, and background polish.</li><li>Fixed URL history, hash generation, invalid-map startup fallback, coordinate labels, and sidebar state restoration.</li><li>Sanitized popup content, popup headers, custom properties, and wiki links while improving embed-first loading.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Sharing, Minimap, and Site Shell</h3><span class="version-pill" title="December 2025 to January 2026">v0.1.2</span></div><ul class="changelog-list"><li>Added feature sharing, map-view deep links, MiniMap support, and refined viewport indicator behavior.</li><li>Redesigned the about page, embed link generator, loading state, starfield, and point-finder map selection.</li><li>Added Stomion updates, dynamic controls, accessibility improvements, search bar fixes, and map-content polish.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>World Expansion and Richer Map Tools</h3><span class="version-pill" title="May 2025 to October 2025">v0.1.1</span></div><ul class="changelog-list"><li>Expanded Hiraeth with Old-Lin, Southern Thalassia, Gelwood, Arfordir, Krasnogory Krai, Zafra, Pyralis, and many Fair map revisions.</li><li>Added map lines, hierarchical filters, map-specific filter groups, custom feature properties, collapsible popups, pronunciation guides, and summaries.</li><li>Improved point-finder workflows, scale export, recursive map listings, region visibility tools, mobile controls, and README documentation.</li></ul></div><div class="changelog-entry"><div class="changelog-header"><h3>Origin Launch</h3><span class="version-pill" title="April 2025">v0.1.0</span></div><ul class="changelog-list"><li>Created the first Leaflet-based Hiraeth map viewer with Icebeach and Fair maps.</li><li>Added the sidebar, dark and light themes, EB Garamond styling, glassy UI, bottom links, about page, favicons, and wiki/blog/source links.</li><li>Introduced POI imports, marker types, region overlays, the measurement tool, ambient audio, embed mode, and early map data structure.</li></ul></div>'
                         }
                     ]
                 },
@@ -408,6 +418,26 @@
         return cursor === undefined ? fallbackValue : cursor;
     }
 
+    function getCurrentReleaseChangelogHtml(version) {
+        const versionLabel = escapeHtml(`v${String(version || '').trim()}`);
+        return `<div class="changelog-entry"><div class="changelog-header"><h3>Faster Maps and Flexible Details</h3><span class="version-pill" title="Current release">${versionLabel}</span></div><ul class="changelog-list"><li>Shows a quick map preview first, then quietly loads and saves sharper map tiles while the view is resting.</li><li>Stops background loading as soon as the map moves, avoids extra work on data-saving connections, and reuses saved tiles on later visits.</li><li>Prevents white zoom flashes and unstyled startup text while detailed map imagery is loading.</li><li>Gives Atlas, Search, and location details clearer jobs, with a large player-friendly Details window that can also dock to the right.</li><li>Lets desktop players drag and resize Details, adjust both sidebars, and keep their preferred layout after refreshing.</li><li>Puts place names and story text first, keeps internal fields behind Stats, and replaces the wide Focus button with a compact map-target control.</li><li>Keeps Search visible unless the floating Details window actually covers it, with calmer timing near the overlap boundary.</li><li>Keeps the mobile experience predictable with a fixed bottom sheet and fullscreen details option.</li></ul></div>`;
+    }
+
+    function syncCurrentReleaseChangelog(config) {
+        const changelogTabs = config?.copy?.help?.tabs;
+        if (!Array.isArray(changelogTabs)) return;
+        const changelogTab = changelogTabs.find((tab) => tab && tab.id === 'changelog');
+        if (!changelogTab || typeof changelogTab.html !== 'string') return;
+
+        const version = String(config?.assets?.version || '').trim();
+        if (!version) return;
+        const versionLabel = `v${version}`;
+        if (changelogTab.html.includes(`>${versionLabel}<`) && changelogTab.html.includes('title="Current release"')) {
+            return;
+        }
+        changelogTab.html = `${getCurrentReleaseChangelogHtml(version)}${changelogTab.html.replace(/\s+title="Current release"/g, '')}`;
+    }
+
     function normalizeConfig(rawConfig = {}) {
         const merged = deepMerge(DEFAULT_SITE_CONFIG, rawConfig);
         if (!merged.brand.socialPreviewImage && merged.assets.previewImage) {
@@ -415,6 +445,7 @@
         }
         merged.theme.tokens.light['--font-family-main'] = merged.theme.fontFamilyMain;
         merged.theme.tokens.dark['--font-family-main'] = merged.theme.fontFamilyMain;
+        syncCurrentReleaseChangelog(merged);
         return merged;
     }
 
@@ -462,6 +493,14 @@
         if (!Number.isFinite(Number(candidate.performance.starFps)) || Number(candidate.performance.starFps) <= 0) {
             errors.push('performance.starFps must be a positive number.');
         }
+        const tileAssetRoot = String(candidate.performance.tileAssetRoot || '').trim().replace(/\\/g, '/');
+        if (!tileAssetRoot ||
+            /^(?:[a-z][a-z0-9+.-]*:|\/\/|\/)/i.test(tileAssetRoot) ||
+            tileAssetRoot === '..' ||
+            tileAssetRoot.startsWith('../') ||
+            tileAssetRoot.includes('/../')) {
+            errors.push('performance.tileAssetRoot must be a safe repository-relative path.');
+        }
         return errors;
     }
 
@@ -484,6 +523,10 @@
 
     function loadConfig(url = 'site.config.json') {
         if (readyPromise) return readyPromise;
+        if (root.__SITE_CONFIG_EMBEDDED__ === true) {
+            readyPromise = Promise.resolve(setConfig(root.__SITE_CONFIG__ || activeConfig));
+            return readyPromise;
+        }
         if (typeof root.fetch !== 'function') {
             readyPromise = Promise.resolve(setConfig(activeConfig));
             return readyPromise;
@@ -666,7 +709,7 @@
 
     function hydrateStaticDom(documentRef = root.document) {
         if (!documentRef) return;
-        setText(documentRef, '.sidebar-header h2', get('copy.sidebarTitle'));
+        setText(documentRef, '.atlas-sidebar-heading h1', get('copy.sidebarTitle'));
         setText(documentRef, '.theme-switch-wrapper span', get('copy.themeLabel'));
         setText(documentRef, '#loading-indicator .loading-text', get('copy.loading.mapData'));
         setText(documentRef, '#loading-retry-btn', get('copy.loading.retry'));

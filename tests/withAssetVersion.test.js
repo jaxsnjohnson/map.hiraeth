@@ -61,6 +61,14 @@ async function runTests() {
     url = withAssetVersion('test.json');
     assert.equal(url, 'test.json?v=test%20version%3F%26%3D', 'Should URL encode the version string');
 
+    // Test 6: callers can provide a content-specific cache version
+    url = withAssetVersion('tile/map/{z}/{x}/{y}.webp', 'abc123');
+    assert.equal(url, 'tile/map/{z}/{x}/{y}.webp?v=abc123');
+
+    // Test 7: an existing version is replaced without duplicating the query parameter
+    url = withAssetVersion('tile.webp?foo=bar&v=old#preview', 'new');
+    assert.equal(url, 'tile.webp?foo=bar&v=new#preview');
+
     console.log('withAssetVersion tests passed');
 }
 

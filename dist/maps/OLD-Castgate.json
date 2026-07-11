@@ -1,13 +1,1 @@
-{
-    "id": "OLD-Castgate",
-    "name": "Castgate",
-    "width": 3024,
-    "height": 4032,
-    "imageUrl": "maps/OLD-Castgate.webp",
-    "scalePixels": 1,
-    "scaleKilometers": 1,
-  "blurb": "This map was made in 2021 for the first Icebeach group.",
-  "selectorDescription": "A 2021 Castgate map from the early Icebeach group.",
-    "pointsOfInterest": [],
-    "regions": []
-}
+{"id":"OLD-Castgate","name":"Castgate","width":3024,"height":4032,"imageUrl":"maps/OLD-Castgate.webp","scalePixels":1,"scaleKilometers":1,"blurb":"This map was made in 2021 for the first Icebeach group.","selectorDescription":"A 2021 Castgate map from the early Icebeach group.","pointsOfInterest":[],"regions":[]}

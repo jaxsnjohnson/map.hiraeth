@@ -74,7 +74,8 @@ sandbox.document = new Proxy({
         if (id === 'poi-filter-container') {
             return {
                 getElementsByTagName: () => liveCollectionMock,
-                addEventListener: () => {}
+                addEventListener: () => {},
+                setAttribute: () => {}
             };
         }
         return new Proxy({}, elementHandler);

@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const appSource = fs.readFileSync('js/app.js', 'utf8');
 
 const fnStart = appSource.indexOf('function getMapChooserDescriptionText(mapInfo) {');
-const fnEnd = appSource.indexOf('async function hydrateMapChooserCard(card, mapInfo) {');
+const fnEnd = appSource.indexOf('function getArchiveMapChooserEntries(items, ancestors = []) {');
 
 if (fnStart === -1 || fnEnd === -1 || fnEnd <= fnStart) {
     throw new Error('Could not locate getMapChooserDescriptionText in js/app.js');

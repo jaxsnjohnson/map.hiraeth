@@ -39,6 +39,10 @@ const UX_STORAGE_KEYS = {
     gmPanelVisible: 'gmPanelVisible',
     toolkitPanelVisible: 'toolkitPanelVisible',
     mobileLayoutMode: 'mobileLayoutMode',
+    featureDetailMode: 'featureDetailMode',
+    atlasSidebarWidth: 'atlasSidebarWidth',
+    featureDetailDockedWidth: 'featureDetailDockedWidth',
+    featureDetailGeometry: 'featureDetailGeometry',
     shareRelayDismissedSession: 'shareRelayDismissedSession'
 };
 let isEmbeddedView = window.__INITIAL_EMBEDDED_VIEW__ === true;
@@ -51,6 +55,9 @@ let isAboutModalVisible = () => false;
 let loadingMapId = null;
 let lastTrackedSearchSignature = '';
 let atlasSearchIndex = [];
+let atlasSearchIndexLoaded = false;
+let atlasSearchIndexUrl = '';
+let atlasSearchIndexPromise = null;
 const mapDefinitionCache = new Map();
 const mapDefinitionPromiseCache = new Map();
 let currentMapData = null;
@@ -60,6 +67,9 @@ const prefetchedImageUrls = new Set();
 let prefetchImageQueue = [];
 let prefetchImageInFlight = false;
 let scheduledPrefetchIdleId = null;
+let idleTileWarmupTimer = null;
+let idleTileWarmupGeneration = 0;
+let idleDetailTileLayer = null;
 const SEARCH_SCOPE_MAP = 'map';
 const SEARCH_SCOPE_ATLAS = 'atlas';
 const SEARCH_RESULT_GROUP_ORDER = ['poi', 'region', 'line', 'map'];
@@ -71,7 +81,6 @@ let currentSearchScope = SEARCH_SCOPE_MAP;
 let renderedSearchResults = [];
 let activeSearchResultIndex = -1;
 let activeSearchResultElement = null;
-let atlasGeneratedAt = null;
 const isFirefox = typeof navigator !== 'undefined' && /firefox|fxios/i.test(navigator.userAgent);
 const MOBILE_LAYOUT_BREAKPOINT = getPerformanceNumber('mobileBreakpoint', 768);
 const MOBILE_SURFACE_MODE_ATLAS = 'atlas';
@@ -82,6 +91,18 @@ const MOBILE_TOOLS_PANEL_GM = 'gm';
 const MOBILE_LAYOUT_QUERY_PARAM = 'mobileLayout';
 const MOBILE_LAYOUT_MODE_V2 = 'v2';
 const MOBILE_LAYOUT_MODE_LEGACY = 'legacy';
+const FEATURE_DETAIL_MODE_FLOATING = 'floating';
+const FEATURE_DETAIL_MODE_DOCKED = 'docked';
+const ATLAS_WIDTH_DEFAULT = 286;
+const ATLAS_WIDTH_MIN = 240;
+const ATLAS_WIDTH_MAX = 420;
+const DETAIL_DOCKED_WIDTH_DEFAULT = 380;
+const DETAIL_DOCKED_WIDTH_MIN = 320;
+const DETAIL_DOCKED_WIDTH_MAX = 520;
+const DETAIL_FLOATING_WIDTH_MIN = 420;
+const DETAIL_FLOATING_HEIGHT_MIN = 300;
+const WORKSPACE_MAP_WIDTH_MIN = 360;
+const WORKSPACE_EDGE_MARGIN = 12;
 const MOBILE_PANEL_MARGIN = 10;
 const SMOOTH_ZOOM_STEP = 0.5;
 const WHEEL_ZOOM_SNAP = 0;
@@ -92,7 +113,6 @@ const SMOOTH_WHEEL_SETTLE_DELTA = 0.002;
 const SMOOTH_WHEEL_IDLE_MS = 120;
 const WHEEL_DELTA_LINE_HEIGHT = 16;
 const WHEEL_DELTA_PAGE_HEIGHT = 240;
-const SIDEBAR_TAB_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End']);
 
 if (typeof document !== 'undefined') {
     document.documentElement.classList.toggle('is-firefox', isFirefox);
@@ -125,7 +145,8 @@ const mapOptions = {
     zoomSnap: WHEEL_ZOOM_SNAP,
     zoomDelta: SMOOTH_ZOOM_STEP,
     scrollWheelZoom: false,
-    zoomAnimation: !prefersReducedMotion()
+    zoomAnimation: !prefersReducedMotion(),
+    fadeAnimation: false
 };
 
 if (isFirefox) {
@@ -255,6 +276,7 @@ map.on('popupopen', refreshLucideIcons);
 let interactionCooldownId = null;
 const beginMapInteraction = () => {
     rootElement.classList.add('map-interacting');
+    cancelIdleTileWarmup({ removeDetailLayer: true });
     if (interactionCooldownId) {
         clearTimeout(interactionCooldownId);
         interactionCooldownId = null;
@@ -264,6 +286,7 @@ const endMapInteraction = () => {
     if (interactionCooldownId) clearTimeout(interactionCooldownId);
     interactionCooldownId = setTimeout(() => {
         rootElement.classList.remove('map-interacting');
+        scheduleIdleTileWarmup();
     }, 140);
 };
 map.on('movestart zoomstart', beginMapInteraction);
@@ -271,6 +294,16 @@ map.on('moveend zoomend', endMapInteraction);
 
 if (map && map.getContainer && typeof map.getContainer().addEventListener === 'function') {
     map.getContainer().addEventListener('wheel', handleSmoothWheelZoom, { passive: false });
+}
+
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            cancelIdleTileWarmup({ removeDetailLayer: false });
+        } else {
+            scheduleIdleTileWarmup();
+        }
+    });
 }
 
 // NOW Initialize measurementLayerGroup
@@ -525,7 +558,8 @@ function clearTransientMapSearchParams(search = window.location.search) {
         'region',
         'line',
         'src',
-        'stype'
+        'stype',
+        'gallery'
     ].forEach((key) => params.delete(key));
 
     const nextSearch = params.toString();
@@ -630,16 +664,21 @@ function buildPopupHeader(data, type, safePronunciation) {
         const safeName = escapeHtml(data.name);
         const escapedName = escapeForSingleQuotedAttribute(data.name);
         const safeWikiHref = sanitizeWikiLinkForHref(data.wikiLink);
-        let shareButtonHtml = '';
+        const actionButtons = [];
         if (type) {
+            const detailsIcon = '<i class="ui-icon" data-lucide="maximize-2" aria-hidden="true"></i>';
+            actionButtons.push(`<button class="popup-detail-expand" type="button" onclick="return openSelectedFeatureDetails()" title="Open details" aria-label="Open details for ${safeName}" aria-haspopup="dialog">${detailsIcon}<span>Details</span></button>`);
             const linkIcon = `<i class="ui-icon" data-lucide="link-2" aria-hidden="true"></i>`;
-            shareButtonHtml = ` <button class="share-btn" onclick="copyFeatureLink(this, '${type}', '${escapedName}')" title="Share this location" aria-label="Share this location">${linkIcon}</button>`;
+            actionButtons.push(`<button class="share-btn" onclick="copyFeatureLink(this, '${type}', '${escapedName}')" title="Share this location" aria-label="Share this location">${linkIcon}</button>`);
         }
+        const actionButtonsHtml = actionButtons.length > 0
+            ? `<div class="popup-header-actions">${actionButtons.join('')}</div>`
+            : '';
 
         if (safeWikiHref) {
-            headerHtml += `<div class="popup-header-row"><h3><a href="${safeWikiHref}" target="_blank" rel="noopener noreferrer" title="Visit wiki page for ${safeName}">${safeName}</a></h3>${shareButtonHtml}</div>`;
+            headerHtml += `<div class="popup-header-row"><h3><a href="${safeWikiHref}" target="_blank" rel="noopener noreferrer" title="Visit wiki page for ${safeName}">${safeName}</a></h3>${actionButtonsHtml}</div>`;
         } else {
-            headerHtml += `<div class="popup-header-row"><h3>${safeName}</h3>${shareButtonHtml}</div>`;
+            headerHtml += `<div class="popup-header-row"><h3>${safeName}</h3>${actionButtonsHtml}</div>`;
         }
     }
     if (safePronunciation) {
@@ -916,12 +955,21 @@ function getVisibleEncounterTables(mapObj) {
 const container = document.querySelector('.container');
 const sidebar = document.getElementById('sidebar');
 const mapListElement = document.getElementById('map-list');
-const sidebarTabs = document.getElementById('sidebar-tabs');
 const sidebarMapPanel = document.getElementById('sidebar-map-panel');
 const sidebarPoiPanel = document.getElementById('sidebar-poi-panel');
+const featureDetailSheet = document.getElementById('feature-detail-sheet');
+const featureDetailBackdrop = document.getElementById('feature-detail-backdrop');
+const featureDetailLayoutBtn = document.getElementById('feature-detail-layout-btn');
+const featureDetailCloseBtn = document.getElementById('feature-detail-close-btn');
+const atlasResizeHandle = document.getElementById('atlas-resize-handle');
+const featureDetailDockResizeHandle = document.getElementById('feature-detail-dock-resize-handle');
+const featureDetailCornerResizeHandle = document.getElementById('feature-detail-corner-resize-handle');
+const featureDetailHeader = featureDetailSheet ? featureDetailSheet.querySelector('.feature-detail-shell-header') : null;
+const mobileAtlasCloseBtn = document.getElementById('mobile-atlas-close-btn');
 const toggleBtn = document.getElementById('toggle-sidebar-btn');
 const mapChooserElement = document.getElementById('map-chooser');
 const mapChooserGrid = document.getElementById('map-chooser-grid');
+const mapChooserCloseBtn = document.getElementById('map-chooser-close-btn');
 const mobileDock = document.getElementById('mobile-dock');
 const mobileInfoHelpBtn = document.getElementById('mobile-info-help-btn');
 const mobileToolsLauncherBtn = document.getElementById('mobile-tools-launcher-btn');
@@ -1036,6 +1084,7 @@ const encounterResult = null;
 const encounterTableList = null;
 const rootElement = document.documentElement;
 let soundEnabled = false;
+let savedAmbientResumeScheduled = false;
 let themePreference = 'system';
 let currentEffectiveTheme = 'light';
 const systemThemeMediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
@@ -1063,9 +1112,19 @@ const hasPriorPreferenceState =
 advancedControlsUnlocked = storedAdvancedControlsFlag === 'true' ||
     (storedAdvancedControlsFlag === null && storedOnboardingFlag === null && hasPriorPreferenceState);
 coordsDisplayEnabled = safeGetStorage(UX_STORAGE_KEYS.coordsVisible) === 'true';
-let currentSidebarTab = 'maps';
 let selectedSidebarFeature = null;
 let selectedSidebarFeatureType = '';
+let featureDetailSheetOpen = false;
+let featureDetailSheetExpanded = false;
+let featureDetailSheetDocked = false;
+let atlasSidebarWidth = ATLAS_WIDTH_DEFAULT;
+let featureDetailDockedWidth = DETAIL_DOCKED_WIDTH_DEFAULT;
+let featureDetailFloatingGeometry = null;
+let workspaceMapResizeFrame = null;
+let featureDetailSearchVisibilityTimer = null;
+let featureDetailSearchTargetObscured = false;
+let lastFeatureDetailTrigger = null;
+let restoreMapChooserTriggerOnPopState = false;
 
 
 // --- Helper Functions ---
@@ -1369,8 +1428,22 @@ function isMobileSurfaceMode(mode) {
     return mobileSurfaceMode === mode;
 }
 
+function syncSidebarInteractionState() {
+    if (!sidebar) return;
+    const hiddenByLayout = isMobileLayoutActive
+        ? !isMobileSurfaceMode(MOBILE_SURFACE_MODE_ATLAS)
+        : !!(container && container.classList.contains('sidebar-collapsed'));
+    const hiddenByModal = featureDetailSheetOpen && featureDetailSheetExpanded;
+    const hidden = hiddenByLayout || hiddenByModal;
+    sidebar.inert = hidden;
+    sidebar.setAttribute('aria-hidden', hidden ? 'true' : 'false');
+}
+
 function openMobileSheet({ mode = MOBILE_SURFACE_MODE_SEARCH, focusSearch = false, triggerButton = null, toolsPanelMode = null } = {}) {
     if (!isMobileLayoutActive) return;
+    if (featureDetailSheetOpen) {
+        closeFeatureDetailSheet({ restoreFocus: false });
+    }
     const nextMode = normalizeMobileSurfaceMode(mode);
     if (nextMode === MOBILE_SURFACE_MODE_SEARCH && (!searchControlContainer || searchControlContainer.style.display === 'none')) {
         return;
@@ -1397,13 +1470,23 @@ function openMobileSheet({ mode = MOBILE_SURFACE_MODE_SEARCH, focusSearch = fals
     syncMobileExploreVisibility();
     syncSidebarBackdropState();
     if (focusSearch && nextMode === MOBILE_SURFACE_MODE_SEARCH && poiSearchInput) {
-        requestAnimationFrame(() => poiSearchInput.focus());
+        poiSearchInput.focus({ preventScroll: true });
+    } else if (nextMode === MOBILE_SURFACE_MODE_ATLAS && mobileAtlasCloseBtn) {
+        mobileAtlasCloseBtn.focus({ preventScroll: true });
+    } else if (nextMode === MOBILE_SURFACE_MODE_TOOLS && mobileToolsCardCloseBtn) {
+        mobileToolsCardCloseBtn.focus({ preventScroll: true });
     }
 }
 
 function closeMobileSheet({ restoreFocus = false } = {}) {
     if (!hasOpenMobileSurface()) return;
     const closingMode = mobileSurfaceMode;
+    const focusTarget = restoreFocus
+        ? lastMobileSurfaceTriggerButton || mobileSheetLauncherBtn || mobileSearchLauncherBtn || mobileToolsLauncherBtn
+        : null;
+    if (focusTarget && typeof focusTarget.focus === 'function') {
+        focusTarget.focus({ preventScroll: true });
+    }
     mobileSurfaceMode = null;
     setMobileToolsPanelMode(null);
     if (closingMode === MOBILE_SURFACE_MODE_ATLAS && container && !container.classList.contains('sidebar-collapsed')) {
@@ -1411,12 +1494,6 @@ function closeMobileSheet({ restoreFocus = false } = {}) {
     } else {
         syncMobileSearchPanelState();
         syncSidebarBackdropState();
-    }
-    if (restoreFocus) {
-        const focusTarget = lastMobileSurfaceTriggerButton || mobileSheetLauncherBtn || mobileSearchLauncherBtn || mobileToolsLauncherBtn;
-        if (focusTarget) {
-            focusTarget.focus();
-        }
     }
 }
 
@@ -1461,6 +1538,13 @@ function syncBottomBarHeightVariable() {
 
 function clampFloatingPanels() {
     if (!mobileLayoutV2Enabled || isMobileLayoutActive) return;
+    if (typeof applyFeatureDetailDockedWidth === 'function' && typeof applyAtlasSidebarWidth === 'function') {
+        applyFeatureDetailDockedWidth(featureDetailDockedWidth);
+        applyAtlasSidebarWidth(atlasSidebarWidth);
+    }
+    if (typeof applyFloatingFeatureDetailGeometry === 'function' && featureDetailSheetOpen && !featureDetailSheetDocked && featureDetailFloatingGeometry) {
+        applyFloatingFeatureDetailGeometry(featureDetailFloatingGeometry, { persist: true });
+    }
     [sessionToolkitPanel, gmPill].forEach((panel) => {
         if (!panel) return;
         panel.style.maxHeight = '';
@@ -1504,7 +1588,10 @@ function syncMiniMapControl() {
 
     const mapHeight = Number(currentMapData.height);
     const mapWidth = Number(currentMapData.width);
-    const miniMapImageUrl = getMiniMapImageUrl(currentMapData);
+    const rawMiniMapImageUrl = getMiniMapImageUrl(currentMapData);
+    const miniMapImageUrl = typeof withAssetVersion === 'function'
+        ? withAssetVersion(rawMiniMapImageUrl)
+        : rawMiniMapImageUrl;
     if (!mapHeight || !mapWidth || !miniMapImageUrl) return;
 
     const viewportLimit = typeof window !== 'undefined'
@@ -1537,6 +1624,17 @@ function syncMiniMapControl() {
         shadowRectOptions: { color: '#000000', weight: 1, clickable: false, opacity: 0, fillOpacity: 0 },
         mapOptions: { minZoom: -100, crs: L.CRS.Simple, zoomSnap: 0, zoomDelta: 0 }
     }).addTo(map);
+    const miniMapElement = typeof miniMapControl.getContainer === 'function'
+        ? miniMapControl.getContainer()
+        : miniMapControl._container;
+    if (miniMapElement) {
+        miniMapElement.setAttribute('role', 'region');
+        miniMapElement.setAttribute('aria-label', 'Map overview');
+        const toggleDisplayButton = miniMapElement.querySelector('.leaflet-control-minimap-toggle-display');
+        if (toggleDisplayButton) {
+            toggleDisplayButton.setAttribute('aria-label', 'Toggle map overview');
+        }
+    }
     miniMapControlMode = nextMode;
     miniMapControlMapId = nextMapId;
 }
@@ -1590,6 +1688,7 @@ function updateMobileLayoutState() {
     syncMobileSearchPanelState();
     syncMobileFilterState();
     syncMiniMapControl();
+    if (featureDetailSheetOpen) syncFeatureDetailSheetState();
     clampFloatingPanels();
 }
 
@@ -1602,10 +1701,12 @@ function syncMobileSearchPanelState() {
     if (mobileSearchPanel) {
         mobileSearchPanel.setAttribute('aria-hidden', showSearch ? 'false' : 'true');
         mobileSearchPanel.dataset.mode = showSearch ? mode : '';
+        mobileSearchPanel.inert = !showSearch;
     }
     if (mobileToolsCard) {
         mobileToolsCard.setAttribute('aria-hidden', showTools ? 'false' : 'true');
         mobileToolsCard.dataset.mode = showTools ? mode : '';
+        mobileToolsCard.inert = !showTools;
     }
     container.classList.toggle('mobile-search-card-open', showSearch);
     container.classList.toggle('mobile-tools-card-open', showTools);
@@ -1622,6 +1723,7 @@ function syncMobileSearchPanelState() {
         mobileSearchPanelSearchSlot.hidden = !showSearch;
     }
     setMobileToolsPanelMode(showTools ? mobileToolsPanelMode : null);
+    syncSidebarInteractionState();
     syncMobileSearchResultsCardState();
     syncMobileDockState();
 }
@@ -1642,6 +1744,9 @@ function syncMapBlurbButtonState() {
 function setMapBlurbVisible(visible) {
     if (!mapBlurbElement) return;
     const nextVisible = !!visible;
+    if (nextVisible && featureDetailSheetOpen) {
+        closeFeatureDetailSheet({ restoreFocus: false });
+    }
     if (nextVisible && hasOpenMobileSurface()) {
         closeMobileSheet({ restoreFocus: false });
     }
@@ -1701,6 +1806,20 @@ function syncMobileUtilityButton(button, {
     button.setAttribute('aria-disabled', visible && disabled ? 'true' : 'false');
 }
 
+function hasVisibleMobileToolAction() {
+    return [
+        mobileMarkersBtn,
+        mobileFiltersBtn,
+        mobileMeasureBtn,
+        mobileSoundBtn,
+        mobileShareViewBtn,
+        mobileCoordsBtn,
+        mobileHelpBtn,
+        mobileGmViewBtn,
+        mobileToolkitBtn
+    ].some((button) => button && !button.hidden);
+}
+
 function syncMobileSheetActionState(visibilityState) {
     syncMobileUtilityButton(mobileMarkersBtn, {
         visible: visibilityState.showMobileMarkersAction,
@@ -1748,18 +1867,7 @@ function syncMobileSheetActionState(visibilityState) {
         disabled: visibilityState.mobileToolkitDisabled
     });
     if (mobileToolsLauncherBtn) {
-        const hasVisibleTool = [
-            mobileMarkersBtn,
-            mobileFiltersBtn,
-            mobileMeasureBtn,
-            mobileSoundBtn,
-            mobileShareViewBtn,
-            mobileCoordsBtn,
-            mobileHelpBtn,
-            mobileGmViewBtn,
-            mobileToolkitBtn
-        ].some((button) => button && !button.hidden);
-        mobileToolsLauncherBtn.hidden = !visibilityState.showMobileToolsToggle || !hasVisibleTool;
+        mobileToolsLauncherBtn.hidden = !visibilityState.showMobileToolsToggle || !hasVisibleMobileToolAction();
     }
     syncMobileToolPanelButtonState();
 }
@@ -1769,7 +1877,15 @@ function syncMobileExploreVisibility() {
     container.classList.toggle('mobile-atlas-open', showAtlas);
 }
 
+function syncFilterPanelInteractionState(visible = filtersPanelVisible) {
+    if (!poiFilterContainer) return;
+    const interactive = !!visible;
+    poiFilterContainer.inert = !interactive;
+    poiFilterContainer.setAttribute('aria-hidden', interactive ? 'false' : 'true');
+}
+
 function syncMobileFilterState() {
+    syncFilterPanelInteractionState(filtersPanelVisible);
     container.classList.toggle('mobile-filters-open', isMobileLayoutActive && mobileFilterExpanded);
     if (searchRefineFiltersBtn) {
         searchRefineFiltersBtn.classList.toggle('active', mobileFilterExpanded);
@@ -1804,7 +1920,7 @@ function syncMobileDockState() {
     }
     if (mobileToolsLauncherBtn) {
         const active = isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS);
-        mobileToolsLauncherBtn.hidden = !isMobileLayoutActive || isEmbeddedView || mobileToolsLauncherBtn.hidden;
+        mobileToolsLauncherBtn.hidden = !isMobileLayoutActive || isEmbeddedView || !hasVisibleMobileToolAction();
         mobileToolsLauncherBtn.classList.toggle('active', active);
         mobileToolsLauncherBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
         mobileToolsLauncherBtn.setAttribute('aria-expanded', active ? 'true' : 'false');
@@ -1820,23 +1936,19 @@ function syncMobileDockState() {
 function markControlTouch(event) {
     const target = event?.target;
     if (!(target instanceof Element)) return;
-    if (!target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-info-help-btn, #mobile-tools-launcher-btn, #mobile-dock, #mobile-search-card, #mobile-tools-card, #sidebar, #map-blurb, #sidebar-backdrop, .modal-overlay, .modal-content')) return;
+    if (!target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-info-help-btn, #mobile-tools-launcher-btn, #mobile-dock, #mobile-search-card, #mobile-tools-card, #sidebar, #feature-detail-sheet, #map-blurb, #sidebar-backdrop, .modal-overlay, .modal-content')) return;
     lastControlTouchAt = Date.now();
 }
 
 function shouldIgnoreMapPointerEvent(event) {
     const target = event?.originalEvent?.target;
-    if (target instanceof Element && target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-info-help-btn, #mobile-tools-launcher-btn, #mobile-dock, #mobile-search-card, #mobile-tools-card, #sidebar, #map-blurb, .modal-overlay, .modal-content')) {
+    if (target instanceof Element && target.closest('.leaflet-control, .map-control-button, #toggle-sidebar-btn, #mobile-info-help-btn, #mobile-tools-launcher-btn, #mobile-dock, #mobile-search-card, #mobile-tools-card, #sidebar, #feature-detail-sheet, #map-blurb, .modal-overlay, .modal-content')) {
         return true;
     }
     if (isMobileLayoutActive && (Date.now() - lastControlTouchAt) < 150) {
         return true;
     }
     return false;
-}
-
-function normalizeSidebarTab(value) {
-    return ['maps', 'details'].includes(value) ? value : 'maps';
 }
 
 function createSidebarTextElement(tagName, className, text) {
@@ -1859,29 +1971,15 @@ function getSidebarPlainText(value) {
     return stripHtml(String(value || '')).replace(/\s+/g, ' ').trim();
 }
 
-function truncateSidebarText(value, maxLength = 220) {
-    const text = getSidebarPlainText(value);
-    if (text.length <= maxLength) return text;
-    return `${text.slice(0, Math.max(0, maxLength - 1)).trim()}...`;
-}
-
 function getSidebarFeatureTitle(feature) {
     return String(feature?.name || feature?.id || 'Selected feature').trim();
 }
 
 function getSidebarFeatureTypeLabel(feature, type) {
-    if (type === 'poi') return getPoiGroup(feature?.type) || feature?.type || 'POI';
+    if (type === 'poi') return feature?.type || 'Point of interest';
     if (type === 'region') return feature?.value || feature?.type || 'Region';
     if (type === 'line') return feature?.type || 'Line';
     return 'Feature';
-}
-
-function getSidebarFeatureKicker(feature, type) {
-    const typeLabel = getSidebarFeatureTypeLabel(feature, type);
-    if (type === 'poi') return `POI / ${typeLabel}`;
-    if (type === 'region') return `Region / ${typeLabel}`;
-    if (type === 'line') return `Line / ${typeLabel}`;
-    return typeLabel;
 }
 
 function appendSidebarMetaRow(parent, label, value) {
@@ -1982,7 +2080,7 @@ function buildSidebarFeatureDetailModel(feature, type) {
     const summary = getSidebarPlainText(feature.summary);
     const description = getSidebarPlainText(feature.description);
     const linkedMap = resolveLinkedMapData(feature);
-    const metaRows = [
+    const technicalRows = [
         ['Type', feature.type || getSidebarFeatureTypeLabel(feature, type)],
         ['Linked map', linkedMap?.name || ''],
         ['ID', feature.id || ''],
@@ -1991,10 +2089,10 @@ function buildSidebarFeatureDetailModel(feature, type) {
 
     return {
         title: getSidebarFeatureTitle(feature),
-        kicker: getSidebarFeatureKicker(feature, type),
+        typeLabel: getSidebarFeatureTypeLabel(feature, type),
         summary,
         description: description && description !== summary ? description : '',
-        metaRows,
+        technicalRows,
         sections: getFeatureDetailSections(feature),
         tags: getFeatureTags(feature),
         linkedMap
@@ -2080,21 +2178,14 @@ function renderSidebarFeaturePanel() {
 
     const header = document.createElement('header');
     header.className = 'sidebar-detail-header';
-    header.appendChild(createSidebarTextElement('span', 'sidebar-detail-kicker', detailModel.kicker));
-    header.appendChild(createSidebarTextElement('h2', 'sidebar-detail-title', detailModel.title));
+    const title = createSidebarTextElement('h2', 'sidebar-detail-title', detailModel.title);
+    title.id = 'feature-detail-title';
+    header.appendChild(title);
+    header.appendChild(createSidebarTextElement('span', 'sidebar-detail-type', detailModel.typeLabel));
     sidebarPoiPanel.appendChild(header);
 
     if (detailModel.summary) {
-        sidebarPoiPanel.appendChild(createSidebarTextElement('p', 'sidebar-detail-summary', truncateSidebarText(detailModel.summary, 240)));
-    }
-
-    const meta = document.createElement('div');
-    meta.className = 'sidebar-detail-meta';
-    detailModel.metaRows.forEach(([key, value]) => {
-        appendSidebarMetaRow(meta, key, value);
-    });
-    if (meta.children.length > 0) {
-        sidebarPoiPanel.appendChild(meta);
+        sidebarPoiPanel.appendChild(createSidebarTextElement('p', 'sidebar-detail-summary', detailModel.summary));
     }
 
     appendSidebarTextSection(sidebarPoiPanel, 'Overview', detailModel.description);
@@ -2105,9 +2196,44 @@ function renderSidebarFeaturePanel() {
 
     const actions = document.createElement('div');
     actions.className = 'sidebar-detail-actions';
+
+    if (detailModel.technicalRows.length > 0) {
+        const technicalPanel = document.createElement('section');
+        technicalPanel.id = 'feature-detail-technical';
+        technicalPanel.className = 'sidebar-detail-technical';
+        technicalPanel.hidden = true;
+        technicalPanel.appendChild(createSidebarTextElement('h3', 'sr-only', 'Technical details'));
+        const technicalMeta = document.createElement('div');
+        technicalMeta.className = 'sidebar-detail-meta';
+        detailModel.technicalRows.forEach(([key, value]) => {
+            appendSidebarMetaRow(technicalMeta, key, value);
+        });
+        technicalPanel.appendChild(technicalMeta);
+        sidebarPoiPanel.appendChild(technicalPanel);
+
+        const technicalToggle = document.createElement('button');
+        technicalToggle.type = 'button';
+        technicalToggle.className = 'sidebar-detail-technical-toggle';
+        technicalToggle.title = 'Stats for nerds';
+        technicalToggle.setAttribute('aria-label', 'Show technical details');
+        technicalToggle.setAttribute('aria-controls', technicalPanel.id);
+        technicalToggle.setAttribute('aria-expanded', 'false');
+        technicalToggle.innerHTML = '<i class="ui-icon" data-lucide="database" aria-hidden="true"></i><span>Stats</span>';
+        technicalToggle.addEventListener('click', () => {
+            const expanded = technicalToggle.getAttribute('aria-expanded') !== 'true';
+            technicalToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            technicalToggle.setAttribute('aria-label', expanded ? 'Hide technical details' : 'Show technical details');
+            technicalPanel.hidden = !expanded;
+        });
+        actions.appendChild(technicalToggle);
+    }
+
     const focusButton = document.createElement('button');
     focusButton.type = 'button';
-    focusButton.innerHTML = '<i class="ui-icon" data-lucide="crosshair" aria-hidden="true"></i><span>Focus</span>';
+    focusButton.className = 'sidebar-detail-focus-action';
+    focusButton.title = 'Focus on map';
+    focusButton.setAttribute('aria-label', 'Focus on map');
+    focusButton.innerHTML = '<i class="ui-icon" data-lucide="crosshair" aria-hidden="true"></i>';
     focusButton.addEventListener('click', focusSidebarSelectedFeature);
     actions.appendChild(focusButton);
 
@@ -2124,104 +2250,521 @@ function renderSidebarFeaturePanel() {
     sidebarPoiPanel.appendChild(actions);
 }
 
-function setSidebarTab(tab) {
-    currentSidebarTab = normalizeSidebarTab(tab);
-    syncSidebarPanels();
+function refreshMapAfterFeatureDetailLayoutChange() {
+    if (!map || typeof map.invalidateSize !== 'function') return;
+    requestAnimationFrame(() => map.invalidateSize({ pan: false }));
+    setTimeout(() => map.invalidateSize({ pan: false }), transitionDuration + 20);
 }
 
-let cachedSidebarTabButtons = null;
-function getSidebarTabButtons() {
-    if (!sidebarTabs) return [];
-    if (!cachedSidebarTabButtons) {
-        cachedSidebarTabButtons = Array.from(sidebarTabs.querySelectorAll('[data-sidebar-tab]'));
+function syncFeatureDetailSearchVisibility() {
+    if (!container) return;
+    let obscuresSearch = false;
+    const canObscureSearch =
+        featureDetailSheetOpen &&
+        !isMobileLayoutActive &&
+        !featureDetailSheetDocked &&
+        featureDetailSheet &&
+        searchControlContainer &&
+        window.getComputedStyle(searchControlContainer).display !== 'none';
+    if (canObscureSearch) {
+        const sheetRect = featureDetailSheet.getBoundingClientRect();
+        const searchRect = searchControlContainer.getBoundingClientRect();
+        const margin = 14;
+        obscuresSearch = searchRect.width > 0 && searchRect.height > 0 && !(
+            sheetRect.right < searchRect.left - margin ||
+            sheetRect.left > searchRect.right + margin ||
+            sheetRect.bottom < searchRect.top - margin ||
+            sheetRect.top > searchRect.bottom + margin
+        );
     }
-    return cachedSidebarTabButtons;
+    if (!canObscureSearch) {
+        if (featureDetailSearchVisibilityTimer !== null) {
+            clearTimeout(featureDetailSearchVisibilityTimer);
+            featureDetailSearchVisibilityTimer = null;
+        }
+        featureDetailSearchTargetObscured = false;
+        container.classList.remove('feature-detail-obscures-search');
+        return;
+    }
+    if (
+        featureDetailSearchTargetObscured === obscuresSearch &&
+        (
+            featureDetailSearchVisibilityTimer !== null ||
+            container.classList.contains('feature-detail-obscures-search') === obscuresSearch
+        )
+    ) {
+        return;
+    }
+    featureDetailSearchTargetObscured = obscuresSearch;
+    if (featureDetailSearchVisibilityTimer !== null) {
+        clearTimeout(featureDetailSearchVisibilityTimer);
+    }
+    const delay = obscuresSearch ? 180 : 320;
+    featureDetailSearchVisibilityTimer = setTimeout(() => {
+        featureDetailSearchVisibilityTimer = null;
+        container.classList.toggle('feature-detail-obscures-search', featureDetailSearchTargetObscured);
+    }, delay);
 }
 
-function syncSidebarTabButtons() {
-    if (!sidebarTabs) return;
-    getSidebarTabButtons().forEach((button) => {
-        const active = button.dataset.sidebarTab === currentSidebarTab;
-        button.classList.toggle('active', active);
-        button.setAttribute('aria-selected', active ? 'true' : 'false');
-        button.tabIndex = active ? 0 : -1;
+function clampWorkspaceValue(value, min, max) {
+    return Math.min(Math.max(Number(value) || min, min), Math.max(min, max));
+}
+
+function scheduleWorkspaceMapResize() {
+    if (workspaceMapResizeFrame !== null) return;
+    const scheduleFrame = typeof requestAnimationFrame === 'function'
+        ? requestAnimationFrame
+        : (callback) => setTimeout(callback, 0);
+    workspaceMapResizeFrame = scheduleFrame(() => {
+        workspaceMapResizeFrame = null;
+        if (map && typeof map.invalidateSize === 'function') {
+            map.invalidateSize({ pan: false });
+        }
     });
 }
 
-function getSidebarPanelVisibility() {
+function getWorkspaceWidthLimits() {
+    const containerWidth = container ? container.clientWidth : window.innerWidth;
+    const atlasAllowance = featureDetailSheetOpen && featureDetailSheetDocked
+        ? featureDetailDockedWidth
+        : 0;
+    const atlasMax = Math.min(
+        ATLAS_WIDTH_MAX,
+        containerWidth - atlasAllowance - WORKSPACE_MAP_WIDTH_MIN
+    );
+    const visibleAtlasWidth = container && container.classList.contains('sidebar-collapsed')
+        ? 0
+        : atlasSidebarWidth;
+    const detailMax = Math.min(
+        DETAIL_DOCKED_WIDTH_MAX,
+        containerWidth - visibleAtlasWidth - WORKSPACE_MAP_WIDTH_MIN
+    );
     return {
-        maps: currentSidebarTab === 'maps',
-        details: currentSidebarTab === 'details'
+        atlasMax: Math.max(ATLAS_WIDTH_MIN, atlasMax),
+        detailMax: Math.max(DETAIL_DOCKED_WIDTH_MIN, detailMax)
     };
 }
 
-function syncSidebarPanels() {
-    if (sidebar) {
-        sidebar.classList.toggle('has-sidebar-feature', !!selectedSidebarFeature);
+function applyAtlasSidebarWidth(value, { persist = false } = {}) {
+    const { atlasMax } = getWorkspaceWidthLimits();
+    atlasSidebarWidth = clampWorkspaceValue(value, ATLAS_WIDTH_MIN, atlasMax);
+    if (container) {
+        container.style.setProperty('--atlas-sidebar-width', `${Math.round(atlasSidebarWidth)}px`);
+        container.style.setProperty('--atlas-sidebar-offset', `${Math.round(atlasSidebarWidth / 2)}px`);
+    }
+    if (atlasResizeHandle) {
+        atlasResizeHandle.setAttribute('aria-valuemax', String(Math.round(atlasMax)));
+        atlasResizeHandle.setAttribute('aria-valuenow', String(Math.round(atlasSidebarWidth)));
+    }
+    if (persist) safeSetStorage(UX_STORAGE_KEYS.atlasSidebarWidth, String(Math.round(atlasSidebarWidth)));
+    scheduleWorkspaceMapResize();
+}
+
+function applyFeatureDetailDockedWidth(value, { persist = false } = {}) {
+    const { detailMax } = getWorkspaceWidthLimits();
+    featureDetailDockedWidth = clampWorkspaceValue(value, DETAIL_DOCKED_WIDTH_MIN, detailMax);
+    if (container) container.style.setProperty('--feature-detail-docked-width', `${Math.round(featureDetailDockedWidth)}px`);
+    if (featureDetailDockResizeHandle) {
+        featureDetailDockResizeHandle.setAttribute('aria-valuemax', String(Math.round(detailMax)));
+        featureDetailDockResizeHandle.setAttribute('aria-valuenow', String(Math.round(featureDetailDockedWidth)));
+    }
+    if (persist) safeSetStorage(UX_STORAGE_KEYS.featureDetailDockedWidth, String(Math.round(featureDetailDockedWidth)));
+    scheduleWorkspaceMapResize();
+}
+
+function getFloatingDetailBounds() {
+    const containerRect = container
+        ? container.getBoundingClientRect()
+        : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+    const sidebarBoundary = sidebar && container && !container.classList.contains('sidebar-collapsed')
+        ? sidebar.getBoundingClientRect().right - containerRect.left
+        : 0;
+    const left = sidebarBoundary + WORKSPACE_EDGE_MARGIN;
+    const top = WORKSPACE_EDGE_MARGIN;
+    return {
+        left,
+        top,
+        right: containerRect.width - WORKSPACE_EDGE_MARGIN,
+        bottom: containerRect.height - WORKSPACE_EDGE_MARGIN
+    };
+}
+
+function applyFloatingFeatureDetailGeometry(geometry, { persist = false } = {}) {
+    if (!featureDetailSheet || !geometry) return;
+    const bounds = getFloatingDetailBounds();
+    const maxWidth = Math.max(1, bounds.right - bounds.left);
+    const maxHeight = Math.max(1, bounds.bottom - bounds.top);
+    const minWidth = Math.min(DETAIL_FLOATING_WIDTH_MIN, maxWidth);
+    const minHeight = Math.min(DETAIL_FLOATING_HEIGHT_MIN, maxHeight);
+    const width = clampWorkspaceValue(geometry.width, minWidth, maxWidth);
+    const height = clampWorkspaceValue(geometry.height, minHeight, maxHeight);
+    const left = clampWorkspaceValue(geometry.left, bounds.left, bounds.right - width);
+    const top = clampWorkspaceValue(geometry.top, bounds.top, bounds.bottom - height);
+    featureDetailFloatingGeometry = { left, top, width, height };
+    featureDetailSheet.classList.add('user-positioned');
+    featureDetailSheet.style.left = `${Math.round(left)}px`;
+    featureDetailSheet.style.top = `${Math.round(top)}px`;
+    featureDetailSheet.style.width = `${Math.round(width)}px`;
+    featureDetailSheet.style.height = `${Math.round(height)}px`;
+    featureDetailSheet.style.transform = 'none';
+    syncFeatureDetailSearchVisibility();
+    if (featureDetailCornerResizeHandle) {
+        featureDetailCornerResizeHandle.setAttribute('aria-valuenow', `${Math.round(width)} by ${Math.round(height)}`);
+    }
+    if (persist) safeSetJSON(UX_STORAGE_KEYS.featureDetailGeometry, featureDetailFloatingGeometry);
+}
+
+function clearFloatingFeatureDetailStyles() {
+    if (!featureDetailSheet) return;
+    featureDetailSheet.classList.remove('user-positioned');
+    ['left', 'top', 'width', 'height', 'transform'].forEach((property) => {
+        featureDetailSheet.style[property] = '';
+    });
+    syncFeatureDetailSearchVisibility();
+}
+
+function resetFloatingFeatureDetailGeometry() {
+    featureDetailFloatingGeometry = null;
+    safeRemoveStorage(UX_STORAGE_KEYS.featureDetailGeometry);
+    clearFloatingFeatureDetailStyles();
+}
+
+function syncFeatureDetailLayoutGeometry() {
+    if (!featureDetailSheet || isMobileLayoutActive || featureDetailSheetDocked) {
+        clearFloatingFeatureDetailStyles();
+        return;
+    }
+    if (featureDetailFloatingGeometry) {
+        applyFloatingFeatureDetailGeometry(featureDetailFloatingGeometry);
+    } else {
+        clearFloatingFeatureDetailStyles();
+    }
+}
+
+function beginWorkspaceResize(handle, onMove, onFinish) {
+    return (event) => {
+        if (isMobileLayoutActive || event.button !== 0) return;
+        event.preventDefault();
+        container?.classList.add('workspace-resizing');
+        handle.setPointerCapture?.(event.pointerId);
+        const move = (moveEvent) => onMove(moveEvent);
+        const finish = (finishEvent) => {
+            window.removeEventListener('pointermove', move);
+            window.removeEventListener('pointerup', finish);
+            window.removeEventListener('pointercancel', finish);
+            container?.classList.remove('workspace-resizing');
+            handle.releasePointerCapture?.(finishEvent.pointerId);
+            onFinish?.();
+            refreshMapAfterFeatureDetailLayoutChange();
+        };
+        window.addEventListener('pointermove', move);
+        window.addEventListener('pointerup', finish);
+        window.addEventListener('pointercancel', finish);
+    };
+}
+
+function initializeResizableWorkspace() {
+    const storedAtlasWidth = Number(safeGetStorage(UX_STORAGE_KEYS.atlasSidebarWidth));
+    const storedDockedWidth = Number(safeGetStorage(UX_STORAGE_KEYS.featureDetailDockedWidth));
+    const storedGeometry = safeGetJSON(UX_STORAGE_KEYS.featureDetailGeometry, null);
+    atlasSidebarWidth = Number.isFinite(storedAtlasWidth) && storedAtlasWidth > 0 ? storedAtlasWidth : ATLAS_WIDTH_DEFAULT;
+    featureDetailDockedWidth = Number.isFinite(storedDockedWidth) && storedDockedWidth > 0
+        ? storedDockedWidth
+        : DETAIL_DOCKED_WIDTH_DEFAULT;
+    featureDetailFloatingGeometry = storedGeometry && ['left', 'top', 'width', 'height'].every((key) => Number.isFinite(Number(storedGeometry[key])))
+        ? storedGeometry
+        : null;
+    applyAtlasSidebarWidth(atlasSidebarWidth);
+    applyFeatureDetailDockedWidth(featureDetailDockedWidth);
+
+    if (atlasResizeHandle) {
+        atlasResizeHandle.addEventListener('pointerdown', beginWorkspaceResize(
+            atlasResizeHandle,
+            (event) => {
+                const containerLeft = container?.getBoundingClientRect().left || 0;
+                applyAtlasSidebarWidth(event.clientX - containerLeft);
+            },
+            () => applyAtlasSidebarWidth(atlasSidebarWidth, { persist: true })
+        ));
+        atlasResizeHandle.addEventListener('keydown', (event) => {
+            if (!['ArrowLeft', 'ArrowRight', 'Home'].includes(event.key)) return;
+            event.preventDefault();
+            const next = event.key === 'Home'
+                ? ATLAS_WIDTH_DEFAULT
+                : atlasSidebarWidth + (event.key === 'ArrowRight' ? 16 : -16);
+            applyAtlasSidebarWidth(next, { persist: true });
+        });
     }
 
-    const visibility = getSidebarPanelVisibility();
-    setElementHiddenState(sidebarTabs, false);
-    setElementHiddenState(sidebarMapPanel, !visibility.maps);
-    setElementHiddenState(sidebarPoiPanel, !visibility.details);
+    if (featureDetailDockResizeHandle) {
+        featureDetailDockResizeHandle.addEventListener('pointerdown', beginWorkspaceResize(
+            featureDetailDockResizeHandle,
+            (event) => {
+                const containerRight = container?.getBoundingClientRect().right || window.innerWidth;
+                applyFeatureDetailDockedWidth(containerRight - event.clientX);
+            },
+            () => applyFeatureDetailDockedWidth(featureDetailDockedWidth, { persist: true })
+        ));
+        featureDetailDockResizeHandle.addEventListener('keydown', (event) => {
+            if (!['ArrowLeft', 'ArrowRight', 'Home'].includes(event.key)) return;
+            event.preventDefault();
+            const next = event.key === 'Home'
+                ? DETAIL_DOCKED_WIDTH_DEFAULT
+                : featureDetailDockedWidth + (event.key === 'ArrowLeft' ? 16 : -16);
+            applyFeatureDetailDockedWidth(next, { persist: true });
+        });
+    }
 
+    if (featureDetailHeader) {
+        featureDetailHeader.addEventListener('pointerdown', (event) => {
+            if (isMobileLayoutActive || !featureDetailSheet?.classList.contains('floating') || event.button !== 0) return;
+            if (event.target instanceof Element && event.target.closest('button, .workspace-corner-resize-handle')) return;
+            const containerRect = container.getBoundingClientRect();
+            const sheetRect = featureDetailSheet.getBoundingClientRect();
+            const startX = event.clientX;
+            const startY = event.clientY;
+            const startGeometry = {
+                left: sheetRect.left - containerRect.left,
+                top: sheetRect.top - containerRect.top,
+                width: sheetRect.width,
+                height: sheetRect.height
+            };
+            applyFloatingFeatureDetailGeometry(startGeometry);
+            beginWorkspaceResize(featureDetailHeader, (moveEvent) => {
+                applyFloatingFeatureDetailGeometry({
+                    ...startGeometry,
+                    left: startGeometry.left + moveEvent.clientX - startX,
+                    top: startGeometry.top + moveEvent.clientY - startY
+                });
+            }, () => applyFloatingFeatureDetailGeometry(featureDetailFloatingGeometry, { persist: true }))(event);
+        });
+        featureDetailHeader.addEventListener('dblclick', (event) => {
+            if (event.target instanceof Element && event.target.closest('button')) return;
+            resetFloatingFeatureDetailGeometry();
+        });
+    }
+
+    if (featureDetailCornerResizeHandle) {
+        featureDetailCornerResizeHandle.addEventListener('pointerdown', (event) => {
+            if (!featureDetailSheet?.classList.contains('floating')) return;
+            const containerRect = container.getBoundingClientRect();
+            const sheetRect = featureDetailSheet.getBoundingClientRect();
+            const startX = event.clientX;
+            const startY = event.clientY;
+            const startGeometry = {
+                left: sheetRect.left - containerRect.left,
+                top: sheetRect.top - containerRect.top,
+                width: sheetRect.width,
+                height: sheetRect.height
+            };
+            beginWorkspaceResize(featureDetailCornerResizeHandle, (moveEvent) => {
+                applyFloatingFeatureDetailGeometry({
+                    ...startGeometry,
+                    width: startGeometry.width + moveEvent.clientX - startX,
+                    height: startGeometry.height + moveEvent.clientY - startY
+                });
+            }, () => applyFloatingFeatureDetailGeometry(featureDetailFloatingGeometry, { persist: true }))(event);
+        });
+        featureDetailCornerResizeHandle.addEventListener('keydown', (event) => {
+            if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home'].includes(event.key)) return;
+            event.preventDefault();
+            if (event.key === 'Home') {
+                resetFloatingFeatureDetailGeometry();
+                return;
+            }
+            const rect = featureDetailSheet.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            applyFloatingFeatureDetailGeometry({
+                left: rect.left - containerRect.left,
+                top: rect.top - containerRect.top,
+                width: rect.width + (event.key === 'ArrowRight' ? 16 : event.key === 'ArrowLeft' ? -16 : 0),
+                height: rect.height + (event.key === 'ArrowDown' ? 16 : event.key === 'ArrowUp' ? -16 : 0)
+            }, { persist: true });
+        });
+    }
+}
+
+function syncFeatureDetailSheetState() {
+    const open = featureDetailSheetOpen && !!selectedSidebarFeature;
+    if (!open) featureDetailSheetExpanded = false;
+    if (!isMobileLayoutActive) featureDetailSheetExpanded = false;
+    const mobileExpanded = open && isMobileLayoutActive && featureDetailSheetExpanded;
+    const floating = open && !isMobileLayoutActive && !featureDetailSheetDocked;
+    const docked = open && !isMobileLayoutActive && featureDetailSheetDocked;
+    const modal = mobileExpanded;
+
+    if (featureDetailSheet) {
+        featureDetailSheet.hidden = !open;
+        featureDetailSheet.classList.toggle('visible', open);
+        featureDetailSheet.classList.toggle('floating', floating);
+        featureDetailSheet.classList.toggle('docked', docked);
+        featureDetailSheet.classList.toggle('expanded', mobileExpanded);
+        featureDetailSheet.setAttribute('aria-hidden', open ? 'false' : 'true');
+        featureDetailSheet.setAttribute('aria-modal', modal ? 'true' : 'false');
+    }
+    if (featureDetailBackdrop) {
+        const showBackdrop = mobileExpanded;
+        featureDetailBackdrop.hidden = !showBackdrop;
+        featureDetailBackdrop.classList.toggle('visible', showBackdrop);
+        featureDetailBackdrop.setAttribute('aria-hidden', showBackdrop ? 'false' : 'true');
+    }
+    if (featureDetailLayoutBtn) {
+        const pressed = isMobileLayoutActive ? featureDetailSheetExpanded : featureDetailSheetDocked;
+        const label = isMobileLayoutActive
+            ? (featureDetailSheetExpanded ? 'Restore details' : 'Expand details')
+            : (featureDetailSheetDocked ? 'Open as main panel' : 'Dock details to right');
+        const iconMarkup = isMobileLayoutActive
+            ? (featureDetailSheetExpanded
+                ? '<i class="ui-icon" data-lucide="minimize-2" aria-hidden="true"></i>'
+                : '<i class="ui-icon" data-lucide="maximize-2" aria-hidden="true"></i>')
+            : (featureDetailSheetDocked
+                ? '<i class="ui-icon" data-lucide="panel-right-open" aria-hidden="true"></i>'
+                : '<i class="ui-icon" data-lucide="panel-right" aria-hidden="true"></i>');
+        featureDetailLayoutBtn.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+        featureDetailLayoutBtn.setAttribute('aria-label', label);
+        featureDetailLayoutBtn.setAttribute('title', label);
+        featureDetailLayoutBtn.innerHTML = iconMarkup;
+    }
+    if (container) {
+        container.classList.toggle('feature-detail-open', open);
+        container.classList.toggle('feature-detail-floating', floating);
+        container.classList.toggle('feature-detail-docked', docked);
+        container.classList.toggle('feature-detail-expanded', mobileExpanded);
+    }
+    if (bodyElement) {
+        bodyElement.classList.toggle('feature-detail-open', open);
+        bodyElement.classList.toggle('feature-detail-floating', floating);
+        bodyElement.classList.toggle('feature-detail-docked', docked);
+        bodyElement.classList.toggle('feature-detail-expanded', modal);
+    }
+    if (!isMobileLayoutActive) {
+        applyFeatureDetailDockedWidth(featureDetailDockedWidth);
+        applyAtlasSidebarWidth(atlasSidebarWidth);
+    }
+    syncFeatureDetailLayoutGeometry();
+    syncFeatureDetailSearchVisibility();
+    if (typeof requestAnimationFrame === 'function') {
+        requestAnimationFrame(syncFeatureDetailSearchVisibility);
+    }
+    syncSidebarInteractionState();
+    if (mapContainerElement) mapContainerElement.inert = modal;
+    refreshLucideIcons();
+}
+
+function openSelectedFeatureDetails() {
+    if (!selectedSidebarFeature || !featureDetailSheet) return false;
+    const activeElement = document.activeElement;
+    lastFeatureDetailTrigger = activeElement instanceof HTMLElement ? activeElement : null;
+    featureDetailSheetOpen = true;
+    featureDetailSheetExpanded = false;
+    if (isMobileLayoutActive && hasOpenMobileSurface()) {
+        closeMobileSheet({ restoreFocus: false });
+    }
+    if (mapBlurbElement && mapBlurbElement.classList.contains('visible')) {
+        setMapBlurbVisible(false);
+    }
+    if (map && typeof map.closePopup === 'function') {
+        map.closePopup();
+    }
+    syncFeatureDetailSheetState();
+    refreshMapAfterFeatureDetailLayoutChange();
+    requestAnimationFrame(() => featureDetailSheet.focus({ preventScroll: true }));
+    trackAnalytics('feature_details_opened', {
+        featureType: selectedSidebarFeatureType,
+        featureName: getSidebarFeatureTitle(selectedSidebarFeature)
+    });
+    return false;
+}
+
+function closeFeatureDetailSheet({ restoreFocus = true } = {}) {
+    if (!featureDetailSheetOpen) return;
+    featureDetailSheetOpen = false;
+    featureDetailSheetExpanded = false;
+    syncFeatureDetailSheetState();
+    refreshMapAfterFeatureDetailLayoutChange();
+    if (restoreFocus) {
+        const focusTarget = lastFeatureDetailTrigger && lastFeatureDetailTrigger.isConnected
+            ? lastFeatureDetailTrigger
+            : mapElement;
+        if (focusTarget && typeof focusTarget.focus === 'function') {
+            focusTarget.focus({ preventScroll: true });
+        }
+    }
+    lastFeatureDetailTrigger = null;
+}
+
+function toggleFeatureDetailLayout() {
+    if (!featureDetailSheetOpen || !selectedSidebarFeature) return;
+    if (isMobileLayoutActive) {
+        featureDetailSheetExpanded = !featureDetailSheetExpanded;
+    } else {
+        featureDetailSheetDocked = !featureDetailSheetDocked;
+        safeSetStorage(
+            UX_STORAGE_KEYS.featureDetailMode,
+            featureDetailSheetDocked ? FEATURE_DETAIL_MODE_DOCKED : FEATURE_DETAIL_MODE_FLOATING
+        );
+    }
+    syncFeatureDetailSheetState();
+    refreshMapAfterFeatureDetailLayoutChange();
+    if (featureDetailSheet) featureDetailSheet.focus({ preventScroll: true });
+}
+
+function trapFeatureDetailFocus(event) {
+    if (!isMobileLayoutActive || !featureDetailSheetExpanded || event.key !== 'Tab' || !featureDetailSheet) return;
+    const focusable = Array.from(featureDetailSheet.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )).filter((element) => !element.hidden && element.getAttribute('aria-hidden') !== 'true');
+    if (focusable.length === 0) {
+        event.preventDefault();
+        featureDetailSheet.focus({ preventScroll: true });
+        return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = document.activeElement;
+    const focusIsOnContainer = active === featureDetailSheet;
+    if (event.shiftKey && (focusIsOnContainer || active === first || !featureDetailSheet.contains(active))) {
+        event.preventDefault();
+        last.focus();
+    } else if (!event.shiftKey && (focusIsOnContainer || active === last || !featureDetailSheet.contains(active))) {
+        event.preventDefault();
+        first.focus();
+    }
+}
+
+function syncSidebarPanels() {
+    setElementHiddenState(sidebarMapPanel, false);
     renderSidebarFeaturePanel();
-    syncSidebarTabButtons();
+    if (!selectedSidebarFeature) {
+        featureDetailSheetOpen = false;
+    }
+    syncFeatureDetailSheetState();
     refreshLucideIcons();
 }
 
 function setSidebarSelectedFeature(feature, type) {
     selectedSidebarFeature = feature || null;
     selectedSidebarFeatureType = feature ? type : '';
-    if (selectedSidebarFeature) {
-        currentSidebarTab = 'details';
-    }
     syncSidebarPanels();
-    if (selectedSidebarFeature && isMobileLayoutActive) {
-        openMobileSheet({
-            mode: MOBILE_SURFACE_MODE_ATLAS,
-            focusSearch: false,
-            triggerButton: mobileSheetLauncherBtn
-        });
-    }
 }
 
-function initializeSidebarTabs() {
-    if (sidebarTabs) {
-        sidebarTabs.addEventListener('click', (event) => {
-            const target = event.target instanceof Element ? event.target : null;
-            const button = target?.closest('[data-sidebar-tab]');
-            if (!button) return;
-            setSidebarTab(button.dataset.sidebarTab);
-        });
-        sidebarTabs.addEventListener('keydown', (event) => {
-            if (!SIDEBAR_TAB_KEYS.has(event.key)) return;
-
-            const tabButtons = getSidebarTabButtons();
-            if (tabButtons.length === 0) return;
-
-            const target = event.target instanceof Element ? event.target : null;
-            const currentButton = target?.closest('[data-sidebar-tab]');
-            if (!currentButton || !sidebarTabs.contains(currentButton)) return;
-
-            event.preventDefault();
-
-            const currentIndex = Math.max(0, tabButtons.indexOf(currentButton));
-            let nextIndex = currentIndex;
-            if (event.key === 'Home') {
-                nextIndex = 0;
-            } else if (event.key === 'End') {
-                nextIndex = tabButtons.length - 1;
-            } else {
-                const direction = event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1;
-                nextIndex = (currentIndex + direction + tabButtons.length) % tabButtons.length;
-            }
-
-            const nextButton = tabButtons[nextIndex];
-            if (!nextButton) return;
-            setSidebarTab(nextButton.dataset.sidebarTab);
-            nextButton.focus();
-        });
+function initializeFeatureDetailSheet() {
+    featureDetailSheetDocked = safeGetStorage(UX_STORAGE_KEYS.featureDetailMode) === FEATURE_DETAIL_MODE_DOCKED;
+    initializeResizableWorkspace();
+    if (featureDetailCloseBtn) {
+        featureDetailCloseBtn.addEventListener('click', () => closeFeatureDetailSheet());
+    }
+    if (featureDetailLayoutBtn) {
+        featureDetailLayoutBtn.addEventListener('click', toggleFeatureDetailLayout);
+    }
+    if (featureDetailBackdrop) {
+        featureDetailBackdrop.addEventListener('click', () => closeFeatureDetailSheet());
+    }
+    if (featureDetailSheet) {
+        featureDetailSheet.addEventListener('keydown', trapFeatureDetailFocus);
+    }
+    if (mobileAtlasCloseBtn) {
+        mobileAtlasCloseBtn.addEventListener('click', () => closeMobileSheet({ restoreFocus: true }));
     }
     syncSidebarPanels();
 }
@@ -2270,6 +2813,35 @@ function parseFiniteNumber(value, fallbackValue) {
     return Number.isFinite(parsed) ? parsed : fallbackValue;
 }
 
+function normalizeTileAssetRoot(value) {
+    const rawRoot = String(value || '').trim().replace(/\\/g, '/');
+    if (!rawRoot || rawRoot === '.') return '';
+
+    const normalizedRoot = rawRoot
+        .replace(/^\.?\//, '')
+        .replace(/\/+$/, '');
+    if (!normalizedRoot ||
+        /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(normalizedRoot) ||
+        normalizedRoot === '..' ||
+        normalizedRoot.startsWith('../') ||
+        normalizedRoot.includes('/../')) {
+        return '';
+    }
+    return normalizedRoot;
+}
+
+function resolveTileUrlTemplate(urlTemplate) {
+    const normalizedTemplate = String(urlTemplate || '').trim().replace(/\\/g, '/');
+    const tileAssetRoot = normalizeTileAssetRoot(getConfigValue('performance.tileAssetRoot', 'tile'));
+    if (!tileAssetRoot || normalizedTemplate.startsWith(`${tileAssetRoot}/`)) {
+        return normalizedTemplate;
+    }
+    if (normalizedTemplate.startsWith('tile/')) {
+        return `${tileAssetRoot}/${normalizedTemplate.slice('tile/'.length)}`;
+    }
+    return normalizedTemplate;
+}
+
 function getMapTileSource(mapInfo) {
     const source = mapInfo && mapInfo.tileSource;
     if (!source || typeof source !== 'object' || Array.isArray(source)) return null;
@@ -2288,16 +2860,18 @@ function getMapTileSource(mapInfo) {
 
     const leafletNativeZoom = parseFiniteNumber(source.leafletNativeZoom, 0);
     const zoomOffset = parseFiniteNumber(source.zoomOffset, maxZoom - leafletNativeZoom);
+    const cacheVersion = String(source.cacheVersion || '').trim().slice(0, 128);
     return {
         type,
-        urlTemplate,
+        urlTemplate: resolveTileUrlTemplate(urlTemplate),
         tileSize: parsePositiveInteger(source.tileSize, 256),
         minZoom,
         maxZoom,
         leafletNativeZoom,
         zoomOffset,
         minNativeZoom: parseFiniteNumber(source.minNativeZoom, minZoom - zoomOffset),
-        maxNativeZoom: parseFiniteNumber(source.maxNativeZoom, leafletNativeZoom)
+        maxNativeZoom: parseFiniteNumber(source.maxNativeZoom, leafletNativeZoom),
+        cacheVersion
     };
 }
 
@@ -2346,6 +2920,249 @@ function createSimpleCrsTileLayer(urlTemplate, options) {
     return new SimpleCrsTileLayer(urlTemplate, options);
 }
 
+function buildGeneratedTileUrl(tileSource, coords) {
+    if (!tileSource || !coords) return '';
+    const url = String(tileSource.urlTemplate || '')
+        .replace('{z}', String(coords.z))
+        .replace('{x}', String(coords.x))
+        .replace('{y}', String(coords.y));
+    return typeof withAssetVersion === 'function'
+        ? withAssetVersion(url, tileSource.cacheVersion)
+        : url;
+}
+
+function getVisibleSourceTileCoordinates(tileLayer, tileSource) {
+    if (!tileLayer || !tileSource || !tileLayer._tiles || typeof tileLayer._getZoomForUrl !== 'function') {
+        return [];
+    }
+
+    const sourceZoom = Number(tileLayer._getZoomForUrl());
+    if (!Number.isInteger(sourceZoom) || sourceZoom < tileSource.minZoom || sourceZoom > tileSource.maxZoom) {
+        return [];
+    }
+
+    const seen = new Set();
+    return Object.values(tileLayer._tiles).reduce((coordinates, tileEntry) => {
+        if (!tileEntry || tileEntry.current === false || !tileEntry.coords) return coordinates;
+        const normalized = normalizeSimpleCrsTileCoords(tileEntry.coords, tileLayer.options, sourceZoom);
+        const x = Number(normalized.x);
+        const y = Number(normalized.y);
+        if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || y < 0) return coordinates;
+        const key = `${sourceZoom}:${x}:${y}`;
+        if (seen.has(key)) return coordinates;
+        seen.add(key);
+        coordinates.push({ z: sourceZoom, x, y });
+        return coordinates;
+    }, []);
+}
+
+function getIdleTileWarmupCandidates(mapInfo, tileLayer, tileSource) {
+    const visibleTiles = getVisibleSourceTileCoordinates(tileLayer, tileSource);
+    const sourceWidth = Number(mapInfo?.width);
+    const sourceHeight = Number(mapInfo?.height);
+    if (visibleTiles.length === 0 || !Number.isFinite(sourceWidth) || !Number.isFinite(sourceHeight)) {
+        return [];
+    }
+
+    const targetZoom = tileSource.maxZoom;
+    const sourceZoom = visibleTiles[0].z;
+    const zoomDelta = targetZoom - sourceZoom;
+    if (zoomDelta <= 0) return [];
+
+    const descendantScale = Math.pow(2, zoomDelta);
+    const maxColumns = Math.ceil(sourceWidth / tileSource.tileSize);
+    const maxRows = Math.ceil(sourceHeight / tileSource.tileSize);
+    const minVisibleX = Math.min(...visibleTiles.map((tile) => tile.x));
+    const maxVisibleX = Math.max(...visibleTiles.map((tile) => tile.x + 1));
+    const minVisibleY = Math.min(...visibleTiles.map((tile) => tile.y));
+    const maxVisibleY = Math.max(...visibleTiles.map((tile) => tile.y + 1));
+    const centerX = ((minVisibleX + maxVisibleX) * descendantScale) / 2;
+    const centerY = ((minVisibleY + maxVisibleY) * descendantScale) / 2;
+    const candidates = new Map();
+
+    visibleTiles.forEach((tile) => {
+        const startX = Math.max(0, tile.x * descendantScale);
+        const endX = Math.min(maxColumns, (tile.x + 1) * descendantScale);
+        const startY = Math.max(0, tile.y * descendantScale);
+        const endY = Math.min(maxRows, (tile.y + 1) * descendantScale);
+        for (let y = startY; y < endY; y += 1) {
+            for (let x = startX; x < endX; x += 1) {
+                const key = `${targetZoom}:${x}:${y}`;
+                if (candidates.has(key)) continue;
+                const coords = { z: targetZoom, x, y };
+                candidates.set(key, {
+                    ...coords,
+                    url: buildGeneratedTileUrl(tileSource, coords),
+                    distance: Math.pow(x + 0.5 - centerX, 2) + Math.pow(y + 0.5 - centerY, 2)
+                });
+            }
+        }
+    });
+
+    return Array.from(candidates.values())
+        .sort((left, right) => left.distance - right.distance)
+        .map(({ distance, ...candidate }) => candidate);
+}
+
+function isIdleTileWarmupAllowed() {
+    if (getConfigValue('performance.idleTileWarmup', true) === false) return false;
+    if (typeof document !== 'undefined' && document.hidden) return false;
+    const connection = typeof navigator !== 'undefined'
+        ? navigator.connection || navigator.mozConnection || navigator.webkitConnection
+        : null;
+    if (!connection) return true;
+    if (connection.saveData) return false;
+    return !/^(?:slow-)?2g$/i.test(String(connection.effectiveType || ''));
+}
+
+function removeIdleDetailTileLayer() {
+    if (!idleDetailTileLayer) return;
+    if (map && map.hasLayer(idleDetailTileLayer)) {
+        map.removeLayer(idleDetailTileLayer);
+    }
+    idleDetailTileLayer = null;
+}
+
+function cancelIdleTileWarmup(options = {}) {
+    idleTileWarmupGeneration += 1;
+    if (idleTileWarmupTimer) {
+        clearTimeout(idleTileWarmupTimer);
+        idleTileWarmupTimer = null;
+    }
+    if (options.removeDetailLayer) {
+        removeIdleDetailTileLayer();
+    }
+}
+
+function waitForIdleTileSlice() {
+    return new Promise((resolve) => {
+        scheduleIdleTask(resolve, 1200);
+    });
+}
+
+async function cacheIdleTileBatch(urls) {
+    const results = await Promise.all(urls.map(async (url) => {
+        try {
+            const response = await fetch(url, {
+                cache: 'force-cache',
+                credentials: 'same-origin'
+            });
+            if (!response || !response.ok) return false;
+            await response.blob();
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }));
+    return results.every(Boolean);
+}
+
+function showIdleDetailTileLayer(mapInfo, tileSource, generation) {
+    if (generation !== idleTileWarmupGeneration || currentMapData !== mapInfo || currentMapBaseLayerMode !== 'tile') {
+        return;
+    }
+
+    removeIdleDetailTileLayer();
+    const urlTemplate = typeof withAssetVersion === 'function'
+        ? withAssetVersion(tileSource.urlTemplate, tileSource.cacheVersion)
+        : tileSource.urlTemplate;
+    const detailLayer = createSimpleCrsTileLayer(urlTemplate, {
+        tileSize: tileSource.tileSize,
+        minZoom: mapOptions.minZoom,
+        maxZoom: mapOptions.maxZoom,
+        minNativeZoom: tileSource.leafletNativeZoom,
+        maxNativeZoom: tileSource.leafletNativeZoom,
+        zoomOffset: tileSource.zoomOffset,
+        sourceWidth: mapInfo.width,
+        sourceHeight: mapInfo.height,
+        sourceMaxZoom: tileSource.maxZoom,
+        bounds: L.latLngBounds(currentBounds),
+        noWrap: true,
+        keepBuffer: 0,
+        updateWhenIdle: true,
+        updateWhenZooming: false,
+        opacity: 0,
+        className: 'map-idle-detail-tile'
+    });
+    let tileFailures = 0;
+    detailLayer.on('tileerror', () => {
+        tileFailures += 1;
+    });
+    detailLayer.on('load', () => {
+        if (generation !== idleTileWarmupGeneration || tileFailures > 0 || idleDetailTileLayer !== detailLayer) {
+            if (idleDetailTileLayer === detailLayer) removeIdleDetailTileLayer();
+            return;
+        }
+        const container = detailLayer.getContainer && detailLayer.getContainer();
+        if (container?.classList) container.classList.add('map-idle-detail-layer');
+        detailLayer.setOpacity(1);
+    });
+    idleDetailTileLayer = detailLayer;
+    detailLayer.addTo(map);
+    const container = detailLayer.getContainer && detailLayer.getContainer();
+    if (container?.classList) container.classList.add('map-idle-detail-layer');
+}
+
+async function runIdleTileWarmup(generation) {
+    idleTileWarmupTimer = null;
+    if (generation !== idleTileWarmupGeneration || !isIdleTileWarmupAllowed()) return;
+    if (!currentMapData || !currentImageLayer || currentMapBaseLayerMode !== 'tile') return;
+
+    const mapInfo = currentMapData;
+    const tileLayer = currentImageLayer;
+    const tileSource = getMapTileSource(mapInfo);
+    if (!tileSource) return;
+
+    const candidates = getIdleTileWarmupCandidates(mapInfo, tileLayer, tileSource);
+    if (candidates.length === 0) return;
+
+    const mobile = typeof isMobileLayoutActive !== 'undefined' && isMobileLayoutActive;
+    const configuredMaxTiles = Math.floor(getPerformanceNumber(
+        mobile ? 'idleTileWarmupMobileMaxTiles' : 'idleTileWarmupMaxTiles',
+        mobile ? 192 : 768
+    ));
+    const maxTiles = Math.max(0, configuredMaxTiles);
+    const batchSize = Math.max(1, Math.min(8, Math.floor(getPerformanceNumber('idleTileWarmupBatchSize', 4))));
+    const batchDelayMs = Math.max(0, getPerformanceNumber('idleTileWarmupBatchDelayMs', 80));
+    const displayLimit = Math.max(0, Math.floor(getPerformanceNumber(
+        mobile ? 'idleTileUpgradeMobileMaxTiles' : 'idleTileUpgradeMaxTiles',
+        mobile ? 72 : 160
+    )));
+    const warmupCandidates = candidates.slice(0, maxTiles);
+    const canUpgradeVisibleMap = candidates.length <= displayLimit && candidates.length <= maxTiles;
+    let allTilesCached = true;
+
+    for (let index = 0; index < warmupCandidates.length; index += batchSize) {
+        if (generation !== idleTileWarmupGeneration || !isIdleTileWarmupAllowed() || currentMapData !== mapInfo) {
+            return;
+        }
+        await waitForIdleTileSlice();
+        if (generation !== idleTileWarmupGeneration || !isIdleTileWarmupAllowed() || currentMapData !== mapInfo) {
+            return;
+        }
+        const batch = warmupCandidates.slice(index, index + batchSize).map((candidate) => candidate.url);
+        const batchCached = await cacheIdleTileBatch(batch);
+        allTilesCached = allTilesCached && batchCached;
+        if (batchDelayMs > 0 && index + batchSize < warmupCandidates.length) {
+            await new Promise((resolve) => setTimeout(resolve, batchDelayMs));
+        }
+    }
+
+    if (allTilesCached && canUpgradeVisibleMap) {
+        showIdleDetailTileLayer(mapInfo, tileSource, generation);
+    }
+}
+
+function scheduleIdleTileWarmup() {
+    if (idleDetailTileLayer || !isIdleTileWarmupAllowed()) return;
+    if (idleTileWarmupTimer) clearTimeout(idleTileWarmupTimer);
+    const generation = ++idleTileWarmupGeneration;
+    const delayMs = Math.max(250, getPerformanceNumber('idleTileWarmupDelayMs', 1800));
+    idleTileWarmupTimer = setTimeout(() => {
+        runIdleTileWarmup(generation).catch(() => undefined);
+    }, delayMs);
+}
+
 function getTileLayerImageCounts(tileContainer) {
     if (!tileContainer || typeof tileContainer.querySelectorAll !== 'function') {
         return { total: 0, loaded: 0, failed: 0 };
@@ -2364,11 +3181,46 @@ function areAllObservedTilesFailed(tileCounts) {
     return !!tileCounts && tileCounts.total > 0 && tileCounts.loaded === 0 && tileCounts.failed === tileCounts.total;
 }
 
+function getTilePreviewFadeConfig() {
+    const retireRatio = Math.max(0.05, Math.min(1, getPerformanceNumber('tilePreviewRetireRatio', 0.76)));
+    const fadeStartRatio = Math.max(0, Math.min(retireRatio, getPerformanceNumber('tilePreviewFadeStartRatio', 0.45)));
+    return { fadeStartRatio, retireRatio };
+}
+
+function getMapPreviewLayerElement() {
+    return currentMapPreviewLayer && typeof currentMapPreviewLayer.getElement === 'function'
+        ? currentMapPreviewLayer.getElement()
+        : null;
+}
+
+function setMapPreviewLayerOpacity(opacity) {
+    if (!currentMapPreviewLayer) return;
+    const rawOpacity = Number(opacity);
+    const normalizedOpacity = Number.isFinite(rawOpacity)
+        ? Math.max(0, Math.min(1, rawOpacity))
+        : 1;
+    if (typeof currentMapPreviewLayer.setOpacity === 'function') {
+        currentMapPreviewLayer.setOpacity(normalizedOpacity);
+    }
+    const previewElement = getMapPreviewLayerElement();
+    if (previewElement) {
+        previewElement.style.opacity = String(normalizedOpacity);
+    }
+}
+
+function updateMapPreviewLayerForTileProgress(tileCounts) {
+    if (!currentMapPreviewLayer || !tileCounts || tileCounts.total <= 0) return;
+    setMapPreviewLayerOpacity(1);
+}
+
 function createMapPreviewLayer(mapInfo, bounds) {
     const previewImageUrl = getMiniMapImageUrl(mapInfo);
     const mapImageUrl = getPreferredMapImageUrl(mapInfo);
     if (!previewImageUrl || previewImageUrl === mapImageUrl || !L.imageOverlay) return null;
-    return L.imageOverlay(previewImageUrl, bounds, {
+    const versionedPreviewImageUrl = typeof withAssetVersion === 'function'
+        ? withAssetVersion(previewImageUrl)
+        : previewImageUrl;
+    return L.imageOverlay(versionedPreviewImageUrl, bounds, {
         pane: 'tilePane',
         interactive: false,
         opacity: 1,
@@ -2459,7 +3311,7 @@ function createMapBaseLayer(selectedMap, mapImageUrl, bounds) {
     const tileSource = getMapTileSource(selectedMap);
     if (tileSource && L.TileLayer) {
         const urlTemplate = typeof withAssetVersion === 'function'
-            ? withAssetVersion(tileSource.urlTemplate)
+            ? withAssetVersion(tileSource.urlTemplate, tileSource.cacheVersion)
             : tileSource.urlTemplate;
         return {
             mode: 'tile',
@@ -2470,12 +3322,14 @@ function createMapBaseLayer(selectedMap, mapImageUrl, bounds) {
                 minNativeZoom: tileSource.minNativeZoom,
                 maxNativeZoom: tileSource.maxNativeZoom,
                 zoomOffset: tileSource.zoomOffset,
+                sourceWidth: selectedMap.width,
                 sourceHeight: selectedMap.height,
                 sourceMaxZoom: tileSource.maxZoom,
                 bounds: L.latLngBounds(bounds),
                 noWrap: true,
                 keepBuffer: 2,
                 updateWhenIdle: isMobileLayoutActive,
+                updateWhenZooming: false,
                 className: 'map-tile-layer'
             })
         };
@@ -2507,7 +3361,9 @@ function hasDirectMapHash(mapId) {
 }
 
 function shouldShowMapChooserForMapId(mapId) {
-    return !!mapChooserElement && !isEmbeddedView && !hasDirectMapHash(mapId);
+    if (!mapChooserElement || isEmbeddedView || hasDirectMapHash(mapId)) return false;
+    const params = new URLSearchParams(window.location.search || '');
+    return params.get('gallery') === 'true';
 }
 
 function setMapChooserVisible(visible) {
@@ -2517,6 +3373,46 @@ function setMapChooserVisible(visible) {
     mapChooserElement.classList.toggle('visible', visible);
     if (bodyElement) {
         bodyElement.classList.toggle('map-chooser-open', visible);
+    }
+    if (visible && mapChooserCloseBtn && typeof mapChooserCloseBtn.focus === 'function') {
+        requestAnimationFrame(() => mapChooserCloseBtn.focus({ preventScroll: true }));
+    }
+}
+
+function closeMapChooserToMap({ restoreFocus = true } = {}) {
+    if (!mapChooserElement || mapChooserElement.hidden) return;
+    if (history.state?.mapChooserOverlay === true) {
+        restoreMapChooserTriggerOnPopState = restoreFocus;
+        history.back();
+        return;
+    }
+
+    const fallbackMapId = currentlyLoadedMapId ||
+        safeGetStorage(UX_STORAGE_KEYS.lastMapId) ||
+        findFirstLoadableIdRecursive(mapData) ||
+        '';
+    const cleanSearch = clearTransientMapSearchParams(window.location.search);
+    const nextHash = generateHash(fallbackMapId, currentSidebarState);
+    history.replaceState(
+        {
+            mapId: fallbackMapId || null,
+            sidebarState: currentSidebarState,
+            search: cleanSearch,
+            hash: nextHash
+        },
+        '',
+        buildAppUrlWithHash(nextHash, cleanSearch)
+    );
+    setMapChooserVisible(false);
+    if (fallbackMapId && fallbackMapId !== currentlyLoadedMapId) {
+        loadMap(fallbackMapId, false);
+    }
+    if (restoreFocus) {
+        requestAnimationFrame(() => {
+            if (mapElement && typeof mapElement.focus === 'function') {
+                mapElement.focus({ preventScroll: true });
+            }
+        });
     }
 }
 
@@ -2554,7 +3450,28 @@ function getPrimaryMapChooserEntries(items, ancestors = []) {
 function formatMapChooserDate(...candidateValues) {
     for (const candidateValue of candidateValues) {
         if (!candidateValue) continue;
-        const date = new Date(candidateValue);
+        const dateOnlyMatch = typeof candidateValue === 'string'
+            ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(candidateValue.trim())
+            : null;
+        let date;
+        if (dateOnlyMatch) {
+            const [, yearText, monthText, dayText] = dateOnlyMatch;
+            const year = Number(yearText);
+            const monthIndex = Number(monthText) - 1;
+            const day = Number(dayText);
+            date = new Date(0);
+            date.setFullYear(year, monthIndex, day);
+            date.setHours(12, 0, 0, 0);
+            if (
+                date.getFullYear() !== year ||
+                date.getMonth() !== monthIndex ||
+                date.getDate() !== day
+            ) {
+                continue;
+            }
+        } else {
+            date = new Date(candidateValue);
+        }
         if (Number.isNaN(date.getTime())) continue;
         return new Intl.DateTimeFormat('en', {
             month: 'short',
@@ -2562,7 +3479,16 @@ function formatMapChooserDate(...candidateValues) {
             year: 'numeric'
         }).format(date);
     }
-    return 'Unknown';
+    return '';
+}
+
+function getMapChooserEditedText(mapInfo) {
+    const formattedDate = formatMapChooserDate(
+        mapInfo?.updatedAt,
+        mapInfo?.lastEdited,
+        mapInfo?.modifiedAt
+    );
+    return formattedDate ? `Last edited: ${formattedDate}` : '';
 }
 
 function getMapChooserImageSources(mapInfo) {
@@ -2594,6 +3520,11 @@ function getMapChooserActiveMapId(entries) {
     return candidateIds.find(candidateId => entryIds.has(candidateId)) || '';
 }
 
+function getMapChooserRegionCount(mapInfo) {
+    const count = Number(mapInfo?.regionCount);
+    return Number.isInteger(count) && count >= 0 ? count : 0;
+}
+
 function createMapChooserCard(mapInfo, index, activeMapId) {
     const card = document.createElement('button');
     card.type = 'button';
@@ -2613,7 +3544,6 @@ function createMapChooserCard(mapInfo, index, activeMapId) {
     const regionsId = `${baseId}-regions`;
 
     card.setAttribute('aria-labelledby', titleId);
-    card.setAttribute('aria-describedby', `${descId} ${editedId} ${regionsId}`);
 
     const media = document.createElement('span');
     media.className = 'map-chooser-card-media';
@@ -2642,25 +3572,31 @@ function createMapChooserCard(mapInfo, index, activeMapId) {
     const edited = document.createElement('span');
     edited.id = editedId;
     edited.className = 'map-chooser-meta map-chooser-edited';
-    edited.textContent = `Last edited: ${formatMapChooserDate(mapInfo.updatedAt, mapInfo.lastEdited, mapInfo.modifiedAt, atlasGeneratedAt)}`;
+    edited.textContent = getMapChooserEditedText(mapInfo);
 
     const regions = document.createElement('span');
     regions.id = regionsId;
     regions.className = 'map-chooser-meta map-chooser-regions';
-    regions.textContent = 'Regions: ...';
+    regions.textContent = `Regions: ${getMapChooserRegionCount(mapInfo)}`;
 
     const description = document.createElement('span');
     description.id = descId;
     description.className = 'map-chooser-meta map-chooser-description';
     description.textContent = getMapChooserDescriptionText(mapInfo);
-    if (!description.textContent) {
-        description.style.display = 'none';
-    }
 
     copy.appendChild(title);
-    copy.appendChild(description);
-    copy.appendChild(edited);
+    const describedByIds = [];
+    if (description.textContent) {
+        copy.appendChild(description);
+        describedByIds.push(descId);
+    }
+    if (edited.textContent) {
+        copy.appendChild(edited);
+        describedByIds.push(editedId);
+    }
     copy.appendChild(regions);
+    describedByIds.push(regionsId);
+    card.setAttribute('aria-describedby', describedByIds.join(' '));
 
     card.appendChild(media);
     card.appendChild(copy);
@@ -2668,7 +3604,6 @@ function createMapChooserCard(mapInfo, index, activeMapId) {
         openMapFromChooser(mapInfo);
     });
 
-    hydrateMapChooserCard(card, mapInfo);
     return card;
 }
 
@@ -2687,31 +3622,6 @@ function getMapChooserDescriptionText(mapInfo) {
     const parser = new DOMParser();
     const sandbox = parser.parseFromString(rawText, 'text/html');
     return String(sandbox.body.textContent || sandbox.body.innerText || '').trim();
-}
-
-async function hydrateMapChooserCard(card, mapInfo) {
-    const edited = card.querySelector('.map-chooser-edited');
-    const regions = card.querySelector('.map-chooser-regions');
-    try {
-        const definition = await getMapDefinition(mapInfo.id, mapInfo);
-        if (regions) {
-            const regionCount = Array.isArray(definition.regions) ? definition.regions.length : 0;
-            regions.textContent = `Regions: ${regionCount}`;
-        }
-        if (edited) {
-            edited.textContent = `Last edited: ${formatMapChooserDate(
-                definition.updatedAt,
-                definition.lastEdited,
-                definition.modifiedAt,
-                mapInfo.updatedAt,
-                mapInfo.lastEdited,
-                mapInfo.modifiedAt,
-                atlasGeneratedAt
-            )}`;
-        }
-    } catch (error) {
-        if (regions) regions.textContent = 'Regions: 0';
-    }
 }
 
 function getArchiveMapChooserEntries(items, ancestors = []) {
@@ -2783,6 +3693,11 @@ function openMapFromChooser(mapInfo) {
     }
     trackAnalytics('map_chooser_selected', { mapId: mapInfo.id, mapName: mapInfo.name || '' });
     navigateToMap(mapInfo.id, { preResolvedMap: mapInfo });
+    requestAnimationFrame(() => {
+        if (mapElement && typeof mapElement.focus === 'function') {
+            mapElement.focus({ preventScroll: true });
+        }
+    });
 }
 
 function isValidThemePreference(value) {
@@ -3039,7 +3954,31 @@ function trackAnalytics(eventName, details = {}) {
 }
 
 function setSearchMeta(text = '') {
-    void text;
+    if (!searchResultsContainer) return;
+    const message = String(text || '').trim();
+    const existingStatus = searchResultsContainer.querySelector('.search-status');
+    if (!message) {
+        if (existingStatus) existingStatus.remove();
+        return;
+    }
+
+    renderedSearchResults = [];
+    activeSearchResultIndex = -1;
+    activeSearchResultElement = null;
+    searchResultsContainer.replaceChildren();
+    searchResultsContainer.removeAttribute('role');
+    searchResultsContainer.removeAttribute('aria-label');
+    searchResultsContainer.removeAttribute('aria-activedescendant');
+    poiSearchInput.removeAttribute('aria-activedescendant');
+
+    const status = document.createElement('div');
+    status.className = 'search-results-summary search-status';
+    status.setAttribute('role', 'status');
+    status.textContent = message;
+    searchResultsContainer.appendChild(status);
+    searchResultsContainer.style.display = 'block';
+    poiSearchInput.setAttribute('aria-expanded', 'true');
+    syncMobileSearchResultsCardState();
 }
 
 function setLoadingMessage(message, options = {}) {
@@ -3258,6 +4197,79 @@ function getSearchScopeLabel(scope = currentSearchScope) {
         : configValue('taxonomy.labels.mapSearchScope', 'This Map');
 }
 
+function prepareAtlasSearchIndex(entries) {
+    const preparedEntries = Array.isArray(entries) ? entries : [];
+    for (let index = 0; index < preparedEntries.length; index += 1) {
+        const entry = preparedEntries[index];
+        entry._normalizedName = normalizeSearchValue(entry.name);
+        entry._normalizedSearchContent = normalizeSearchValue(`${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''} ${entry.searchText || ''}`);
+    }
+    return preparedEntries;
+}
+
+function configureAtlasSearchIndex(atlas) {
+    atlasSearchIndexUrl = typeof atlas?.searchIndexUrl === 'string'
+        ? atlas.searchIndexUrl.trim()
+        : '';
+    atlasSearchIndexPromise = null;
+    if (Object.prototype.hasOwnProperty.call(atlas || {}, 'searchIndex')) {
+        atlasSearchIndex = prepareAtlasSearchIndex(atlas.searchIndex);
+        atlasSearchIndexLoaded = true;
+        return;
+    }
+    atlasSearchIndex = [];
+    atlasSearchIndexLoaded = false;
+}
+
+function getAtlasSearchEntryCount() {
+    if (Array.isArray(atlasSearchIndex) && atlasSearchIndex.length > 0) {
+        return atlasSearchIndex.length;
+    }
+    return !atlasSearchIndexLoaded && atlasSearchIndexUrl ? 1 : 0;
+}
+
+async function ensureAtlasSearchIndexLoaded() {
+    if (atlasSearchIndexLoaded) return atlasSearchIndex;
+    if (!atlasSearchIndexUrl) return [];
+    if (atlasSearchIndexPromise) return atlasSearchIndexPromise;
+
+    if (searchScopeAtlasBtn) {
+        searchScopeAtlasBtn.setAttribute('aria-busy', 'true');
+        searchScopeAtlasBtn.setAttribute('aria-disabled', 'true');
+    }
+    setSearchMeta('Loading atlas search…');
+
+    atlasSearchIndexPromise = fetchJsonAsset(atlasSearchIndexUrl)
+        .then((payload) => {
+            const entries = Array.isArray(payload) ? payload : payload?.searchIndex;
+            if (!Array.isArray(entries)) {
+                throw new Error('Atlas search index is missing a searchIndex array.');
+            }
+            atlasSearchIndex = prepareAtlasSearchIndex(entries);
+            atlasSearchIndexLoaded = true;
+            prefetchedJsonUrls.add(withAssetVersion(atlasSearchIndexUrl));
+            return atlasSearchIndex;
+        })
+        .catch((error) => {
+            console.error('Error loading atlas search index:', error);
+            setSearchMeta('Atlas search could not be loaded. Try again.');
+            return null;
+        })
+        .finally(() => {
+            atlasSearchIndexPromise = null;
+            if (searchScopeAtlasBtn) {
+                searchScopeAtlasBtn.removeAttribute('aria-busy');
+                searchScopeAtlasBtn.removeAttribute('aria-disabled');
+            }
+        });
+
+    return atlasSearchIndexPromise;
+}
+
+function atlasScopeActionStillOwnsFocus(previousActiveElement, currentActiveElement = document.activeElement) {
+    return currentActiveElement === previousActiveElement || currentActiveElement === searchScopeAtlasBtn;
+}
+
 function setSearchScope(scope) {
     currentSearchScope = resolveSearchScope(scope);
     if (searchScopeAtlasBtn) {
@@ -3279,7 +4291,7 @@ function getMobileMapSummaryExcerpt(mapInfo, maxLength = 148) {
     return `${trimmed || shortened.trim()}…`;
 }
 
-function closeSearchResults({ clearMeta = true } = {}) {
+function closeSearchResults({ clearMeta = true, preserveScope = false } = {}) {
     renderedSearchResults = [];
     activeSearchResultIndex = -1;
     searchResultsContainer.style.display = 'none';
@@ -3293,7 +4305,7 @@ function closeSearchResults({ clearMeta = true } = {}) {
     if (clearMeta) {
         setSearchMeta('');
         lastTrackedSearchSignature = '';
-        setSearchScope(SEARCH_SCOPE_MAP);
+        if (!preserveScope) setSearchScope(SEARCH_SCOPE_MAP);
     }
     syncMobileSearchResultsCardState();
     syncMobileExploreVisibility();
@@ -3478,13 +4490,24 @@ function registerServiceWorker() {
 
     const swUrl = `sw.js?v=${encodeURIComponent(window.APP_ASSET_VERSION || '0')}`;
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register(swUrl).catch((error) => {
-            console.warn('Service worker registration failed:', error);
-        });
+        window.setTimeout(() => {
+            scheduleIdleTask(() => {
+                navigator.serviceWorker.register(swUrl).catch((error) => {
+                    console.warn('Service worker registration failed:', error);
+                });
+            }, 2500);
+        }, 1200);
     }, { once: true });
 }
 
+function shouldAvoidOptionalPrefetch(connection = (typeof navigator !== 'undefined' ? navigator.connection : null)) {
+    if (!connection) return false;
+    if (connection.saveData === true) return true;
+    return /^(slow-)?2g$/i.test(String(connection.effectiveType || '').trim());
+}
+
 async function prefetchJsonAsset(url) {
+    if (shouldAvoidOptionalPrefetch()) return;
     if (getConfigValue('performance.prefetchJson', true) === false) return;
     const normalizedUrl = withAssetVersion(url);
     if (!url || prefetchedJsonUrls.has(normalizedUrl)) return;
@@ -3497,6 +4520,7 @@ async function prefetchJsonAsset(url) {
 }
 
 function prefetchImageAsset(url) {
+    if (shouldAvoidOptionalPrefetch()) return;
     if (getConfigValue('performance.prefetchImages', true) === false) return;
     const normalizedUrl = withAssetVersion(url);
     if (!url || prefetchedImageUrls.has(normalizedUrl)) return;
@@ -3601,7 +4625,10 @@ function setSidebarState(state, updateHash = true) {
         refreshLucideIcons();
 
         // Invalidate map size after CSS transition completes
-        setTimeout(() => { map.invalidateSize({ animate: true }); }, transitionDuration);
+        setTimeout(() => {
+            map.invalidateSize({ animate: true });
+            syncFeatureDetailLayoutGeometry();
+        }, transitionDuration);
 
             currentSidebarState = state;
             if (updateHash && currentlyLoadedMapId) {
@@ -3771,7 +4798,7 @@ function buildControlVisibilityState(mapInfo) {
         hasBlurb: !!mapInfo.blurb,
         hasLatLonBounds: !!mapInfo.latLonBounds,
         allowGMToolkit,
-        atlasSearchCount: Array.isArray(atlasSearchIndex) ? atlasSearchIndex.length : 0,
+        atlasSearchCount: getAtlasSearchEntryCount(),
         toolkitVisible: toolkitPanelVisible,
         gmVisible: gmPanelVisible
     });
@@ -3824,6 +4851,7 @@ function handleHiddenControlCleanup(visibilityState) {
             toggleFiltersBtn.classList.remove('active');
             toggleFiltersBtn.setAttribute('aria-expanded', 'false');
         }
+        syncFilterPanelInteractionState(false);
         syncMobileFilterState();
     }
 }
@@ -3837,6 +4865,7 @@ function applyAdvancedControlsLock() {
             toggleFiltersBtn.setAttribute('aria-expanded', 'false');
         }
     }
+    syncFilterPanelInteractionState(filtersPanelVisible);
     syncMobileFilterState();
     setMapBlurbVisible(false);
     coordinateDisplay.style.display = 'none';
@@ -3909,6 +4938,7 @@ function unlockAdvancedControls(reason = 'interaction') {
         poiFilterContainer.classList.add('visible');
         toggleFiltersBtn.classList.add('active');
         toggleFiltersBtn.setAttribute('aria-expanded', 'true');
+        syncFilterPanelInteractionState(true);
     }
     initializeSoundState();
     updateActiveFilterChips();
@@ -4077,6 +5107,8 @@ if (travelModeSelect) {
 }
 
 // ⚡ Bolt: Optimizes active search result DOM traversal by maintaining a reference to the active element, turning an O(N) operation into O(1) (Measured improvement: ~64x speedup)
+let cachedSearchResultsNodeList = null;
+
 function setActiveSearchResult(index) {
     activeSearchResultIndex = index;
 
@@ -4087,7 +5119,11 @@ function setActiveSearchResult(index) {
     }
 
     if (index >= 0) {
-        const items = searchResultsContainer.querySelectorAll('.search-result-item');
+        // ⚡ Bolt: Cache querySelectorAll result to avoid O(N) DOM query on every keystroke
+        if (!cachedSearchResultsNodeList || cachedSearchResultsNodeList.length === 0 || cachedSearchResultsNodeList[0].parentNode !== searchResultsContainer) {
+            cachedSearchResultsNodeList = searchResultsContainer.querySelectorAll('.search-result-item');
+        }
+        const items = cachedSearchResultsNodeList;
         const newActive = items[index];
         if (newActive) {
             newActive.classList.add('active');
@@ -4121,13 +5157,6 @@ function selectSearchResult(index = activeSearchResultIndex) {
     setSearchScope(SEARCH_SCOPE_MAP);
     closeSearchResults();
     closeMobileSheet({ restoreFocus: false });
-    if (selectedSidebarFeature && isMobileLayoutActive) {
-        openMobileSheet({
-            mode: MOBILE_SURFACE_MODE_ATLAS,
-            focusSearch: false,
-            triggerButton: mobileSheetLauncherBtn
-        });
-    }
     updateActiveFilterChips();
     syncMobileExploreVisibility();
 }
@@ -4185,6 +5214,7 @@ function renderSearchResults(term, results) {
     activeSearchResultIndex = results.length > 0 ? 0 : -1;
     searchResultsContainer.innerHTML = '';
     activeSearchResultElement = null;
+    cachedSearchResultsNodeList = null; // Invalidate cache when search results change
     searchResultsContainer.removeAttribute('aria-activedescendant');
     poiSearchInput.removeAttribute('aria-activedescendant');
 
@@ -4500,7 +5530,7 @@ function updateVisibleMarkersAndSearch() {
     const hasMarkers = !!currentMarkerGroup && allMapMarkers.length > 0;
     const hasRegions = !!currentRegionGroup && currentRegionGroup.getLayers().length > 0;
     const hasLines = !!currentRoadGroup && currentRoadGroup.getLayers().length > 0;
-    const hasAtlasIndex = Array.isArray(atlasSearchIndex) && atlasSearchIndex.length > 0;
+    const hasAtlasIndex = getAtlasSearchEntryCount() > 0;
     const searchable = hasMarkers || hasRegions || hasLines || hasAtlasIndex;
 
     if (!searchable) {
@@ -4539,8 +5569,7 @@ function updateVisibleMarkersAndSearch() {
     searchAtlasIndex(searchTerm, results);
 
     if (!searchTerm) {
-        setSearchScope(SEARCH_SCOPE_MAP);
-        closeSearchResults();
+        closeSearchResults({ preserveScope: true });
     } else {
         renderSearchResults(searchTerm, sortSearchResults(results));
     }
@@ -4707,6 +5736,7 @@ function populateFilters(pointsOfInterest, mapId) {
         filtersPanelVisible = false;
         toggleFiltersBtn.classList.remove('active');
         toggleFiltersBtn.setAttribute('aria-expanded', 'false');
+        syncFilterPanelInteractionState(false);
         filterToggleAllCheckbox.checked = true;
         filterToggleAllCheckbox.indeterminate = false;
         updateActiveFilterChips();
@@ -4739,6 +5769,7 @@ function populateFilters(pointsOfInterest, mapId) {
     poiFilterContainer.classList.toggle('visible', filtersPanelVisible);
     toggleFiltersBtn.classList.toggle('active', filtersPanelVisible);
     toggleFiltersBtn.setAttribute('aria-expanded', filtersPanelVisible ? 'true' : 'false');
+    syncFilterPanelInteractionState(filtersPanelVisible);
     if (filtersPanelVisible) {
         positionFilterPanel();
     }
@@ -4865,13 +5896,22 @@ function setRegionGroupChildCheckboxes(groupCheckbox, checked) {
     }
 }
 
+function getFilterControlIdPart(value) {
+    return encodeURIComponent(String(value || '').trim())
+        .replace(/%/g, '-')
+        .replace(/[^A-Za-z0-9_-]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '') || 'filter';
+}
+
 function createRegionFilterGroupDOM(groupName, values) {
     const groupContainer = document.createElement('div');
     groupContainer.className = 'filter-group closed'; // Start as closed
 
     const safeGroupName = escapeHtml(groupName);
     const escapedGroupNameForAttribute = escapeForSingleQuotedAttribute(groupName);
-    const groupFilterId = escapeForSingleQuotedAttribute(`filter-region-group-${groupName.replace(/\s+/g, '-')}`);
+    const groupIdPart = getFilterControlIdPart(groupName);
+    const groupFilterId = escapeForSingleQuotedAttribute(`filter-region-group-${groupIdPart}`);
 
     const htmlParts = [
         '<div class="filter-group-header" role="button" tabindex="0" aria-expanded="false">',
@@ -4889,7 +5929,7 @@ function createRegionFilterGroupDOM(groupName, values) {
     for (let i = 0; i < values.length; i++) {
         const value = values[i];
         const safeValue = escapeHtml(value);
-        const filterId = escapeForSingleQuotedAttribute(`filter-region-value-${value.replace(/\s+/g, '-')}`);
+        const filterId = escapeForSingleQuotedAttribute(`filter-region-value-${groupIdPart}-${getFilterControlIdPart(value)}-${i}`);
         const escapedValueForAttribute = escapeForSingleQuotedAttribute(value);
 
         htmlParts.push(
@@ -5514,26 +6554,38 @@ function checkAndFocusFeature() {
 
 // --- Map View URL State Management ---
 let viewUpdateTimeout;
-initializeSidebarTabs();
+initializeFeatureDetailSheet();
 // --- Map Chooser Back Button ---
 const sidebarBackToChooserBtn = document.getElementById('sidebar-back-to-chooser');
+if (mapChooserCloseBtn) {
+    mapChooserCloseBtn.addEventListener('click', () => closeMapChooserToMap());
+}
 if (sidebarBackToChooserBtn) {
     sidebarBackToChooserBtn.addEventListener('click', () => {
         if (!mapChooserElement) return;
+
+        const galleryParams = new URLSearchParams(clearTransientMapSearchParams(window.location.search).replace(/^\?/, ''));
+        galleryParams.set('gallery', 'true');
+        const gallerySearch = `?${galleryParams.toString()}`;
 
         history.pushState(
             {
                 mapId: null,
                 sidebarState: currentSidebarState,
-                search: window.location.search,
-                hash: ''
+                search: gallerySearch,
+                hash: '',
+                mapChooserOverlay: true,
+                returnMapId: currentlyLoadedMapId || null
             },
             '',
-            buildAppUrlWithHash('', window.location.search)
+            buildAppUrlWithHash('', gallerySearch)
         );
 
         if (isMobileLayoutActive) {
             closeMobileSheet({ restoreFocus: false });
+        }
+        if (featureDetailSheetOpen) {
+            closeFeatureDetailSheet({ restoreFocus: false });
         }
 
         renderMapChooser(mapData);
@@ -5601,6 +6653,7 @@ function replaceMapHistoryState(mapId, updateHash = true) {
 }
 
 function resetMapState() {
+    cancelIdleTileWarmup({ removeDetailLayer: true });
     if (isMeasuringMultiPoint) finalizeMultiPointMeasure(false);
     measurementLayerGroup.clearLayers();
 
@@ -5611,7 +6664,9 @@ function resetMapState() {
     filtersPanelVisible = false;
     toggleFiltersBtn.classList.remove('active');
     toggleFiltersBtn.setAttribute('aria-expanded', 'false');
+    syncFilterPanelInteractionState(false);
     poiSearchInput.value = '';
+    setSearchScope(SEARCH_SCOPE_MAP);
     setSearchMeta('');
     updateActiveFilterChips();
 
@@ -5900,6 +6955,7 @@ function finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileI
         durationMs: Math.round(performance.now() - loadStartedAt)
     });
     clampFloatingPanels();
+    scheduleIdleTileWarmup();
 }
 
 // --- Function to Load/Switch Map ---
@@ -6000,13 +7056,17 @@ function setupMapLayers(selectedMap, requestedMapId, mapImageUrl, updateHash) {
     return true;
 }
 
-function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingAlternateMobileImage, loadStartedAt, updateHash }) {
+function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingAlternateMobileImage, loadStartedAt, updateHash, requestToken }) {
     let previewLoadingComplete = false;
     let detailLoadingComplete = false;
     let loadingTimeout = null;
     let previewReadyTimeout = null;
     let fallbackStarted = false;
     let tileLoadFailures = 0;
+
+    function isActiveMapLoad() {
+        return requestToken === loadRequestToken;
+    }
 
     function clearLoadingTimers() {
         clearTimeout(loadingTimeout);
@@ -6016,7 +7076,7 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
     }
 
     function finishPreviewLoading() {
-        if (previewLoadingComplete) return;
+        if (!isActiveMapLoad() || previewLoadingComplete) return;
         previewLoadingComplete = true;
         clearTimeout(previewReadyTimeout);
         previewReadyTimeout = null;
@@ -6025,13 +7085,15 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
     }
 
     function finishDetailLoading() {
-        if (detailLoadingComplete) return;
+        if (!isActiveMapLoad() || detailLoadingComplete) return;
         detailLoadingComplete = true;
         clearLoadingTimers();
         const hadPreviewLayer = !!currentMapPreviewLayer;
-        const keepPreviewLayer = currentMapBaseLayerMode === 'tile' && tileLoadFailures > 0 && !!currentMapPreviewLayer;
+        const keepPreviewLayer = currentMapBaseLayerMode === 'tile' && !!currentMapPreviewLayer;
         removeBootstrapMapPreview();
-        if (!keepPreviewLayer) {
+        if (keepPreviewLayer) {
+            setMapPreviewLayerOpacity(1);
+        } else {
             removeMapPreviewLayer();
         }
         finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileImage, loadStartedAt, {
@@ -6040,12 +7102,13 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
     }
 
     function updateTileLoadingProgress() {
-        if (detailLoadingComplete || currentMapBaseLayerMode !== 'tile') return;
+        if (!isActiveMapLoad() || detailLoadingComplete || currentMapBaseLayerMode !== 'tile') return;
         const tileContainer = currentImageLayer && typeof currentImageLayer.getContainer === 'function'
             ? currentImageLayer.getContainer()
             : null;
         const tileCounts = getTileLayerImageCounts(tileContainer);
         if (tileCounts.total === 0) return;
+        updateMapPreviewLayerForTileProgress(tileCounts);
         const tileProgress = 60 + (tileCounts.loaded / tileCounts.total) * 35;
         setLoadingProgressValue(Math.max(loadingProgress, tileProgress));
         if (tileCounts.loaded === tileCounts.total) {
@@ -6061,16 +7124,38 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
     }
 
     function handleTileLayerLoad() {
+        if (!isActiveMapLoad()) return;
         if (tileLoadFailures > 0 && currentMapPreviewLayer && hasOnlyFailedVisibleTiles()) {
-            console.warn('Tile layer finished without loading visible tiles; falling back to full map image:', selectedMap.id || selectedMap.name);
-            setTimeout(attachImageFallback, 0);
+            if (getConfigValue('performance.tileFullImageFallback', true) === false) {
+                console.warn('Tile layer finished without loading visible tiles; keeping the map preview:', selectedMap.id || selectedMap.name);
+                finishWithPreviewFallback();
+            } else {
+                console.warn('Tile layer finished without loading visible tiles; falling back to full map image:', selectedMap.id || selectedMap.name);
+                setTimeout(attachImageFallback, 0);
+            }
             return;
         }
         finishDetailLoading();
     }
 
+    function finishWithPreviewFallback() {
+        if (!isActiveMapLoad() || detailLoadingComplete || !currentMapPreviewLayer) return;
+        detailLoadingComplete = true;
+        clearLoadingTimers();
+        removeBootstrapMapPreview();
+        if (currentImageLayer && map.hasLayer(currentImageLayer)) {
+            map.removeLayer(currentImageLayer);
+        }
+        currentImageLayer = currentMapPreviewLayer;
+        currentMapPreviewLayer = null;
+        currentMapBaseLayerMode = 'preview';
+        finalizeMapLoadState(requestedMapId, selectedMap, usingAlternateMobileImage, loadStartedAt, {
+            hideDelayMs: 0
+        });
+    }
+
     function abortImageLoad() {
-        if (detailLoadingComplete) return;
+        if (!isActiveMapLoad() || detailLoadingComplete) return;
         detailLoadingComplete = true;
         clearLoadingTimers();
         console.error('Image overlay failed to load:', mapImageUrl);
@@ -6097,7 +7182,11 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
     }
 
     function attachImageFallback() {
-        if (detailLoadingComplete || fallbackStarted) return;
+        if (!isActiveMapLoad() || detailLoadingComplete || fallbackStarted) return;
+        if (getConfigValue('performance.tileFullImageFallback', true) === false && currentMapPreviewLayer) {
+            finishWithPreviewFallback();
+            return;
+        }
         fallbackStarted = true;
         const fallbackLayer = L.imageOverlay(mapImageUrl, currentBounds);
         const preloadImg = new Image();
@@ -6116,7 +7205,7 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
     }
 
     loadingTimeout = setTimeout(() => {
-        if (detailLoadingComplete) return;
+        if (!isActiveMapLoad() || detailLoadingComplete) return;
         console.warn('Detailed map image is still loading; keeping the preview visible.');
         setLoadingProgressValue(Math.max(loadingProgress, 92));
     }, 8000);
@@ -6125,11 +7214,13 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
     if (currentMapPreviewLayer) {
         currentMapPreviewLayer.on('load', finishPreviewLoading);
         currentMapPreviewLayer.on('error', () => {
+            if (!isActiveMapLoad()) return;
             console.warn('Low-resolution map preview failed to load:', selectedMap.id || selectedMap.name);
         });
         currentMapPreviewLayer.addTo(map);
         markMapPreviewLayerElement();
         previewReadyTimeout = setTimeout(() => {
+            if (!isActiveMapLoad()) return;
             previewReadyTimeout = null;
             setLoadingProgressValue(Math.max(loadingProgress, 55));
         }, 550);
@@ -6139,10 +7230,11 @@ function setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingA
         currentImageLayer.on('load', handleTileLayerLoad);
         currentImageLayer.on('tileload', updateTileLoadingProgress);
         currentImageLayer.on('tileerror', function (event) {
-            if (detailLoadingComplete) return;
+            if (!isActiveMapLoad() || detailLoadingComplete) return;
             tileLoadFailures += 1;
             const failedTileUrl = event && event.tile ? event.tile.currentSrc || event.tile.src : '';
             if (currentMapPreviewLayer) {
+                setMapPreviewLayerOpacity(1);
                 console.warn('Tile layer failed to load; keeping the low-resolution preview behind tiles:', failedTileUrl || selectedMap.id || selectedMap.name);
                 setLoadingProgressValue(Math.max(loadingProgress, 90));
                 setTimeout(updateTileLoadingProgress, 0);
@@ -6184,7 +7276,7 @@ async function loadMap(mapId, updateHash = true, preResolvedMap = null) {
 
     if (!setupMapLayers(selectedMap, requestedMapId, mapImageUrl, updateHash)) return;
 
-    setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingAlternateMobileImage, loadStartedAt, updateHash });
+    setupMapImageLoading({ requestedMapId, selectedMap, mapImageUrl, usingAlternateMobileImage, loadStartedAt, updateHash, requestToken });
 
     renderMapFeatures(selectedMap, requestedMapId);
     finalizeMapUI(requestedMapId, selectedMap);
@@ -6281,6 +7373,7 @@ function updateVisibleRegions() {
         // Apply visibility and interactivity based on *both* the overall toggle AND the type filter match
         if (regionsVisible && typeMatch) { // regionsVisible is synced with markersVisible
             const targetFillOpacity = region.fillOpacity || 0.2;
+            let styleChanged = false;
             if (layer.options.stroke !== true || layer.options.fill !== true || layer.options.opacity !== 1 || layer.options.fillOpacity !== targetFillOpacity) {
                 layer.setStyle({
                     stroke: true,
@@ -6288,8 +7381,12 @@ function updateVisibleRegions() {
                     opacity: 1,
                     fillOpacity: targetFillOpacity
                 });
+                styleChanged = true;
             }
-            layer.bringToBack();
+            // ⚡ Bolt: Prevent unconditional layer.bringToBack() to avoid expensive DOM re-orderings
+            if (styleChanged) {
+                layer.bringToBack();
+            }
         } else {
             if (layer.options.stroke !== false || layer.options.fill !== false) {
                 layer.setStyle({
@@ -6310,8 +7407,13 @@ function syncFolderExpandedAria(folderListItem) {
     const expandedText = expanded ? 'true' : 'false';
     const toggleBtn = header.querySelector('.folder-toggle-btn');
     const mainAction = header.querySelector('.folder-main-action');
+    const nestedList = Array.from(folderListItem.children).find((child) => child.classList?.contains('nested-list'));
     if (toggleBtn) toggleBtn.setAttribute('aria-expanded', expandedText);
     if (mainAction) mainAction.setAttribute('aria-expanded', expandedText);
+    if (nestedList) {
+        nestedList.inert = !expanded;
+        nestedList.setAttribute('aria-hidden', expanded ? 'false' : 'true');
+    }
 }
 
 function getMapPresetGroupLabel(item) {
@@ -6420,6 +7522,10 @@ function createSidebarFolderItem(item) {
 
     const toggleBtn = createFolderToggleBtn(folderName, hasChildren);
     const mainAction = createFolderMainAction(folderName, isLoadable, isComingSoon);
+    if (hasChildren && !isLoadable && !isComingSoon) {
+        toggleBtn.tabIndex = -1;
+        toggleBtn.setAttribute('aria-hidden', 'true');
+    }
 
     const nestedList = document.createElement('ul');
     nestedList.classList.add('nested-list');
@@ -6436,12 +7542,11 @@ function createSidebarFolderItem(item) {
 
     attachFolderEventListeners({ item, folderName, isLoadable, isComingSoon, header, toggleBtn, mainAction, toggleFolderOpen });
 
-    syncFolderExpandedAria(listItem);
-
     header.appendChild(toggleBtn);
     header.appendChild(mainAction);
     listItem.appendChild(header);
     listItem.appendChild(nestedList);
+    syncFolderExpandedAria(listItem);
 
     return listItem;
 }
@@ -6778,7 +7883,7 @@ themeToggle.addEventListener('change', () => {
 
     // Update audio track if sound is enabled
     if (soundEnabled) {
-        ensureAmbientTracksLoaded();
+        ensureAmbientTrackLoadedForTheme(effectiveTheme);
         if (effectiveTheme === 'dark') {
             fadeAudio(lightAmbient, 0);
             fadeAudio(darkAmbient, 0.3);
@@ -6804,9 +7909,34 @@ function ensureAmbientAudioLoaded(audioElement) {
     audioElement.load();
 }
 
-function ensureAmbientTracksLoaded() {
-    ensureAmbientAudioLoaded(lightAmbient);
-    ensureAmbientAudioLoaded(darkAmbient);
+function getAmbientAudioForTheme(theme) {
+    return theme === 'dark' ? darkAmbient : lightAmbient;
+}
+
+function ensureAmbientTrackLoadedForTheme(theme = currentEffectiveTheme) {
+    ensureAmbientAudioLoaded(getAmbientAudioForTheme(theme));
+}
+
+function scheduleSavedAmbientAudioResume() {
+    if (savedAmbientResumeScheduled) return;
+    savedAmbientResumeScheduled = true;
+    const resumeAfterStartup = () => {
+        window.setTimeout(() => {
+            scheduleIdleTask(() => {
+                savedAmbientResumeScheduled = false;
+                if (!soundEnabled || !canUseSoundControlsNow()) return;
+                const theme = currentEffectiveTheme;
+                ensureAmbientTrackLoadedForTheme(theme);
+                fadeAudio(getAmbientAudioForTheme(theme), 0.3);
+            }, 2500);
+        }, 1200);
+    };
+
+    if (document.readyState === 'complete') {
+        resumeAfterStartup();
+    } else {
+        window.addEventListener('load', resumeAfterStartup, { once: true });
+    }
 }
 
 function fadeAudio(audioElement, targetVolume, duration = 1800) {
@@ -6929,7 +8059,7 @@ function applySoundEnabledState(nextEnabled, {
     safeSetStorage(UX_STORAGE_KEYS.soundEnabled, String(soundEnabled));
 
     if (soundEnabled) {
-        ensureAmbientTracksLoaded();
+        ensureAmbientTrackLoadedForTheme(currentEffectiveTheme);
         soundIcon.innerHTML = `<i class="ui-icon" data-lucide="volume-2" aria-hidden="true"></i>`;
         if (mobileSoundBtn) {
             mobileSoundBtn.classList.add('active');
@@ -6997,20 +8127,13 @@ function initializeSoundState() {
     darkAmbient.volume = 0;
 
     if (soundEnabled && canUseSoundNow) {
-        ensureAmbientTracksLoaded();
         setSoundIcon(true);
             if (toggleSoundBtn) {
                 toggleSoundBtn.title = "Mute Sound";
                 toggleSoundBtn.setAttribute('aria-label', "Mute Sound");
                 toggleSoundBtn.setAttribute('aria-pressed', "true");
             }
-        // Start playing the correct track based on the current theme
-        const currentTheme = currentEffectiveTheme;
-        if (currentTheme === 'dark') {
-            fadeAudio(darkAmbient, 0.3);
-        } else {
-            fadeAudio(lightAmbient, 0.3);
-        }
+        scheduleSavedAmbientAudioResume();
     } else {
         fadeAudio(lightAmbient, 0);
         fadeAudio(darkAmbient, 0);
@@ -7208,6 +8331,15 @@ window.addEventListener('popstate', (event) => {
         setSidebarState(targetSidebarState, false); // Set sidebar without updating hash
     }
     syncSidebarBackdropState();
+    if (restoreMapChooserTriggerOnPopState) {
+        restoreMapChooserTriggerOnPopState = false;
+        requestAnimationFrame(() => {
+            const focusTarget = isMobileLayoutActive ? mobileSheetLauncherBtn : sidebarBackToChooserBtn;
+            if (focusTarget && typeof focusTarget.focus === 'function') {
+                focusTarget.focus({ preventScroll: true });
+            }
+        });
+    }
 });
 window.addEventListener('beforeunload', () => {
     if (loadingProgressInterval) clearInterval(loadingProgressInterval);
@@ -7285,6 +8417,7 @@ function toggleFilterPanel() {
     toggleFiltersBtn.title = filtersPanelVisible ? "Hide Filters" : "Show Filters";
     toggleFiltersBtn.setAttribute('aria-label', filtersPanelVisible ? "Hide Filters" : "Show Filters");
     toggleFiltersBtn.setAttribute('aria-expanded', filtersPanelVisible);
+    syncFilterPanelInteractionState(filtersPanelVisible);
     syncMobileFilterState();
     safeSetStorage(UX_STORAGE_KEYS.filterPanelOpen, String(filtersPanelVisible));
     if (filtersPanelVisible) {
@@ -7335,12 +8468,26 @@ poiSearchInput.addEventListener('keydown', (event) => {
 poiSearchInput.addEventListener('click', (e) => e.stopPropagation());
 searchResultsContainer.addEventListener('click', (e) => e.stopPropagation());
 if (searchScopeAtlasBtn) {
-    searchScopeAtlasBtn.addEventListener('click', (event) => {
+    searchScopeAtlasBtn.addEventListener('click', async (event) => {
         event.stopPropagation();
+        if (searchScopeAtlasBtn.getAttribute('aria-busy') === 'true') return;
+        const activeElementBeforeLoad = document.activeElement;
         const nextScope = currentSearchScope === SEARCH_SCOPE_ATLAS ? SEARCH_SCOPE_MAP : SEARCH_SCOPE_ATLAS;
         setSearchScope(nextScope);
+        if (nextScope === SEARCH_SCOPE_ATLAS) {
+            const entries = await ensureAtlasSearchIndexLoaded();
+            if (entries === null) {
+                setSearchScope(SEARCH_SCOPE_MAP);
+                if (atlasScopeActionStillOwnsFocus(activeElementBeforeLoad)) {
+                    poiSearchInput.focus();
+                }
+                return;
+            }
+        }
         updateVisibleMarkersAndSearch();
-        poiSearchInput.focus();
+        if (atlasScopeActionStillOwnsFocus(activeElementBeforeLoad)) {
+            poiSearchInput.focus();
+        }
     });
 }
 if (activeFiltersContainer) {
@@ -7764,6 +8911,9 @@ function setupKeyboardAndModalLogic() {
         if (!aboutModal) return;
 
         if (show) {
+            if (featureDetailSheetOpen) {
+                closeFeatureDetailSheet();
+            }
             lastFocus = document.activeElement; // Save focus
             if (typeof aboutModal.setAttribute === 'function') {
                 aboutModal.setAttribute('aria-hidden', 'false');
@@ -7929,7 +9079,16 @@ function setupKeyboardAndModalLogic() {
 
         // Handle Escape for other UI elements
         if (e.key === 'Escape') {
-            if (map.getPanes().popupPane.firstChild) { // Check if a Leaflet popup is open
+            if (mapChooserElement && !mapChooserElement.hidden) {
+                closeMapChooserToMap();
+                e.preventDefault();
+            } else if (featureDetailSheetOpen) {
+                closeFeatureDetailSheet();
+                e.preventDefault();
+            } else if (isMobileLayoutActive && hasOpenMobileSurface()) {
+                closeMobileSheet({ restoreFocus: true });
+                e.preventDefault();
+            } else if (map.getPanes().popupPane.firstChild) { // Check if a Leaflet popup is open
                 map.closePopup();
                 e.preventDefault();
             } else if (filtersPanelVisible) {
@@ -7952,6 +9111,9 @@ function setupKeyboardAndModalLogic() {
     function handleSearchShortcut(e) {
         if ((e.key === '/' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f'))) {
             if (searchControlContainer && searchControlContainer.style.display !== 'none' && poiSearchInput) {
+                if (featureDetailSheetOpen) {
+                    closeFeatureDetailSheet({ restoreFocus: false });
+                }
                 if (isMobileLayoutActive) {
                     openMobileSheet({ mode: MOBILE_SURFACE_MODE_SEARCH, focusSearch: true, triggerButton: mobileSearchLauncherBtn });
                 } else {
@@ -8006,8 +9168,9 @@ function setupKeyboardAndModalLogic() {
     }
 
     document.addEventListener('keydown', function (e) {
-        if (handleHelpShortcut(e)) return;
         if (handleEscapeShortcut(e)) return;
+        if (featureDetailSheetExpanded) return;
+        if (handleHelpShortcut(e)) return;
 
         // For other shortcuts, don't act if an input is focused or help modal is open
         if (isInputFocused() || (aboutModal && aboutModal.classList.contains('visible'))) {
@@ -8053,16 +9216,7 @@ async function loadMapData() {
         }
 
         mapData = atlas.tree;
-        atlasSearchIndex = Array.isArray(atlas.searchIndex) ? atlas.searchIndex : [];
-        atlasGeneratedAt = atlas.generatedAt || null;
-
-        // Bolt: Pre-normalize atlas search fields once so atlas search can use
-        // computePrecomputedSearchMatch without per-entry string concatenation.
-        for (let i = 0; i < atlasSearchIndex.length; i++) {
-            const entry = atlasSearchIndex[i];
-            entry._normalizedName = normalizeSearchValue(entry.name);
-            entry._normalizedSearchContent = normalizeSearchValue(`${entry.mapName || ''} ${entry.typeLabel || ''} ${entry.summary || ''} ${entry.description || ''} ${entry.searchText || ''}`);
-        }
+        configureAtlasSearchIndex(atlas);
 
         if (loadingIndicator && loadingIndicator.querySelector('.progress-bar')) {
             loadingIndicator.querySelector('.progress-bar').style.width = '100%';
@@ -8142,6 +9296,7 @@ function hideInitialControls() {
     searchControlContainer.style.display = 'none';
     closeSearchResults();
     poiFilterContainer.classList.remove('visible');
+    syncFilterPanelInteractionState(false);
     setAuxPanelVisible(sessionToolkitPanel, false);
     setAuxPanelVisible(gmPill, false);
 }
@@ -8204,10 +9359,7 @@ function initializeAppGlobalUIState() {
 function determineInitialSidebarState(hashSidebarState, initialMapIdFromHash = '') {
     const sidebarFromStorage = safeGetStorage(UX_STORAGE_KEYS.sidebarState);
     const hasSidebarInHash = window.location.hash.includes('-s=');
-    if (!hasSidebarInHash && hasDirectMapHash(initialMapIdFromHash)) {
-        return 'c';
-    }
-    return hasSidebarInHash ? hashSidebarState : (sidebarFromStorage || hashSidebarState);
+    return hasSidebarInHash ? hashSidebarState : (sidebarFromStorage || 'o');
 }
 
 function handleMapChooserInitialization() {
@@ -8262,7 +9414,7 @@ function handleNoMapFallback(effectiveSidebarState) {
     if (sidebar) {
         sidebar.innerHTML = '';
         const h2 = document.createElement('h2');
-        h2.textContent = getConfigValue('copy.sidebarTitle', 'Select Map');
+        h2.textContent = getConfigValue('copy.sidebarTitle', 'Atlas');
         sidebar.appendChild(h2);
 
         const p = document.createElement('p');

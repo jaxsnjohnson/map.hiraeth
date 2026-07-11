@@ -1,0 +1,96 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - dist/**
+      - readme.md
+      - .gitignore
+      - tests/**
+      - .github/workflows/pages-build-check.yml
+      - map-editor.html
+      - css/map-editor.css
+      - js/map-editor.js
+      - js/editor-shared.js
+      - js/libs/text-toolbar.js
+      - scripts/editor_server.js
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build optimized Pages site
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Generate atlas index
+        run: npm run generate:atlas
+
+      - name: Calculate tile cache key
+        id: tile-key
+        run: echo "key=$(node scripts/generate_tiles.js --print-cache-key)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore generated map tiles
+        id: tile-cache
+        uses: actions/cache@v6
+        with:
+          path: .cache/pages-tiles
+          key: pages-tiles-${{ runner.os }}-${{ steps.tile-key.outputs.key }}
+          restore-keys: |
+            pages-tiles-${{ runner.os }}-
+
+      - name: Install tile generation tools
+        if: steps.tile-cache.outputs.cache-hit != 'true'
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends imagemagick webp
+
+      - name: Validate data and tests
+        run: npm run validate:data && npm run test:unit
+
+      - name: Build Pages bundle
+        env:
+          MAP_HIRAETH_TILE_CACHE_DIR: .cache/pages-tiles
+        run: npm run build:pages
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+          include-hidden-files: true
+
+  deploy:
+    name: Deploy site
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

@@ -16,7 +16,7 @@ function extractFunctionRange(startMarker, endMarker) {
 }
 
 // eslint-disable-next-line no-eval
-eval(extractFunctionRange('function syncMobileDockState(', 'function markControlTouch('));
+eval(extractFunctionRange('function hasVisibleMobileToolAction(', 'function markControlTouch('));
 
 global.MOBILE_SURFACE_MODE_ATLAS = 'atlas';
 global.MOBILE_SURFACE_MODE_SEARCH = 'search';
@@ -27,6 +27,15 @@ global.isMobileLayoutActive = true;
 global.isEmbeddedView = false;
 global.refreshLucideIcons = () => {};
 global.searchControlContainer = { style: { display: 'block' } };
+global.mobileMarkersBtn = { hidden: false };
+global.mobileFiltersBtn = { hidden: false };
+global.mobileMeasureBtn = { hidden: false };
+global.mobileSoundBtn = { hidden: false };
+global.mobileShareViewBtn = { hidden: false };
+global.mobileCoordsBtn = { hidden: false };
+global.mobileHelpBtn = { hidden: false };
+global.mobileGmViewBtn = null;
+global.mobileToolkitBtn = null;
 global.mobileDock = {
     hidden: false
 };
@@ -121,6 +130,13 @@ assert.equal(global.mobileToolsLauncherBtn.classes.has('active'), true);
 global.searchControlContainer.style.display = 'none';
 syncMobileDockState();
 assert.equal(global.mobileSearchLauncherBtn.hidden, true);
+
+global.isMobileLayoutActive = false;
+syncMobileDockState();
+assert.equal(global.mobileToolsLauncherBtn.hidden, true);
+global.isMobileLayoutActive = true;
+syncMobileDockState();
+assert.equal(global.mobileToolsLauncherBtn.hidden, false, 'Tools should return after resizing back to mobile');
 
 global.isEmbeddedView = true;
 syncMobileDockState();

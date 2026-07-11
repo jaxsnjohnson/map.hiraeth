@@ -374,6 +374,9 @@ function mergeMapDefinitions(indexItem, sourceItem) {
         'selectorDescription',
         'summary',
         'description',
+        'updatedAt',
+        'lastEdited',
+        'modifiedAt',
         'children'
     ];
 
@@ -469,7 +472,10 @@ function toManifestItem(context, item, origin) {
         'blurb',
         'selectorDescription',
         'summary',
-        'description'
+        'description',
+        'updatedAt',
+        'lastEdited',
+        'modifiedAt'
     ];
 
     keysToCopy.forEach((key) => {
@@ -477,6 +483,7 @@ function toManifestItem(context, item, origin) {
             manifestItem[key] = sourceItem[key];
         }
     });
+    manifestItem.regionCount = Array.isArray(sourceItem.regions) ? sourceItem.regions.length : 0;
 
     const generatedTileSource = buildGeneratedTileSource(context, sourceItem);
     if (generatedTileSource) {

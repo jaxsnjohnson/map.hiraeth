@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
 const appSource = fs.readFileSync('js/app.js', 'utf8');
+const styleSource = fs.readFileSync('css/style.css', 'utf8');
 
 function extractFunctionSource(name) {
     const start = appSource.indexOf(`function ${name}(`);
@@ -66,6 +67,18 @@ global.L = {
             constructor(layer, options) {
                 this.layer = layer;
                 this.options = options;
+                this.containerAttributes = {};
+                this.toggleAttributes = {};
+                this._container = {
+                    setAttribute: (name, value) => {
+                        this.containerAttributes[name] = value;
+                    },
+                    querySelector: () => ({
+                        setAttribute: (name, value) => {
+                            this.toggleAttributes[name] = value;
+                        }
+                    })
+                };
                 global.createdControls += 1;
             }
 
@@ -149,6 +162,10 @@ assert.equal(global.createdControls, 1);
 assert.equal(global.miniMapControl.layer.url, 'maps/default.mini.webp');
 assert.equal(global.miniMapControl.options.width, 132);
 assert.equal(global.miniMapControlMapId, 'default');
+assert.equal(global.miniMapControl.containerAttributes.role, 'region');
+assert.equal(global.miniMapControl.containerAttributes['aria-label'], 'Map overview');
+assert.equal(global.miniMapControl.toggleAttributes['aria-label'], 'Toggle map overview');
+assert.match(styleSource, /\.leaflet-control-minimap \.leaflet-control-minimap-toggle-display \{\s*width: 40px !important;\s*height: 40px !important;[\s\S]*background-size: 20px 20px !important;/);
 
 global.isMobileLayoutActive = false;
 assert.equal(shouldShowMiniMap(), true);

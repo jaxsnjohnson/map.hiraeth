@@ -16,7 +16,7 @@ function extractFunctionRange(startMarker, endMarker) {
 }
 
 const snippets = [
-    extractFunctionRange('function syncMobileFilterState(', 'function syncMobileDockState('),
+    extractFunctionRange('function syncFilterPanelInteractionState(', 'function syncMobileDockState('),
     extractFunctionRange('function toggleFilterPanel(', 'toggleFiltersBtn.addEventListener(')
 ].join('\n');
 
@@ -59,12 +59,17 @@ global.openMobileSheet = (args) => {
 };
 global.mobileSearchLauncherBtn = { id: 'mobile-search-launcher-btn' };
 global.poiFilterContainer = {
+    inert: false,
+    attrs: {},
     classes: new Set(),
     classList: {
         toggle(name, active) {
             if (active) global.poiFilterContainer.classes.add(name);
             else global.poiFilterContainer.classes.delete(name);
         }
+    },
+    setAttribute(name, value) {
+        this.attrs[name] = value;
     }
 };
 global.toggleFiltersBtn = {
@@ -93,13 +98,18 @@ assert.equal(global.container.classes.has('mobile-filters-open'), false);
 assert.equal(global.searchRefineFiltersBtn.textContent, 'Filters');
 assert.equal(global.searchRefineFiltersBtn.attrs['aria-pressed'], 'false');
 assert.equal(global.searchRefineFiltersBtn.attrs['aria-expanded'], 'false');
+assert.equal(global.poiFilterContainer.inert, true);
+assert.equal(global.poiFilterContainer.attrs['aria-hidden'], 'true');
 
 global.mobileFilterExpanded = true;
+global.filtersPanelVisible = true;
 syncMobileFilterState();
 assert.equal(global.container.classes.has('mobile-filters-open'), true);
 assert.equal(global.searchRefineFiltersBtn.textContent, 'Hide Filters');
 assert.equal(global.searchRefineFiltersBtn.attrs['aria-pressed'], 'true');
 assert.equal(global.searchRefineFiltersBtn.attrs['aria-expanded'], 'true');
+assert.equal(global.poiFilterContainer.inert, false);
+assert.equal(global.poiFilterContainer.attrs['aria-hidden'], 'false');
 
 global.mobileFilterExpanded = false;
 global.filtersPanelVisible = false;

@@ -842,31 +842,32 @@
         }
 
         const query = searchQuery.toLowerCase();
-        const filteredItems = items.map((item, index) => ({ item, index })).filter(({ item, index }) => {
-            if (!query) return true;
+        const limit = expanded ? items.length : defaultLimit;
+        let filteredCount = 0;
+
+        // ⚡ Bolt: Use DocumentFragment for batched DOM insertions and replace .map().filter() with a for loop
+        const fragment = document.createDocumentFragment();
+
+        for (let index = 0; index < items.length; index++) {
+            const item = items[index];
             const label = item.name || item.id || `${type.slice(0, -1)} ${index + 1}`;
-            const meta = type === 'points' ? (item.type || 'Point') : (type === 'regions' ? (item.value || item.type || 'Region') : (item.type || 'Line'));
-            return label.toLowerCase().includes(query) || meta.toLowerCase().includes(query);
-        });
+            let meta = type === 'points' ? (item.type || 'Point') : (type === 'regions' ? (item.value || item.type || 'Region') : (item.type || 'Line'));
 
-        if (filteredItems.length === 0) {
-            dom.unifiedFeatureList.innerHTML = '<p class="map-editor-placeholder">No matching entries found.</p>';
-            dom.featureSummary.textContent = getFeatureSummaryLabel();
-            return;
-        }
+            if (query) {
+                if (!label.toLowerCase().includes(query) && !meta.toLowerCase().includes(query)) continue;
+            }
 
-        const limit = expanded ? filteredItems.length : defaultLimit;
-        const visibleItems = filteredItems.slice(0, limit);
+            filteredCount++;
+            if (filteredCount > limit && !expanded) continue;
 
-        visibleItems.forEach(({ item, index }) => {
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'map-editor-feature-entry';
             if (state.selectedFeature && state.selectedFeature.mode === type && state.selectedFeature.index === index) {
                 button.classList.add('active');
             }
-            const label = item.name || item.id || `${type.slice(0, -1)} ${index + 1}`;
-            const meta = type === 'points'
+
+            meta = type === 'points'
                 ? `${item.type || 'Point'} - ${Array.isArray(item.coords) ? item.coords.join(', ') : 'No coords'}`
                 : `${type === 'regions' ? (item.value || item.type || 'Region') : (item.type || 'Line')} - ${(Array.isArray(item.coordinates) ? item.coordinates.length : 0)} vertices`;
 
@@ -877,12 +878,20 @@
             button.appendChild(metaSpan);
 
             button.addEventListener('click', () => selectFeature(type, index));
-            dom.unifiedFeatureList.appendChild(button);
-        });
+            fragment.appendChild(button);
+        }
 
-        if (filteredItems.length > defaultLimit) {
+        if (filteredCount === 0) {
+            dom.unifiedFeatureList.innerHTML = '<p class="map-editor-placeholder">No matching entries found.</p>';
+            dom.featureSummary.textContent = getFeatureSummaryLabel();
+            return;
+        }
+
+        dom.unifiedFeatureList.appendChild(fragment);
+
+        if (filteredCount > defaultLimit) {
             dom.featureShowMoreButton.hidden = false;
-            dom.featureShowMoreButton.textContent = expanded ? 'Show Less' : `Show All (${filteredItems.length})`;
+            dom.featureShowMoreButton.textContent = expanded ? 'Show Less' : `Show All (${filteredCount})`;
         }
 
         dom.featureSummary.textContent = getFeatureSummaryLabel();
@@ -1555,10 +1564,14 @@
         if (needsImageReset) {
             setupImageUnderlay(mapHeight, mapWidth, nextBounds);
         } else if (state.underlayLayer) {
-            state.underlayLayer.setStyle({
-                fillColor: state.currentMap.backgroundColor || '#0f172a',
-                color: state.currentMap.backgroundColor || '#0f172a'
-            });
+            // ⚡ Bolt: Check existing options before applying setStyle to prevent costly redundant Leaflet DOM updates
+            const targetColor = state.currentMap.backgroundColor || '#0f172a';
+            if (state.underlayLayer.options.fillColor !== targetColor || state.underlayLayer.options.color !== targetColor) {
+                state.underlayLayer.setStyle({
+                    fillColor: targetColor,
+                    color: targetColor
+                });
+            }
             setMapEmptyState({ hidden: true });
         }
 
@@ -2015,7 +2028,9 @@
                 setSelectionStatus('Added detail section.');
             } else if (button.dataset.action === 'remove-detail-section') {
                 event.preventDefault();
+                const label = feature.name || feature.id || 'this feature';
                 const index = Number.parseInt(button.dataset.detailSectionIndex, 10);
+                if (!window.confirm(`Are you sure you want to remove detail section ${index + 1} from ${label}?`)) return;
                 const sections = getDetailSections(feature);
                 if (!Number.isInteger(index) || index < 0 || index >= sections.length) return;
                 sections.splice(index, 1);

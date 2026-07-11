@@ -70,6 +70,13 @@ global.mobileSearchLauncherBtn = null;
 global.openMobileSheet = () => { global.mobileSheetOpened = true; };
 global.mobileSheetOpened = false;
 global.MOBILE_SURFACE_MODE_SEARCH = 'SEARCH';
+global.mobileSurfaceOpen = false;
+global.hasOpenMobileSurface = () => global.mobileSurfaceOpen;
+global.mobileSurfaceClosed = false;
+global.closeMobileSheet = () => {
+    global.mobileSurfaceOpen = false;
+    global.mobileSurfaceClosed = true;
+};
 
 global.filtersPanelVisible = false;
 global.toggleFilterPanel = () => { global.filtersPanelToggled = true; };
@@ -90,6 +97,20 @@ global.setOnboardingVisibility = () => {};
 global.UX_STORAGE_KEYS = { onboardingSeen: 'seen' };
 global.relaySharedContext = () => {};
 global.hideShareRelayPrompt = () => {};
+global.featureDetailSheetOpen = false;
+global.featureDetailSheetExpanded = false;
+global.closeFeatureDetailSheet = () => {
+    global.featureDetailSheetOpen = false;
+    global.featureDetailSheetExpanded = false;
+    global.featureDetailsClosed = true;
+};
+global.featureDetailsClosed = false;
+global.mapChooserElement = { hidden: true };
+global.mapChooserClosed = false;
+global.closeMapChooserToMap = () => {
+    global.mapChooserElement.hidden = true;
+    global.mapChooserClosed = true;
+};
 
 // Missing UI elements referenced in the setup block
 global.onboardingOpenHelpBtn = null;
@@ -150,6 +171,22 @@ addedListener(evt);
 assert.ok(evt.isPrevented());
 assert.ok(!global.aboutModalVisible);
 
+// Escape should leave the full-screen map chooser without requiring a selection.
+global.mapChooserElement.hidden = false;
+evt = createEvent('Escape');
+addedListener(evt);
+assert.ok(evt.isPrevented());
+assert.ok(global.mapChooserClosed);
+
+// Escape should close any open mobile surface and return control to its launcher.
+global.isMobileLayoutActive = true;
+global.mobileSurfaceOpen = true;
+evt = createEvent('Escape');
+addedListener(evt);
+assert.ok(evt.isPrevented());
+assert.ok(global.mobileSurfaceClosed);
+global.isMobileLayoutActive = false;
+
 // Test + shortcut
 evt = createEvent('+');
 addedListener(evt);
@@ -171,10 +208,31 @@ assert.ok(evt.isPrevented());
 assert.ok(global.sidebarToggled);
 
 // Test / shortcut
+global.featureDetailSheetOpen = true;
+global.featureDetailSheetExpanded = false;
 evt = createEvent('/');
 addedListener(evt);
 assert.ok(evt.isPrevented());
 assert.ok(global.searchFocused);
+assert.ok(global.featureDetailsClosed);
+
+// Expanded details should consume Escape but block all other global shortcuts.
+global.featureDetailSheetOpen = true;
+global.featureDetailSheetExpanded = true;
+global.featureDetailsClosed = false;
+global.sidebarToggled = false;
+evt = createEvent('s');
+addedListener(evt);
+assert.ok(!evt.isPrevented());
+assert.ok(!global.sidebarToggled);
+evt = createEvent('?');
+addedListener(evt);
+assert.ok(!evt.isPrevented());
+assert.ok(!global.aboutModalVisible);
+evt = createEvent('Escape');
+addedListener(evt);
+assert.ok(evt.isPrevented());
+assert.ok(global.featureDetailsClosed);
 
 // Test Ctrl+F shortcut
 global.searchFocused = false;

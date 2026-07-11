@@ -1,13 +1,1 @@
-{
-    "id": "OLD-rockdrift",
-    "name": "Rockdrift",
-    "width": 4517,
-    "height": 3714,
-    "imageUrl": "maps/OLD-rockdrift.webp",
-    "scalePixels": 1,
-    "scaleKilometers": 1,
-  "blurb": "This map was made in 2020s for the Ruby Hands climatic end to their first campign.",
-  "selectorDescription": "A 2020s Rockdrift map from the Ruby Hands finale.",
-    "pointsOfInterest": [],
-    "regions": []
-}
+{"id":"OLD-rockdrift","name":"Rockdrift","width":4517,"height":3714,"imageUrl":"maps/OLD-rockdrift.webp","scalePixels":1,"scaleKilometers":1,"blurb":"This map was made in 2020s for the Ruby Hands climatic end to their first campign.","selectorDescription":"A 2020s Rockdrift map from the Ruby Hands finale.","pointsOfInterest":[],"regions":[]}

@@ -59,6 +59,7 @@ assert.equal(resolved.theme.tokens.light['--font-family-main'], resolved.theme.f
 assert.equal(resolved.theme.tokens.dark['--font-family-main'], resolved.theme.fontFamilyMain);
 assert.equal(resolved.features.lowQualityMode, undefined);
 assert.equal(resolved.performance.lowQualityMode, false);
+assert.equal(resolved.performance.tileAssetRoot, 'dist/tile');
 
 const changelogPanel = resolved.copy.help.tabs.find((panel) => panel.id === 'changelog');
 assert.ok(changelogPanel, 'changelog info panel should exist');
@@ -83,6 +84,11 @@ assert.notDeepStrictEqual(
     AppConfig.validateConfig({ performance: { mobileBreakpoint: 120 } }),
     [],
     'invalid mobile breakpoints should be reported'
+);
+assert.notDeepStrictEqual(
+    AppConfig.validateConfig({ performance: { tileAssetRoot: '../tile' } }),
+    [],
+    'unsafe tile asset roots should be reported'
 );
 
 assertLocalFileExists(resolved.brand.icons.favicon16, 'brand.icons.favicon16');

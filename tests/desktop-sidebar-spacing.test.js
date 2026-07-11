@@ -3,8 +3,9 @@ const fs = require('node:fs');
 
 const styleSource = fs.readFileSync('css/style.css', 'utf8');
 
-assert.match(styleSource, /#sidebar \{[\s\S]*width: 286px;[\s\S]*padding: 14px 12px;[\s\S]*gap: 12px;/m);
-assert.match(styleSource, /\.sidebar-back-btn \{[\s\S]*min-height: 42px;[\s\S]*border-radius: 7px;[\s\S]*padding: 8px 10px;/m);
+assert.match(styleSource, /#sidebar \{[\s\S]*width: var\(--atlas-sidebar-width\);[\s\S]*padding: 14px 12px;[\s\S]*gap: 12px;/m);
+assert.match(styleSource, /\.atlas-sidebar-header \{[\s\S]*min-height: 50px;[\s\S]*padding: 2px 2px 10px;/m);
+assert.match(styleSource, /\.atlas-header-action \{[\s\S]*width: 34px;[\s\S]*height: 34px;[\s\S]*border-radius: 6px;/m);
 assert.match(styleSource, /\.map-item \{[\s\S]*min-height: 38px;[\s\S]*padding: 8px 10px;[\s\S]*border-radius: 7px;/m);
 assert.match(styleSource, /\.folder-toggle-btn \{[\s\S]*width: 30px;[\s\S]*min-width: 30px;[\s\S]*margin: 3px 0 3px 3px;/m);
 assert.match(styleSource, /\.folder-main-action \{[\s\S]*min-height: 38px;[\s\S]*padding: 8px 10px 8px 0;/m);

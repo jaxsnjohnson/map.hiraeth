@@ -796,3 +796,18 @@ details[open] .map-editor-section-header h2::before {
         text-align: left;
     }
 }
+
+.map-editor-readiness-details summary:hover,
+.map-editor-file-group summary:hover,
+.map-editor-form summary:hover {
+    color: var(--text-primary);
+    transition: color 0.2s ease;
+}
+
+.map-editor-readiness-details summary:focus-visible,
+.map-editor-file-group summary:focus-visible,
+.map-editor-form summary:focus-visible {
+    outline: 2px solid var(--focus-ring, #0f5fbf);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
