@@ -17,6 +17,8 @@ const snippet = appSource.slice(start, end);
 
 let mapChooserElement = null;
 let bodyElement = null;
+let mapChooserCloseBtn = null;
+let requestAnimationFrame = callback => callback();
 
 // eslint-disable-next-line no-eval
 eval(snippet);
@@ -56,6 +58,13 @@ function createElement({ hidden = true, classes = [] } = {}) {
 
 mapChooserElement = createElement({ hidden: true });
 bodyElement = createElement();
+let closeFocusCount = 0;
+mapChooserCloseBtn = {
+    focus(options) {
+        closeFocusCount += 1;
+        assert.deepEqual(options, { preventScroll: true });
+    }
+};
 
 setMapChooserVisible(true);
 
@@ -68,6 +77,7 @@ assert.deepEqual(
     'map chooser visible class should be forced on'
 );
 assert.equal(bodyElement.classList.contains('map-chooser-open'), true, 'body should track the open chooser state');
+assert.equal(closeFocusCount, 1, 'opening the full-screen chooser should move focus into it');
 assert.deepEqual(
     bodyElement.classList.toggleCalls.at(-1),
     { className: 'map-chooser-open', force: true },
@@ -85,6 +95,7 @@ assert.deepEqual(
     'map chooser visible class should be forced off'
 );
 assert.equal(bodyElement.classList.contains('map-chooser-open'), false, 'body should clear the open chooser state');
+assert.equal(closeFocusCount, 1, 'closing the chooser should not focus its hidden close control');
 assert.deepEqual(
     bodyElement.classList.toggleCalls.at(-1),
     { className: 'map-chooser-open', force: false },

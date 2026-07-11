@@ -67,6 +67,11 @@ fs.writeFileSync(path.join(mapsDir, 'file-backed-map.json'), `${JSON.stringify({
         leafletNativeZoom: 0,
         zoomOffset: 1
     },
+    updatedAt: '2026-07-09T12:00:00.000Z',
+    regions: [
+        { name: 'Harbor', points: [[0, 0], [0, 10], [10, 10]] },
+        { name: 'Old Town', points: [[10, 10], [10, 20], [20, 20]] }
+    ],
     pointsOfInterest: [
         {
             name: 'File POI',
@@ -123,6 +128,8 @@ const fileBacked = folder.children.find((item) => item.id === 'file-backed-map')
 assert.ok(fileBacked);
 assert.equal(fileBacked.dataUrl, 'maps/file-backed-map.json');
 assert.equal(fileBacked.group, 'Countries');
+assert.equal(fileBacked.regionCount, 2);
+assert.equal(fileBacked.updatedAt, '2026-07-09T12:00:00.000Z');
 assert.deepEqual(fileBacked.tileSource, {
     type: 'xyz',
     urlTemplate: 'tile/file-backed-map/{z}/{x}/{y}.webp',
@@ -137,6 +144,7 @@ const inlineMap = folder.children.find((item) => item.id === 'inline-map');
 assert.ok(inlineMap);
 assert.equal(inlineMap.dataUrl, 'maps/generated/inline-map.json');
 assert.equal(inlineMap.category, 'Geographic Regions');
+assert.equal(inlineMap.regionCount, 0);
 assert.ok(fs.existsSync(path.join(mapsDir, 'generated', 'inline-map.json')));
 
 const largeFileBacked = folder.children.find((item) => item.id === 'large-file-backed-map');

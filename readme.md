@@ -2,7 +2,7 @@
 
 An interactive map viewer for the world of Hiraeth, built with Leaflet.js.
 
-**[Live Demo](http://maps.hiraeth.wiki)**
+**[Live Demo](https://maps.hiraeth.wiki)**
 
 ## About The Project
 
@@ -16,23 +16,44 @@ To get a local copy up and running, follow these simple steps.
 
 ### Prerequisites
 
-You need a modern web browser and a local web server to run this project. Due to browser security restrictions (CORS) when fetching local JSON files, you cannot simply open `index.html` from the file system.
+You need a modern web browser, Node.js 22 or newer, and a local web server. ImageMagick with WebP support is required to build the production map tiles. On macOS, install the image tools with `brew install imagemagick webp`.
 
 ### Installation
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/jaxsnjohnson/map.hiraeth.git
+   git clone https://github.com/Hiraeth-Adventuring-Information-Repos/map.hiraeth.git
+   cd map.hiraeth
    ```
-2. Start a local web server. For example, using Python:
+2. Install dependencies and build the production bundle:
    ```sh
-   python -m http.server
+   npm ci
+   npm run build:pages
    ```
-   Or, if you have Node.js installed:
+3. Serve the generated bundle. For example, using Python:
    ```sh
-   npx http-server
+   python3 -m http.server 8000 --directory dist
    ```
-3. Open your browser and navigate to `http://localhost:8000` (or the port your server is running on).
+   Or with Node.js:
+   ```sh
+   npx http-server dist -p 8000
+   ```
+4. Open your browser and navigate to `http://localhost:8000`.
+
+## Validation And Deployment
+
+Install dependencies and run the complete local release check:
+
+```sh
+npm ci
+npm run publish:check
+```
+
+The publish check regenerates the atlas index, validates map data, runs the unit suite, and builds the optimized GitHub Pages artifact in `dist/`. The Pages build minifies owned JS/CSS, compacts JSON, and moves cross-map search data into a lazy payload while preserving native-resolution map tiles. Generated tiles are reused from `.cache/pages-tiles` and only stale map fingerprints are rebuilt. Both directories are generated and ignored by Git; do not commit them.
+
+Pushes to `main` are deployed by `.github/workflows/pages-deploy.yml`. The workflow restores map tiles by source fingerprint, regenerates only changed maps, uploads `dist/` as the Pages artifact, and deploys it through GitHub Actions. The repository's Pages source must be set to **GitHub Actions** rather than branch publishing.
+
+When changing browser-delivered JavaScript, CSS, map data, or tiles, bump `assets.version` in `site.config.json` and the matching default version in `js/app-config.js` so versioned URLs and service-worker caches advance together.
 
 ## Project Architecture
 
@@ -52,6 +73,8 @@ You need a modern web browser and a local web server to run this project. Due to
 │   ├── atlas-index.json# Generated runtime atlas/search index
 │   ├── [map_id].json   # Map data files (points, regions, etc.)
 │   └── [map_id].webp   # Map image files
+├── scripts/            # Atlas, tile, validation, and Pages build tooling
+├── dist/               # Generated Pages artifact (ignored)
 ├── sounds/
 │   └── *.mp3           # Ambient sound files
 └── images/
@@ -75,7 +98,8 @@ The map data is stored in JSON files within the `maps/` directory.
 
 *   **Interactive Map Display**: Smooth zooming and panning with Leaflet.js.
 *   **Dynamic Data Loading**: The app boots from a generated atlas index, then lazy-loads each full map JSON on demand.
-*   **Sidebar Navigation**: Collapsible sidebar with a list of available maps.
+*   **Atlas Navigation**: A dedicated collapsible Atlas for browsing maps and hierarchy.
+*   **Feature Details**: Compact map popups open a larger desktop sheet or mobile full-screen detail view.
 *   **Markers & Regions**: Toggleable markers for POIs and colored polygon regions.
 *   **Filtering & Search**: Filter POIs and regions by type, and search for POIs by name.
 *   **Dark Mode**: Switch between light and dark themes.

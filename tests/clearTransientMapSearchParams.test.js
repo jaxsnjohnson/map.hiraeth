@@ -29,4 +29,9 @@ assert.equal(
     '?hideUI=true'
 );
 
+assert.equal(
+    clearTransientMapSearchParams('?gallery=true&mobileLayout=v2'),
+    '?mobileLayout=v2'
+);
+
 console.log('clearTransientMapSearchParams regression checks passed');

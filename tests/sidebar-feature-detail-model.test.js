@@ -56,14 +56,14 @@ describe('buildSidebarFeatureDetailModel', () => {
         }, 'poi');
 
         assert.equal(model.title, 'Apsley');
-        assert.equal(model.kicker, 'POI / Settlements');
+        assert.equal(model.typeLabel, 'Capital');
         assert.equal(model.summary, 'White-stone city beside the harbor.');
         assert.equal(model.description, 'Ministry terraces overlook the old port.');
         assert.deepEqual(model.sections, [
             { heading: 'At a glance', body: 'Free port and capital ministries.' }
         ]);
         assert.deepEqual(model.tags, ['Capital', 'Free port']);
-        assert.deepEqual(model.metaRows, [
+        assert.deepEqual(model.technicalRows, [
             ['Type', 'Capital'],
             ['Linked map', 'Linked Fair District'],
             ['ID', 'apsley'],
@@ -97,8 +97,8 @@ describe('buildSidebarFeatureDetailModel', () => {
                 IgnoreMe: ['not primitive']
             }
         }, 'poi');
-        assert.deepEqual(factsOnly.metaRows, [
-            ['Type', 'POI'],
+        assert.deepEqual(factsOnly.technicalRows, [
+            ['Type', 'Point of interest'],
             ['Nation', 'Free City']
         ]);
     });

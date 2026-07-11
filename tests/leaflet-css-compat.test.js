@@ -13,6 +13,22 @@ assert.match(tileBlendRule.groups.body, /mix-blend-mode:\s*plus-lighter;/);
 
 assert.match(
     appCss,
+    /#map \.map-tile-layer\s*\{[\s\S]*?isolation:\s*isolate;[\s\S]*?\}/,
+    'Generated map tile layers should not blend against the preview underlay'
+);
+assert.match(
+    appCss,
+    /#map \.map-tile-layer img\.leaflet-tile\s*\{[\s\S]*?mix-blend-mode:\s*normal;[\s\S]*?\}/,
+    'Generated map tile images should override the global seam-blending rule while the preview underlay is present'
+);
+assert.match(
+    appCss,
+    /#map \.map-tile-layer img\.leaflet-tile-loaded\s*\{[\s\S]*?opacity:\s*1\s*!important;[\s\S]*?\}/,
+    'Generated map tiles should render at full opacity as soon as they are loaded'
+);
+
+assert.match(
+    appCss,
     /#map > \.leaflet-map-pane > \.leaflet-tile-pane > svg\s*\{[\s\S]*?z-index:\s*0;[\s\S]*?\}/,
     'The map underlay SVG should render behind the tile/image artwork'
 );

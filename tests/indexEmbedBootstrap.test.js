@@ -3,6 +3,15 @@ const fs = require('node:fs');
 const { JSDOM, VirtualConsole } = require('jsdom');
 
 const indexSource = fs.readFileSync('index.html', 'utf8');
+
+assert.match(indexSource, /<html lang="en" class="app-booting">/);
+assert.match(indexSource, /html\.app-booting body \{\s*visibility: hidden;/);
+assert.match(indexSource, /window\.__APP_STYLE_READY_TIMEOUT__ = setTimeout\(window\.__markAppStylesReady, 4000\)/);
+assert.match(indexSource, /css\/style\.css\?v=[^" ]+" data-app-stylesheet="true">[\s\S]*window\.__markAppStylesReady/);
+assert.ok(
+    indexSource.indexOf('id="app-boot-style"') < indexSource.indexOf('<link rel="stylesheet"'),
+    'the critical boot shell must be parser-visible before external stylesheets'
+);
 const styleSource = fs.readFileSync('css/style.css', 'utf8');
 
 assert.match(indexSource, /window\.__INITIAL_EMBEDDED_VIEW__\s*=\s*isEmbed/);
@@ -19,11 +28,32 @@ assert.match(indexSource, /params\.get\("mobileLayout"\)/);
 assert.match(indexSource, /safeSet\(mode\)/);
 assert.match(indexSource, /document\.documentElement\.classList\.toggle\("mobile-layout-v2",\s*mode === "v2"\)/);
 assert.match(indexSource, /function preloadRuntimeAssets\(\)/);
+assert.match(indexSource, /function preloadDirectMapAssets\(\)/);
+assert.ok(
+    indexSource.indexOf('<link rel="stylesheet" href="css/leaflet.css') < indexSource.indexOf('<script src="js/app-config.js'),
+    'core stylesheets should begin loading before the blocking app config script.'
+);
+assert.ok(
+    indexSource.indexOf('function preloadDirectMapAssets()') < indexSource.indexOf('<link rel="stylesheet" href="css/leaflet.css'),
+    'direct map assets should be requested before render-blocking stylesheets.'
+);
+assert.match(indexSource, /<link rel="preconnect" href="https:\/\/fonts\.googleapis\.com">/);
+assert.match(indexSource, /<link rel="preconnect" href="https:\/\/fonts\.gstatic\.com" crossorigin>/);
+assert.ok(
+    indexSource.indexOf('<link rel="preload" href="js/app.js') < indexSource.indexOf('<script src="js/app-config.js'),
+    'runtime scripts should be discoverable before the blocking app config script.'
+);
 assert.match(indexSource, /if \(options\.fetchPriority\) link\.fetchPriority = options\.fetchPriority/);
 assert.match(indexSource, /appendPreload\(`maps\/atlas-index\.json\?v=\$\{version\}`, "fetch"/);
-assert.match(indexSource, /window\.__HIRAETH_DIRECT_MAP_PREVIEW__ = previewOverrides\[directMapId\] \|\| `maps\/\$\{directMapId\}\.mini\.webp`/);
+assert.match(indexSource, /const directMapPreview = previewOverrides\[directMapId\] \|\| `maps\/\$\{directMapId\}\.mini\.webp`/);
+assert.match(indexSource, /window\.__HIRAETH_DIRECT_MAP_PREVIEW__ = `\$\{directMapPreview\}\$\{previewSeparator\}v=\$\{version\}`/);
+assert.match(indexSource, /window\.__HIRAETH_DIRECT_MAP_DATA_URL__ = dataUrlOverrides\[directMapId\] \|\| `maps\/\$\{directMapId\}\.json`/);
 assert.match(indexSource, /appendPreload\(window\.__HIRAETH_DIRECT_MAP_PREVIEW__, "image", \{ fetchPriority: "high" \}\)/);
+assert.match(indexSource, /appendPreload\(`\$\{window\.__HIRAETH_DIRECT_MAP_DATA_URL__\}\?v=\$\{version\}`, "fetch", \{[\s\S]*fetchPriority: "high"[\s\S]*\}\)/);
 assert.match(indexSource, /main_continent: "maps\/Fair-Content\.mini\.webp"/);
+assert.match(indexSource, /main_continent: "maps\/Fair-Content\.json"/);
+assert.match(indexSource, /localStorage\.getItem\("lastMapId"\)/);
+assert.match(indexSource, /directMapId = \/\^\[A-Za-z0-9\._-\]\+\$\/\.test\(storedMapId\) \? storedMapId : "main_continent"/);
 assert.match(indexSource, /document\.documentElement\.classList\.add\("bootstrap-map-preview-loading"\);[\s\S]*appendPreload\(window\.__HIRAETH_DIRECT_MAP_PREVIEW__, "image"/);
 assert.match(indexSource, /html\.bootstrap-map-preview-loading #loading-indicator\.initial-loader \{[\s\S]*height: 4px;[\s\S]*pointer-events: none;/);
 assert.match(indexSource, /html\.bootstrap-map-preview-loading #loading-indicator\.initial-loader \.progress-container \{[\s\S]*width: 100%;[\s\S]*height: 4px;/);
@@ -69,17 +99,24 @@ async function createStartupDom(url, errors = []) {
 async function main() {
     const defaultDom = await createStartupDom('http://127.0.0.1:4175/');
     const defaultChooser = defaultDom.window.document.getElementById('map-chooser');
-    assert.equal(defaultDom.window.__INITIAL_MAP_CHOOSER_OPEN__, true);
-    assert.equal(defaultChooser.hidden, false, 'default route should expose chooser before app startup finishes.');
-    assert.equal(defaultChooser.getAttribute('aria-hidden'), 'false');
-    assert.equal(defaultChooser.classList.contains('visible'), true);
-    assert.equal(defaultDom.window.document.body.classList.contains('map-chooser-open'), true);
-    assert.equal(
+    assert.equal(defaultDom.window.__INITIAL_MAP_CHOOSER_OPEN__, false);
+    assert.equal(defaultChooser.hidden, true, 'default route should start map-first with Atlas as primary navigation.');
+    assert.equal(defaultChooser.getAttribute('aria-hidden'), 'true');
+    assert.equal(defaultDom.window.document.body.classList.contains('map-chooser-open'), false);
+    assert.notEqual(
         defaultDom.window.getComputedStyle(defaultDom.window.document.querySelector('.container')).display,
         'none',
-        'default route should not briefly paint the map shell under the chooser.'
+        'default route should paint the map shell immediately.'
     );
     defaultDom.window.close();
+
+    const galleryDom = await createStartupDom('http://127.0.0.1:4175/?gallery=true');
+    const galleryChooser = galleryDom.window.document.getElementById('map-chooser');
+    assert.equal(galleryDom.window.__INITIAL_MAP_CHOOSER_OPEN__, true);
+    assert.equal(galleryChooser.hidden, false, 'gallery route should expose the visual map chooser.');
+    assert.equal(galleryChooser.getAttribute('aria-hidden'), 'false');
+    assert.equal(galleryDom.window.document.body.classList.contains('map-chooser-open'), true);
+    galleryDom.window.close();
 
     const directMapDom = await createStartupDom('http://127.0.0.1:4175/#main_continent-s=o');
     const directMapChooser = directMapDom.window.document.getElementById('map-chooser');

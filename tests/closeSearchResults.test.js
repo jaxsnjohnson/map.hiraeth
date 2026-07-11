@@ -108,5 +108,15 @@ const fs = require('node:fs');
     assert.equal(global.lastTrackedSearchSignature, 'prev_sig', 'lastTrackedSearchSignature should not be cleared');
     assert.equal(searchScopeCalledWith, null, 'setSearchScope should not be called');
 
+    searchMetaCalledWith = null;
+    global.lastTrackedSearchSignature = 'prev_sig';
+    searchScopeCalledWith = null;
+
+    // Test 3: clear stale status text without changing an explicitly selected scope
+    closeSearchResults({ preserveScope: true });
+    assert.equal(searchMetaCalledWith, '', 'preserving scope should still clear stale search status');
+    assert.equal(global.lastTrackedSearchSignature, '', 'preserving scope should clear the tracked signature');
+    assert.equal(searchScopeCalledWith, null, 'preserving scope should not reset to SEARCH_SCOPE_MAP');
+
     console.log('closeSearchResults tests passed');
 })();

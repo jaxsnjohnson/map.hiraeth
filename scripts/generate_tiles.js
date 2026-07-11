@@ -1,13 +1,17 @@
 #!/usr/bin/env node
 
 const fs = require('node:fs');
+const crypto = require('node:crypto');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
 const repoRoot = path.resolve(__dirname, '..');
 const defaultTileSize = 256;
-const defaultQuality = 82;
+const defaultQuality = 90;
+const defaultOverviewQuality = 82;
+// Bump when rendering or cache-manifest compatibility changes so stale tiles cannot be reused.
+const tileRendererVersion = '2';
 const imageMagickCodersByExtension = new Map([
     ['.gif', 'gif'],
     ['.jpeg', 'jpeg'],
@@ -34,6 +38,11 @@ function toNonNegativeInteger(value, fallbackValue) {
     return Number.isInteger(parsed) && parsed >= 0 ? parsed : fallbackValue;
 }
 
+function toWebpQuality(value, fallbackValue) {
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed >= 1 && parsed <= 100 ? parsed : fallbackValue;
+}
+
 function normalizeTileSource(tileSource) {
     if (!isObject(tileSource)) return null;
     const type = String(tileSource.type || 'xyz').trim().toLowerCase();
@@ -49,14 +58,35 @@ function normalizeTileSource(tileSource) {
     const minZoom = toNonNegativeInteger(tileSource.minZoom, Math.max(0, maxZoom - 4));
     if (minZoom > maxZoom) return null;
 
+    const quality = toWebpQuality(tileSource.quality, defaultQuality);
     return {
         type,
         urlTemplate,
         tileSize,
         minZoom,
         maxZoom,
-        quality: toPositiveInteger(tileSource.quality, defaultQuality)
+        quality,
+        overviewQuality: Math.min(
+            quality,
+            toWebpQuality(tileSource.overviewQuality, Math.min(defaultOverviewQuality, quality))
+        )
     };
+}
+
+function getTileLevelQuality(tileSource, level) {
+    const minZoom = Number(tileSource?.minZoom);
+    const maxZoom = Number(tileSource?.maxZoom);
+    const zoom = Number(level?.z);
+    const detailQuality = toWebpQuality(tileSource?.quality, defaultQuality);
+    const overviewQuality = Math.min(
+        detailQuality,
+        toWebpQuality(tileSource?.overviewQuality, Math.min(defaultOverviewQuality, detailQuality))
+    );
+    if (!Number.isFinite(zoom) || !Number.isFinite(minZoom) || !Number.isFinite(maxZoom) || maxZoom <= minZoom) {
+        return detailQuality;
+    }
+    const progress = Math.max(0, Math.min(1, (zoom - minZoom) / (maxZoom - minZoom)));
+    return Math.round(overviewQuality + ((detailQuality - overviewQuality) * progress));
 }
 
 function computeTileLevelPlan(mapDocument, tileSource = normalizeTileSource(mapDocument?.tileSource)) {
@@ -164,6 +194,60 @@ function collectTileJobs(root = repoRoot) {
     return Array.from(jobsById.values());
 }
 
+function serializeTileJobForFingerprint(job) {
+    return JSON.stringify({
+        mapId: job.mapId,
+        width: job.width,
+        height: job.height,
+        imageUrl: job.imageUrl,
+        tileSource: job.tileSource,
+        levels: job.levels.map(({ z, scaledWidth, scaledHeight, columns, rows }) => ({
+            z,
+            scaledWidth,
+            scaledHeight,
+            columns,
+            rows
+        }))
+    });
+}
+
+function getTileJobFingerprint(job) {
+    const hash = crypto.createHash('sha256');
+    hash.update(tileRendererVersion);
+    hash.update(serializeTileJobForFingerprint(job));
+    hash.update(fs.readFileSync(job.sourceImagePath));
+    return hash.digest('hex');
+}
+
+function getTileCacheVersion(fingerprint) {
+    const normalized = String(fingerprint || '').trim().toLowerCase();
+    if (!/^[a-f0-9]{16,}$/.test(normalized)) {
+        throw new Error('Tile cache fingerprints must contain at least 16 hexadecimal characters.');
+    }
+    return normalized.slice(0, 16);
+}
+
+function getTileSetFingerprint(jobFingerprints) {
+    const hash = crypto.createHash('sha256');
+    [...jobFingerprints]
+        .sort((left, right) => left.mapId.localeCompare(right.mapId))
+        .forEach(({ mapId, fingerprint }) => {
+            hash.update(mapId);
+            hash.update(':');
+            hash.update(fingerprint);
+            hash.update('\n');
+        });
+    return hash.digest('hex');
+}
+
+function getTileBuildFingerprint(root = repoRoot) {
+    const jobs = collectTileJobs(path.resolve(root));
+    return getTileSetFingerprint(jobs.map((job) => ({
+        mapId: job.mapId,
+        fingerprint: getTileJobFingerprint(job)
+    })));
+}
+
 function resolveImageMagickBinary(options = {}) {
     const commandRunner = options.commandRunner || spawnSync;
     const preferredBinary = String(options.preferredBinary ?? process.env.MAGICK_BINARY ?? '').trim();
@@ -194,6 +278,7 @@ function runMagick(args, label, magickBinary) {
         const stderr = String(result.stderr || '').trim();
         throw new Error(`${label}: ImageMagick exited with ${result.status}${stderr ? `\n${stderr}` : ''}`);
     }
+    return result;
 }
 
 function isPathInside(root, candidate) {
@@ -224,6 +309,7 @@ function formatMagickImagePath(filePath, label, allowedRoot) {
 
 function buildTileMagickArgs(job, level, levelTmpDir, options = {}) {
     const outputPattern = path.join(levelTmpDir, 'tile-%06d.webp');
+    const levelQuality = getTileLevelQuality(job.tileSource, level);
     return [
         '--',
         formatMagickImagePath(job.sourceImagePath, `${job.mapId} source image`, options.repoRoot || repoRoot),
@@ -239,10 +325,48 @@ function buildTileMagickArgs(job, level, levelTmpDir, options = {}) {
         '-crop',
         `${job.tileSource.tileSize}x${job.tileSource.tileSize}`,
         '+repage',
+        '-define',
+        'webp:method=6',
+        '-define',
+        'webp:use-sharp-yuv=1',
         '-quality',
-        String(job.tileSource.quality),
+        String(levelQuality),
         formatMagickImagePath(outputPattern, `${job.mapId} z${level.z} output pattern`, levelTmpDir)
     ];
+}
+
+function validateTileSourceDimensions(jobs, options = {}) {
+    if (!Array.isArray(jobs) || jobs.length === 0) return;
+    const root = path.resolve(options.repoRoot || repoRoot);
+    const magickBinary = options.magickBinary || resolveImageMagickBinary(options);
+    const commandRunner = options.commandRunner || spawnSync;
+    const args = [
+        '-ping',
+        '--',
+        ...jobs.map((job) => formatMagickImagePath(job.sourceImagePath, `${job.mapId} source image`, root)),
+        '-format',
+        '%w|%h\\n',
+        'info:'
+    ];
+    const result = commandRunner(magickBinary, args, { stdio: 'pipe', encoding: 'utf8' });
+    if (result.error) {
+        throw new Error(`Map source dimension check: ${result.error.message}`);
+    }
+    if (result.status !== 0) {
+        const stderr = String(result.stderr || '').trim();
+        throw new Error(`Map source dimension check: ImageMagick exited with ${result.status}${stderr ? `\n${stderr}` : ''}`);
+    }
+
+    const dimensions = String(result.stdout || '').trim().split(/\r?\n/).filter(Boolean);
+    if (dimensions.length !== jobs.length) {
+        throw new Error(`Map source dimension check returned ${dimensions.length} results for ${jobs.length} maps.`);
+    }
+    jobs.forEach((job, index) => {
+        const [actualWidth, actualHeight] = dimensions[index].split('|').map(Number);
+        if (actualWidth !== job.width || actualHeight !== job.height) {
+            throw new Error(`${job.mapId}: map data declares ${job.width}x${job.height}, but ${job.imageUrl} is ${actualWidth}x${actualHeight}.`);
+        }
+    });
 }
 
 function renderTileLevel(job, level, mapOutputDir, options) {
@@ -278,6 +402,88 @@ function shouldSkipTileGeneration() {
     return /^(1|true|yes)$/i.test(String(process.env.MAP_HIRAETH_SKIP_TILES || '').trim());
 }
 
+function createTileManifestMap(job, fingerprint) {
+    return {
+        id: job.mapId,
+        name: job.name,
+        width: job.width,
+        height: job.height,
+        imageUrl: job.imageUrl,
+        rendererVersion: tileRendererVersion,
+        fingerprint,
+        cacheVersion: getTileCacheVersion(fingerprint),
+        tileSource: {
+            type: job.tileSource.type,
+            urlTemplate: job.tileSource.urlTemplate,
+            tileSize: job.tileSource.tileSize,
+            minZoom: job.tileSource.minZoom,
+            maxZoom: job.tileSource.maxZoom,
+            overviewQuality: job.tileSource.overviewQuality,
+            quality: job.tileSource.quality
+        },
+        levels: job.levels.map(({ z, columns, rows, tileCount, scaledWidth, scaledHeight }) => ({
+            z,
+            columns,
+            rows,
+            tileCount,
+            scaledWidth,
+            scaledHeight,
+            quality: getTileLevelQuality(job.tileSource, { z })
+        })),
+        totalTiles: job.totalTiles
+    };
+}
+
+function getComparableManifestMap(manifestMap) {
+    if (!isObject(manifestMap)) return null;
+    return {
+        id: manifestMap.id,
+        width: manifestMap.width,
+        height: manifestMap.height,
+        imageUrl: manifestMap.imageUrl,
+        tileSource: manifestMap.tileSource,
+        levels: manifestMap.levels,
+        totalTiles: manifestMap.totalTiles
+    };
+}
+
+function isCachedTileMapReusable(outputDir, job, cachedMap, fingerprint = getTileJobFingerprint(job)) {
+    if (!isObject(cachedMap)) return false;
+    if (cachedMap.fingerprint !== fingerprint) return false;
+
+    const expectedMap = createTileManifestMap(job, fingerprint);
+    if (JSON.stringify(getComparableManifestMap(cachedMap)) !== JSON.stringify(getComparableManifestMap(expectedMap))) {
+        return false;
+    }
+
+    const mapOutputDir = resolveSafeOutputPath(outputDir, job.mapId);
+    for (const level of job.levels) {
+        for (let y = 0; y < level.rows; y += 1) {
+            for (let x = 0; x < level.columns; x += 1) {
+                const tilePath = path.join(mapOutputDir, String(level.z), String(x), `${y}.webp`);
+                try {
+                    const tileStat = fs.statSync(tilePath);
+                    if (!tileStat.isFile() || tileStat.size <= 0) return false;
+                } catch (error) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+function readExistingTileManifest(outputDir) {
+    const manifestPath = path.join(outputDir, 'manifest.json');
+    if (!fs.existsSync(manifestPath)) return null;
+    try {
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+        return Array.isArray(manifest.maps) ? manifest : null;
+    } catch (error) {
+        return null;
+    }
+}
+
 function generateTiles(options = {}) {
     const root = path.resolve(options.repoRoot || repoRoot);
     const outputDir = path.resolve(options.outputDir || path.join(root, 'dist', 'tile'));
@@ -292,63 +498,104 @@ function generateTiles(options = {}) {
         ? new Set(options.mapIds.map((mapId) => String(mapId).trim()).filter(Boolean))
         : null;
     const jobs = collectTileJobs(root).filter((job) => !requestedMapIds || requestedMapIds.has(job.mapId));
-    const magickBinary = jobs.length > 0
-        ? resolveImageMagickBinary({ preferredBinary: options.magickBinary ?? process.env.MAGICK_BINARY })
-        : '';
-
-    fs.rmSync(outputDir, { recursive: true, force: true });
-    fs.mkdirSync(outputDir, { recursive: true });
-
-    const generatedMaps = [];
-    let totalTiles = 0;
     jobs.forEach((job) => {
         if (!fs.existsSync(job.sourceImagePath)) {
             throw new Error(`${job.mapId}: missing source image ${job.imageUrl}`);
         }
-        const mapOutputDir = resolveSafeOutputPath(outputDir, job.mapId);
-        fs.rmSync(mapOutputDir, { recursive: true, force: true });
-        fs.mkdirSync(mapOutputDir, { recursive: true });
-        job.levels.forEach((level) => renderTileLevel(job, level, mapOutputDir, { magickBinary, repoRoot: root }));
-        totalTiles += job.totalTiles;
-        generatedMaps.push({
-            id: job.mapId,
-            name: job.name,
-            width: job.width,
-            height: job.height,
-            imageUrl: job.imageUrl,
-            tileSource: {
-                type: job.tileSource.type,
-                urlTemplate: job.tileSource.urlTemplate,
-                tileSize: job.tileSource.tileSize,
-                minZoom: job.tileSource.minZoom,
-                maxZoom: job.tileSource.maxZoom
-            },
-            levels: job.levels.map(({ z, columns, rows, tileCount, scaledWidth, scaledHeight }) => ({
-                z,
-                columns,
-                rows,
-                tileCount,
-                scaledWidth,
-                scaledHeight
-            })),
-            totalTiles: job.totalTiles
-        });
-        logger.log(`Generated ${job.totalTiles} tiles for ${job.mapId}.`);
     });
 
+    const reuseExisting = options.reuseExisting === true;
+    const existingManifest = reuseExisting ? readExistingTileManifest(outputDir) : null;
+    const cachedMapsById = new Map(
+        (existingManifest?.maps || []).map((manifestMap) => [String(manifestMap?.id || ''), manifestMap])
+    );
+    if (!reuseExisting) {
+        fs.rmSync(outputDir, { recursive: true, force: true });
+    }
+    fs.mkdirSync(outputDir, { recursive: true });
+
+    const preparedJobs = jobs.map((job) => {
+        const fingerprint = getTileJobFingerprint(job);
+        const cachedMap = cachedMapsById.get(job.mapId);
+        return {
+            job,
+            fingerprint,
+            reusable: reuseExisting && isCachedTileMapReusable(outputDir, job, cachedMap, fingerprint)
+        };
+    });
+    const jobsToGenerate = preparedJobs.filter((preparedJob) => !preparedJob.reusable);
+    const jobsToValidate = options.validateSourceDimensions !== false
+        ? jobsToGenerate.map((preparedJob) => preparedJob.job)
+        : [];
+    const magickBinary = jobsToGenerate.length > 0
+        ? resolveImageMagickBinary({ preferredBinary: options.magickBinary ?? process.env.MAGICK_BINARY })
+        : '';
+    if (jobsToValidate.length > 0) {
+        validateTileSourceDimensions(jobsToValidate, { magickBinary, repoRoot: root });
+    }
+
+    if (reuseExisting) {
+        const activeMapIds = new Set(jobs.map((job) => job.mapId));
+        fs.readdirSync(outputDir, { withFileTypes: true }).forEach((entry) => {
+            if (entry.isDirectory() && !activeMapIds.has(entry.name)) {
+                fs.rmSync(resolveSafeOutputPath(outputDir, entry.name), { recursive: true, force: true });
+            }
+        });
+    }
+
+    const generatedMaps = [];
+    let totalTiles = 0;
+    let reusedMapCount = 0;
+    let reusedTileCount = 0;
+    preparedJobs.forEach(({ job, fingerprint, reusable }) => {
+        const mapOutputDir = resolveSafeOutputPath(outputDir, job.mapId);
+        if (reusable) {
+            reusedMapCount += 1;
+            reusedTileCount += job.totalTiles;
+        } else {
+            fs.rmSync(mapOutputDir, { recursive: true, force: true });
+            fs.mkdirSync(mapOutputDir, { recursive: true });
+            job.levels.forEach((level) => renderTileLevel(job, level, mapOutputDir, { magickBinary, repoRoot: root }));
+            logger.log(`Generated ${job.totalTiles} tiles for ${job.mapId}.`);
+        }
+        totalTiles += job.totalTiles;
+        generatedMaps.push(createTileManifestMap(job, fingerprint));
+    });
+
+    const fingerprint = getTileSetFingerprint(preparedJobs.map(({ job, fingerprint: jobFingerprint }) => ({
+        mapId: job.mapId,
+        fingerprint: jobFingerprint
+    })));
     const manifest = {
         generatedAt: new Date().toISOString(),
+        rendererVersion: tileRendererVersion,
+        fingerprint,
         maps: generatedMaps,
         totalTiles
     };
     fs.writeFileSync(path.join(outputDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
-    logger.log(`Generated ${totalTiles} map tiles in ${path.relative(root, outputDir) || outputDir}.`);
-    return { skipped: false, outputDir, maps: generatedMaps, totalTiles };
+    if (reusedMapCount > 0) {
+        logger.log(`Reused ${reusedMapCount} cached map tile sets (${reusedTileCount} tiles).`);
+    }
+    logger.log(`Prepared ${totalTiles} map tiles in ${path.relative(root, outputDir) || outputDir}.`);
+    return {
+        skipped: false,
+        outputDir,
+        maps: generatedMaps,
+        totalTiles,
+        fingerprint,
+        reusedMaps: reusedMapCount,
+        generatedMaps: jobsToGenerate.length
+    };
 }
 
 if (require.main === module) {
     try {
-        generateTiles();
+        if (process.argv.includes('--print-cache-key')) {
+            console.log(getTileBuildFingerprint());
+        } else {
+            generateTiles();
+        }
     } catch (error) {
         console.error(error.message || error);
         process.exit(1);
@@ -359,7 +606,15 @@ module.exports = {
     buildTileMagickArgs,
     collectTileJobs,
     computeTileLevelPlan,
+    createTileManifestMap,
     generateTiles,
+    getTileBuildFingerprint,
+    getTileCacheVersion,
+    getTileJobFingerprint,
+    getTileLevelQuality,
+    isCachedTileMapReusable,
     normalizeTileSource,
-    resolveImageMagickBinary
+    resolveImageMagickBinary,
+    tileRendererVersion,
+    validateTileSourceDimensions
 };

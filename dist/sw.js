@@ -2,7 +2,11 @@ const VERSION = new URL(self.location.href).searchParams.get('v') || '0';
 const SHELL_CACHE = `hag-shell-${VERSION}`;
 const DATA_CACHE = `hag-data-${VERSION}`;
 const ASSET_CACHE = `hag-assets-${VERSION}`;
-const ALL_CACHES = [SHELL_CACHE, DATA_CACHE, ASSET_CACHE];
+const TILE_CACHE = 'hag-tiles-v1';
+const MAX_TILE_CACHE_ENTRIES = 1024;
+const TILE_CACHE_TRIM_INTERVAL = 32;
+const ALL_CACHES = [SHELL_CACHE, DATA_CACHE, ASSET_CACHE, TILE_CACHE];
+let tileWritesSinceTrim = 0;
 
 const DEFAULT_VERSIONED_SHELL_ASSETS = [
     'css/leaflet.css',
@@ -28,13 +32,11 @@ const DEFAULT_STATIC_SHELL_ASSETS = [
     'favicon-32x32.png',
     'favicon.png',
     'apple-touch-icon.png',
-    'images/sky-background.webp',
     'images/clouds.webp',
     'images/toggle.svg',
     'css/images/marker-icon.png',
     'css/images/marker-icon-2x.png',
     'css/images/marker-shadow.png',
-    'images/hiraeth-maps-preview.png',
     'images/poi-icons/settlements.svg',
     'images/poi-icons/structures.svg',
     'images/poi-icons/natural-features.svg',
@@ -49,8 +51,10 @@ function versionAsset(asset) {
 
 async function loadShellAssetConfig() {
     try {
-        const response = await fetch(`site.config.json?v=${VERSION}`, { cache: 'no-store' });
+        const configUrl = `site.config.json?v=${VERSION}`;
+        const response = await fetch(configUrl, { cache: 'no-store' });
         if (!response.ok) throw new Error(`Config returned ${response.status}`);
+        const cacheResponse = response.clone();
         const config = await response.json();
         return {
             versioned: Array.isArray(config?.assets?.serviceWorker?.versionedShellAssets)
@@ -58,12 +62,14 @@ async function loadShellAssetConfig() {
                 : DEFAULT_VERSIONED_SHELL_ASSETS,
             static: Array.isArray(config?.assets?.serviceWorker?.staticShellAssets)
                 ? config.assets.serviceWorker.staticShellAssets
-                : DEFAULT_STATIC_SHELL_ASSETS
+                : DEFAULT_STATIC_SHELL_ASSETS,
+            configAsset: { url: configUrl, response: cacheResponse }
         };
     } catch (error) {
         return {
             versioned: DEFAULT_VERSIONED_SHELL_ASSETS,
-            static: DEFAULT_STATIC_SHELL_ASSETS
+            static: DEFAULT_STATIC_SHELL_ASSETS,
+            configAsset: null
         };
     }
 }
@@ -71,9 +77,14 @@ async function loadShellAssetConfig() {
 self.addEventListener('install', (event) => {
     event.waitUntil((async () => {
         const configuredAssets = await loadShellAssetConfig();
-        const versionedShellAssets = configuredAssets.versioned.map(versionAsset);
+        const versionedShellAssets = configuredAssets.versioned
+            .filter((asset) => asset !== 'site.config.json')
+            .map(versionAsset);
         const cache = await caches.open(SHELL_CACHE);
         await cache.addAll([...configuredAssets.static, ...versionedShellAssets]);
+        if (configuredAssets.configAsset) {
+            await cache.put(configuredAssets.configAsset.url, configuredAssets.configAsset.response);
+        }
         await self.skipWaiting();
     })());
 });
@@ -87,41 +98,94 @@ self.addEventListener('activate', (event) => {
             }
             return Promise.resolve(false);
         }));
+        await trimCache(await caches.open(TILE_CACHE), MAX_TILE_CACHE_ENTRIES);
         await self.clients.claim();
     })());
 });
 
-async function networkFirst(request, cacheName, fallbackRequest = null) {
+async function networkFirstTask(request, cacheName, fallbackRequest = null) {
     const cache = await caches.open(cacheName);
     try {
         const response = await fetch(request);
-        if (response && response.ok) {
-            cache.put(request, response.clone());
-        }
-        return response;
+        const cacheDone = response && response.ok
+            ? cache.put(request, response.clone())
+            : Promise.resolve();
+        return { response, cacheDone };
     } catch (error) {
         const cached = await cache.match(request);
-        if (cached) return cached;
+        if (cached) return { response: cached, cacheDone: Promise.resolve() };
         if (fallbackRequest) {
             const fallback = await caches.match(fallbackRequest);
-            if (fallback) return fallback;
+            if (fallback) return { response: fallback, cacheDone: Promise.resolve() };
         }
         throw error;
     }
 }
 
-async function staleWhileRevalidate(request, cacheName) {
+async function fetchAndCacheTask(request, cache) {
+    const response = await fetch(request);
+    const cacheDone = response && response.ok
+        ? cache.put(request, response.clone())
+        : Promise.resolve();
+    return { response, cacheDone };
+}
+
+async function staleWhileRevalidateTask(request, cacheName) {
     const cache = await caches.open(cacheName);
     const cached = await cache.match(request);
-    const networkPromise = fetch(request)
-        .then((response) => {
-            if (response && response.ok) {
-                cache.put(request, response.clone());
-            }
-            return response;
-        })
-        .catch(() => cached);
-    return cached || networkPromise;
+    if (!cached) return fetchAndCacheTask(request, cache);
+
+    const refreshTask = fetchAndCacheTask(request, cache);
+    const cacheDone = refreshTask
+        .then((task) => task.cacheDone)
+        .catch(() => undefined);
+    return { response: cached, cacheDone };
+}
+
+async function cacheFirstTask(request, cacheName) {
+    const cache = await caches.open(cacheName);
+    const cached = await cache.match(request);
+    if (cached) return { response: cached, cacheDone: Promise.resolve() };
+    const response = await fetch(request);
+    const cacheDone = response && response.ok
+        ? cache.put(request, response.clone())
+        : Promise.resolve();
+    return { response, cacheDone };
+}
+
+async function trimCache(cache, maxEntries) {
+    const requests = await cache.keys();
+    const excessCount = Math.max(0, requests.length - maxEntries);
+    if (excessCount === 0) return;
+    await Promise.all(requests.slice(0, excessCount).map((request) => cache.delete(request)));
+}
+
+async function persistentTileCacheTask(request) {
+    const cache = await caches.open(TILE_CACHE);
+    const cached = await cache.match(request);
+    if (cached) {
+        return { response: cached, cacheDone: Promise.resolve() };
+    }
+
+    const response = await fetch(request);
+    let cacheDone = Promise.resolve();
+    if (response && response.ok) {
+        cacheDone = cache.put(request, response.clone()).then(async () => {
+            tileWritesSinceTrim += 1;
+            if (tileWritesSinceTrim < TILE_CACHE_TRIM_INTERVAL) return;
+            tileWritesSinceTrim = 0;
+            await trimCache(cache, MAX_TILE_CACHE_ENTRIES);
+        });
+    }
+    return { response, cacheDone };
+}
+
+function respondWithCacheTask(event, task) {
+    const taskPromise = Promise.resolve(task);
+    event.respondWith(taskPromise.then(({ response }) => response));
+    event.waitUntil(taskPromise
+        .then(({ cacheDone }) => cacheDone)
+        .catch(() => undefined));
 }
 
 function isVersionedShellRequest(url) {
@@ -136,12 +200,19 @@ self.addEventListener('fetch', (event) => {
     if (url.origin !== self.location.origin) return;
 
     if (request.mode === 'navigate') {
-        event.respondWith(networkFirst(request, SHELL_CACHE, 'index.html'));
+        respondWithCacheTask(event, networkFirstTask(request, SHELL_CACHE, 'index.html'));
         return;
     }
 
     if (url.pathname.endsWith('.json')) {
-        event.respondWith(networkFirst(request, DATA_CACHE));
+        respondWithCacheTask(event, isVersionedShellRequest(url)
+            ? cacheFirstTask(request, DATA_CACHE)
+            : networkFirstTask(request, DATA_CACHE));
+        return;
+    }
+
+    if (url.pathname.includes('/tile/') && url.pathname.endsWith('.webp') && isVersionedShellRequest(url)) {
+        respondWithCacheTask(event, persistentTileCacheTask(request));
         return;
     }
 
@@ -153,7 +224,9 @@ self.addEventListener('fetch', (event) => {
         url.pathname.endsWith('.svg') ||
         url.pathname.endsWith('.mp3')
     ) {
-        event.respondWith(staleWhileRevalidate(request, ASSET_CACHE));
+        respondWithCacheTask(event, isVersionedShellRequest(url)
+            ? cacheFirstTask(request, ASSET_CACHE)
+            : staleWhileRevalidateTask(request, ASSET_CACHE));
         return;
     }
 
@@ -161,9 +234,9 @@ self.addEventListener('fetch', (event) => {
         url.pathname.endsWith('.css') ||
         url.pathname.endsWith('.js')
     ) {
-        event.respondWith(isVersionedShellRequest(url)
-            ? staleWhileRevalidate(request, SHELL_CACHE)
-            : networkFirst(request, SHELL_CACHE));
+        respondWithCacheTask(event, isVersionedShellRequest(url)
+            ? cacheFirstTask(request, SHELL_CACHE)
+            : networkFirstTask(request, SHELL_CACHE));
         return;
     }
 
@@ -171,6 +244,6 @@ self.addEventListener('fetch', (event) => {
         url.pathname === '/' ||
         url.pathname.endsWith('.html')
     ) {
-        event.respondWith(staleWhileRevalidate(request, SHELL_CACHE));
+        respondWithCacheTask(event, staleWhileRevalidateTask(request, SHELL_CACHE));
     }
 });

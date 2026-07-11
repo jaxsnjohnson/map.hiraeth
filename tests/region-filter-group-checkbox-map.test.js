@@ -50,6 +50,20 @@ test('createRegionFilterGroupDOM registers child checkboxes for parent toggles',
     assert.deepEqual(mappedCheckboxes.map(checkbox => checkbox.checked), [true, true, true]);
 });
 
+test('createRegionFilterGroupDOM keeps repeated values unique across groups', () => {
+    const document = installDocument();
+    const politicalGroup = exported.createRegionFilterGroupDOM('Political', ['Wasteland']);
+    const geographicGroup = exported.createRegionFilterGroupDOM('Geographic', ['Wasteland']);
+    document.getElementById('root').append(politicalGroup, geographicGroup);
+
+    const checkboxes = Array.from(document.querySelectorAll('.region-type-filter'));
+    const ids = checkboxes.map(checkbox => checkbox.id);
+    assert.equal(new Set(ids).size, ids.length);
+    checkboxes.forEach((checkbox) => {
+        assert.equal(document.querySelector(`label[for="${checkbox.id}"]`)?.textContent, 'Wasteland');
+    });
+});
+
 test('setRegionGroupChildCheckboxes falls back for compatible unregistered DOM', () => {
     const document = installDocument();
     const groupContainer = document.createElement('div');

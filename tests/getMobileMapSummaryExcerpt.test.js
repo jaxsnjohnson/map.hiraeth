@@ -9,7 +9,7 @@ const stripHtmlEnd = appSource.indexOf('function getMapRuntimeData(mapId = curre
 
 // Extract getMobileMapSummaryExcerpt
 const getMobileMapSummaryExcerptStart = appSource.indexOf('function getMobileMapSummaryExcerpt(mapInfo, maxLength = 148) {');
-const getMobileMapSummaryExcerptEnd = appSource.indexOf('function closeSearchResults({ clearMeta = true } = {}) {');
+const getMobileMapSummaryExcerptEnd = appSource.indexOf('\nfunction closeSearchResults(', getMobileMapSummaryExcerptStart);
 
 if (stripHtmlStart === -1 || stripHtmlEnd === -1 || getMobileMapSummaryExcerptStart === -1 || getMobileMapSummaryExcerptEnd === -1) {
     throw new Error('Could not locate required functions in js/app.js');
