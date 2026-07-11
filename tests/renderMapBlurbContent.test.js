@@ -13,7 +13,7 @@ global.DOMPurify = {
 const appSource = fs.readFileSync('js/app.js', 'utf8');
 
 const escapeHtmlStart = appSource.indexOf('function escapeHtml(value) {');
-const escapeHtmlEnd = appSource.indexOf('function escapeForSingleQuotedAttribute(value) {');
+const escapeHtmlEnd = appSource.indexOf('function sanitizeWikiLinkForHref(value) {');
 const renderStart = appSource.indexOf('function renderMapBlurbContent');
 const renderEnd = appSource.indexOf('function syncMobileMapMeta');
 

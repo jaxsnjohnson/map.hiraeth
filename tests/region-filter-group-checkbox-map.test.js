@@ -14,19 +14,17 @@ function extractSource(startMarker, endMarker) {
     return appSource.slice(start, end);
 }
 
-const escapeHelperSource = extractSource('function escapeHtml(value) {', 'function sanitizeWikiLinkForHref(value) {');
 const regionFilterHelperSource = extractSource('const regionGroupNestedCheckboxes = new WeakMap();', 'function populateRegionFilters');
 const exported = {};
 
 // eslint-disable-next-line no-eval
-eval(`${escapeHelperSource}
-${regionFilterHelperSource}
+eval(`${regionFilterHelperSource}
 exported.createRegionFilterGroupDOM = createRegionFilterGroupDOM;
 exported.getRegionGroupNestedCheckboxes = getRegionGroupNestedCheckboxes;
 exported.setRegionGroupChildCheckboxes = setRegionGroupChildCheckboxes;`);
 
 function installDocument() {
-    const { window } = new JSDOM('<!doctype html><div id="root"></div>');
+    const { window } = new JSDOM('<!doctype html><div id="root"></div>', { runScripts: 'dangerously' });
     global.document = window.document;
     return window.document;
 }
@@ -62,6 +60,27 @@ test('createRegionFilterGroupDOM keeps repeated values unique across groups', ()
     checkboxes.forEach((checkbox) => {
         assert.equal(document.querySelector(`label[for="${checkbox.id}"]`)?.textContent, 'Wasteland');
     });
+});
+
+test('createRegionFilterGroupDOM preserves hostile values without creating executable attributes', () => {
+    const document = installDocument();
+    const { defaultView } = document;
+    const groupName = "' autofocus onfocus=globalThis.pwned=1 x='";
+    const value = "' onmouseover=globalThis.pwned=2 x='";
+    const groupContainer = exported.createRegionFilterGroupDOM(groupName, [value]);
+    document.getElementById('root').appendChild(groupContainer);
+
+    const groupCheckbox = groupContainer.querySelector('.region-group-filter');
+    const valueCheckbox = groupContainer.querySelector('.region-type-filter');
+    assert.equal(groupCheckbox.value, groupName);
+    assert.equal(valueCheckbox.value, value);
+    assert.equal(valueCheckbox.dataset.group, groupName);
+    assert.equal(groupContainer.querySelector('[onfocus], [onmouseover]'), null);
+
+    defaultView.pwned = 0;
+    groupCheckbox.focus();
+    valueCheckbox.dispatchEvent(new defaultView.MouseEvent('mouseover', { bubbles: true }));
+    assert.equal(defaultView.pwned, 0);
 });
 
 test('setRegionGroupChildCheckboxes falls back for compatible unregistered DOM', () => {

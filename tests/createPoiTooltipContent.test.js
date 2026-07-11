@@ -3,25 +3,25 @@ const fs = require('node:fs');
 
 const appSource = fs.readFileSync('js/app.js', 'utf8');
 const sanitizeStart = appSource.indexOf('function escapeHtml(value) {');
-const escapeStart = appSource.indexOf('function escapeForSingleQuotedAttribute(value) {');
+const sanitizeEnd = appSource.indexOf('function sanitizeWikiLinkForHref(value) {');
 const tooltipStart = appSource.indexOf('function createPoiTooltipContent(data) {');
 const tooltipOptionsStart = appSource.indexOf('function getPoiTooltipOptions() {');
 const tooltipBehaviorStart = appSource.indexOf('function attachPoiTooltipBehavior(marker) {');
 
 if (
     sanitizeStart === -1 ||
-    escapeStart === -1 ||
+    sanitizeEnd === -1 ||
     tooltipStart === -1 ||
     tooltipOptionsStart === -1 ||
     tooltipBehaviorStart === -1 ||
-    escapeStart <= sanitizeStart ||
+    sanitizeEnd <= sanitizeStart ||
     tooltipOptionsStart <= tooltipStart ||
     tooltipBehaviorStart <= tooltipOptionsStart
 ) {
     throw new Error('Could not locate POI tooltip helpers in js/app.js');
 }
 
-const sanitizeSource = appSource.slice(sanitizeStart, escapeStart);
+const sanitizeSource = appSource.slice(sanitizeStart, sanitizeEnd);
 const tooltipSource = appSource.slice(tooltipStart, tooltipOptionsStart);
 const tooltipOptionsSource = appSource.slice(tooltipOptionsStart, tooltipBehaviorStart);
 const tooltipBehaviorSource = appSource.slice(tooltipBehaviorStart, appSource.indexOf('function clearTransientMapSearchParams('));

@@ -294,6 +294,8 @@ map.on('moveend zoomend', endMapInteraction);
 
 if (map && map.getContainer && typeof map.getContainer().addEventListener === 'function') {
     map.getContainer().addEventListener('wheel', handleSmoothWheelZoom, { passive: false });
+    // Leaflet stops popup click bubbling, so handle actions during capture.
+    map.getContainer().addEventListener('click', handleMapPopupAction, true);
 }
 
 if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
@@ -453,16 +455,6 @@ function escapeHtml(value) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;')
         .replace(/`/g, '&#96;');
-}
-
-function escapeForSingleQuotedAttribute(value) {
-    return String(value || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/\\/g, '\\\\')
-        .replace(/'/g, "\\'");
 }
 
 function sanitizeWikiLinkForHref(value) {
@@ -637,6 +629,28 @@ function applySearchParamsToCurrentMap(params = new URLSearchParams(window.locat
     return featureFocused;
 }
 
+function handleMapPopupAction(event) {
+    const eventTarget = event?.target;
+    if (!eventTarget || typeof eventTarget.closest !== 'function') return;
+
+    const actionElement = eventTarget.closest('[data-popup-action]');
+    if (!actionElement) return;
+
+    const action = actionElement.dataset.popupAction;
+    if (action === 'open-details') {
+        event.preventDefault();
+        openSelectedFeatureDetails();
+    } else if (action === 'share-feature') {
+        window.copyFeatureLink(
+            actionElement,
+            actionElement.dataset.featureType,
+            actionElement.dataset.featureName
+        );
+    } else if (action === 'open-linked-map') {
+        window.openLinkedMapFromPopup(event, actionElement.dataset.linkedMapId);
+    }
+}
+
 // --- NEW: Unified Popup Content Generator ---
 function createPopupContent(data, type) {
     const safePronunciation = data.pronunciation ? escapeHtml(data.pronunciation) : '';
@@ -662,14 +676,13 @@ function buildPopupHeader(data, type, safePronunciation) {
     let headerHtml = '';
     if (data.name) {
         const safeName = escapeHtml(data.name);
-        const escapedName = escapeForSingleQuotedAttribute(data.name);
         const safeWikiHref = sanitizeWikiLinkForHref(data.wikiLink);
         const actionButtons = [];
         if (type) {
             const detailsIcon = '<i class="ui-icon" data-lucide="maximize-2" aria-hidden="true"></i>';
-            actionButtons.push(`<button class="popup-detail-expand" type="button" onclick="return openSelectedFeatureDetails()" title="Open details" aria-label="Open details for ${safeName}" aria-haspopup="dialog">${detailsIcon}<span>Details</span></button>`);
+            actionButtons.push(`<button class="popup-detail-expand" type="button" data-popup-action="open-details" title="Open details" aria-label="Open details for ${safeName}" aria-haspopup="dialog">${detailsIcon}<span>Details</span></button>`);
             const linkIcon = `<i class="ui-icon" data-lucide="link-2" aria-hidden="true"></i>`;
-            actionButtons.push(`<button class="share-btn" onclick="copyFeatureLink(this, '${type}', '${escapedName}')" title="Share this location" aria-label="Share this location">${linkIcon}</button>`);
+            actionButtons.push(`<button class="share-btn" type="button" data-popup-action="share-feature" data-feature-type="${escapeHtml(type)}" data-feature-name="${safeName}" title="Share this location" aria-label="Share this location">${linkIcon}</button>`);
         }
         const actionButtonsHtml = actionButtons.length > 0
             ? `<div class="popup-header-actions">${actionButtons.join('')}</div>`
@@ -686,10 +699,10 @@ function buildPopupHeader(data, type, safePronunciation) {
     }
     const linkedMap = resolveLinkedMapData(data);
     if (linkedMap) {
-        const escapedLinkedMapId = escapeForSingleQuotedAttribute(linkedMap.id);
+        const escapedLinkedMapId = escapeHtml(linkedMap.id);
         const linkedMapName = escapeHtml(linkedMap.name);
         const mapJumpIcon = `<i class="ui-icon" data-lucide="map" aria-hidden="true"></i>`;
-        headerHtml += `<div class="popup-map-jump"><a href="#" onclick="return openLinkedMapFromPopup(event, '${escapedLinkedMapId}')" title="Open map: ${linkedMapName}">${mapJumpIcon}<span>Open ${linkedMapName} map</span></a></div>`;
+        headerHtml += `<div class="popup-map-jump"><a href="#" data-popup-action="open-linked-map" data-linked-map-id="${escapedLinkedMapId}" title="Open map: ${linkedMapName}">${mapJumpIcon}<span>Open ${linkedMapName} map</span></a></div>`;
     }
     return headerHtml;
 }
@@ -5908,45 +5921,66 @@ function createRegionFilterGroupDOM(groupName, values) {
     const groupContainer = document.createElement('div');
     groupContainer.className = 'filter-group closed'; // Start as closed
 
-    const safeGroupName = escapeHtml(groupName);
-    const escapedGroupNameForAttribute = escapeForSingleQuotedAttribute(groupName);
+    const normalizedGroupName = String(groupName || '');
     const groupIdPart = getFilterControlIdPart(groupName);
-    const groupFilterId = escapeForSingleQuotedAttribute(`filter-region-group-${groupIdPart}`);
+    const groupFilterId = `filter-region-group-${groupIdPart}`;
 
-    const htmlParts = [
-        '<div class="filter-group-header" role="button" tabindex="0" aria-expanded="false">',
-            '<span class="filter-chevron-icon" aria-hidden="true">',
-                '<i class="ui-icon" data-lucide="chevron-right"></i>',
-            '</span>',
-            '<div class="filter-item">',
-                '<input type="checkbox" id=\'', groupFilterId, '\' value=\'', escapedGroupNameForAttribute, '\' checked class="region-group-filter">',
-                '<label for=\'', groupFilterId, '\'>', safeGroupName, '</label>',
-            '</div>',
-        '</div>',
-        '<div class="nested-filter-list">'
-    ];
+    const header = document.createElement('div');
+    header.className = 'filter-group-header';
+    header.setAttribute('role', 'button');
+    header.tabIndex = 0;
+    header.setAttribute('aria-expanded', 'false');
+
+    const chevron = document.createElement('span');
+    chevron.className = 'filter-chevron-icon';
+    chevron.setAttribute('aria-hidden', 'true');
+    const chevronIcon = document.createElement('i');
+    chevronIcon.className = 'ui-icon';
+    chevronIcon.dataset.lucide = 'chevron-right';
+    chevron.appendChild(chevronIcon);
+
+    const groupFilterItem = document.createElement('div');
+    groupFilterItem.className = 'filter-item';
+    const groupCheckbox = document.createElement('input');
+    groupCheckbox.type = 'checkbox';
+    groupCheckbox.id = groupFilterId;
+    groupCheckbox.value = normalizedGroupName;
+    groupCheckbox.checked = true;
+    groupCheckbox.className = 'region-group-filter';
+    const groupLabel = document.createElement('label');
+    groupLabel.htmlFor = groupFilterId;
+    groupLabel.textContent = normalizedGroupName;
+    groupFilterItem.append(groupCheckbox, groupLabel);
+
+    header.append(chevron, groupFilterItem);
+    groupContainer.appendChild(header);
+
+    const nestedList = document.createElement('div');
+    nestedList.className = 'nested-filter-list';
+    const nestedCheckboxes = [];
 
     for (let i = 0; i < values.length; i++) {
-        const value = values[i];
-        const safeValue = escapeHtml(value);
-        const filterId = escapeForSingleQuotedAttribute(`filter-region-value-${groupIdPart}-${getFilterControlIdPart(value)}-${i}`);
-        const escapedValueForAttribute = escapeForSingleQuotedAttribute(value);
-
-        htmlParts.push(
-            '<div class="filter-item">',
-                '<input type="checkbox" id=\'', filterId, '\' value=\'', escapedValueForAttribute, '\' checked class="region-type-filter" data-group=\'', escapedGroupNameForAttribute, '\'>',
-                '<label for=\'', filterId, '\'>', safeValue, '</label>',
-            '</div>'
-        );
+        const normalizedValue = String(values[i] || '');
+        const filterId = `filter-region-value-${groupIdPart}-${getFilterControlIdPart(normalizedValue)}-${i}`;
+        const filterItem = document.createElement('div');
+        filterItem.className = 'filter-item';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = filterId;
+        checkbox.value = normalizedValue;
+        checkbox.checked = true;
+        checkbox.className = 'region-type-filter';
+        checkbox.dataset.group = normalizedGroupName;
+        const label = document.createElement('label');
+        label.htmlFor = filterId;
+        label.textContent = normalizedValue;
+        filterItem.append(checkbox, label);
+        nestedList.appendChild(filterItem);
+        nestedCheckboxes.push(checkbox);
     }
 
-    htmlParts.push('</div>');
-
-    groupContainer.innerHTML = htmlParts.join('');
-    const groupCheckbox = groupContainer.querySelector('.region-group-filter');
-    if (groupCheckbox) {
-        regionGroupNestedCheckboxes.set(groupCheckbox, Array.from(groupContainer.querySelectorAll('.region-type-filter')));
-    }
+    groupContainer.appendChild(nestedList);
+    regionGroupNestedCheckboxes.set(groupCheckbox, nestedCheckboxes);
     return groupContainer;
 }
 
