@@ -2019,7 +2019,9 @@
                 setSelectionStatus('Added detail section.');
             } else if (button.dataset.action === 'remove-detail-section') {
                 event.preventDefault();
+                const label = feature.name || feature.id || 'this feature';
                 const index = Number.parseInt(button.dataset.detailSectionIndex, 10);
+                if (!window.confirm(`Are you sure you want to remove detail section ${index + 1} from ${label}?`)) return;
                 const sections = getDetailSections(feature);
                 if (!Number.isInteger(index) || index < 0 || index >= sections.length) return;
                 sections.splice(index, 1);
