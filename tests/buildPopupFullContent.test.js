@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const appSource = fs.readFileSync('js/app.js', 'utf8');
 
 const escapeStart = appSource.indexOf('function escapeHtml(value) {');
-const escapeEnd = appSource.indexOf('function escapeForSingleQuotedAttribute(value) {');
+const escapeEnd = appSource.indexOf('function sanitizeWikiLinkForHref(value) {');
 
 if (escapeStart === -1 || escapeEnd === -1) {
     throw new Error('Could not locate escapeHtml in js/app.js');

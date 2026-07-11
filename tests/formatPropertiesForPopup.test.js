@@ -10,7 +10,7 @@ if (fnStart === -1 || fnEnd === -1 || fnEnd <= fnStart) {
 }
 
 const escapeStart = appSource.indexOf('function escapeHtml(value) {');
-const escapeEnd = appSource.indexOf('function escapeForSingleQuotedAttribute(value) {');
+const escapeEnd = appSource.indexOf('function sanitizeWikiLinkForHref(value) {');
 
 if (escapeStart === -1 || escapeEnd === -1) {
     throw new Error('Could not locate escapeHtml function in js/app.js');

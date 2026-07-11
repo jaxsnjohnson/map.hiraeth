@@ -4,7 +4,6 @@ const fs = require('node:fs');
 const appSource = fs.readFileSync('js/app.js', 'utf8');
 const formatStart = appSource.indexOf('function formatPropertiesForPopup(properties, hasFollowingDescription) {');
 const sanitizeStart = appSource.indexOf('function escapeHtml(value) {');
-const escapeStart = appSource.indexOf('function escapeForSingleQuotedAttribute(value) {');
 const wikiLinkStart = appSource.indexOf('function sanitizeWikiLinkForHref(value) {');
 const resolveStart = appSource.indexOf('function resolveLinkedMapData(featureData) {');
 const popupStart = appSource.indexOf('function createPopupContent(data, type) {');
@@ -13,7 +12,6 @@ const popupEnd = appSource.indexOf('// --- Auto-generate a reverse map for quick
 if (
     formatStart === -1 ||
     sanitizeStart === -1 ||
-    escapeStart === -1 ||
     wikiLinkStart === -1 ||
     resolveStart === -1 ||
     popupStart === -1 ||
@@ -23,8 +21,7 @@ if (
 }
 
 const formatSource = appSource.slice(formatStart, sanitizeStart);
-const sanitizeSource = appSource.slice(sanitizeStart, escapeStart);
-const escapeSource = appSource.slice(escapeStart, wikiLinkStart);
+const sanitizeSource = appSource.slice(sanitizeStart, wikiLinkStart);
 const wikiLinkSource = appSource.slice(wikiLinkStart, resolveStart);
 const popupSource = appSource.slice(popupStart, popupEnd);
 
@@ -37,8 +34,6 @@ function resolveLinkedMapData() {
 eval(formatSource);
 // eslint-disable-next-line no-eval
 eval(sanitizeSource);
-// eslint-disable-next-line no-eval
-eval(escapeSource);
 // eslint-disable-next-line no-eval
 eval(wikiLinkSource);
 // eslint-disable-next-line no-eval
@@ -58,9 +53,10 @@ assert.ok(
 );
 
 assert.ok(
-    popupHtml.includes(`onclick="copyFeatureLink(this, 'poi', 'Old &lt;Lin&gt; &quot;Watch&quot; O\\\\Brien')"`),
-    'share link handler argument should preserve backslashes safely'
+    popupHtml.includes(`data-popup-action="share-feature" data-feature-type="poi" data-feature-name="Old &lt;Lin&gt; &quot;Watch&quot; O\\Brien"`),
+    'share action data should preserve backslashes safely'
 );
+assert.ok(!popupHtml.includes('onclick='), 'popup actions should not use inline JavaScript');
 
 const unsafeHtml = createPopupContent(
     {
