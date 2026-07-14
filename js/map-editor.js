@@ -1310,29 +1310,36 @@
         const currentLocation = currentMap ? findNodeLocation(state.atlasTree, currentMap.id) : null;
 
         const inputs = dom.mapSettingsInputs;
-        if (inputs.name) inputs.name.value = currentMap?.name || '';
-        if (inputs.type) inputs.type.value = currentMap?.type || '';
-        if (inputs.status) inputs.status.value = currentMap?.status || '';
-        if (inputs.visibility) inputs.visibility.value = currentMap?.visibility || '';
-        if (inputs.group) inputs.group.value = currentMap?.group || currentMap?.category || '';
-        if (inputs.dataUrl) inputs.dataUrl.value = currentMap?.dataUrl || '';
-        if (inputs.order) inputs.order.value = currentLocation ? currentLocation.index : 0;
-        if (inputs.imageUrl) inputs.imageUrl.value = currentMap?.imageUrl || '';
-        if (inputs.mobileImageUrl) inputs.mobileImageUrl.value = currentMap?.mobileImageUrl || '';
-        if (inputs.smallImageUrl) inputs.smallImageUrl.value = currentMap?.smallImageUrl || '';
-        if (inputs.width) inputs.width.value = currentMap?.width ?? '';
-        if (inputs.height) inputs.height.value = currentMap?.height ?? '';
-        if (inputs.scalePixels) inputs.scalePixels.value = currentMap?.scalePixels ?? '';
-        if (inputs.scaleKilometers) inputs.scaleKilometers.value = currentMap?.scaleKilometers ?? '';
-        if (inputs.scaleUnitName) inputs.scaleUnitName.value = currentMap?.scaleUnitName || '';
-        if (inputs.backgroundColor) inputs.backgroundColor.value = currentMap?.backgroundColor || '';
-        if (inputs.atmosphere) inputs.atmosphere.value = currentMap?.atmosphere || '';
-        if (inputs.latNorth) inputs.latNorth.value = currentMap?.latLonBounds?.north ?? '';
-        if (inputs.latSouth) inputs.latSouth.value = currentMap?.latLonBounds?.south ?? '';
-        if (inputs.latEast) inputs.latEast.value = currentMap?.latLonBounds?.east ?? '';
-        if (inputs.latWest) inputs.latWest.value = currentMap?.latLonBounds?.west ?? '';
-        if (inputs.blurb) inputs.blurb.value = currentMap?.blurb || '';
-        if (inputs.selectorDescription) inputs.selectorDescription.value = currentMap?.selectorDescription || '';
+
+        const fieldMappings = {
+            name: currentMap?.name || '',
+            type: currentMap?.type || '',
+            status: currentMap?.status || '',
+            visibility: currentMap?.visibility || '',
+            group: currentMap?.group || currentMap?.category || '',
+            dataUrl: currentMap?.dataUrl || '',
+            order: currentLocation ? currentLocation.index : 0,
+            imageUrl: currentMap?.imageUrl || '',
+            mobileImageUrl: currentMap?.mobileImageUrl || '',
+            smallImageUrl: currentMap?.smallImageUrl || '',
+            width: currentMap?.width ?? '',
+            height: currentMap?.height ?? '',
+            scalePixels: currentMap?.scalePixels ?? '',
+            scaleKilometers: currentMap?.scaleKilometers ?? '',
+            scaleUnitName: currentMap?.scaleUnitName || '',
+            backgroundColor: currentMap?.backgroundColor || '',
+            atmosphere: currentMap?.atmosphere || '',
+            latNorth: currentMap?.latLonBounds?.north ?? '',
+            latSouth: currentMap?.latLonBounds?.south ?? '',
+            latEast: currentMap?.latLonBounds?.east ?? '',
+            latWest: currentMap?.latLonBounds?.west ?? '',
+            blurb: currentMap?.blurb || '',
+            selectorDescription: currentMap?.selectorDescription || ''
+        };
+
+        for (const [key, value] of Object.entries(fieldMappings)) {
+            if (inputs[key]) inputs[key].value = value;
+        }
 
         const parentSelect = inputs.parentIdSelect;
         const options = buildParentOptions();
