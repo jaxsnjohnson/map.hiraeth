@@ -1251,44 +1251,48 @@ function resolveControlVisibilityState({
 } = {}) {
     const featureEnabled = (name, fallbackValue = true) =>
         (typeof getFeatureFlag === 'function') ? getFeatureFlag(name, fallbackValue) : fallbackValue;
+
+    // Core feature availability
     const showMarkers = hasPOIs || hasRegions;
     const showSearch = featureEnabled('atlasSearch', true) && (hasPOIs || hasRegions || hasRoads || atlasSearchCount > 0);
     const showFilters = featureEnabled('filters', true) && (hasPOIs || hasRegions || hasRoads);
-    const showAdvanced = advancedControls && !isEmbedded;
-    const showMobileSheet = isMobileLayout && !isEmbedded;
-    const showMobileCoreUtility = showMobileSheet;
-    const showMobileGM = showMobileSheet && allowGMToolkit && featureEnabled('gmMode', false);
-    const showMobileToolkit = showMobileSheet && allowGMToolkit && featureEnabled('sessionToolkit', false);
+    const hasGM = allowGMToolkit && featureEnabled('gmMode', false);
+    const hasToolkit = allowGMToolkit && featureEnabled('sessionToolkit', false);
+
+    // Layout contexts
+    const isDesktop = !isMobileLayout;
+    const isMobileSheet = isMobileLayout && !isEmbedded;
+    const showDesktopAdvanced = advancedControls && !isEmbedded && isDesktop;
 
     return {
-        showMarkersButton: showMarkers && !isMobileLayout,
+        showMarkersButton: isDesktop && showMarkers,
         showSearchControl: showSearch,
-        showMobileSheetToggle: showMobileSheet,
-        showMobileToolsToggle: showMobileCoreUtility,
-        showFiltersButton: showFilters && !isMobileLayout,
+        showMobileSheetToggle: isMobileSheet,
+        showMobileToolsToggle: isMobileSheet,
+        showFiltersButton: isDesktop && showFilters,
         showSearchFilterAction: showFilters,
-        showMeasureButton: showAdvanced && hasValidScale && !isMobileLayout,
-        showSoundButton: featureEnabled('sound', true) && showAdvanced && !isMobileLayout,
-        showBlurbButton: showAdvanced && hasBlurb && !isMobileLayout,
-        showCoordsButton: featureEnabled('coordinates', true) && showAdvanced && hasLatLonBounds && !isMobileLayout,
-        showShareButton: featureEnabled('shareLinks', true) && showAdvanced && !isMobileLayout,
-        showGMButton: featureEnabled('gmMode', false) && showAdvanced && allowGMToolkit && !isMobileLayout,
-        showToolkitButton: featureEnabled('sessionToolkit', false) && showAdvanced && allowGMToolkit && !isMobileLayout,
-        showToolkitPanel: featureEnabled('sessionToolkit', false) && allowGMToolkit && toolkitVisible && !isMobileLayout,
-        showGMPill: featureEnabled('gmMode', false) && allowGMToolkit && gmVisible && !isMobileLayout,
-        showMobileExploreMode: showMobileSheet,
-        showMobileMapMode: showMobileSheet,
-        showMobileMapList: showMobileSheet,
-        showMobileMoreSection: showMobileCoreUtility,
-        showMobileMarkersAction: showMobileCoreUtility && showMarkers,
-        showMobileFiltersAction: showMobileCoreUtility && showFilters,
-        showMobileMeasureAction: showMobileCoreUtility && hasValidScale,
-        showMobileShareAction: featureEnabled('shareLinks', true) && showMobileCoreUtility,
-        showMobileSoundAction: featureEnabled('sound', true) && showMobileCoreUtility,
-        showMobileCoordsAction: featureEnabled('coordinates', true) && showMobileCoreUtility && hasLatLonBounds,
-        showMobileHelpAction: showMobileCoreUtility,
-        showMobileGMAction: showMobileGM,
-        showMobileToolkitAction: showMobileToolkit,
+        showMeasureButton: showDesktopAdvanced && hasValidScale,
+        showSoundButton: showDesktopAdvanced && featureEnabled('sound', true),
+        showBlurbButton: showDesktopAdvanced && hasBlurb,
+        showCoordsButton: showDesktopAdvanced && hasLatLonBounds && featureEnabled('coordinates', true),
+        showShareButton: showDesktopAdvanced && featureEnabled('shareLinks', true),
+        showGMButton: showDesktopAdvanced && hasGM,
+        showToolkitButton: showDesktopAdvanced && hasToolkit,
+        showToolkitPanel: isDesktop && hasToolkit && toolkitVisible,
+        showGMPill: isDesktop && hasGM && gmVisible,
+        showMobileExploreMode: isMobileSheet,
+        showMobileMapMode: isMobileSheet,
+        showMobileMapList: isMobileSheet,
+        showMobileMoreSection: isMobileSheet,
+        showMobileMarkersAction: isMobileSheet && showMarkers,
+        showMobileFiltersAction: isMobileSheet && showFilters,
+        showMobileMeasureAction: isMobileSheet && hasValidScale,
+        showMobileShareAction: isMobileSheet && featureEnabled('shareLinks', true),
+        showMobileSoundAction: isMobileSheet && featureEnabled('sound', true),
+        showMobileCoordsAction: isMobileSheet && hasLatLonBounds && featureEnabled('coordinates', true),
+        showMobileHelpAction: isMobileSheet,
+        showMobileGMAction: isMobileSheet && hasGM,
+        showMobileToolkitAction: isMobileSheet && hasToolkit,
         showMobileMapBlurb: false,
         mobileMarkersDisabled: !showMarkers,
         mobileFiltersDisabled: !showFilters,
@@ -1297,8 +1301,8 @@ function resolveControlVisibilityState({
         mobileSoundDisabled: false,
         mobileCoordsDisabled: !hasLatLonBounds,
         mobileHelpDisabled: false,
-        mobileGMDisabled: !showMobileGM,
-        mobileToolkitDisabled: !showMobileToolkit
+        mobileGMDisabled: !(isMobileSheet && hasGM),
+        mobileToolkitDisabled: !(isMobileSheet && hasToolkit)
     };
 }
 
