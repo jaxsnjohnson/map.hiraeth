@@ -1052,7 +1052,6 @@ const sidebarBackdrop = document.getElementById('sidebar-backdrop');
 const mobileSearchPanel = document.getElementById('mobile-search-card');
 const mobileSearchPanelCloseBtn = document.getElementById('mobile-search-card-close-btn');
 const mobileSearchPanelTitle = document.getElementById('mobile-search-card-title');
-const mobileSearchCard = document.getElementById('mobile-search-card');
 const mobileToolsCard = document.getElementById('mobile-tools-card');
 const mobileToolsCardCloseBtn = document.getElementById('mobile-tools-card-close-btn');
 const mobileToolsPanelSlot = document.getElementById('mobile-tools-panel-slot');
