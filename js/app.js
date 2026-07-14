@@ -1916,40 +1916,51 @@ function syncMobileFilterState() {
     }
 }
 
+function syncMobileDockLauncher(button, {
+    mode,
+    hidden,
+    name,
+    icon,
+    showLabel = false
+}) {
+    if (!button) return;
+    const active = isMobileLayoutActive && isMobileSurfaceMode(mode);
+    const activeState = active ? 'true' : 'false';
+    button.hidden = hidden;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', activeState);
+    button.setAttribute('aria-expanded', activeState);
+    button.setAttribute('aria-label', active ? `Close ${name}` : `Open ${name}`);
+    button.innerHTML = `<i class="ui-icon" data-lucide="${icon}" aria-hidden="true"></i>${showLabel ? `<span class="mobile-fab-label">${name[0].toUpperCase()}${name.slice(1)}</span>` : ''}`;
+}
+
 function syncMobileDockState() {
-    if (mobileDock) {
-        mobileDock.hidden = !isMobileLayoutActive || isEmbeddedView;
-    }
+    const hideMobileDock = !isMobileLayoutActive || isEmbeddedView;
+    if (mobileDock) mobileDock.hidden = hideMobileDock;
+
     const showSearchLauncher = !isEmbeddedView && isMobileLayoutActive && searchControlContainer && searchControlContainer.style.display !== 'none';
-    if (mobileSheetLauncherBtn) {
-        const active = isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_ATLAS);
-        mobileSheetLauncherBtn.hidden = !isMobileLayoutActive || isEmbeddedView;
-        mobileSheetLauncherBtn.classList.toggle('active', active);
-        mobileSheetLauncherBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
-        mobileSheetLauncherBtn.setAttribute('aria-expanded', active ? 'true' : 'false');
-        mobileSheetLauncherBtn.setAttribute('aria-label', active ? 'Close atlas' : 'Open atlas');
-        mobileSheetLauncherBtn.innerHTML = `<i class="ui-icon" data-lucide="chevron-right" aria-hidden="true"></i><span class="mobile-fab-label">Atlas</span>`;
-    }
-    if (mobileSearchLauncherBtn) {
-        const active = isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_SEARCH);
-        mobileSearchLauncherBtn.hidden = !showSearchLauncher;
-        mobileSearchLauncherBtn.classList.toggle('active', active);
-        mobileSearchLauncherBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
-        mobileSearchLauncherBtn.setAttribute('aria-expanded', active ? 'true' : 'false');
-        mobileSearchLauncherBtn.setAttribute('aria-label', active ? 'Close search' : 'Open search');
-        mobileSearchLauncherBtn.innerHTML = `<i class="ui-icon" data-lucide="search" aria-hidden="true"></i><span class="mobile-fab-label">Search</span>`;
-    }
-    if (mobileToolsLauncherBtn) {
-        const active = isMobileLayoutActive && isMobileSurfaceMode(MOBILE_SURFACE_MODE_TOOLS);
-        mobileToolsLauncherBtn.hidden = !isMobileLayoutActive || isEmbeddedView || !hasVisibleMobileToolAction();
-        mobileToolsLauncherBtn.classList.toggle('active', active);
-        mobileToolsLauncherBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
-        mobileToolsLauncherBtn.setAttribute('aria-expanded', active ? 'true' : 'false');
-        mobileToolsLauncherBtn.setAttribute('aria-label', active ? 'Close tools' : 'Open tools');
-        mobileToolsLauncherBtn.innerHTML = `<i class="ui-icon" data-lucide="sliders-horizontal" aria-hidden="true"></i>`;
-    }
+    syncMobileDockLauncher(mobileSheetLauncherBtn, {
+        mode: MOBILE_SURFACE_MODE_ATLAS,
+        hidden: hideMobileDock,
+        name: 'atlas',
+        icon: 'chevron-right',
+        showLabel: true
+    });
+    syncMobileDockLauncher(mobileSearchLauncherBtn, {
+        mode: MOBILE_SURFACE_MODE_SEARCH,
+        hidden: !showSearchLauncher,
+        name: 'search',
+        icon: 'search',
+        showLabel: true
+    });
+    syncMobileDockLauncher(mobileToolsLauncherBtn, {
+        mode: MOBILE_SURFACE_MODE_TOOLS,
+        hidden: hideMobileDock || !hasVisibleMobileToolAction(),
+        name: 'tools',
+        icon: 'sliders-horizontal'
+    });
     if (mobileInfoHelpBtn) {
-        mobileInfoHelpBtn.hidden = !isMobileLayoutActive || isEmbeddedView;
+        mobileInfoHelpBtn.hidden = hideMobileDock;
     }
     refreshLucideIcons();
 }
