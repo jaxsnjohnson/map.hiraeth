@@ -391,13 +391,23 @@
             throw new Error(`Could not resolve full map JSON for "${mapId}": no dataUrl or default path was available.`);
         }
 
-        const failures = [];
-        for (const candidatePath of candidatePaths) {
+        const candidateLoads = candidatePaths.map(async (candidatePath) => {
             try {
-                return await loadFileBackedMapCandidate(candidatePath, fallbackMap, loadJsonByPath);
-            } catch (error) {
-                failures.push(`${candidatePath} (${error?.message || 'Unknown error.'})`);
+                return {
+                    status: 'fulfilled',
+                    value: await loadFileBackedMapCandidate(candidatePath, fallbackMap, loadJsonByPath)
+                };
+            } catch (reason) {
+                return { status: 'rejected', reason };
             }
+        });
+        const failures = [];
+        for (let index = 0; index < candidateLoads.length; index += 1) {
+            const result = await candidateLoads[index];
+            if (result.status === 'fulfilled') {
+                return result.value;
+            }
+            failures.push(`${candidatePaths[index]} (${result.reason?.message || 'Unknown error.'})`);
         }
 
         throw new Error(`Could not resolve full map JSON for "${mapId}": tried ${failures.join('; ')}`);

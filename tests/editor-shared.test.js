@@ -574,6 +574,43 @@ assert.equal(
     );
     assert.equal(dataUrlResolved.pointsOfInterest[0].name, 'Gate');
 
+    let releaseExplicitDataUrl;
+    const explicitDataUrlGate = new Promise((resolve) => {
+        releaseExplicitDataUrl = resolve;
+    });
+    const precedenceRequests = [];
+    const precedenceResolution = resolveFileBackedMapDocument(
+        {
+            id: 'precedence-map',
+            name: 'Precedence Map',
+            imageUrl: 'maps/precedence-map.webp',
+            dataUrl: 'maps/custom-precedence-map.json'
+        },
+        {
+            loadJsonByPath: async (path) => {
+                precedenceRequests.push(path);
+                if (path === 'maps/custom-precedence-map.json') {
+                    await explicitDataUrlGate;
+                    return {
+                        id: 'precedence-map',
+                        pointsOfInterest: [{ name: 'Explicit Gate', coords: [11, 12], type: 'City' }]
+                    };
+                }
+                return {
+                    id: 'precedence-map',
+                    pointsOfInterest: [{ name: 'Default Gate', coords: [13, 14], type: 'City' }]
+                };
+            }
+        }
+    );
+    assert.deepEqual(precedenceRequests, [
+        'maps/custom-precedence-map.json',
+        'maps/precedence-map.json'
+    ]);
+    releaseExplicitDataUrl();
+    const precedenceResolved = await precedenceResolution;
+    assert.equal(precedenceResolved.pointsOfInterest[0].name, 'Explicit Gate');
+
     const fallbackResolved = await resolveFileBackedMapDocument(
         {
             id: 'fallback-map',
