@@ -29,15 +29,25 @@ function extractFunctionSource(name) {
     return appSource.slice(start, end);
 }
 
+function extractConstantSource(name) {
+    const match = appSource.match(new RegExp(`^const ${name} = [^;]+;`, 'm'));
+    if (!match) {
+        throw new Error(`Could not find constant ${name}`);
+    }
+    return match[0];
+}
+
 const clampZoomLevelSource = extractFunctionSource('clampZoomLevel');
 const stepSmoothWheelZoomSource = extractFunctionSource('stepSmoothWheelZoom');
+const smoothWheelConstantsSource = [
+    extractConstantSource('SMOOTH_WHEEL_SETTLE_DELTA'),
+    extractConstantSource('SMOOTH_WHEEL_EASE')
+].join('\n');
 
 function runTest(testFn) {
     const sandbox = {
         console: { log: () => {}, warn: () => {}, error: () => {} },
         Math: Math,
-        SMOOTH_WHEEL_SETTLE_DELTA: 0.002,
-        SMOOTH_WHEEL_EASE: 0.32,
         smoothWheelFrameId: 123,
         map: null,
         smoothWheelTargetZoom: null,
@@ -47,6 +57,7 @@ function runTest(testFn) {
 
     vm.createContext(sandbox);
     vm.runInContext(`
+        ${smoothWheelConstantsSource}
         ${clampZoomLevelSource}
         ${stepSmoothWheelZoomSource}
     `, sandbox);
