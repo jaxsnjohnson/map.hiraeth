@@ -34,6 +34,8 @@ const snippets = [
     extractFunctionSource('createMapPreviewLayer'),
     extractFunctionSource('shouldShowMiniMap'),
     extractFunctionSource('removeMiniMapControl'),
+    extractFunctionSource('getMiniMapDimensions'),
+    extractFunctionSource('applyMiniMapA11yAttributes'),
     extractFunctionSource('syncMiniMapControl')
 ].join('\n');
 

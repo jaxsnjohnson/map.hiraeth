@@ -1579,6 +1579,33 @@ function removeMiniMapControl() {
     miniMapControlMapId = null;
 }
 
+function getMiniMapDimensions(mapWidth, mapHeight, maxMiniMapSize) {
+    if (mapWidth >= mapHeight) {
+        return {
+            miniMapWidth: maxMiniMapSize,
+            miniMapHeight: maxMiniMapSize * (mapHeight / mapWidth)
+        };
+    }
+    return {
+        miniMapHeight: maxMiniMapSize,
+        miniMapWidth: maxMiniMapSize * (mapWidth / mapHeight)
+    };
+}
+
+function applyMiniMapA11yAttributes(control) {
+    const miniMapElement = typeof control.getContainer === 'function'
+        ? control.getContainer()
+        : control._container;
+    if (miniMapElement) {
+        miniMapElement.setAttribute('role', 'region');
+        miniMapElement.setAttribute('aria-label', 'Map overview');
+        const toggleDisplayButton = miniMapElement.querySelector('.leaflet-control-minimap-toggle-display');
+        if (toggleDisplayButton) {
+            toggleDisplayButton.setAttribute('aria-label', 'Toggle map overview');
+        }
+    }
+}
+
 function syncMiniMapControl() {
     if (!shouldShowMiniMap()) {
         removeMiniMapControl();
@@ -1611,16 +1638,7 @@ function syncMiniMapControl() {
         : 132;
     const maxMiniMapSize = isMobileLayoutActive ? Math.min(132, viewportLimit) : 200;
     const miniMapLayer = L.imageOverlay(miniMapImageUrl, currentBounds);
-    let miniMapWidth;
-    let miniMapHeight;
-
-    if (mapWidth >= mapHeight) {
-        miniMapWidth = maxMiniMapSize;
-        miniMapHeight = maxMiniMapSize * (mapHeight / mapWidth);
-    } else {
-        miniMapHeight = maxMiniMapSize;
-        miniMapWidth = maxMiniMapSize * (mapWidth / mapHeight);
-    }
+    const { miniMapWidth, miniMapHeight } = getMiniMapDimensions(mapWidth, mapHeight, maxMiniMapSize);
 
     const maxDim = Math.max(mapHeight, mapWidth);
     const miniMapZoom = Math.log2(maxMiniMapSize / maxDim);
@@ -1636,17 +1654,9 @@ function syncMiniMapControl() {
         shadowRectOptions: { color: '#000000', weight: 1, clickable: false, opacity: 0, fillOpacity: 0 },
         mapOptions: { minZoom: -100, crs: L.CRS.Simple, zoomSnap: 0, zoomDelta: 0 }
     }).addTo(map);
-    const miniMapElement = typeof miniMapControl.getContainer === 'function'
-        ? miniMapControl.getContainer()
-        : miniMapControl._container;
-    if (miniMapElement) {
-        miniMapElement.setAttribute('role', 'region');
-        miniMapElement.setAttribute('aria-label', 'Map overview');
-        const toggleDisplayButton = miniMapElement.querySelector('.leaflet-control-minimap-toggle-display');
-        if (toggleDisplayButton) {
-            toggleDisplayButton.setAttribute('aria-label', 'Toggle map overview');
-        }
-    }
+
+    applyMiniMapA11yAttributes(miniMapControl);
+
     miniMapControlMode = nextMode;
     miniMapControlMapId = nextMapId;
 }
