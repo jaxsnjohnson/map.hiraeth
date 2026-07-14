@@ -31,12 +31,19 @@ function extractFunctionSource(name) {
     return appJsCode.slice(start, end);
 }
 
+function extractConstantSource(name) {
+    const match = appJsCode.match(new RegExp(`^const ${name} = [^;]+;`, 'm'));
+    if (!match) {
+        throw new Error(`Could not find constant ${name}`);
+    }
+    return match[0];
+}
+
 const functionSource = extractFunctionSource('normalizeWheelDelta');
-// Extract the constants required by the function
-const constantsSource = `
-const WHEEL_DELTA_LINE_HEIGHT = 16;
-const WHEEL_DELTA_PAGE_HEIGHT = 240;
-`;
+const constantsSource = [
+    extractConstantSource('WHEEL_DELTA_LINE_HEIGHT'),
+    extractConstantSource('WHEEL_DELTA_PAGE_HEIGHT')
+].join('\n');
 
 const sandbox = {
     window: { innerHeight: 1000 },
