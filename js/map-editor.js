@@ -1113,23 +1113,15 @@
         return `${name || `POI ${index + 1}`} marker`;
     }
 
-    function renderFeatureInspector() {
-        const feature = getSelectedFeature();
-        dom.featureForm.innerHTML = '';
+    function setFeatureFormValues(values) {
+        Object.entries(values).forEach(([field, value]) => {
+            dom.featureForm.querySelector(`[data-field="${field}"]`).value = value;
+        });
+    }
 
-        if (!feature) {
-            dom.featureForm.hidden = true;
-            dom.featureFormEmpty.hidden = false;
-            dom.selectedFeatureChip.textContent = 'None';
-            return;
-        }
-
-        dom.featureForm.hidden = false;
-        dom.featureFormEmpty.hidden = true;
-
-        if (state.selectedFeature.mode === 'points') {
-            dom.selectedFeatureChip.textContent = 'POI';
-            dom.featureForm.innerHTML = `
+    function renderPointFeatureInspector(feature) {
+        dom.selectedFeatureChip.textContent = 'POI';
+        dom.featureForm.innerHTML = `
                 <label>Name<input data-field="name" type="text"></label>
                 <label>Pronunciation<input data-field="pronunciation" type="text"></label>
                 <label>Type<input data-field="type" type="text"></label>
@@ -1154,22 +1146,26 @@
                     <label>Properties JSON<textarea data-field="properties" rows="5"></textarea></label>
                 </details>
             `;
-            dom.featureForm.querySelector('[data-field="name"]').value = feature.name || '';
-            dom.featureForm.querySelector('[data-field="pronunciation"]').value = feature.pronunciation || '';
-            dom.featureForm.querySelector('[data-field="type"]').value = feature.type || '';
-            dom.featureForm.querySelector('[data-field="summary"]').value = feature.summary || '';
-            dom.featureForm.querySelector('[data-field="description"]').value = feature.description || '';
-            dom.featureForm.querySelector('[data-field="propertiesText"]').value = stringifyKeyFacts(feature.properties || {});
-            dom.featureForm.querySelector('[data-field="tags"]').value = stringifyTags(feature.tags || []);
-            renderDetailSectionControls(feature);
-            dom.featureForm.querySelector('[data-field="wikiLink"]').value = feature.wikiLink || '';
-            dom.featureForm.querySelector('[data-field="linkedMapId"]').value = feature.linkedMapId || '';
-            dom.featureForm.querySelector('[data-field="coordY"]').value = feature.coords?.[0] ?? '';
-            dom.featureForm.querySelector('[data-field="coordX"]').value = feature.coords?.[1] ?? '';
-            dom.featureForm.querySelector('[data-field="properties"]').value = JSON.stringify(feature.properties || {}, null, 2);
-        } else if (state.selectedFeature.mode === 'regions') {
-            dom.selectedFeatureChip.textContent = 'Region';
-            dom.featureForm.innerHTML = `
+        setFeatureFormValues({
+            name: feature.name || '',
+            pronunciation: feature.pronunciation || '',
+            type: feature.type || '',
+            summary: feature.summary || '',
+            description: feature.description || '',
+            propertiesText: stringifyKeyFacts(feature.properties || {}),
+            tags: stringifyTags(feature.tags || []),
+            wikiLink: feature.wikiLink || '',
+            linkedMapId: feature.linkedMapId || '',
+            coordY: feature.coords?.[0] ?? '',
+            coordX: feature.coords?.[1] ?? '',
+            properties: JSON.stringify(feature.properties || {}, null, 2)
+        });
+        renderDetailSectionControls(feature);
+    }
+
+    function renderRegionFeatureInspector(feature) {
+        dom.selectedFeatureChip.textContent = 'Region';
+        dom.featureForm.innerHTML = `
                 <label>ID<input data-field="id" type="text"></label>
                 <label>Name<input data-field="name" type="text"></label>
                 <label>Type<input data-field="type" type="text"></label>
@@ -1186,22 +1182,26 @@
                 <label>Coordinates<textarea class="map-editor-coordinates" data-field="coordinates" rows="7"></textarea></label>
                 <label>Properties JSON<textarea data-field="properties" rows="5"></textarea></label>
             `;
-            dom.featureForm.querySelector('[data-field="id"]').value = feature.id || '';
-            dom.featureForm.querySelector('[data-field="name"]').value = feature.name || '';
-            dom.featureForm.querySelector('[data-field="type"]').value = feature.type || '';
-            dom.featureForm.querySelector('[data-field="value"]').value = feature.value || '';
-            dom.featureForm.querySelector('[data-field="summary"]').value = feature.summary || '';
-            dom.featureForm.querySelector('[data-field="description"]').value = feature.description || '';
-            dom.featureForm.querySelector('[data-field="wikiLink"]').value = feature.wikiLink || '';
-            dom.featureForm.querySelector('[data-field="linkedMapId"]').value = feature.linkedMapId || '';
-            dom.featureForm.querySelector('[data-field="color"]').value = feature.color || '';
-            dom.featureForm.querySelector('[data-field="fillColor"]').value = feature.fillColor || '';
-            dom.featureForm.querySelector('[data-field="fillOpacity"]').value = feature.fillOpacity ?? '';
-            dom.featureForm.querySelector('[data-field="coordinates"]').value = stringifyCoordinates(feature.coordinates || []);
-            dom.featureForm.querySelector('[data-field="properties"]').value = JSON.stringify(feature.properties || {}, null, 2);
-        } else {
-            dom.selectedFeatureChip.textContent = 'Line';
-            dom.featureForm.innerHTML = `
+        setFeatureFormValues({
+            id: feature.id || '',
+            name: feature.name || '',
+            type: feature.type || '',
+            value: feature.value || '',
+            summary: feature.summary || '',
+            description: feature.description || '',
+            wikiLink: feature.wikiLink || '',
+            linkedMapId: feature.linkedMapId || '',
+            color: feature.color || '',
+            fillColor: feature.fillColor || '',
+            fillOpacity: feature.fillOpacity ?? '',
+            coordinates: stringifyCoordinates(feature.coordinates || []),
+            properties: JSON.stringify(feature.properties || {}, null, 2)
+        });
+    }
+
+    function renderLineFeatureInspector(feature) {
+        dom.selectedFeatureChip.textContent = 'Line';
+        dom.featureForm.innerHTML = `
                 <label>ID<input data-field="id" type="text"></label>
                 <label>Name<input data-field="name" type="text"></label>
                 <label>Type<input data-field="type" type="text"></label>
@@ -1217,19 +1217,42 @@
                 <label>Coordinates<textarea class="map-editor-coordinates" data-field="coordinates" rows="7"></textarea></label>
                 <label>Properties JSON<textarea data-field="properties" rows="5"></textarea></label>
             `;
-            dom.featureForm.querySelector('[data-field="id"]').value = feature.id || '';
-            dom.featureForm.querySelector('[data-field="name"]').value = feature.name || '';
-            dom.featureForm.querySelector('[data-field="type"]').value = feature.type || '';
-            dom.featureForm.querySelector('[data-field="summary"]').value = feature.summary || '';
-            dom.featureForm.querySelector('[data-field="description"]').value = feature.description || '';
-            dom.featureForm.querySelector('[data-field="wikiLink"]').value = feature.wikiLink || '';
-            dom.featureForm.querySelector('[data-field="linkedMapId"]').value = feature.linkedMapId || '';
-            dom.featureForm.querySelector('[data-field="color"]').value = feature.color || '';
-            dom.featureForm.querySelector('[data-field="weight"]').value = feature.weight ?? '';
-            dom.featureForm.querySelector('[data-field="dashArray"]').value = feature.dashArray || '';
-            dom.featureForm.querySelector('[data-field="coordinates"]').value = stringifyCoordinates(feature.coordinates || []);
-            dom.featureForm.querySelector('[data-field="properties"]').value = JSON.stringify(feature.properties || {}, null, 2);
+        setFeatureFormValues({
+            id: feature.id || '',
+            name: feature.name || '',
+            type: feature.type || '',
+            summary: feature.summary || '',
+            description: feature.description || '',
+            wikiLink: feature.wikiLink || '',
+            linkedMapId: feature.linkedMapId || '',
+            color: feature.color || '',
+            weight: feature.weight ?? '',
+            dashArray: feature.dashArray || '',
+            coordinates: stringifyCoordinates(feature.coordinates || []),
+            properties: JSON.stringify(feature.properties || {}, null, 2)
+        });
+    }
+
+    function renderFeatureInspector() {
+        const feature = getSelectedFeature();
+        dom.featureForm.innerHTML = '';
+
+        if (!feature) {
+            dom.featureForm.hidden = true;
+            dom.featureFormEmpty.hidden = false;
+            dom.selectedFeatureChip.textContent = 'None';
+            return;
         }
+
+        dom.featureForm.hidden = false;
+        dom.featureFormEmpty.hidden = true;
+
+        const renderInspector = {
+            points: renderPointFeatureInspector,
+            regions: renderRegionFeatureInspector,
+            lines: renderLineFeatureInspector
+        }[state.selectedFeature.mode] || renderLineFeatureInspector;
+        renderInspector(feature);
     }
 
     function updateSelectedFeatureFromForm(event) {
