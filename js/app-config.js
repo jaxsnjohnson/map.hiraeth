@@ -599,7 +599,7 @@
         if (!baseUrl) return value;
         try {
             return new URL(value, baseUrl).href;
-        } catch (error) {
+        } catch {
             return value;
         }
     }
