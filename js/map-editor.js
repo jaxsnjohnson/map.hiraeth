@@ -824,16 +824,55 @@
         return `${points} POIs, ${regions} regions, ${lines} lines`;
     }
 
+    function getFeatureItems(type) {
+        if (type === 'points') return getCurrentPoints();
+        if (type === 'regions') return getCurrentRegions();
+        if (type === 'lines') return getCurrentLines();
+        return [];
+    }
+
+    function getFeatureItemMetaShort(type, item) {
+        if (type === 'points') return item.type || 'Point';
+        if (type === 'regions') return item.value || item.type || 'Region';
+        return item.type || 'Line';
+    }
+
+    function getFeatureItemMetaFull(type, item) {
+        const shortMeta = getFeatureItemMetaShort(type, item);
+        if (type === 'points') {
+            const coordsStr = Array.isArray(item.coords) ? item.coords.join(', ') : 'No coords';
+            return `${shortMeta} - ${coordsStr}`;
+        }
+        const verticesCount = Array.isArray(item.coordinates) ? item.coordinates.length : 0;
+        return `${shortMeta} - ${verticesCount} vertices`;
+    }
+
+    function createFeatureButton(type, item, index, label, metaFull) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'map-editor-feature-entry';
+
+        if (state.selectedFeature && state.selectedFeature.mode === type && state.selectedFeature.index === index) {
+            button.classList.add('active');
+        }
+
+        button.textContent = label;
+        const metaSpan = document.createElement('span');
+        metaSpan.className = 'map-editor-feature-meta';
+        metaSpan.textContent = metaFull;
+        button.appendChild(metaSpan);
+
+        button.addEventListener('click', () => selectFeature(type, index));
+        return button;
+    }
+
     function renderFeatureLists() {
         const { type, searchQuery, expanded, defaultLimit } = state.featureListState;
         dom.featureTypeSelect.value = type;
         dom.unifiedFeatureList.innerHTML = '';
         dom.featureShowMoreButton.hidden = true;
 
-        let items = [];
-        if (type === 'points') items = getCurrentPoints();
-        else if (type === 'regions') items = getCurrentRegions();
-        else if (type === 'lines') items = getCurrentLines();
+        const items = getFeatureItems(type);
 
         if (!Array.isArray(items) || items.length === 0) {
             dom.unifiedFeatureList.innerHTML = '<p class="map-editor-placeholder">No entries yet.</p>';
@@ -851,33 +890,17 @@
         for (let index = 0; index < items.length; index++) {
             const item = items[index];
             const label = item.name || item.id || `${type.slice(0, -1)} ${index + 1}`;
-            let meta = type === 'points' ? (item.type || 'Point') : (type === 'regions' ? (item.value || item.type || 'Region') : (item.type || 'Line'));
+            const metaShort = getFeatureItemMetaShort(type, item);
 
-            if (query) {
-                if (!label.toLowerCase().includes(query) && !meta.toLowerCase().includes(query)) continue;
+            if (query && !label.toLowerCase().includes(query) && !metaShort.toLowerCase().includes(query)) {
+                continue;
             }
 
             filteredCount++;
             if (filteredCount > limit && !expanded) continue;
 
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'map-editor-feature-entry';
-            if (state.selectedFeature && state.selectedFeature.mode === type && state.selectedFeature.index === index) {
-                button.classList.add('active');
-            }
-
-            meta = type === 'points'
-                ? `${item.type || 'Point'} - ${Array.isArray(item.coords) ? item.coords.join(', ') : 'No coords'}`
-                : `${type === 'regions' ? (item.value || item.type || 'Region') : (item.type || 'Line')} - ${(Array.isArray(item.coordinates) ? item.coordinates.length : 0)} vertices`;
-
-            button.textContent = label;
-            const metaSpan = document.createElement('span');
-            metaSpan.className = 'map-editor-feature-meta';
-            metaSpan.textContent = meta;
-            button.appendChild(metaSpan);
-
-            button.addEventListener('click', () => selectFeature(type, index));
+            const metaFull = getFeatureItemMetaFull(type, item);
+            const button = createFeatureButton(type, item, index, label, metaFull);
             fragment.appendChild(button);
         }
 
