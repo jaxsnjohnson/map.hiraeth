@@ -649,17 +649,6 @@
         if (element && value !== undefined) element.textContent = value;
     }
 
-    function setHtml(documentRef, selector, value) {
-        const element = documentRef && documentRef.querySelector(selector);
-        if (element && value !== undefined) {
-            if (typeof DOMPurify !== 'undefined') {
-                element.innerHTML = DOMPurify.sanitize(value);
-            } else {
-                element.textContent = value;
-            }
-        }
-    }
-
     function hydrateBottomLinks(documentRef) {
         const bar = documentRef && documentRef.getElementById('bottom-link-bar');
         if (!bar || !Array.isArray(activeConfig.copy.bottomLinks)) return;
