@@ -1451,16 +1451,13 @@ function syncSidebarInteractionState() {
     sidebar.setAttribute('aria-hidden', hidden ? 'true' : 'false');
 }
 
-function openMobileSheet({ mode = MOBILE_SURFACE_MODE_SEARCH, focusSearch = false, triggerButton = null, toolsPanelMode = null } = {}) {
-    if (!isMobileLayoutActive) return;
-    if (featureDetailSheetOpen) {
-        closeFeatureDetailSheet({ restoreFocus: false });
-    }
-    const nextMode = normalizeMobileSurfaceMode(mode);
-    if (nextMode === MOBILE_SURFACE_MODE_SEARCH && (!searchControlContainer || searchControlContainer.style.display === 'none')) {
-        return;
-    }
-    mobileSurfaceMode = nextMode;
+function isMobileSheetModeAvailable(mode) {
+    return mode !== MOBILE_SURFACE_MODE_SEARCH ||
+        !!(searchControlContainer && searchControlContainer.style.display !== 'none');
+}
+
+function applyMobileSheetMode(mode, { triggerButton = null, toolsPanelMode = null } = {}) {
+    mobileSurfaceMode = mode;
     if (triggerButton) {
         lastMobileSurfaceTriggerButton = triggerButton;
     }
@@ -1468,26 +1465,38 @@ function openMobileSheet({ mode = MOBILE_SURFACE_MODE_SEARCH, focusSearch = fals
         setMapBlurbVisible(false);
     }
     setSearchScope(currentSearchScope);
-    if (nextMode === MOBILE_SURFACE_MODE_ATLAS) {
+    if (mode === MOBILE_SURFACE_MODE_ATLAS) {
         setSidebarState('o', false);
     } else if (container && !container.classList.contains('sidebar-collapsed')) {
         setSidebarState('c', false);
     }
-    if (nextMode === MOBILE_SURFACE_MODE_TOOLS) {
-        setMobileToolsPanelMode(toolsPanelMode || mobileToolsPanelMode);
-    } else {
-        setMobileToolsPanelMode(null);
-    }
+    setMobileToolsPanelMode(
+        mode === MOBILE_SURFACE_MODE_TOOLS ? toolsPanelMode || mobileToolsPanelMode : null
+    );
     syncMobileSearchPanelState();
     syncMobileExploreVisibility();
     syncSidebarBackdropState();
-    if (focusSearch && nextMode === MOBILE_SURFACE_MODE_SEARCH && poiSearchInput) {
+}
+
+function focusMobileSheet(mode, focusSearch) {
+    if (focusSearch && mode === MOBILE_SURFACE_MODE_SEARCH && poiSearchInput) {
         poiSearchInput.focus({ preventScroll: true });
-    } else if (nextMode === MOBILE_SURFACE_MODE_ATLAS && mobileAtlasCloseBtn) {
+    } else if (mode === MOBILE_SURFACE_MODE_ATLAS && mobileAtlasCloseBtn) {
         mobileAtlasCloseBtn.focus({ preventScroll: true });
-    } else if (nextMode === MOBILE_SURFACE_MODE_TOOLS && mobileToolsCardCloseBtn) {
+    } else if (mode === MOBILE_SURFACE_MODE_TOOLS && mobileToolsCardCloseBtn) {
         mobileToolsCardCloseBtn.focus({ preventScroll: true });
     }
+}
+
+function openMobileSheet({ mode = MOBILE_SURFACE_MODE_SEARCH, focusSearch = false, triggerButton = null, toolsPanelMode = null } = {}) {
+    if (!isMobileLayoutActive) return;
+    if (featureDetailSheetOpen) {
+        closeFeatureDetailSheet({ restoreFocus: false });
+    }
+    const nextMode = normalizeMobileSurfaceMode(mode);
+    if (!isMobileSheetModeAvailable(nextMode)) return;
+    applyMobileSheetMode(nextMode, { triggerButton, toolsPanelMode });
+    focusMobileSheet(nextMode, focusSearch);
 }
 
 function closeMobileSheet({ restoreFocus = false } = {}) {

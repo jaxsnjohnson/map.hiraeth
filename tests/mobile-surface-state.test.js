@@ -275,4 +275,13 @@ global.isMobileLayoutActive = false;
 openMobileSheet({ mode: 'atlas', triggerButton: global.mobileSheetLauncherBtn });
 assert.equal(global.mobileSurfaceMode, null);
 
+global.isMobileLayoutActive = true;
+global.featureDetailSheetOpen = true;
+global.searchControlContainer.style.display = 'none';
+const lastAvailableTrigger = global.lastMobileSurfaceTriggerButton;
+openMobileSheet({ mode: 'search', triggerButton: { focus() {} } });
+assert.equal(global.featureDetailSheetOpen, false);
+assert.equal(global.mobileSurfaceMode, null);
+assert.equal(global.lastMobileSurfaceTriggerButton, lastAvailableTrigger);
+
 console.log('mobile surface state checks passed');
