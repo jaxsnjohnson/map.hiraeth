@@ -474,26 +474,32 @@
         });
     }
 
-    function validateConfig(config) {
-        const candidate = normalizeConfig(config);
-        const errors = [];
-        if (!String(candidate.brand.siteName || '').trim()) errors.push('brand.siteName is required.');
-        if (!String(candidate.brand.description || '').trim()) errors.push('brand.description is required.');
-        if (!String(candidate.assets.version || '').trim()) errors.push('assets.version is required.');
-        if (!Array.isArray(candidate.assets.stylesheets) || candidate.assets.stylesheets.length === 0) errors.push('assets.stylesheets must list at least one stylesheet.');
-        if (!isPlainObject(candidate.assets.poiIcons) || !candidate.assets.poiIcons.Unknown) errors.push('assets.poiIcons.Unknown is required.');
-        if (!isPlainObject(candidate.taxonomy.poiTypeGroups) || !Array.isArray(candidate.taxonomy.poiTypeGroups.Unknown)) errors.push('taxonomy.poiTypeGroups.Unknown must be an array.');
-        validateThemeTokens(candidate.theme.tokens, errors);
-        if (!Number.isFinite(Number(candidate.performance.mobileBreakpoint)) || Number(candidate.performance.mobileBreakpoint) < 320) {
+    function validateBrand(brand, errors) {
+        if (!String(brand.siteName || '').trim()) errors.push('brand.siteName is required.');
+        if (!String(brand.description || '').trim()) errors.push('brand.description is required.');
+    }
+
+    function validateAssets(assets, errors) {
+        if (!String(assets.version || '').trim()) errors.push('assets.version is required.');
+        if (!Array.isArray(assets.stylesheets) || assets.stylesheets.length === 0) errors.push('assets.stylesheets must list at least one stylesheet.');
+        if (!isPlainObject(assets.poiIcons) || !assets.poiIcons.Unknown) errors.push('assets.poiIcons.Unknown is required.');
+    }
+
+    function validateTaxonomy(taxonomy, errors) {
+        if (!isPlainObject(taxonomy.poiTypeGroups) || !Array.isArray(taxonomy.poiTypeGroups.Unknown)) errors.push('taxonomy.poiTypeGroups.Unknown must be an array.');
+    }
+
+    function validatePerformance(performance, errors) {
+        if (!Number.isFinite(Number(performance.mobileBreakpoint)) || Number(performance.mobileBreakpoint) < 320) {
             errors.push('performance.mobileBreakpoint must be a number >= 320.');
         }
-        if (!Number.isFinite(Number(candidate.performance.starCount)) || Number(candidate.performance.starCount) < 0) {
+        if (!Number.isFinite(Number(performance.starCount)) || Number(performance.starCount) < 0) {
             errors.push('performance.starCount must be a non-negative number.');
         }
-        if (!Number.isFinite(Number(candidate.performance.starFps)) || Number(candidate.performance.starFps) <= 0) {
+        if (!Number.isFinite(Number(performance.starFps)) || Number(performance.starFps) <= 0) {
             errors.push('performance.starFps must be a positive number.');
         }
-        const tileAssetRoot = String(candidate.performance.tileAssetRoot || '').trim().replace(/\\/g, '/');
+        const tileAssetRoot = String(performance.tileAssetRoot || '').trim().replace(/\\/g, '/');
         if (!tileAssetRoot ||
             /^(?:[a-z][a-z0-9+.-]*:|\/\/|\/)/i.test(tileAssetRoot) ||
             tileAssetRoot === '..' ||
@@ -501,6 +507,16 @@
             tileAssetRoot.includes('/../')) {
             errors.push('performance.tileAssetRoot must be a safe repository-relative path.');
         }
+    }
+
+    function validateConfig(config) {
+        const candidate = normalizeConfig(config);
+        const errors = [];
+        validateBrand(candidate.brand, errors);
+        validateAssets(candidate.assets, errors);
+        validateTaxonomy(candidate.taxonomy, errors);
+        validateThemeTokens(candidate.theme.tokens, errors);
+        validatePerformance(candidate.performance, errors);
         return errors;
     }
 
