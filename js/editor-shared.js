@@ -391,16 +391,17 @@
             throw new Error(`Could not resolve full map JSON for "${mapId}": no dataUrl or default path was available.`);
         }
 
-        const failures = [];
-        for (const candidatePath of candidatePaths) {
-            try {
+        try {
+            return await Promise.any(candidatePaths.map(async (candidatePath) => {
                 return await loadFileBackedMapCandidate(candidatePath, fallbackMap, loadJsonByPath);
-            } catch (error) {
-                failures.push(`${candidatePath} (${error?.message || 'Unknown error.'})`);
-            }
+            }));
+        } catch (aggregateError) {
+            const failures = candidatePaths.map((candidatePath, index) => {
+                const error = aggregateError.errors[index];
+                return `${candidatePath} (${error?.message || 'Unknown error.'})`;
+            });
+            throw new Error(`Could not resolve full map JSON for "${mapId}": tried ${failures.join('; ')}`);
         }
-
-        throw new Error(`Could not resolve full map JSON for "${mapId}": tried ${failures.join('; ')}`);
     }
 
     function normalizeRepoEntryPath(entry) {
