@@ -2618,6 +2618,51 @@ function initializeResizableWorkspace() {
     }
 }
 
+function updateFeatureDetailSheetDOM(open, floating, docked, mobileExpanded, modal) {
+    if (!featureDetailSheet) return;
+    featureDetailSheet.hidden = !open;
+    featureDetailSheet.classList.toggle('visible', open);
+    featureDetailSheet.classList.toggle('floating', floating);
+    featureDetailSheet.classList.toggle('docked', docked);
+    featureDetailSheet.classList.toggle('expanded', mobileExpanded);
+    featureDetailSheet.setAttribute('aria-hidden', open ? 'false' : 'true');
+    featureDetailSheet.setAttribute('aria-modal', modal ? 'true' : 'false');
+}
+
+function updateFeatureDetailBackdropDOM(mobileExpanded) {
+    if (!featureDetailBackdrop) return;
+    featureDetailBackdrop.hidden = !mobileExpanded;
+    featureDetailBackdrop.classList.toggle('visible', mobileExpanded);
+    featureDetailBackdrop.setAttribute('aria-hidden', mobileExpanded ? 'false' : 'true');
+}
+
+function updateFeatureDetailLayoutBtnDOM() {
+    if (!featureDetailLayoutBtn) return;
+    const pressed = isMobileLayoutActive ? featureDetailSheetExpanded : featureDetailSheetDocked;
+    const label = isMobileLayoutActive
+        ? (featureDetailSheetExpanded ? 'Restore details' : 'Expand details')
+        : (featureDetailSheetDocked ? 'Open as main panel' : 'Dock details to right');
+    const iconMarkup = isMobileLayoutActive
+        ? (featureDetailSheetExpanded
+            ? '<i class="ui-icon" data-lucide="minimize-2" aria-hidden="true"></i>'
+            : '<i class="ui-icon" data-lucide="maximize-2" aria-hidden="true"></i>')
+        : (featureDetailSheetDocked
+            ? '<i class="ui-icon" data-lucide="panel-right-open" aria-hidden="true"></i>'
+            : '<i class="ui-icon" data-lucide="panel-right" aria-hidden="true"></i>');
+    featureDetailLayoutBtn.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+    featureDetailLayoutBtn.setAttribute('aria-label', label);
+    featureDetailLayoutBtn.setAttribute('title', label);
+    featureDetailLayoutBtn.innerHTML = iconMarkup;
+}
+
+function updateContainerDOMClasses(element, open, floating, docked, expanded) {
+    if (!element) return;
+    element.classList.toggle('feature-detail-open', open);
+    element.classList.toggle('feature-detail-floating', floating);
+    element.classList.toggle('feature-detail-docked', docked);
+    element.classList.toggle('feature-detail-expanded', expanded);
+}
+
 function syncFeatureDetailSheetState() {
     const open = featureDetailSheetOpen && !!selectedSidebarFeature;
     if (!open) featureDetailSheetExpanded = false;
@@ -2627,50 +2672,12 @@ function syncFeatureDetailSheetState() {
     const docked = open && !isMobileLayoutActive && featureDetailSheetDocked;
     const modal = mobileExpanded;
 
-    if (featureDetailSheet) {
-        featureDetailSheet.hidden = !open;
-        featureDetailSheet.classList.toggle('visible', open);
-        featureDetailSheet.classList.toggle('floating', floating);
-        featureDetailSheet.classList.toggle('docked', docked);
-        featureDetailSheet.classList.toggle('expanded', mobileExpanded);
-        featureDetailSheet.setAttribute('aria-hidden', open ? 'false' : 'true');
-        featureDetailSheet.setAttribute('aria-modal', modal ? 'true' : 'false');
-    }
-    if (featureDetailBackdrop) {
-        const showBackdrop = mobileExpanded;
-        featureDetailBackdrop.hidden = !showBackdrop;
-        featureDetailBackdrop.classList.toggle('visible', showBackdrop);
-        featureDetailBackdrop.setAttribute('aria-hidden', showBackdrop ? 'false' : 'true');
-    }
-    if (featureDetailLayoutBtn) {
-        const pressed = isMobileLayoutActive ? featureDetailSheetExpanded : featureDetailSheetDocked;
-        const label = isMobileLayoutActive
-            ? (featureDetailSheetExpanded ? 'Restore details' : 'Expand details')
-            : (featureDetailSheetDocked ? 'Open as main panel' : 'Dock details to right');
-        const iconMarkup = isMobileLayoutActive
-            ? (featureDetailSheetExpanded
-                ? '<i class="ui-icon" data-lucide="minimize-2" aria-hidden="true"></i>'
-                : '<i class="ui-icon" data-lucide="maximize-2" aria-hidden="true"></i>')
-            : (featureDetailSheetDocked
-                ? '<i class="ui-icon" data-lucide="panel-right-open" aria-hidden="true"></i>'
-                : '<i class="ui-icon" data-lucide="panel-right" aria-hidden="true"></i>');
-        featureDetailLayoutBtn.setAttribute('aria-pressed', pressed ? 'true' : 'false');
-        featureDetailLayoutBtn.setAttribute('aria-label', label);
-        featureDetailLayoutBtn.setAttribute('title', label);
-        featureDetailLayoutBtn.innerHTML = iconMarkup;
-    }
-    if (container) {
-        container.classList.toggle('feature-detail-open', open);
-        container.classList.toggle('feature-detail-floating', floating);
-        container.classList.toggle('feature-detail-docked', docked);
-        container.classList.toggle('feature-detail-expanded', mobileExpanded);
-    }
-    if (bodyElement) {
-        bodyElement.classList.toggle('feature-detail-open', open);
-        bodyElement.classList.toggle('feature-detail-floating', floating);
-        bodyElement.classList.toggle('feature-detail-docked', docked);
-        bodyElement.classList.toggle('feature-detail-expanded', modal);
-    }
+    updateFeatureDetailSheetDOM(open, floating, docked, mobileExpanded, modal);
+    updateFeatureDetailBackdropDOM(mobileExpanded);
+    updateFeatureDetailLayoutBtnDOM();
+    updateContainerDOMClasses(container, open, floating, docked, mobileExpanded);
+    updateContainerDOMClasses(bodyElement, open, floating, docked, modal);
+
     if (!isMobileLayoutActive) {
         applyFeatureDetailDockedWidth(featureDetailDockedWidth);
         applyAtlasSidebarWidth(atlasSidebarWidth);
