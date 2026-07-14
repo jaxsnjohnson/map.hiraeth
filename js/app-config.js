@@ -19,7 +19,7 @@
 
     function getDefaultAssetsConfig() {
         return {
-                version: '0.1.45',
+                version: '0.1.46',
                 stylesheets: [
                     'css/leaflet.css',
                     'css/style.css',
