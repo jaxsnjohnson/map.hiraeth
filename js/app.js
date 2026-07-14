@@ -51,7 +51,6 @@ let advancedControlsUnlocked = false;
 let coordsDisplayEnabled = false;
 let openAboutModal = null;
 let closeAboutModal = null;
-let isAboutModalVisible = () => false;
 let loadingMapId = null;
 let lastTrackedSearchSignature = '';
 let atlasSearchIndex = [];
@@ -9007,7 +9006,6 @@ function setupKeyboardAndModalLogic() {
 
     openAboutModal = (tabName = 'guide', source = 'manual') => toggleAboutModal(true, tabName, source);
     closeAboutModal = () => toggleAboutModal(false);
-    isAboutModalVisible = () => !!aboutModal && aboutModal.classList.contains('visible');
 
     function switchTab(tabName) {
         tabBtns.forEach(btn => {
