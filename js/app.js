@@ -394,7 +394,7 @@ function getUrlParameters() {
         const normalized = String(value || '').replace(/\+/g, ' ');
         try {
             return decodeURIComponent(normalized);
-        } catch (error) {
+        } catch {
             return normalized;
         }
     };
@@ -479,7 +479,7 @@ function sanitizeWikiLinkForHref(value) {
             return null;
         }
         return parsed.href;
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -1149,7 +1149,7 @@ function escapeRegExp(value) {
 function safeGetStorage(key) {
     try {
         return localStorage.getItem(key);
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -1157,7 +1157,7 @@ function safeGetStorage(key) {
 function safeSetStorage(key, value) {
     try {
         localStorage.setItem(key, value);
-    } catch (error) {
+    } catch {
         // Ignore storage quota and private-mode failures.
     }
 }
@@ -1165,7 +1165,7 @@ function safeSetStorage(key, value) {
 function safeRemoveStorage(key) {
     try {
         localStorage.removeItem(key);
-    } catch (error) {
+    } catch {
         // Ignore storage quota and private-mode failures.
     }
 }
@@ -1173,7 +1173,7 @@ function safeRemoveStorage(key) {
 function safeGetSessionStorage(key) {
     try {
         return sessionStorage.getItem(key);
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -1181,7 +1181,7 @@ function safeGetSessionStorage(key) {
 function safeSetSessionStorage(key, value) {
     try {
         sessionStorage.setItem(key, value);
-    } catch (error) {
+    } catch {
         // Ignore storage quota and private-mode failures.
     }
 }
@@ -1191,7 +1191,7 @@ function safeGetJSON(key, fallback = null) {
     if (!raw) return fallback;
     try {
         return JSON.parse(raw);
-    } catch (error) {
+    } catch {
         return fallback;
     }
 }
@@ -1199,7 +1199,7 @@ function safeGetJSON(key, fallback = null) {
 function safeSetJSON(key, value) {
     try {
         localStorage.setItem(key, JSON.stringify(value));
-    } catch (error) {
+    } catch {
         // Ignore storage quota and private-mode failures.
     }
 }
@@ -3062,7 +3062,7 @@ async function cacheIdleTileBatch(urls) {
             if (!response || !response.ok) return false;
             await response.blob();
             return true;
-        } catch (error) {
+        } catch {
             return false;
         }
     }));
@@ -4526,7 +4526,7 @@ async function prefetchJsonAsset(url) {
     prefetchedJsonUrls.add(normalizedUrl);
     try {
         await fetch(normalizedUrl, { credentials: 'same-origin' });
-    } catch (error) {
+    } catch {
         prefetchedJsonUrls.delete(normalizedUrl);
     }
 }
@@ -6279,7 +6279,7 @@ function canUseNativeShare(shareUrl) {
     if (typeof navigator.canShare === 'function') {
         try {
             return navigator.canShare({ url: shareUrl });
-        } catch (error) {
+        } catch {
             return false;
         }
     }
