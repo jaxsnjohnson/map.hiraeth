@@ -1051,15 +1051,19 @@
         return feature.detailSections;
     }
 
+    // ⚡ Bolt: Replaced chained array methods (.map, .filter, Array.from) with for loops to eliminate redundant array allocations during feature serialization and DOM parsing
     function getDetailSectionsFromForm() {
-        return Array.from(dom.featureForm.querySelectorAll('[data-detail-section-row]'))
-            .map((row) => {
-                const heading = row.querySelector('[data-detail-section-field="heading"]')?.value.trim() || '';
-                const body = row.querySelector('[data-detail-section-field="body"]')?.value.trim() || '';
-                if (!heading && !body) return null;
-                return { heading, body };
-            })
-            .filter(Boolean);
+        const rows = dom.featureForm.querySelectorAll('[data-detail-section-row]');
+        const sections = [];
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const heading = row.querySelector('[data-detail-section-field="heading"]')?.value.trim() || '';
+            const body = row.querySelector('[data-detail-section-field="body"]')?.value.trim() || '';
+            if (heading || body) {
+                sections.push({ heading, body });
+            }
+        }
+        return sections;
     }
 
     function createDetailSectionControl(section, index) {
