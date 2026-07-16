@@ -3214,13 +3214,27 @@ function scheduleIdleTileWarmup() {
     }, delayMs);
 }
 
+// ⚡ Bolt: Replaced Array.from() and chained .filter() calls with a single for loop
+// to eliminate redundant intermediate array allocations and multiple O(N) traversals.
 function getTileLayerImageCounts(tileContainer) {
     if (!tileContainer || typeof tileContainer.querySelectorAll !== 'function') {
         return { total: 0, loaded: 0, failed: 0 };
     }
-    const tiles = Array.from(tileContainer.querySelectorAll('img.leaflet-tile'));
-    const loaded = tiles.filter((tile) => tile.complete && tile.naturalWidth > 0).length;
-    const failed = tiles.filter((tile) => tile.complete && tile.naturalWidth === 0).length;
+    const tiles = tileContainer.querySelectorAll('img.leaflet-tile');
+    let loaded = 0;
+    let failed = 0;
+
+    for (let i = 0; i < tiles.length; i++) {
+        const tile = tiles[i];
+        if (tile.complete) {
+            if (tile.naturalWidth > 0) {
+                loaded++;
+            } else if (tile.naturalWidth === 0) {
+                failed++;
+            }
+        }
+    }
+
     return {
         total: tiles.length,
         loaded,

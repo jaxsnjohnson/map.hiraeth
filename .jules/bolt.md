@@ -169,3 +169,7 @@
 ## 2025-06-25 - Optimize map editor renderFeatureLists
 **Learning:** In the map editor (`map-editor.js`), rendering feature lists combined a chained `.map().filter()` array pipeline with individual `appendChild` operations inside a loop, causing significant object allocation overhead and layout thrashing (triggering continuous reflows) during searches and state updates.
 **Action:** When evaluating features and constructing DOM nodes simultaneously, use a standard `for` loop to eliminate the intermediate array allocations from `.map()` and `.filter()`. Additionally, always use a `DocumentFragment` to batch the multiple `appendChild` calls, only appending to the live DOM once after the loop.
+
+## 2026-07-16 - Optimize Array.from() and chained array methods
+**Learning:** Using `Array.from()` to convert a live `NodeList` to an array and then chaining `.filter()` calls (e.g., `tiles.filter(...).length`) inside frequently called functions (like `getTileLayerImageCounts`) triggers multiple O(N) traversals and allocates redundant intermediate arrays, causing significant garbage collection overhead and increasing CPU load during rendering loops.
+**Action:** When extracting data or counting specific elements from a `NodeList` dynamically, avoid converting it to an array and using chained array methods. Instead, use a single standard `for` loop over the raw `NodeList` and apply the matching logic directly, maintaining counters locally to completely eliminate intermediate array allocations.
