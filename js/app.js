@@ -1249,58 +1249,146 @@ function resolveControlVisibilityState({
 } = {}) {
     const featureEnabled = (name, fallbackValue = true) =>
         (typeof getFeatureFlag === 'function') ? getFeatureFlag(name, fallbackValue) : fallbackValue;
-
-    // Core feature availability
-    const showMarkers = hasPOIs || hasRegions;
-    const showSearch = featureEnabled('atlasSearch', true) && (hasPOIs || hasRegions || hasRoads || atlasSearchCount > 0);
-    const showFilters = featureEnabled('filters', true) && (hasPOIs || hasRegions || hasRoads);
-    const hasGM = allowGMToolkit && featureEnabled('gmMode', false);
-    const hasToolkit = allowGMToolkit && featureEnabled('sessionToolkit', false);
-
-    // Layout contexts
-    const isDesktop = !isMobileLayout;
-    const isMobileSheet = isMobileLayout && !isEmbedded;
-    const showDesktopAdvanced = advancedControls && !isEmbedded && isDesktop;
+    const features = resolveControlFeatureAvailability({
+        hasPOIs,
+        hasRegions,
+        hasRoads,
+        allowGMToolkit,
+        atlasSearchCount
+    }, featureEnabled);
+    const layout = resolveControlLayoutContexts({ isEmbedded, isMobileLayout, advancedControls });
+    const desktop = resolveDesktopControlVisibility({
+        layout,
+        features,
+        hasValidScale,
+        hasBlurb,
+        hasLatLonBounds,
+        toolkitVisible,
+        gmVisible
+    }, featureEnabled);
+    const mobile = resolveMobileControlVisibility({
+        layout,
+        features,
+        hasValidScale,
+        hasLatLonBounds
+    }, featureEnabled);
 
     return {
-        showMarkersButton: isDesktop && showMarkers,
-        showSearchControl: showSearch,
-        showMobileSheetToggle: isMobileSheet,
-        showMobileToolsToggle: isMobileSheet,
-        showFiltersButton: isDesktop && showFilters,
-        showSearchFilterAction: showFilters,
-        showMeasureButton: showDesktopAdvanced && hasValidScale,
-        showSoundButton: showDesktopAdvanced && featureEnabled('sound', true),
-        showBlurbButton: showDesktopAdvanced && hasBlurb,
-        showCoordsButton: showDesktopAdvanced && hasLatLonBounds && featureEnabled('coordinates', true),
-        showShareButton: showDesktopAdvanced && featureEnabled('shareLinks', true),
-        showGMButton: showDesktopAdvanced && hasGM,
-        showToolkitButton: showDesktopAdvanced && hasToolkit,
-        showToolkitPanel: isDesktop && hasToolkit && toolkitVisible,
-        showGMPill: isDesktop && hasGM && gmVisible,
-        showMobileExploreMode: isMobileSheet,
-        showMobileMapMode: isMobileSheet,
-        showMobileMapList: isMobileSheet,
-        showMobileMoreSection: isMobileSheet,
-        showMobileMarkersAction: isMobileSheet && showMarkers,
-        showMobileFiltersAction: isMobileSheet && showFilters,
-        showMobileMeasureAction: isMobileSheet && hasValidScale,
-        showMobileShareAction: isMobileSheet && featureEnabled('shareLinks', true),
-        showMobileSoundAction: isMobileSheet && featureEnabled('sound', true),
-        showMobileCoordsAction: isMobileSheet && hasLatLonBounds && featureEnabled('coordinates', true),
-        showMobileHelpAction: isMobileSheet,
-        showMobileGMAction: isMobileSheet && hasGM,
-        showMobileToolkitAction: isMobileSheet && hasToolkit,
+        showMarkersButton: desktop.markersButton,
+        showSearchControl: features.search,
+        showMobileSheetToggle: layout.mobileSheet,
+        showMobileToolsToggle: layout.mobileSheet,
+        showFiltersButton: desktop.filtersButton,
+        showSearchFilterAction: features.filters,
+        showMeasureButton: desktop.measureButton,
+        showSoundButton: desktop.soundButton,
+        showBlurbButton: desktop.blurbButton,
+        showCoordsButton: desktop.coordsButton,
+        showShareButton: desktop.shareButton,
+        showGMButton: desktop.gmButton,
+        showToolkitButton: desktop.toolkitButton,
+        showToolkitPanel: desktop.toolkitPanel,
+        showGMPill: desktop.gmPill,
+        showMobileExploreMode: layout.mobileSheet,
+        showMobileMapMode: layout.mobileSheet,
+        showMobileMapList: layout.mobileSheet,
+        showMobileMoreSection: layout.mobileSheet,
+        showMobileMarkersAction: mobile.markersAction,
+        showMobileFiltersAction: mobile.filtersAction,
+        showMobileMeasureAction: mobile.measureAction,
+        showMobileShareAction: mobile.shareAction,
+        showMobileSoundAction: mobile.soundAction,
+        showMobileCoordsAction: mobile.coordsAction,
+        showMobileHelpAction: layout.mobileSheet,
+        showMobileGMAction: mobile.gmAction,
+        showMobileToolkitAction: mobile.toolkitAction,
         showMobileMapBlurb: false,
-        mobileMarkersDisabled: !showMarkers,
-        mobileFiltersDisabled: !showFilters,
-        mobileMeasureDisabled: !hasValidScale,
+        mobileMarkersDisabled: mobile.markersDisabled,
+        mobileFiltersDisabled: mobile.filtersDisabled,
+        mobileMeasureDisabled: mobile.measureDisabled,
         mobileShareDisabled: false,
         mobileSoundDisabled: false,
-        mobileCoordsDisabled: !hasLatLonBounds,
+        mobileCoordsDisabled: mobile.coordsDisabled,
         mobileHelpDisabled: false,
-        mobileGMDisabled: !(isMobileSheet && hasGM),
-        mobileToolkitDisabled: !(isMobileSheet && hasToolkit)
+        mobileGMDisabled: mobile.gmDisabled,
+        mobileToolkitDisabled: mobile.toolkitDisabled
+    };
+}
+
+function resolveControlFeatureAvailability({
+    hasPOIs,
+    hasRegions,
+    hasRoads,
+    allowGMToolkit,
+    atlasSearchCount
+}, featureEnabled) {
+    const hasMapMarkers = hasPOIs || hasRegions;
+    const hasSearchableFeatures = hasPOIs || hasRegions || hasRoads || atlasSearchCount > 0;
+    const hasFilterableFeatures = hasPOIs || hasRegions || hasRoads;
+
+    return {
+        markers: hasMapMarkers,
+        search: featureEnabled('atlasSearch', true) && hasSearchableFeatures,
+        filters: featureEnabled('filters', true) && hasFilterableFeatures,
+        gm: allowGMToolkit && featureEnabled('gmMode', false),
+        toolkit: allowGMToolkit && featureEnabled('sessionToolkit', false)
+    };
+}
+
+function resolveControlLayoutContexts({ isEmbedded, isMobileLayout, advancedControls }) {
+    const desktop = !isMobileLayout;
+    return {
+        desktop,
+        mobileSheet: isMobileLayout && !isEmbedded,
+        desktopAdvanced: advancedControls && !isEmbedded && desktop
+    };
+}
+
+function resolveDesktopControlVisibility({
+    layout,
+    features,
+    hasValidScale,
+    hasBlurb,
+    hasLatLonBounds,
+    toolkitVisible,
+    gmVisible
+}, featureEnabled) {
+    return {
+        markersButton: layout.desktop && features.markers,
+        filtersButton: layout.desktop && features.filters,
+        measureButton: layout.desktopAdvanced && hasValidScale,
+        soundButton: layout.desktopAdvanced && featureEnabled('sound', true),
+        blurbButton: layout.desktopAdvanced && hasBlurb,
+        coordsButton: layout.desktopAdvanced && hasLatLonBounds && featureEnabled('coordinates', true),
+        shareButton: layout.desktopAdvanced && featureEnabled('shareLinks', true),
+        gmButton: layout.desktopAdvanced && features.gm,
+        toolkitButton: layout.desktopAdvanced && features.toolkit,
+        toolkitPanel: layout.desktop && features.toolkit && toolkitVisible,
+        gmPill: layout.desktop && features.gm && gmVisible
+    };
+}
+
+function resolveMobileControlVisibility({
+    layout,
+    features,
+    hasValidScale,
+    hasLatLonBounds
+}, featureEnabled) {
+    return {
+        markersAction: layout.mobileSheet && features.markers,
+        filtersAction: layout.mobileSheet && features.filters,
+        measureAction: layout.mobileSheet && hasValidScale,
+        shareAction: layout.mobileSheet && featureEnabled('shareLinks', true),
+        soundAction: layout.mobileSheet && featureEnabled('sound', true),
+        coordsAction: layout.mobileSheet && hasLatLonBounds && featureEnabled('coordinates', true),
+        gmAction: layout.mobileSheet && features.gm,
+        toolkitAction: layout.mobileSheet && features.toolkit,
+        markersDisabled: !features.markers,
+        filtersDisabled: !features.filters,
+        measureDisabled: !hasValidScale,
+        coordsDisabled: !hasLatLonBounds,
+        gmDisabled: !(layout.mobileSheet && features.gm),
+        toolkitDisabled: !(layout.mobileSheet && features.toolkit)
     };
 }
 
