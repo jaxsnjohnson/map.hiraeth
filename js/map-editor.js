@@ -1355,57 +1355,73 @@
         return options;
     }
 
+    function getMapSettingsTextValue(value) {
+        return value || '';
+    }
+
+    function getMapSettingsOptionalValue(value) {
+        return value ?? '';
+    }
+
+    function getMapSettingsFieldValues(currentMap, currentLocation) {
+        return {
+            name: getMapSettingsTextValue(currentMap?.name),
+            type: getMapSettingsTextValue(currentMap?.type),
+            status: getMapSettingsTextValue(currentMap?.status),
+            visibility: getMapSettingsTextValue(currentMap?.visibility),
+            group: getMapSettingsTextValue(currentMap?.group || currentMap?.category),
+            dataUrl: getMapSettingsTextValue(currentMap?.dataUrl),
+            order: currentLocation ? currentLocation.index : 0,
+            imageUrl: getMapSettingsTextValue(currentMap?.imageUrl),
+            mobileImageUrl: getMapSettingsTextValue(currentMap?.mobileImageUrl),
+            smallImageUrl: getMapSettingsTextValue(currentMap?.smallImageUrl),
+            width: getMapSettingsOptionalValue(currentMap?.width),
+            height: getMapSettingsOptionalValue(currentMap?.height),
+            scalePixels: getMapSettingsOptionalValue(currentMap?.scalePixels),
+            scaleKilometers: getMapSettingsOptionalValue(currentMap?.scaleKilometers),
+            scaleUnitName: getMapSettingsTextValue(currentMap?.scaleUnitName),
+            backgroundColor: getMapSettingsTextValue(currentMap?.backgroundColor),
+            atmosphere: getMapSettingsTextValue(currentMap?.atmosphere),
+            latNorth: getMapSettingsOptionalValue(currentMap?.latLonBounds?.north),
+            latSouth: getMapSettingsOptionalValue(currentMap?.latLonBounds?.south),
+            latEast: getMapSettingsOptionalValue(currentMap?.latLonBounds?.east),
+            latWest: getMapSettingsOptionalValue(currentMap?.latLonBounds?.west),
+            blurb: getMapSettingsTextValue(currentMap?.blurb),
+            selectorDescription: getMapSettingsTextValue(currentMap?.selectorDescription)
+        };
+    }
+
+    function setMapSettingsFieldValues(inputs, fieldValues) {
+        Object.entries(fieldValues).forEach(([key, value]) => {
+            const input = inputs[key];
+            if (input) input.value = value;
+        });
+    }
+
+    function renderMapParentOptions(parentSelect, options, currentParentId) {
+        if (!parentSelect) return;
+
+        parentSelect.innerHTML = '';
+        options.forEach((option) => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option.id;
+            optionElement.textContent = option.label;
+            optionElement.selected = option.id === currentParentId;
+            parentSelect.appendChild(optionElement);
+        });
+    }
+
     function renderMapSettingsForm() {
         const currentMap = state.currentMap;
         const currentLocation = currentMap ? findNodeLocation(state.atlasTree, currentMap.id) : null;
+        const fieldValues = getMapSettingsFieldValues(currentMap, currentLocation);
 
-        const inputs = dom.mapSettingsInputs;
-
-        const fieldMappings = {
-            name: currentMap?.name || '',
-            type: currentMap?.type || '',
-            status: currentMap?.status || '',
-            visibility: currentMap?.visibility || '',
-            group: currentMap?.group || currentMap?.category || '',
-            dataUrl: currentMap?.dataUrl || '',
-            order: currentLocation ? currentLocation.index : 0,
-            imageUrl: currentMap?.imageUrl || '',
-            mobileImageUrl: currentMap?.mobileImageUrl || '',
-            smallImageUrl: currentMap?.smallImageUrl || '',
-            width: currentMap?.width ?? '',
-            height: currentMap?.height ?? '',
-            scalePixels: currentMap?.scalePixels ?? '',
-            scaleKilometers: currentMap?.scaleKilometers ?? '',
-            scaleUnitName: currentMap?.scaleUnitName || '',
-            backgroundColor: currentMap?.backgroundColor || '',
-            atmosphere: currentMap?.atmosphere || '',
-            latNorth: currentMap?.latLonBounds?.north ?? '',
-            latSouth: currentMap?.latLonBounds?.south ?? '',
-            latEast: currentMap?.latLonBounds?.east ?? '',
-            latWest: currentMap?.latLonBounds?.west ?? '',
-            blurb: currentMap?.blurb || '',
-            selectorDescription: currentMap?.selectorDescription || ''
-        };
-
-        for (const [key, value] of Object.entries(fieldMappings)) {
-            if (inputs[key]) inputs[key].value = value;
-        }
-
-        const parentSelect = inputs.parentIdSelect;
-        const options = buildParentOptions();
-        if (parentSelect) {
-            parentSelect.innerHTML = '';
-            options.forEach((option) => {
-                const optEl = document.createElement('option');
-                optEl.value = option.id;
-                optEl.textContent = option.label;
-                if (option.id === (currentLocation?.parentId || '')) {
-                    optEl.selected = true;
-                }
-                parentSelect.appendChild(optEl);
-            });
-        }
-
+        setMapSettingsFieldValues(dom.mapSettingsInputs, fieldValues);
+        renderMapParentOptions(
+            dom.mapSettingsInputs.parentIdSelect,
+            buildParentOptions(),
+            currentLocation?.parentId || ''
+        );
         dom.currentMapId.textContent = currentMap?.id || 'No map';
     }
 
