@@ -15,6 +15,15 @@ function extractFunctionRange(startMarker, endMarker) {
     return appSource.slice(start, end);
 }
 
+let featureFlagOverrides = null;
+
+function getFeatureFlag(name, fallbackValue) {
+    if (!featureFlagOverrides || !Object.prototype.hasOwnProperty.call(featureFlagOverrides, name)) {
+        return fallbackValue;
+    }
+    return featureFlagOverrides[name];
+}
+
 // eslint-disable-next-line no-eval
 eval([
     extractFunctionRange('function resolveControlVisibilityState(', 'function shouldAutoOpenOnboardingGuide('),
@@ -220,6 +229,67 @@ assert.equal(defaultsOnlyVisibility.showMarkersButton, false);
 assert.equal(defaultsOnlyVisibility.showFiltersButton, false);
 assert.equal(defaultsOnlyVisibility.showMobileSheetToggle, false);
 
+// Test 5: Feature flags remain independent from map capability and panel state
+featureFlagOverrides = {
+    atlasSearch: false,
+    filters: false,
+    sound: false,
+    coordinates: false,
+    shareLinks: false,
+    gmMode: true,
+    sessionToolkit: true
+};
+
+const featureFlaggedDesktop = resolveControlVisibilityState({
+    advancedControls: true,
+    hasPOIs: true,
+    hasRegions: true,
+    hasRoads: true,
+    hasValidScale: true,
+    hasBlurb: true,
+    hasLatLonBounds: true,
+    allowGMToolkit: true,
+    atlasSearchCount: 10,
+    toolkitVisible: true,
+    gmVisible: true
+});
+assert.equal(featureFlaggedDesktop.showMarkersButton, true);
+assert.equal(featureFlaggedDesktop.showSearchControl, false);
+assert.equal(featureFlaggedDesktop.showFiltersButton, false);
+assert.equal(featureFlaggedDesktop.showSearchFilterAction, false);
+assert.equal(featureFlaggedDesktop.showSoundButton, false);
+assert.equal(featureFlaggedDesktop.showCoordsButton, false);
+assert.equal(featureFlaggedDesktop.showShareButton, false);
+assert.equal(featureFlaggedDesktop.showGMButton, true);
+assert.equal(featureFlaggedDesktop.showToolkitButton, true);
+assert.equal(featureFlaggedDesktop.showToolkitPanel, true);
+assert.equal(featureFlaggedDesktop.showGMPill, true);
+
+const featureFlaggedMobile = resolveControlVisibilityState({
+    isMobileLayout: true,
+    hasPOIs: true,
+    hasRegions: true,
+    hasRoads: true,
+    hasValidScale: true,
+    hasLatLonBounds: true,
+    allowGMToolkit: true,
+    atlasSearchCount: 10
+});
+assert.equal(featureFlaggedMobile.showSearchControl, false);
+assert.equal(featureFlaggedMobile.showMobileFiltersAction, false);
+assert.equal(featureFlaggedMobile.showMobileShareAction, false);
+assert.equal(featureFlaggedMobile.showMobileSoundAction, false);
+assert.equal(featureFlaggedMobile.showMobileCoordsAction, false);
+assert.equal(featureFlaggedMobile.showMobileGMAction, true);
+assert.equal(featureFlaggedMobile.showMobileToolkitAction, true);
+assert.equal(featureFlaggedMobile.mobileFiltersDisabled, true);
+assert.equal(featureFlaggedMobile.mobileShareDisabled, false);
+assert.equal(featureFlaggedMobile.mobileSoundDisabled, false);
+assert.equal(featureFlaggedMobile.mobileCoordsDisabled, false);
+assert.equal(featureFlaggedMobile.mobileGMDisabled, false);
+assert.equal(featureFlaggedMobile.mobileToolkitDisabled, false);
+
+featureFlagOverrides = null;
 
 
 
