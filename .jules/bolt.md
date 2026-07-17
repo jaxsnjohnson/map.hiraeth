@@ -173,3 +173,7 @@
 ## 2026-07-16 - Optimize Array.from() and chained array methods
 **Learning:** Using `Array.from()` to convert a live `NodeList` to an array and then chaining `.filter()` calls (e.g., `tiles.filter(...).length`) inside frequently called functions (like `getTileLayerImageCounts`) triggers multiple O(N) traversals and allocates redundant intermediate arrays, causing significant garbage collection overhead and increasing CPU load during rendering loops.
 **Action:** When extracting data or counting specific elements from a `NodeList` dynamically, avoid converting it to an array and using chained array methods. Instead, use a single standard `for` loop over the raw `NodeList` and apply the matching logic directly, maintaining counters locally to completely eliminate intermediate array allocations.
+
+## 2025-07-17 - Optimize multiple array iterations and allocations
+**Learning:** Using `Math.min(...array.map(...))` and `Math.max(...array.map(...))` multiple times on the same array causes redundant O(N) traversals and intermediate array allocations, significantly increasing overhead.
+**Action:** When calculating multiple bounds or aggregates from an array, replace multiple chained array methods and spread syntax with a single `for` loop to calculate all metrics in one pass, eliminating the redundant allocations.

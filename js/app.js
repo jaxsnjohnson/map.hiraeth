@@ -3111,10 +3111,18 @@ function getIdleTileWarmupCandidates(mapInfo, tileLayer, tileSource) {
     const descendantScale = Math.pow(2, zoomDelta);
     const maxColumns = Math.ceil(sourceWidth / tileSource.tileSize);
     const maxRows = Math.ceil(sourceHeight / tileSource.tileSize);
-    const minVisibleX = Math.min(...visibleTiles.map((tile) => tile.x));
-    const maxVisibleX = Math.max(...visibleTiles.map((tile) => tile.x + 1));
-    const minVisibleY = Math.min(...visibleTiles.map((tile) => tile.y));
-    const maxVisibleY = Math.max(...visibleTiles.map((tile) => tile.y + 1));
+    // ⚡ Bolt: Replaced multiple Math.max/min spreads and .map() with a single for loop to eliminate 4x redundant array allocations.
+    let minVisibleX = Infinity;
+    let maxVisibleX = -Infinity;
+    let minVisibleY = Infinity;
+    let maxVisibleY = -Infinity;
+    for (let i = 0; i < visibleTiles.length; i++) {
+        const tile = visibleTiles[i];
+        if (tile.x < minVisibleX) minVisibleX = tile.x;
+        if (tile.x + 1 > maxVisibleX) maxVisibleX = tile.x + 1;
+        if (tile.y < minVisibleY) minVisibleY = tile.y;
+        if (tile.y + 1 > maxVisibleY) maxVisibleY = tile.y + 1;
+    }
     const centerX = ((minVisibleX + maxVisibleX) * descendantScale) / 2;
     const centerY = ((minVisibleY + maxVisibleY) * descendantScale) / 2;
     const candidates = new Map();
