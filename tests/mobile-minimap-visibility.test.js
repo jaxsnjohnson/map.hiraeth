@@ -167,6 +167,7 @@ assert.equal(global.miniMapControlMapId, 'default');
 assert.equal(global.miniMapControl.containerAttributes.role, 'region');
 assert.equal(global.miniMapControl.containerAttributes['aria-label'], 'Map overview');
 assert.equal(global.miniMapControl.toggleAttributes['aria-label'], 'Toggle map overview');
+assert.match(styleSource, /body:not\(\.embedded-view\) \.leaflet-control-minimap \{[\s\S]*margin-right: 16px !important;[\s\S]*margin-bottom: 40px !important;/);
 assert.match(styleSource, /\.leaflet-control-minimap \.leaflet-control-minimap-toggle-display \{\s*width: 40px !important;\s*height: 40px !important;[\s\S]*background-size: 20px 20px !important;/);
 
 global.isMobileLayoutActive = false;

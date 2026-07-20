@@ -2983,7 +2983,7 @@ html.bootstrap-map-preview-loading #loading-indicator.initial-loader .progress-b
 body:not(.embedded-view) .leaflet-control-minimap {
     position: relative !important;
     margin-right: 16px !important;
-    margin-bottom: 108px !important;
+    margin-bottom: 40px !important;
     padding: 8px !important;
     border: 1px solid color-mix(in srgb, var(--text-secondary) 34%, var(--glass-border) 66%) !important;
     border-radius: 8px !important;
