@@ -4291,8 +4291,8 @@
       },
       {
         "id": "region-lake-1",
-        "name": "Lake 1",
-        "description": "Lake",
+        "name": "Foaming Loch",
+        "description": "The Foaming Loch lies in a basin of snow and dark stone, its surface broken by mist, mineral foam, and patches of open water warmed from below. Heat flowing from the Foaming Burrow keeps the lake alive through the northern winter, supporting Quilt's fish farms before the turbulent water continues into the Foaming Runs.",
         "type": "",
         "color": "#3388ff",
         "fillColor": "#3388ff",
@@ -4647,12 +4647,13 @@
             1306,
             3478
           ]
-        ]
+        ],
+        "summary": "A geothermal lake whose warm, restless waters sustain Quilt and feed the Foaming Runs even through IceBeach's deepest cold."
       },
       {
         "id": "region-lake-2",
-        "name": "Lake 2",
-        "description": "Lake",
+        "name": "Sleetmond Lake",
+        "description": "Sleetmond Lake stretches beneath the northern sky between the druidic settlement of Sleetmond and the vineyards of Ottiker. Its cold waters provide fish for nearby communities, while sugar maples, grazing Icesheep, and the grapes used for Niror Red flourish along its shores. When the sky is clear, auroras ripple across the lake's broad surface.",
         "type": "",
         "color": "#3388ff",
         "fillColor": "#3388ff",
@@ -5619,7 +5620,8 @@
             1980,
             3187
           ]
-        ]
+        ],
+        "summary": "A broad northern lake shared by Sleetmond and Ottiker, sustaining fishing, orchards, Icesheep, and the region's prized frost-wine."
       },
       {
         "id": "region-starcaller's-grove",

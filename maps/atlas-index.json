@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-21T21:13:41.589Z",
+  "generatedAt": "2026-07-21T22:19:03.908Z",
   "tree": [
     {
       "type": "folder",
@@ -1032,9 +1032,9 @@
       "itemId": "region-lake-1",
       "mapId": "IceBeach",
       "mapName": "IceBeach",
-      "name": "Lake 1",
-      "summary": "",
-      "description": "Lake",
+      "name": "Foaming Loch",
+      "summary": "A geothermal lake whose warm, restless waters sustain Quilt and feed the Foaming Runs even through IceBeach's deepest cold.",
+      "description": "The Foaming Loch lies in a basin of snow and dark stone, its surface broken by mist, mineral foam, and patches of open water warmed from below. Heat flowing from the Foaming Burrow keeps the lake alive through the northern winter, supporting Quilt's fish farms before the turbulent water continues into the Foaming Runs.",
       "typeLabel": "Region",
       "visibility": "public"
     },
@@ -1044,9 +1044,9 @@
       "itemId": "region-lake-2",
       "mapId": "IceBeach",
       "mapName": "IceBeach",
-      "name": "Lake 2",
-      "summary": "",
-      "description": "Lake",
+      "name": "Sleetmond Lake",
+      "summary": "A broad northern lake shared by Sleetmond and Ottiker, sustaining fishing, orchards, Icesheep, and the region's prized frost-wine.",
+      "description": "Sleetmond Lake stretches beneath the northern sky between the druidic settlement of Sleetmond and the vineyards of Ottiker. Its cold waters provide fish for nearby communities, while sugar maples, grazing Icesheep, and the grapes used for Niror Red flourish along its shores. When the sky is clear, auroras ripple across the lake's broad surface.",
       "typeLabel": "Region",
       "visibility": "public"
     },
